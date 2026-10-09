@@ -1,7 +1,7 @@
 library(gert)
 library(credentials)
 
-credentials::set_github_pat()
+credentials::set_github_pat(force_new = TRUE)
 # prompts a popup asking you to enter your GitHub Personal Access Token
 
 gert::git_pull()                          # pull the most recent changes from GitHub
