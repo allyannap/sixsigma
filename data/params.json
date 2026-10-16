@@ -1,0 +1,41 @@
+{
+  "_comment": "Every generator parameter. SYNTHETIC data. Volume is about 2% of a realistic EMS rate (about 0.0198 calls per person per year) so the files stay small.",
+  "seed": 20261016,
+  "date_start": "2025-10-16",
+  "date_end": "2026-10-15",
+  "timezone": "America/New_York",
+  "base_rate_per_person_per_year": 0.0198,
+  "month_factors_jan_to_dec": [0.92, 0.90, 0.94, 0.96, 1.00, 1.10, 1.15, 1.13, 1.00, 0.97, 0.95, 0.98],
+  "month_factors_normalized_to_mean_1": true,
+  "dow_factors_mon_to_sun": [0.98, 0.97, 0.97, 0.98, 1.03, 1.05, 1.02],
+  "urgency_code_probs_0_to_9": [0.04, 0.12, 0.18, 0.12, 0.15, 0.13, 0.10, 0.08, 0.05, 0.03],
+  "tuning_note": "Medians tuned from the starting values (red dispatch 55, turnout 65, eta urban 240 / suburban 330 / rural 780) so the baseline red % late lands in the validate.py bands: urban 5-10, suburban 6-10, rural over 30. Sigmas were not changed.",
+  "dispatch_median_s": {"red": 40, "yellow": 90, "green": 180},
+  "dispatch_sigma": 0.5,
+  "turnout_median_s": 50,
+  "turnout_sigma": 0.35,
+  "eta_median_s": {"urban": 200, "suburban": 215, "rural": 500},
+  "eta_sigma": 0.45,
+  "drive_ratio_median": {"red": 0.85, "yellow": 0.95, "green": 1.05},
+  "drive_ratio_sigma": 0.15,
+  "held_probability": 0.02,
+  "held_extra_dispatch_median_s": 240,
+  "held_extra_dispatch_sigma": 0.6,
+  "disposition_probs": {"CANCELLED": 0.06, "REFUSED": 0.08, "TREATED": 0.10, "TRANSPORTED": 0.76},
+  "valid_time_N_probability": 0.01,
+  "station_closure": {
+    "zcta": "auto: most populous urban ZCTA in data/lookup/zcta_county.csv",
+    "zcta_resolved": "11368",
+    "from_date": "2026-09-01",
+    "eta_multiplier": 1.6
+  },
+  "summer_surge": {
+    "county_fips": "36055",
+    "county_name": "Monroe",
+    "from_date": "2026-07-01",
+    "to_date": "2026-08-31",
+    "volume_multiplier": 1.30,
+    "held_probability": 0.25,
+    "dispatch_multiplier": 1.6
+  }
+}

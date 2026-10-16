@@ -1,0 +1,11 @@
+urgency_code,urgency_group,target_s,goal_on_time_pct
+0,red,480,90
+1,red,480,90
+2,red,480,90
+3,yellow,900,90
+4,yellow,900,90
+5,yellow,900,90
+6,green,1800,90
+7,green,1800,90
+8,green,1800,90
+9,green,1800,90
