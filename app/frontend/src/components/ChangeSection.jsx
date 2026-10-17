@@ -1,126 +1,180 @@
 import { useState } from 'react'
-import { dotsPath, linear, linePath, logScale, logTicks } from '../charts.js'
-import { fmtDate, fmtInt, fmtMin, fmtNum, fmtP, fmtPct, mmss, periodEnd } from '../format.js'
+import { linear, linePath } from '../charts.js'
+import { fmtDate, fmtInt, fmtNum, fmtP, fmtPct, mmss, periodBounds } from '../format.js'
 import { useEndpoint } from '../useApi.js'
 import { Async, BaselineCheck, JudgmentBadge, Messages, Section, WatchChip } from './common.jsx'
 
-const L = 56
-const R = 704
+const isFlaggedPeriod = (point) => point.p > point.ucl || point.p < point.lcl || point.signal
 
-function PChart({ d }) {
-  const pts = d.points || []
-  if (!pts.length) return <p>No days in this selection.</p>
-  // The API sends fractions 0-1 (docs/api.md); the chart shows percents.
-  const k = 100
-  const top = Math.max(...pts.map((p) => Math.max(p.ucl, p.p))) * k * 1.1
-  const H = 280
-  const x = (i) => L + ((R - L) * (pts.length < 2 ? 0.5 : i / (pts.length - 1)))
-  const y = linear(0, top, H - 36, 14)
-  const ticks = [0, 0.25, 0.5, 0.75, 1].map((f) => f * top)
-  const signals = pts.filter((p) => p.signal).length
-  return (
-    <svg viewBox={`0 0 720 ${H}`} className="chart" role="img"
-      aria-label={`p chart of the percent of calls that were late, per ${d.unit}. ${signals} bad ${d.unit}s are above the upper limit.`}>
-      {ticks.map((t) => (
-        <g key={t}><line x1={L} x2={R} y1={y(t)} y2={y(t)} stroke="#E3E6E1" /><text x={L - 6} y={y(t) + 4} fontSize="11" textAnchor="end" fill="#56615B">{t.toFixed(0)}%</text></g>
-      ))}
-      <path d={linePath(pts.map((p, i) => [x(i), y(p.ucl * k)]))} fill="none" stroke="#B42318" strokeWidth="1.5" strokeDasharray="5 4" />
-      <path d={linePath(pts.map((p, i) => [x(i), y(p.lcl * k)]))} fill="none" stroke="#B42318" strokeWidth="1.5" strokeDasharray="5 4" />
-      <line x1={L} x2={R} y1={y(d.p_bar * k)} y2={y(d.p_bar * k)} stroke="#17201C" strokeWidth="1.5" />
-      <text x={R + 4} y={y(d.p_bar * k) + 4} fontSize="11" fill="#17201C">CL</text>
-      <text x={R + 4} y={y(pts[pts.length - 1].ucl * k) + 4} fontSize="11" fill="#B42318">UCL</text>
-      <path d={linePath(pts.map((p, i) => [x(i), y(p.p * k)]))} fill="none" stroke="#5C7FA8" strokeWidth="1.2" />
-      {pts.map((p, i) => p.signal
-        ? <rect key={p.start} x={x(i) - 6} y={y(p.p * k) - 6} width="12" height="12" fill="#B42318"><title>{`${fmtDate(p.start)}: ${(p.p * k).toFixed(1)}% late (${p.late} of ${p.n}), above the limit`}</title></rect>
-        : <circle key={p.start} cx={x(i)} cy={y(p.p * k)} r="3.5" fill="#1F3A5F"><title>{`${fmtDate(p.start)}: ${(p.p * k).toFixed(1)}% late (${p.late} of ${p.n})`}</title></circle>)}
-      <text x={L} y={H - 8} fontSize="11" fill="#56615B">{fmtDate(pts[0].start)}</text>
-      <text x={R} y={H - 8} fontSize="11" fill="#56615B" textAnchor="end">{fmtDate(pts[pts.length - 1].start)}</text>
-    </svg>
-  )
+const periodLabel = (start, unit, selection) => {
+  const range = periodBounds(start, unit, selection)
+  return range.from === range.to ? fmtDate(range.from) : `${fmtDate(range.from)}–${fmtDate(range.to)}`
 }
 
-function ImrCharts({ d, sel }) {
+export function PChart({ d, selected, onSelect }) {
   const pts = d.points || []
-  if (!pts.length) return <p>No timed calls in this selection.</p>
-  const n = pts.length
-  const x = (i) => L + ((R - L) * (n < 2 ? 0.5 : i / (n - 1)))
-  const mins = pts.map((p) => p.minutes)
-  const lo = Math.min(d.lcl_min, ...mins) * 0.9
-  const hi = Math.max(d.ucl_min, ...mins) * 1.1
-  const H = 280
-  const y = logScale(lo, hi, H - 36, 14)
-  const flagged = (p) => p.beyond_3_sigma
-  const normal = []
-  const bad = []
-  pts.forEach((p, i) => (flagged(p) ? bad : normal).push([x(i), y(p.minutes)]))
-  // where the baseline ends and the selected range begins (for the two median lines)
-  let split = pts.findIndex((p) => String(p.t_received).slice(0, 10) >= (sel?.from || ''))
-  if (split < 0) split = 0
-  const hasSplit = split > 0 && d.before_median_min != null && d.after_median_min != null
-  const mr = pts.map((p) => p.mr)
-  const mrTop = Math.max(d.mr_ucl, ...mr.filter((v) => v != null)) * 1.1
-  const MH = 150
-  const my = linear(0, mrTop, MH - 24, 10)
-  const mrNormal = []
-  const mrBad = []
-  pts.forEach((p, i) => { if (p.mr != null) (p.mr > d.mr_ucl ? mrBad : mrNormal).push([x(i), my(p.mr)]) })
-  const worst = [...pts].sort((a, b) => b.minutes - a.minutes)[0]
-  return (
-    <>
-      <svg viewBox={`0 0 720 ${H}`} className="chart" role="img"
-          aria-label={`Dot plot of every call, log scale. ${bad.length} calls are beyond 3 sigma.${worst ? ` The longest wait was ${fmtMin(worst.minutes)}.` : ''}`}>
-        <rect x={L} y={y(d.ucl_min)} width={R - L} height={Math.max(0, y(d.lcl_min) - y(d.ucl_min))} fill="#DDEFE2" />
-        <line x1={L} x2={R} y1={H - 36} y2={H - 36} stroke="#9AA39D" />
-        {logTicks(lo, hi).map((t) => (
-          <text key={t} x={L - 6} y={y(t) + 4} fontSize="11" textAnchor="end" fill="#56615B">{t}</text>
-        ))}
-        <text x="12" y="120" fontSize="11" fill="#56615B" transform="rotate(-90 12 120)" textAnchor="middle">minutes to arrive</text>
-        <path d={dotsPath(normal)} stroke="#1F3A5F" strokeOpacity="0.5" strokeWidth="5" strokeLinecap="round" fill="none" />
-        <path d={dotsPath(bad)} stroke="#B42318" strokeWidth="9" strokeLinecap="round" fill="none" />
-        {hasSplit ? (
-          <>
-            <line x1={L} x2={x(split)} y1={y(d.before_median_min)} y2={y(d.before_median_min)} stroke="#17201C" strokeWidth="3" />
-            <line x1={x(split)} x2={R} y1={y(d.after_median_min)} y2={y(d.after_median_min)} stroke="#17201C" strokeWidth="3" />
-            <text x={L + 4} y={y(d.before_median_min) - 6} fontSize="11" fontWeight="600" fill="#17201C">typical {fmtMin(d.before_median_min)}</text>
-            <text x={R - 4} y={y(d.after_median_min) - 6} fontSize="11" fontWeight="600" fill="#17201C" textAnchor="end">typical {fmtMin(d.after_median_min)}</text>
-          </>
-        ) : (
-          <line x1={L} x2={R} y1={y(d.cl_min)} y2={y(d.cl_min)} stroke="#17201C" strokeWidth="2" />
-        )}
-        <text x={L} y={H - 8} fontSize="11" fill="#56615B">{fmtDate(pts[0].t_received)}</text>
-        <text x={R} y={H - 8} fontSize="11" fill="#56615B" textAnchor="end">{fmtDate(pts[n - 1].t_received)}</text>
-      </svg>
-      <p className="small muted">
-        I chart on ln(minutes), limits from the baseline: center {fmtMin(d.cl_min)}, upper limit {fmtMin(d.ucl_min)}, lower limit {fmtMin(d.lcl_min)}.
-        Log scale because response times are right-skewed.
-      </p>
-      <details className="math">
-        <summary>Show the moving range (MR) chart and the assumption checks</summary>
-        <div className="split">
-          <div className="grow">
-            <strong>Moving range chart: call-to-call jumps in log minutes</strong>
-            <svg viewBox={`0 0 720 ${MH}`} className="chart" role="img" aria-label={`Moving range chart. ${mrBad.length} jumps are above the upper limit.`}>
-              <line x1={L} x2={R} y1={my(0)} y2={my(0)} stroke="#9AA39D" />
-              <path d={dotsPath(mrNormal)} stroke="#5C7FA8" strokeWidth="3" strokeLinecap="round" fill="none" />
-              <path d={dotsPath(mrBad)} stroke="#B42318" strokeWidth="6" strokeLinecap="round" fill="none" />
-              <line x1={L} x2={R} y1={my(d.mr_ucl)} y2={my(d.mr_ucl)} stroke="#B42318" strokeWidth="1.5" strokeDasharray="5 4" />
-              <text x={L - 6} y={my(0) + 4} fontSize="11" textAnchor="end" fill="#56615B">0</text>
-              <text x={L - 6} y={my(d.mr_ucl) + 4} fontSize="11" textAnchor="end" fill="#B42318">UCL</text>
-            </svg>
-          </div>
-          <div className="grow">
-            <strong>Assumption checks on the baseline (log minutes)</strong>
-            <ul className="tests">
-              <li><span className="grow">Calls in the baseline</span><span className="mono">{fmtInt(d.assumptions?.n)}</span></li>
-              <li><span className="grow">Skewness (0 = symmetric; the I chart assumes about 0)</span><span className="mono">{fmtNum(d.assumptions?.skew, 2)}</span></li>
-              <li><span className="grow">Lag-1 autocorrelation (0 = independent calls)</span><span className="mono">{fmtNum(d.assumptions?.lag1, 2)}</span></li>
-            </ul>
-            <div className="small muted">Only test 1 (a call beyond 3 sigma) is marked. Other Nelson run rules are not used: their false-alarm rate on this data was not validated.</div>
-          </div>
-        </div>
-      </details>
-    </>
-  )
+  if (!pts.length) return <p>No periods in this selection.</p>
+  const left = 48, right = 606, H = 310, bottom = 258
+  const highest = Math.max(d.p_bar || 0, ...pts.flatMap((p) => [p.ucl, p.p])) * 100
+  const step = highest <= 20 ? 5 : highest <= 40 ? 10 : highest <= 75 ? 20 : 25
+  const top = Math.min(100, Math.max(step * 2, Math.ceil(highest * 1.12 / step) * step))
+  const y = linear(0, top, bottom, 32)
+  const times = pts.map((p) => Date.parse(periodBounds(p.start, d.unit, d.selection).from))
+  const x = (i) => pts.length === 1 ? (left + right) / 2 : left + (times[i] - times[0]) / (times.at(-1) - times[0]) * (right - left)
+  const envelope = pts.length === 1 ? [[left, pts[0]], [right, pts[0]]] : pts.map((point, i) => [x(i), point])
+  const aboveBand = [[left, y(top)], [right, y(top)], ...envelope.map(([px, p]) => [px, y(p.ucl * 100)]).reverse()]
+  const lowerLabelY = y(pts.at(-1).lcl * 100)
+  const upperLabelY = y(pts.at(-1).ucl * 100)
+  const band = [...envelope.map(([px, p]) => [px, y(p.ucl * 100)]), ...envelope.map(([px, p]) => [px, y(p.lcl * 100)]).reverse()]
+  const dateIndices = [...new Set([0, Math.floor((pts.length - 1) / 3), Math.floor(2 * (pts.length - 1) / 3), pts.length - 1])]
+  const describe = (p) => {
+    const position = p.p > p.ucl ? 'Over the upper limit' : p.p < p.lcl ? 'Below the lower limit' : 'Within the control limits'
+    return `${periodLabel(p.start, d.unit, d.selection)}: ${position}. ${fmtPct(p.p * 100)} late (${fmtInt(p.late)} of ${fmtInt(p.n)} calls). Upper limit: ${fmtPct(p.ucl * 100)}; lower limit: ${fmtPct(p.lcl * 100)}.${p.signal ? ' Unusual period (exact binomial signal).' : ''}`
+  }
+  const activate = (event, i) => {
+    let next = i
+    if (event.key === 'ArrowRight') next = Math.min(pts.length - 1, i + 1)
+    else if (event.key === 'ArrowLeft') next = Math.max(0, i - 1)
+    else if (event.key !== 'Enter' && event.key !== ' ') return
+    event.preventDefault()
+    onSelect(pts[next].start)
+    event.currentTarget.parentNode.querySelector(`[data-period="${pts[next].start}"]`)?.focus()
+  }
+  return <svg viewBox={`0 0 640 ${H}`} className="chart control-chart" role="group" aria-label={`Late calls by ${d.unit}. Select a point to see its calls; use left and right arrows to move between periods.`}>
+    <text x={left} y="15" className="control-axis-title">Calls missing target (%)</text>
+    <text x={right} y="15" textAnchor="end" className="control-axis-note">Higher = more missed targets</text>
+    {Array.from({ length: Math.floor(top / step) + 1 }, (_, i) => i * step).map((t) => <g key={t} aria-hidden="true">
+      <line x1={left} x2={right} y1={y(t)} y2={y(t)} stroke="#E3E6EB" />
+      <text x={left - 10} y={y(t) + 4} textAnchor="end" className="control-tick">{t}%</text>
+    </g>)}
+    <path d={linePath(aboveBand) + ' Z'} fill="#FFF5ED" />
+    <path d={linePath(band) + ' Z'} fill="#E8EDF3" opacity="0.85" />
+    <path d={linePath(envelope.map(([px, p]) => [px, y(p.ucl * 100)]))} fill="none" stroke="#C2410C" strokeWidth="2.5" strokeDasharray="6 4" />
+    <path d={linePath(envelope.map(([px, p]) => [px, y(p.lcl * 100)]))} fill="none" stroke="#28745A" strokeWidth="2.5" strokeDasharray="6 4" />
+    <line x1={left} x2={right} y1={y(d.p_bar * 100)} y2={y(d.p_bar * 100)} stroke="#344256" strokeWidth="1.5" />
+    <path d={linePath(pts.map((p, i) => [x(i), y(p.p * 100)]))} fill="none" stroke="#0072B2" strokeWidth="2.5" />
+    <text x={right - 6} y={upperLabelY > 65 ? upperLabelY - 10 : upperLabelY + 22} textAnchor="end" className="control-limit-label">Upper control limit</text>
+    <text x={left + 8} y={lowerLabelY - 10} className="control-limit-label control-lower-label">Lower control limit</text>
+    {pts.map((p, i) => p.start === selected && p.p > p.ucl && <line key={`excess-${p.start}`} x1={x(i)} x2={x(i)} y1={y(p.p * 100)} y2={y(p.ucl * 100)} stroke="#C2410C" strokeWidth="1.5" strokeDasharray="3 4" />)}
+    {pts.map((p, i) => <g key={p.start} data-period={p.start} role="button" tabIndex={selected === p.start ? 0 : -1}
+      aria-pressed={selected === p.start} aria-controls="control-selected"
+      aria-label={`${describe(p)} Show period details.`}
+      onClick={() => onSelect(p.start)} onKeyDown={(event) => activate(event, i)} className="control-point">
+      <title>{describe(p)}</title>
+      <circle cx={x(i)} cy={y(p.p * 100)} r="22" fill="transparent" />
+      {p.p > p.ucl && <circle cx={x(i)} cy={y(p.p * 100)} r="9" fill="#FFF5ED" stroke="#C2410C" strokeWidth="2" />}
+      {p.p < p.lcl && <circle cx={x(i)} cy={y(p.p * 100)} r="9" fill="#EFF8F3" stroke="#28745A" strokeWidth="2" />}
+      {selected === p.start && <circle cx={x(i)} cy={y(p.p * 100)} r="13" fill="none" stroke="#1F2933" strokeWidth="2" />}
+      {p.signal ? <rect x={x(i) - 5} y={y(p.p * 100) - 5} width="10" height="10" rx="1" fill="#C2410C" />
+        : <circle cx={x(i)} cy={y(p.p * 100)} r="4" fill="#0072B2" />}
+    </g>)}
+    {dateIndices.map((i) => <text key={i} x={x(i)} y={bottom + 25} textAnchor={i === 0 ? 'start' : i === pts.length - 1 ? 'end' : 'middle'} className="control-tick">{fmtDate(periodBounds(pts[i].start, d.unit, d.selection).from)}</text>)}
+    <text x={(left + right) / 2} y={H - 4} textAnchor="middle" className="control-tick">{d.unit === 'day' ? 'Day' : d.unit === 'week' ? 'Week' : 'Month'}</text>
+  </svg>
+}
+
+export function ControlView({ p, params, selectedName, stagesState }) {
+  const pts = p.points || []
+  const initial = [...pts].reverse().find((pt) => pt.signal) || pts.at(-1)
+  const [selected, setSelected] = useState(initial?.start)
+  const [panel, setPanel] = useState('signals')
+  const point = pts.find((pt) => pt.start === selected) || initial
+  const flagged = pts.filter(isFlaggedPeriod)
+  const above = pts.filter((pt) => pt.p > pt.ucl)
+  const over = point && point.p > point.ucl
+  const under = point && point.p < point.lcl
+  const nextAbove = () => {
+    const current = pts.findIndex((pt) => pt.start === point.start)
+    const next = above.find((pt) => pts.indexOf(pt) > current) || above[0]
+    if (next) choose(next.start)
+  }
+  const b = p.baseline || {}
+  const insufficient = p.control === 'insufficient_baseline'
+  const headline = insufficient ? 'More history needed' : p.control === 'out_of_control' ? 'Recent increase detected' : p.watch ? 'Watching one signal' : 'No confirmed increase'
+  const count = (p.signals || []).length
+  const finding = insufficient ? p.control_reason : p.watch ? 'Change not confirmed.' : p.control === 'out_of_control' ? `${count} statistical signals.` : ''
+  const tone = insufficient ? 'data' : p.control === 'out_of_control' || p.watch ? 'signal' : 'calm'
+  const choose = (start) => { setSelected(start) }
+  const review = (start) => { setSelected(start); setPanel('calls') }
+  const tabs = [{ id: 'signals', label: `Flagged periods (${flagged.length})` }, { id: 'calls', label: 'Calls' }, ...(stagesState ? [{ id: 'stages', label: 'Stage times' }] : []), { id: 'method', label: 'Method' }]
+  const navigateTabs = (event, index) => {
+    let next
+    if (event.key === 'ArrowRight') next = (index + 1) % tabs.length
+    else if (event.key === 'ArrowLeft') next = (index - 1 + tabs.length) % tabs.length
+    else if (event.key === 'Home') next = 0
+    else if (event.key === 'End') next = tabs.length - 1
+    else return
+    event.preventDefault()
+    setPanel(tabs[next].id)
+    event.currentTarget.parentNode.querySelector(`#control-tab-${tabs[next].id}`)?.focus()
+  }
+  const range = point && periodBounds(point.start, p.unit, p.selection)
+  const start = range?.from
+  const end = range?.to
+  return <div className="simple-comparison control-view">
+    <div className={`control-finding finding-${tone}`} role="status">
+      <span className="control-finding-icon" aria-hidden="true">{tone === 'signal' ? '!' : tone === 'data' ? '…' : '—'}</span>
+      <div><p className="control-headline">{headline}</p>{finding && <p className="control-summary">{finding}</p>}</div>
+    </div>
+    <p className="control-baseline">{p.selection?.name || selectedName} · Baseline {fmtDate(b.from)}–{fmtDate(b.to)} · {fmtInt(p.base_n)} calls</p>
+    {insufficient ? <div className="control-empty">
+      <h3>We cannot judge change yet</h3>
+      <p>{b.stable === false ? 'The baseline is not stable. Open Method to review the baseline checks or choose another period.' : 'There is not enough usable history. Try a larger area or a period with more baseline calls.'}</p>
+      <p><JudgmentBadge kind="control" value={p.control} /> <BaselineCheck b={b} /></p>
+    </div> : point && p.unit ? <div className="simple-split control-split">
+      <figure className="figure">
+        <PChart d={p} selected={point.start} onSelect={choose} />
+        <figcaption className="simple-key control-key">
+          <span><i className="control-key-line" />Missed targets</span>
+          <span><i className="control-key-baseline" />Baseline: {fmtPct(100 * p.p_bar)}</span>
+          <span><i className="control-key-signal" />Statistical signal</span>
+        </figcaption>
+        <p className="control-limit-explainer"><span className="control-upper-text">Orange: above upper limit.</span> <span className="control-lower-text">Green: below lower limit.</span></p>
+        <div className="control-flag-summary"><span><strong>{above.length}</strong> {above.length === 1 ? 'period' : 'periods'} above the upper limit</span>{above.length > 0 && <button type="button" className="chip chip-below" onClick={nextAbove}>Next above limit <span aria-hidden="true">→</span></button>}</div>
+        <p className="control-chart-hint">Select a point. Crossings alone don’t confirm a change.</p>
+      </figure>
+      <aside id="control-selected" className={`simple-card control-card card-${over || point.signal ? 'below' : under ? 'improvement' : 'inconclusive'}`} aria-label="Selected period details" aria-live="polite">
+        <label className="eyebrow" htmlFor="control-period">Explore a {p.unit}</label>
+        <select id="control-period" value={point.start} onChange={(event) => choose(event.target.value)}>
+          {pts.map((pt) => <option key={pt.start} value={pt.start}>{periodLabel(pt.start, p.unit, p.selection)}{pt.p > pt.ucl ? ' · above upper limit' : pt.p < pt.lcl ? ' · below lower limit' : pt.signal ? ' · statistical signal' : ''}</option>)}
+        </select>
+        <div className="card-head"><h3>{periodLabel(point.start, p.unit, p.selection)}</h3><span className={`card-badge badge-${over || point.signal ? 'below' : under ? 'improvement' : 'inconclusive'}`}>{over ? 'Over upper limit' : point.p < point.lcl ? 'Below lower limit' : 'Within limits'}</span></div>
+        <p className="card-rate"><strong className={`card-big ${over || point.signal ? 'rate-below' : under ? 'control-improvement-rate' : 'control-rate'}`}>{fmtPct(point.p * 100)}</strong> missed target</p>
+        <p><strong>{fmtInt(point.late)} of {fmtInt(point.n)}</strong> calls missed their response target.</p>
+        <div className="card-pair control-limit-values"><div><strong>{fmtPct(p.p_bar * 100)}</strong><span>Historical rate</span></div><div><strong>{fmtPct(point.ucl * 100)}</strong><span>Upper limit</span></div><div><strong>{fmtPct(point.lcl * 100)}</strong><span>Lower limit</span></div></div>
+        <p className="control-limit-comparison">{fmtPct(point.p * 100)} is <strong>{under ? 'below' : over ? 'above' : 'at or below'}</strong> {fmtPct((under ? point.lcl : point.ucl) * 100)} {under ? 'lower' : 'upper'} limit.</p>
+        {isFlaggedPeriod(point) && params && <button type="button" className="btn control-calls-btn" aria-controls="control-support-panel" onClick={() => review(point.start)}>Review calls <span aria-hidden="true">→</span></button>}
+      </aside>
+    </div> : <p>No periods available in this selection.</p>}
+    <div className="control-support">
+      <div className="control-tabs" role="tablist" aria-label="Control chart supporting information">
+        {tabs.map((tab, index) => <button type="button" key={tab.id} id={`control-tab-${tab.id}`} role="tab" aria-selected={panel === tab.id} aria-controls="control-support-panel" tabIndex={panel === tab.id ? 0 : -1} onClick={() => setPanel(tab.id)} onKeyDown={(event) => navigateTabs(event, index)}>{tab.label}</button>)}
+      </div>
+      <div id="control-support-panel" className="control-tab-panel" role="tabpanel" aria-labelledby={`control-tab-${panel}`} tabIndex={0}>
+        {panel === 'signals' && <SignalList p={p} onReview={review} />}
+        {panel === 'calls' && (point && params ? <><p className="control-panel-caption"><strong>{periodLabel(point.start, p.unit, p.selection)}</strong> · {fmtInt(point.late)} of {fmtInt(point.n)} late</p><SignalCalls key={point.start} params={params} start={start} end={end} /></> : <p className="small muted">Select a period with calls to review.</p>)}
+        {panel === 'stages' && stagesState && <Async state={stagesState}>{(d) => <><StageTable data={d} /><Messages messages={d.messages} /></>}</Async>}
+        {panel === 'method' && <ControlMethod p={p} />}
+      </div>
+    </div>
+    {insufficient && <Messages messages={p.messages} />}
+  </div>
+}
+
+export function ControlMethod({ p }) {
+  const b = p.baseline || {}
+  return <div className="control-method-text">
+    <div className="control-evidence-facts">
+      <p><JudgmentBadge kind="control" value={p.control} /> <WatchChip p={p} /></p>
+      <p><strong>Baseline:</strong> {fmtDate(b.from)}–{fmtDate(b.to)} · {b.days} days{b.stretched ? ' (extended for low volume)' : ''} · {fmtInt(p.base_late)} of {fmtInt(p.base_n)} late ({p.p_bar == null ? 'n/a' : fmtPct(100 * p.p_bar)}). <BaselineCheck b={b} /></p>
+    </div>
+        <p>{p.control_reason}.</p>
+        <p>A confirmed increase needs two unusual periods, or one exceptionally strong signal after allowing for the number of periods checked. Orange squares are identified by the exact binomial test; a visual crossing alone may not be a statistical signal.</p>
+        <p>No confirmed increase does not mean the service goal is met. See Part 1 for the service-goal judgment.</p>
+        <p>The baseline never overlaps the selected range. It is screened for unusual periods and assumed to represent normal operation. This is a p chart, limits vary with n.</p>
+        {p.dispersion && <p>Baseline dispersion: {fmtNum(p.dispersion.ratio, 2)} (p = {fmtP(p.dispersion.p_value)}){p.dispersion.overdispersed ? ' — more variable than binomial; treat signals with caution.' : ' — no overdispersion detected; limited power with few periods.'}{p.run_signal ? ' Run of 9 above the center line (information only).' : ''}</p>}
+        <Messages messages={p.messages} />
+  </div>
 }
 
 const CALL_LIMIT = 50
@@ -133,8 +187,7 @@ export function SignalCallsTable({ data }) {
       <div className="table-scroll short" tabIndex={0} role="region" aria-label="Calls behind this signal">
         <table className="places compact">
           <caption className="small muted">
-            {fmtInt(data.returned)} of {fmtInt(data.valid)} valid calls received {fmtDate(data.start)} to {fmtDate(data.end)} ({fmtInt(data.late)} late), newest first, at most {CALL_LIMIT}.
-            Read-only. Stage times are plain seconds from the call record.
+            {fmtInt(data.returned)} of {fmtInt(data.valid)} calls · {fmtDate(data.start)}–{fmtDate(data.end)} · {fmtInt(data.late)} late · Read-only · Newest first · Times m:ss
           </caption>
           <thead>
             <tr>
@@ -169,39 +222,22 @@ function SignalCalls({ params, start, end }) {
   return <Async state={state}>{(d) => <SignalCallsTable data={d} />}</Async>
 }
 
-function SignalList({ p, params, selection }) {
-  const [open, setOpen] = useState(null)
-  const sig = p.signals || []
-  if (!sig.length) return null
-  const from = selection && selection.from
-  const to = selection && selection.to
-  return (
+function SignalList({ p, onReview }) {
+  const flagged = (p.points || []).filter(isFlaggedPeriod)
+  if (!flagged.length) return <p className="small muted">No periods outside the control limits or flagged by the statistical test.</p>
+  return <div className="table-scroll short" tabIndex={0} role="region" aria-label="Flagged periods">
     <table className="places compact">
-      <caption className="small muted">Evidence: each {p.unit} above its upper control limit (exact binomial p-value, one-sided)</caption>
-      <thead><tr><th scope="col">{p.unit} starting</th><th scope="col">Late</th><th scope="col">Late share</th><th scope="col">Upper limit</th><th scope="col">p-value</th><th scope="col">Calls</th></tr></thead>
-      <tbody>
-        {sig.map((s) => {
-          // A period can start before the selected range (weeks start on Monday): only calls inside the range are in it.
-          const start = from && s.start < from ? from : s.start
-          const end = periodEnd(s.start, p.unit, to)
-          const isOpen = open === s.start
-          return [
-            <tr key={s.start}>
-              <td className="mono">{fmtDate(s.start)}</td><td className="mono">{fmtInt(s.late)} of {fmtInt(s.n)}</td>
-              <td className="mono">{fmtPct(100 * s.p)}</td><td className="mono">{fmtPct(100 * s.ucl)}</td>
-              <td className="mono">{fmtP(s.p_value)}</td>
-              <td>
-                <button type="button" className="btn btn-small" aria-expanded={isOpen} onClick={() => setOpen(isOpen ? null : s.start)}>
-                  {isOpen ? 'hide calls' : 'show calls'}
-                </button>
-              </td>
-            </tr>,
-            isOpen && <tr key={`${s.start}-calls`}><td colSpan={6}><SignalCalls params={params} start={start} end={end} /></td></tr>,
-          ]
-        })}
-      </tbody>
+      <caption className="small muted">All highlighted periods. Signals require the statistical test.</caption>
+      <thead><tr><th scope="col">Period</th><th scope="col">Late calls</th><th scope="col">Control limit</th><th scope="col">Signal (p-value)</th><th scope="col">Calls</th></tr></thead>
+      <tbody>{flagged.map((s) => <tr key={s.start}>
+        <td className="mono">{periodLabel(s.start, p.unit, p.selection)}</td>
+        <td><strong>{fmtPct(100 * s.p)}</strong><span className="control-table-sub">{fmtInt(s.late)} of {fmtInt(s.n)}</span></td>
+        <td className={s.p > s.ucl ? 'control-upper-text' : s.p < s.lcl ? 'control-lower-text' : ''}>{s.p > s.ucl ? 'Above upper limit' : s.p < s.lcl ? 'Below lower limit' : 'Within limits'}<span className="control-table-sub">{s.p > s.ucl ? fmtPct(100 * s.ucl) : s.p < s.lcl ? fmtPct(100 * s.lcl) : 'Flagged by exact test'}</span></td>
+        <td>{s.signal ? <>Yes <span className="mono">({fmtP(s.p_value)})</span></> : 'No'}</td>
+        <td><button type="button" className="btn btn-small" aria-controls="control-support-panel" onClick={() => onReview(s.start)}>show calls</button></td>
+      </tr>)}</tbody>
     </table>
-  )
+  </div>
 }
 
 /** Plain medians of the three stages and the share of calls that waited for a unit: the period beside its baseline. */
@@ -218,8 +254,7 @@ export function StageTable({ data }) {
     <div className="sub-block">
       <h3>Stage times (descriptive)</h3>
       <p className="small muted">
-        Medians only (m:ss; the last row is a percent). They show where time was spent in this period and in the baseline; they do not explain why.
-        The earlier delay-breakdown card was removed, and nothing here ranks or blames a crew.
+        Medians only (m:ss); held calls are a percent. These comparisons do not explain why times changed.
       </p>
       <div className="table-scroll short" tabIndex={0} role="region" aria-label="Stage times, descriptive">
         <table className="places narrow compact">
@@ -238,74 +273,11 @@ export function StageTable({ data }) {
   )
 }
 
-export default function ChangeSection({ pState, imrState, stagesState, params, selectedName }) {
+export default function ChangeSection({ pState, stagesState, params, selectedName }) {
   return (
-    <Section num={2} id="section-2" title={`${selectedName}: has the process changed from its own history?`}
-      intro="Statistical control compares the late share in each period with a fixed baseline: the days just before the selected range. It answers 'did something change?', not 'is the service good enough?' (that is the target check in Section 1).">
-      <Async state={pState}>
-        {(p) => {
-          const b = p.baseline || {}
-          return (
-            <>
-              <p className={`callout ${p.control === 'out_of_control' ? 'orange' : p.control === 'in_control' ? 'green' : 'gray'}`} role="status">
-                <JudgmentBadge kind="control" value={p.control} /> {p.control_reason}.
-                {p.watch && p.control === 'in_control' && <> <WatchChip p={p} /></>}
-                {p.control === 'insufficient_baseline' && (b.stable === false
-                  ? ' The baseline was screened and is not stable, so the chart cannot judge change here.'
-                  : ' The chart cannot judge change here; widen the date range or look at a larger area.')}
-              </p>
-              <p className="small">
-                <strong>Baseline:</strong> {fmtDate(b.from)} to {fmtDate(b.to)} ({b.days} days{b.stretched ? ', stretched from 60 because of low volume' : ''}),
-                {' '}{fmtInt(p.base_late)} late of {fmtInt(p.base_n)} valid calls = {p.p_bar == null ? 'n/a' : fmtPct(100 * p.p_bar)} late.
-                It never overlaps the selected range. It is screened for unusual periods and assumed to represent normal operation; if it does not, the limits do not either.
-                {' '}<BaselineCheck b={b} />
-              </p>
-              {p.unit != null && p.points && p.points.length > 0 && (
-                <figure className="figure">
-                  <figcaption>
-                    <strong>Share of calls that were late, by {p.unit}</strong> <code className="analyst">p chart, limits vary with n</code>
-                    <span className="caption">
-                      Solid line: the baseline late share. Dashed lines: 3-sigma limits, wider when a {p.unit} has fewer calls.
-                      {' '}<strong className="red">Red squares</strong>: {p.unit}s above the upper limit (the rule that sets the control status).
-                    </span>
-                  </figcaption>
-                  <PChart d={p} />
-                </figure>
-              )}
-              <SignalList p={p} params={params} selection={p.selection} />
-              {p.dispersion && (
-                <p className="small muted">
-                  Assumption check (kept baseline {p.unit}s): spread of late counts vs binomial, chi-square / df = {fmtNum(p.dispersion.ratio, 2)}
-                  {' '}(p = {fmtP(p.dispersion.p_value)}){p.dispersion.overdispersed ? ': more variable than binomial, so treat signals with caution.' : ': no overdispersion detected (this check has little power with few periods).'}
-                  {p.run_signal ? ' A run of 9 periods above the center line is also present (information only).' : ''}
-                </p>
-              )}
-              <Messages messages={p.messages} />
-            </>
-          )
-        }}
-      </Async>
-      {stagesState && <Async state={stagesState}>{(d) => <><StageTable data={d} /><Messages messages={d.messages} /></>}</Async>}
-      <details className="math">
-        <summary>Optional, secondary: every call on a log scale (I chart)</summary>
-        <Async state={imrState}>
-          {(d) => (
-            <>
-              <figure className="figure">
-                <figcaption>
-                  <strong>Every call, one dot each</strong> <code className="analyst">individuals (I) chart, ln(minutes)</code>
-                  <span className="caption">
-                    The <strong className="green">green band</strong> is the baseline's 3-sigma range on the log scale. <strong className="red">Red dots</strong> are
-                    single calls beyond it: worth a look one by one. This chart does not set any status.
-                  </span>
-                </figcaption>
-                <ImrCharts d={d} sel={d.selection} />
-              </figure>
-              <Messages messages={d.messages} />
-            </>
-          )}
-        </Async>
-      </details>
+    <Section num={2} id="section-2" title="Are more calls missing their response target?" tag="Change over time"
+      intro="Track missed targets that averages can hide—and spot unusual increases.">
+      <Async state={pState}>{(p) => <ControlView key={JSON.stringify(p.selection)} p={p} params={params} selectedName={selectedName} stagesState={stagesState} />}</Async>
     </Section>
   )
 }

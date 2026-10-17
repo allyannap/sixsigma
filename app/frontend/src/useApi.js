@@ -8,22 +8,22 @@ import { getApi } from './api.js'
  */
 export function useEndpoint(endpoint, params, { delay = 0, skip = false } = {}) {
   const key = JSON.stringify([endpoint, params, skip])
-  const [state, setState] = useState({ data: null, error: null, loading: !skip })
+  const [state, setState] = useState({ key, data: null, error: null, loading: !skip })
   const [tick, setTick] = useState(0)
   const reload = useCallback(() => setTick((t) => t + 1), [])
 
   useEffect(() => {
     if (skip) {
-      setState({ data: null, error: null, loading: false })
+      setState({ key, data: null, error: null, loading: false })
       return undefined
     }
     const ctl = new AbortController()
-    setState({ data: null, error: null, loading: true })
+    setState({ key, data: null, error: null, loading: true })
     const timer = setTimeout(() => {
       getApi(endpoint, params, { signal: ctl.signal })
-        .then((data) => setState({ data, error: null, loading: false }))
+        .then((data) => { if (!ctl.signal.aborted) setState({ key, data, error: null, loading: false }) })
         .catch((e) => {
-          if (e.name !== 'AbortError') setState({ data: null, error: e.message, loading: false })
+          if (!ctl.signal.aborted && e.name !== 'AbortError') setState({ key, data: null, error: e.message, loading: false })
         })
     }, delay)
     return () => {
@@ -34,5 +34,5 @@ export function useEndpoint(endpoint, params, { delay = 0, skip = false } = {}) 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key, tick, delay])
 
-  return { ...state, reload }
+  return { ...(state.key === key ? state : { data: null, error: null, loading: !skip }), reload }
 }

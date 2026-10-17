@@ -77,6 +77,13 @@ export function periodEnd(start, unit, to) {
   return to && String(to).slice(0, 10) < end ? String(to).slice(0, 10) : end
 }
 
+/** The dates actually represented by a subgroup after applying the selected range. */
+export function periodBounds(start, unit, selection = {}) {
+  const first = String(start).slice(0, 10)
+  const from = selection.from && selection.from > first ? selection.from : first
+  return { from, to: periodEnd(first, unit, selection.to) }
+}
+
 /**
  * chance_below{expected, n_places, observed_below} -> one plain sentence, or '' when it could not be computed.
  * It says how many places would read Below target purely by chance if every place were exactly at the goal.

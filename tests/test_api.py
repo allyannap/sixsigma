@@ -449,3 +449,55 @@ def test_anom_names_its_reference_and_warns_about_geography():
     body = get(f"/api/anom?{LAST_90}")
     assert body["reference"] == "call-weighted mean of the places"
     assert any("geography" in m for m in body["messages"])
+
+
+@pytest.mark.parametrize('dataset,level,place,from_,to,unit', [
+    ('baseline', 'state', None, '2026-05-31', '2026-10-15', 'day'),
+    ('summer_surge', 'county', '36055', '2026-07-03', '2026-08-12', 'week'),
+    ('station_closure', 'zcta', '11368', '2026-08-25', '2026-09-20', 'month'),
+    ('baseline', 'state', None, '2026-09-06', '2026-09-06', 'day'),
+    ('baseline', 'state', None, '2025-12-30', '2026-01-03', 'day'),
+])
+def test_every_pchart_point_matches_calls_inside_the_inclusive_selection(dataset, level, place, from_, to, unit):
+    """Independent calendar grouping: no data.select or data.subgroups in the expected result."""
+    from datetime import date, timedelta
+    import calendar
+
+    params = {'dataset': dataset, 'level': level, 'from': from_, 'to': to, 'urgency': 'red'}
+    if place:
+        params['id'] = place
+    response = client.get('/api/pchart', params=params)
+    assert response.status_code == 200
+    body = response.json()
+    assert body['unit'] == unit and body['points']
+    assert body['baseline']['to'] < from_
+
+    rows = data.load(dataset)
+    days = rows.t_received.dt.tz_convert('America/New_York').dt.date
+    mask = rows.timed & (rows.urgency_group == 'red') & (days >= date.fromisoformat(from_)) & (days <= date.fromisoformat(to))
+    if level != 'state':
+        mask &= rows['county_fips' if level == 'county' else 'zcta'] == place
+    selected = rows[mask]
+    selected_days = days[mask]
+    assert sum(p['n'] for p in body['points']) == len(selected)
+    assert sum(p['late'] for p in body['points']) == int(selected.late.sum())
+    for point in body['points']:
+        start = date.fromisoformat(point['start'])
+        if unit == 'day':
+            end = start
+        elif unit == 'week':
+            assert start.weekday() == 0
+            end = start + timedelta(days=6)
+        else:
+            assert start.day == 1
+            end = start.replace(day=calendar.monthrange(start.year, start.month)[1])
+        first = max(start, date.fromisoformat(from_))
+        last = min(end, date.fromisoformat(to))
+        calls = selected[(selected_days >= first) & (selected_days <= last)]
+        assert point['n'] == len(calls) > 0
+        assert point['late'] == int((calls.total_s > calls.target_s).sum())
+        assert point['p'] == pytest.approx(point['late'] / len(calls))
+        baseline_rate = body['base_late'] / body['base_n']
+        margin = 3 * math.sqrt(baseline_rate * (1 - baseline_rate) / len(calls))
+        assert point['ucl'] == pytest.approx(min(1, baseline_rate + margin))
+        assert point['lcl'] == pytest.approx(max(0, baseline_rate - margin))

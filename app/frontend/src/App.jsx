@@ -8,7 +8,7 @@ import ChangeSection from './components/ChangeSection.jsx'
 import InvestigationSection, { flaggedSelection } from './components/InvestigationSection.jsx'
 import MapSection from './components/MapSection.jsx'
 import ReplayBar from './components/ReplayBar.jsx'
-import { Judgments, Kpi, Messages, StatusBadge } from './components/common.jsx'
+import { Judgments, Kpi, Messages, Section, StatusBadge } from './components/common.jsx'
 
 const DATASETS = [
   { key: 'baseline', label: 'baseline (normal year; rural travel gaps)' },
@@ -18,8 +18,6 @@ const DATASETS = [
 const STATE = { level: 'state', id: undefined, name: 'New York State' }
 // Replay keeps the monitoring period's START (and so its baseline, the 60 days before it) fixed and moves only
 // the end forward, one simulated day per tick: a rolling window would let the baseline drift into a change.
-// Default start per dataset: a week before its planted change, with a clean baseline behind it.
-const REPLAY_START = { baseline: '2026-08-25', station_closure: '2026-08-25', summer_surge: '2026-06-25' }
 const TICK_MS = 3000
 
 export default function App() {
@@ -35,7 +33,11 @@ export default function App() {
   const [replay, setReplay] = useState({ on: false, playing: false, start: '', day: '' })
 
   const meta = useEndpoint('meta', {})
-  const lastDay = meta.data ? meta.data.date_max : '2026-10-15'
+  const datasetLastDay = meta.data ? meta.data.date_max : '2026-10-15'
+  const lastDay = to && to < datasetLastDay ? to : datasetLastDay
+  const datesReady = Boolean(from && to && from <= to)
+  const emptyTitle = from && to && from > to ? 'Check date range' : 'No date selected'
+  const emptyHint = from && to && from > to ? 'From must be on or before To.' : !from && !to ? 'Select From and To.' : !from ? 'Select From.' : 'Select To.'
 
   // During replay the period runs from the fixed start to the simulated day; otherwise the date inputs.
   const winFrom = replay.on ? replay.start : from
@@ -44,13 +46,12 @@ export default function App() {
   const parentParams = { ...filters, level: parent.level, id: parent.id }
   const selParams = { ...filters, level: selected.level, id: selected.id }
 
-  const summary = useEndpoint('summary', parentParams)
-  const pchart = useEndpoint('pchart', selParams)
-  const imr = useEndpoint('imr', selParams)
+  const summary = useEndpoint('summary', parentParams, { skip: !datesReady })
+  const pchart = useEndpoint('pchart', selParams, { skip: !datesReady })
   // Statewide list of ZIP areas with a confirmed signal: same dates, dataset and urgency, but level and id are ignored.
-  const flagged = useEndpoint('flagged', filters)
-  const stages = useEndpoint('stages', selParams)
-  const feed = useEndpoint('replay', { ...parentParams, day: replay.day, limit: 12 }, { skip: !replay.on })
+  const flagged = useEndpoint('flagged', filters, { skip: !datesReady })
+  const stages = useEndpoint('stages', selParams, { skip: !datesReady })
+  const feed = useEndpoint('replay', { ...parentParams, day: replay.day, limit: 12 }, { skip: !replay.on || !datesReady })
 
   useEffect(() => {
     if (!replay.on || !replay.playing) return undefined
@@ -80,7 +81,7 @@ export default function App() {
   }
   const drill = (place) => place && setParent({ level: 'county', id: place.id, name: place.name })
 
-  const s = summary.data
+  const s = datesReady ? summary.data : null
   const sel = s && s.selection
   const t = s && s.totals
   const selectedName = selected.name || 'New York State'
@@ -94,16 +95,12 @@ export default function App() {
           <div>
             <div className="eyebrow mono">EMS response monitor &middot; Quality supervisor view &middot; read-only</div>
             <h1>New York State EMS response quality</h1>
-            <p className="lede">
-              <strong>1</strong> which areas need review, and whether they miss the on-time goal, show a recent change, or both;
-              {' '}<strong>2</strong> the control chart behind a change; <strong>3</strong> the investigation list;
-              {' '}<strong>4</strong> a descriptive comparison between places.
-            </p>
+            <p className="lede">Find service gaps and changes in EMS response times.</p>
           </div>
           <div className="header-tags">
-            <div className="synthetic-flag" role="note">SYNTHETIC DATA: invented calls on real 2020 Census geography. Not real patients, not live CAD.</div>
-            {fixtures && <div className="fixture-flag" role="status">FIXTURE DATA: canned numbers, not from the API</div>}
-            <div className="pill-blue">Dataset: {dataset}{sel ? ` · ${fmtRange(sel)}` : ''}</div>
+            <div className="synthetic-flag" role="note">SYNTHETIC DATA · Simulated calls, real NY geography.</div>
+            {fixtures && <div className="fixture-flag" role="status">FIXTURE DATA · Saved examples</div>}
+            <div className="pill-blue">Dataset: {dataset}{!datesReady ? ` · ${emptyTitle}` : sel ? ` · ${fmtRange(sel)}` : ` · ${from}–${to}`}</div>
           </div>
         </div>
 
@@ -131,16 +128,16 @@ export default function App() {
           <label>To
             <input type="date" value={to} disabled={replay.on} onChange={(e) => setTo(e.target.value)} />
           </label>
-          <span className="small muted filter-note">Blank dates = the dataset's last 90 days. Replay starts at From (or a week before the dataset's planted change). Pick one urgency group for the control chart. No time-of-day filter or adjustment.</span>
+          <span className="small muted filter-note">Choose dates and one urgency group.</span>
         </form>
 
-        <ReplayBar replay={replay} feedState={feed} baselineDays={sel ? sel.baseline_days : null}
-          onStart={() => { const start = from || REPLAY_START[dataset]; setReplay({ on: true, playing: true, start, day: start }) }}
+        <ReplayBar disabled={!datesReady} replay={replay} feedState={feed} baselineDays={sel ? sel.baseline_days : null}
+          onStart={() => { if (datesReady) setReplay({ on: true, playing: true, start: from, day: from }) }}
           onToggle={() => setReplay((r) => ({ ...r, playing: !r.playing }))}
           onStep={() => setReplay((r) => (r.day >= lastDay ? r : { ...r, day: addDays(r.day, 1) }))}
           onStop={() => setReplay({ on: false, playing: false, start: '', day: '' })} />
 
-        {summary.error ? (
+        {!datesReady ? <div className="date-empty" role="status"><strong>{emptyTitle}</strong><p>{emptyHint}</p></div> : summary.error ? (
           <div className="error" role="alert">
             <p><strong>The numbers are not available yet.</strong> {summary.error}</p>
             <button type="button" className="btn" onClick={summary.reload}>Try again</button>
@@ -179,17 +176,22 @@ export default function App() {
         {s && <Messages messages={s.messages} />}
       </header>
 
+      {datesReady ? <>
       <MapSection summaryState={summary} parent={parent} urgency={urgency} selected={selected}
         onPick={pick} onDrill={drill} onBack={resetScope} />
-      <ChangeSection pState={pchart} imrState={imr} stagesState={stages} params={selParams} selectedName={selectedName} />
+      <ChangeSection pState={pchart} stagesState={stages} params={selParams} selectedName={selectedName} />
       <InvestigationSection summaryState={summary} flaggedState={flagged} onPick={pick} onPickFlagged={pickFlagged} />
       <AnomSection summaryState={summary} />
+      </> : [
+        ['Which areas need review?', 'section-1'],
+        ['Are more calls missing their response target?', 'section-2'],
+        ['Investigation list', 'section-3'],
+        ['Are calls arriving on time?', 'section-4'],
+      ].map(([title, id], index) => <Section key={id} num={index + 1} id={id} title={title}><p className="date-section-empty">{emptyTitle}</p></Section>)}
 
       <footer className="small muted">
-        Every number on this page is computed by the API (<code>/api/*</code>, read-only); the page only draws and formats it.
-        {' '}Source: synthetic incidents replayed from the server. The response clock start (<code>t_received</code>) is provisional: it may be the 911 answer or the CAD record, and that is not yet confirmed.
-        {' '}Targets are NFPA 1720-based placeholders, configurable and not certified standards: red 8 minutes in urban areas, 10 suburban, 14 rural and remote; yellow 15; green 30; 90% on time.
-        {' '}The tool reviews the response process, not individual dispatchers or crews.
+        Synthetic data. Response clock (<code>t_received</code>) is provisional: 911 answer vs CAD creation.
+        {' '}NFPA 1720-based targets are configurable placeholders, not certified standards. Process review only.
       </footer>
     </div>
   )

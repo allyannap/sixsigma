@@ -49,3 +49,13 @@ describe('formatters', () => {
     expect(fmtVolume(20.24, 15.43)).toBe('20.2 calls/day now vs 15.4 in the baseline')
   })
 })
+
+it('clips partial day, week and month bounds to the selected dates', async () => {
+  const { periodBounds } = await import('./format.js')
+  expect(periodBounds('2026-06-29', 'week', { from: '2026-07-01', to: '2026-07-12' })).toEqual({ from: '2026-07-01', to: '2026-07-05' })
+  expect(periodBounds('2026-07-06', 'week', { from: '2026-07-01', to: '2026-07-09' })).toEqual({ from: '2026-07-06', to: '2026-07-09' })
+  expect(periodBounds('2026-02-01', 'month', { from: '2026-02-10', to: '2026-03-04' })).toEqual({ from: '2026-02-10', to: '2026-02-28' })
+  expect(periodBounds('2026-03-01', 'month', { from: '2026-02-10', to: '2026-03-04' })).toEqual({ from: '2026-03-01', to: '2026-03-04' })
+  expect(periodBounds('2026-09-06', 'day', { from: '2026-09-06', to: '2026-09-06' })).toEqual({ from: '2026-09-06', to: '2026-09-06' })
+  expect(periodBounds('2025-12-29', 'week', { from: '2025-12-31', to: '2026-01-02' })).toEqual({ from: '2025-12-31', to: '2026-01-02' })
+})

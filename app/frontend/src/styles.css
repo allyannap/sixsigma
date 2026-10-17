@@ -271,3 +271,102 @@ table.places.narrow { min-width: 420px; }
 .signal-calls { margin-top: 8px; display: grid; gap: 6px; }
 .table-scroll.short { max-height: 320px; }
 .kpi-sub span { display: block; }
+
+/* Part 2 follows Part 4: quiet chart, one selected detail card, progressive disclosure. */
+.control-finding { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 6px; }
+.control-finding-icon { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-size: 20px; font-weight: 700; flex: none; background: #E4ECF5; color: #23466B; }
+.finding-signal .control-finding-icon { background: #FDE7DA; color: #9A3412; }
+.finding-data .control-finding-icon { background: #ECEEF0; color: #4B535B; }
+.control-headline { font-size: 23px; line-height: 1.3; font-weight: 650; letter-spacing: -.025em; margin: 0; }
+.control-summary { font-size: 13px; color: var(--ink2); margin: 4px 0 0; max-width: 740px; }
+.control-baseline { font-size: 12px; color: var(--muted); margin: 10px 0 20px; }
+.control-split { grid-template-columns: minmax(0, 1.65fr) minmax(270px, 1fr); gap: 22px; }
+.control-split .figure { gap: 8px; }
+.control-chart { overflow: visible; }
+.control-axis-title { font-size: 12px; fill: #3D454D; font-weight: 600; }
+.control-axis-note, .control-tick { font-size: 11px; fill: #6B737B; }
+.control-point { cursor: pointer; outline: none; }
+.control-point:focus-visible > circle:first-of-type { fill: #0072B21A; stroke: #0072B2; stroke-width: 2; }
+.figure .control-key { flex-direction: row; gap: 8px 14px; margin-left: 5px; }
+.control-key-line, .control-key-baseline { width: 18px; border-top: 3px solid #0072B2; }
+.control-key-baseline { border-top: 2px solid #344256; }
+.control-key-band { width: 18px; height: 10px; background: #E8EDF3; border-top: 1px dashed #8592A3; border-bottom: 1px dashed #8592A3; }
+.control-key-signal { width: 9px; height: 9px; background: #C2410C; border-radius: 1px; }
+.control-chart-hint { font-size: 12px; color: var(--muted); margin: 2px 0 0; }
+.control-card { padding: 16px 18px; gap: 12px; }
+.control-card select { width: 100%; font-size: 13px; min-width: 0; }
+.control-card .card-head { flex-wrap: wrap; }
+.control-card .card-head h3 { font-size: 18px; }
+.control-card .card-big { font-size: 42px; }
+.control-card .card-pair { margin-top: 2px; }
+.control-card .card-pair strong { font-size: 22px; }
+.control-rate { color: #0072B2; }
+.control-card p.control-period-note { font-size: 12px; color: var(--muted); }
+.control-calls-btn { display: flex; justify-content: space-between; gap: 12px; align-items: center; text-align: left; font-size: 12px; }
+.control-details { font-size: 13px; color: var(--ink2); border-top: 1px solid var(--line); margin-top: 14px; }
+.control-details p { margin: 8px 0 12px; }
+.control-details > summary { font-weight: 600; }
+.control-details .simple-comparison { margin-top: 12px; }
+.control-empty { background: #F5F7FA; border: 1px solid var(--line); padding: 22px; border-radius: 16px; }
+.control-empty h3 { font-size: 18px; margin: 0 0 8px; }
+.control-empty p { margin: 0; font-size: 14px; }
+@media (max-width: 760px) {
+  .control-split { grid-template-columns: 1fr; }
+  .control-card { min-height: 0; }
+  .control-headline { font-size: 20px; }
+}
+
+@media (max-width: 760px) {
+  .control-tick, .control-axis-title { font-size: 20px; }
+  .control-axis-note { display: none; }
+}
+
+/* Explain the upper boundary where people see the chart. */
+.control-limit-label { fill: #9A3412; font-size: 13px; font-weight: 700; stroke: white; stroke-width: 5px; paint-order: stroke; pointer-events: none; }
+.control-key-upper { width: 18px; border-top: 2px dashed #C2410C; }
+.control-key-over { width: 12px; height: 12px; border: 2px solid #C2410C; border-radius: 50%; background: #FFF5ED; }
+.control-limit-explainer { margin: 6px 0 0; font-size: 12px; color: var(--ink2); line-height: 1.6; }
+.control-limit-explainer strong { font-weight: 600; }
+.control-flag-summary { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 4px; font-size: 12px; color: #9A3412; }
+.control-flag-summary .chip { min-height: 36px; }
+.control-card p.control-limit-comparison { padding: 9px 10px; border-radius: 8px; background: white; border: 1px solid var(--line); font-size: 12px; }
+@media (max-width: 760px) { .control-limit-label { font-size: 20px; } }
+
+.control-lower-label { fill: #22634C; }
+.control-key-lower { width: 18px; border-top: 2px dashed #28745A; }
+.control-key-under { width: 12px; height: 12px; border: 2px solid #28745A; border-radius: 50%; background: #EFF8F3; }
+.control-card .control-limit-values { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.control-card.card-improvement { border-top-color: #28745A; }
+.badge-improvement { background: #E3F2E9; color: #22634C; }
+.control-improvement-rate { color: #22634C; }
+
+/* Keep the everyday view short; supporting evidence is grouped beneath it. */
+.control-upper-text { color: #9A3412; }
+.control-lower-text { color: #22634C; }
+.control-evidence-facts { display: grid; gap: 6px; margin: 10px 0 12px; }
+.control-evidence-facts p { margin: 0; font-size: 12px; }
+.control-method { margin-top: 10px; border-top: 1px solid var(--line); font-size: 12px; }
+.control-method > summary { font-size: 12px; min-height: 38px; color: var(--blue); cursor: pointer; font-weight: 600; align-content: center; }
+.control-method .sub-block { border-top: 0; padding-top: 6px; }
+.control-card { gap: 10px; }
+
+/* One workspace, one visible panel: no nested disclosure stacks. */
+.control-support { margin-top: 16px; border-top: 1px solid var(--line); }
+.control-tabs { display: flex; flex-wrap: wrap; gap: 4px; padding-top: 10px; border-bottom: 1px solid var(--line); }
+.control-tabs button { font: inherit; font-size: 12px; font-weight: 600; padding: 10px 12px; min-height: 44px; color: var(--muted); background: transparent; border: 0; border-bottom: 3px solid transparent; cursor: pointer; }
+.control-tabs button[aria-selected="true"] { color: var(--blue); border-bottom-color: #0072B2; background: #F0F5FA; border-radius: 6px 6px 0 0; }
+.control-tab-panel { padding: 14px 0 0; font-size: 12px; color: var(--ink2); min-width: 0; }
+.control-tab-panel:focus-visible { outline: 2px solid #0072B2; outline-offset: 4px; }
+.control-tab-panel p { margin: 0 0 10px; }
+.control-tab-panel .sub-block { border-top: 0; padding-top: 0; }
+.control-panel-caption { font-size: 12px; color: var(--muted); }
+.control-method-text { max-width: 780px; }
+@media (max-width: 420px) { .control-tabs { gap: 0; } .control-tabs button { padding: 10px 8px; font-size: 11px; } }
+
+.control-table-sub { display: block; font-size: 11px; color: var(--muted); }
+
+.date-empty { padding: 16px 18px; background: #F5F7FA; border: 1px solid var(--line); border-radius: 10px; color: var(--ink2); }
+.date-empty strong { font-size: 16px; }
+.date-empty p { margin: 4px 0 0; font-size: 13px; color: var(--muted); }
+.date-section-empty { margin: 0; font-size: 13px; color: var(--muted); }
+.replay .btn:disabled { opacity: .5; cursor: not-allowed; }

@@ -5,15 +5,15 @@ import { Async } from './common.jsx'
  * Simulation / Replay (baselineDays comes from the API: 60, or 120 when volume is low): plays the backend's synthetic file forward one simulated day per tick.
  * Read-only: it only moves the date window and shows the calls the file already holds for that day.
  */
-export default function ReplayBar({ replay, feedState, baselineDays, onStart, onToggle, onStep, onStop }) {
+export default function ReplayBar({ replay, feedState, baselineDays, disabled = false, onStart, onToggle, onStep, onStop }) {
   return (
     <div className="replay" role="region" aria-label="Simulation / Replay">
       <div className="replay-head">
         <span className="replay-tag">Simulation / Replay</span>
-        <span className="small">Synthetic data played back from the server, one simulated day per tick. Not live CAD or FDNY data; nothing can be entered or edited.</span>
+        <span className="small">Synthetic playback · 1 day every 3 s · Not live CAD.</span>
       </div>
       {!replay.on ? (
-        <button type="button" className="btn" onClick={onStart}>Start replay</button>
+        <button type="button" className="btn" disabled={disabled} title={disabled ? 'Choose both dates to start replay' : undefined} onClick={onStart}>Start replay</button>
       ) : (
         <>
           <div className="chips">
