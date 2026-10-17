@@ -57,7 +57,7 @@
 .comparison-drawer .simple-proof { font-size: 12px; line-height: 1.65; }
 .briefing-full-text { font-size: 15px; line-height: 1.75; }
 .summary-read-more { align-self: flex-start; padding: 5px 0; min-height: 30px; background: none; border: 0; font: inherit; font-size: 11px; font-weight: 700; color: var(--brand-deep); cursor: pointer; }
-.ai-summary { position: relative; align-content: start; padding-left: 14px; border-left: 3px solid #98A2AE; gap: 7px; }
+.ai-summary { position: relative; align-self: start; align-content: start; padding-left: 14px; border-left: 3px solid #98A2AE; gap: 7px; }
 .ai-tone-critical { border-left-color: var(--map-critical); }
 .ai-tone-watch { border-left-color: var(--map-watch); }
 .ai-tone-near { border-left-color: var(--map-near); }

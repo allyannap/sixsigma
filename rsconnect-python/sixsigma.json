@@ -1,0 +1,12 @@
+{
+    "https://connect.systems-apps.com": {
+        "server_url": "https://connect.systems-apps.com",
+        "filename": "/Users/jellies/Desktop/enmgt5400/sixsigma",
+        "app_url": "https://connect.systems-apps.com/content/1fd1035a-58f5-461d-8e00-9bb162e35770/",
+        "app_id": "514",
+        "app_guid": "1fd1035a-58f5-461d-8e00-9bb162e35770",
+        "title": "sixsigma",
+        "app_mode": "python-fastapi",
+        "app_store_version": 1
+    }
+}

@@ -463,7 +463,7 @@ describe('OnScene page (H-14)', () => {
     expect(html).not.toContain('Toggle table for map')
     expect(html).toContain('Investigate')
     expect(html).not.toContain('Sentinel')
-    expect(html).toContain('>Summary<')
+    expect(html).toContain('>AI Summary<')
   })
 })
 

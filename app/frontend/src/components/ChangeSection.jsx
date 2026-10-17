@@ -250,11 +250,11 @@ export function ControlView({ p, params, selectedName }) {
       </aside></> : <p className="small muted">No usable control chart for this selection. Open Method for baseline checks.</p>)}
           {panel === 'signals' && <SignalList p={descriptive ? { ...p, points: [] } : p} onReview={review} />}
           {detailsOpen && panel === 'calls' && (point && params ? <><p className="control-panel-caption"><strong>{periodLabel(point.start, viewUnit, p.selection)}</strong> · {fmtInt(point.late)} of {fmtInt(point.n)} late</p><SignalCalls key={point.start} params={params} start={start} end={end} /></> : <p className="small muted">Select a period with calls to review.</p>)}
+          {panel === 'period' && <details className="response-method-dropdown" open={methodOpen} onToggle={(event) => setMethodOpen(event.currentTarget.open)}>
+            <summary>Method</summary>
+            <ControlMethod p={p} />
+          </details>}
         </div>
-        <details className="response-method-dropdown" open={methodOpen} onToggle={(event) => setMethodOpen(event.currentTarget.open)}>
-          <summary>Method</summary>
-          <ControlMethod p={p} />
-        </details>
       </div>
     </EvidenceDrawer>
 

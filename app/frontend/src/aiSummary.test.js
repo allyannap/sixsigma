@@ -16,6 +16,7 @@ describe('AI summary card', () => {
     const html = renderToString(h(AISummary, { state: summaryState('watch'), enabled: true, paused: false, fixtures: false }))
     expect(html).toContain('ai-tone-watch')
     expect(html).toContain('ai-status-watch')
+    expect(html).toContain('AI Summary')
     expect(html).toContain('Watch')
     expect(html).toContain('<strong>recent change</strong>')
     expect(html).toContain('<strong>Next:</strong>')

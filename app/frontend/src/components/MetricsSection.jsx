@@ -117,7 +117,8 @@ export function MetricsSection({ summaryState, selected, parent, urgency, onTogg
         <h2 id="metrics-heading">Key Metrics</h2>
       </div>
       <div className="card metrics-card">
-        <div className="filterbar">
+        <div className="metrics-body" aria-busy={summaryState.loading}>
+          <div className="filterbar">
           <div className="filter-field" role="radiogroup" aria-label="Call urgency: choose which calls to analyse" aria-describedby="urgency-hint">
             <span className="filter-name">Call urgency</span>
             <span className="priority-chips">
@@ -149,9 +150,7 @@ export function MetricsSection({ summaryState, selected, parent, urgency, onTogg
             </InfoTip>
             <span className="sr-only" id="urgency-hint">Click to choose which calls the map and metrics analyse</span>
           </div>
-        </div>
-
-        <div className="metrics-body" aria-busy={summaryState.loading}>
+          </div>
           <Tiles t={t} note={note} />
           <div className="vdivider" role="presentation" />
           {aiState ? <AISummary state={aiState} enabled={aiEnabled} paused={aiPaused} fixtures={fixtures} />

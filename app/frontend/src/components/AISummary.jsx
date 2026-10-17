@@ -17,7 +17,7 @@ export default function AISummary({ state, enabled, paused, fixtures }) {
   const tone = ['critical', 'watch', 'near', 'stable', 'nodata'].includes(card?.tone) ? card.tone : 'nodata'
   const label = TIER_LABEL[tone]
   return <div className={`summary ai-summary ai-tone-${tone}`} aria-live="polite" aria-busy={state.loading}>
-    <div className="summary-head"><span className="summary-title">Summary</span>
+    <div className="summary-head"><span className="summary-title">AI Summary</span>
       {card && <span className={`ai-status-pill ai-status-${tone}`}>{label}</span>}
     </div>
     {!enabled ? <p className="summary-text muted">Select a complete date range to generate a summary.</p>
