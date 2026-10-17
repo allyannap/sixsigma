@@ -21,6 +21,7 @@
 .comparison-selection-stats > div + div { border-left: 1px solid var(--line); padding-left: 12px; }
 .comparison-selection-stats strong { font-size: 21px; letter-spacing: -.035em; line-height: 1.1; }
 .comparison-selection-stats span { font-size: 10px; color: var(--muted); }
+.comparison-side-panel { min-width: 0; }
 .comparison-actions { display: flex; align-items: center; justify-content: space-between; gap: 6px; flex: none; }
 .comparison-actions > span { color: var(--muted); font-size: 10px; }
 .comparison-actions button { font: inherit; font-size: 11px; font-weight: 700; color: var(--brand-deep); border: 0; background: var(--brand-soft); border-radius: 7px; min-height: 30px; padding: 4px 10px; cursor: pointer; }
@@ -95,15 +96,15 @@
   .comparison-plot { grid-column: 1; grid-row: 3 / 5; min-height: 140px; }
   .comparison-plot .hist { height: 100%; min-height: 0; }
   .comparison-plot .simple-key { font-size: 10px; gap: 4px 10px; margin-top: 4px; }
-  .comparison-selection { grid-column: 2; grid-row: 3; padding: 9px 10px; display: flex; flex-direction: column; }
+  .comparison-side-panel { grid-column: 2; grid-row: 3 / 5; align-self: stretch; display: flex; flex-direction: column; justify-content: space-between; gap: 6px; }
+  .comparison-selection { padding: 9px 10px; }
   .comparison-selection-head { flex-wrap: nowrap; gap: 4px 6px; }
   .comparison-selection-head > strong { min-width: 0; font-size: 12px; }
   .comparison-selection-head .card-badge { font-size: 10px; padding: 2px 6px; }
   .comparison-calls { display: none; }
-  .comparison-selection-stats { flex: 1; align-content: center; grid-template-columns: 1fr; gap: 6px; margin-top: 7px; }
+  .comparison-selection-stats { grid-template-columns: 1fr; gap: 6px; margin-top: 7px; }
   .comparison-selection-stats > div + div { border-left: 0; padding-left: 0; border-top: 1px solid var(--line); padding-top: 6px; }
-  .comparison-selection-stats strong { font-size: 22px; }
-  .comparison-actions { grid-column: 2; grid-row: 4; }
+  .comparison-selection-stats strong { font-size: 20px; }
   .comparison-actions > span { display: none; }
   .comparison-actions button { width: 100%; }
 }

@@ -88,7 +88,7 @@ function Histogram({ bins, goal, selected, openBin, onOpen }) {
     <text x={x(100)} y={base + 14} textAnchor="end" className="hist-tick">100%</text>
     <text x={PAD / 2} y={TOP + PLOT / 2} transform={`rotate(-90 ${PAD / 2} ${TOP + PLOT / 2})`} textAnchor="middle" className="hist-axis-title">Number of areas</text>
     <text x={W / 2} y={H - 4} textAnchor="middle" className="hist-axis-title">On-time calls (%)</text>
-    <line x1={x(goal)} x2={x(goal)} y1={TOP - 24} y2={base + 2} stroke="#1F2933" strokeWidth="2" strokeDasharray="5 3" />
+    <line x1={x(goal)} x2={x(goal)} y1={TOP - 24} y2={base + 2} stroke="#A21CAF" strokeWidth="3" strokeDasharray="5 3" />
     <text x={x(goal)} y={TOP - 25} textAnchor={goal <= 0 ? 'start' : goal >= 98 ? 'end' : 'middle'} className="hist-goal">Goal {fmtPct(goal, 0)}</text>
     <path d={`M${x(selected.on_time_pct)} ${base + 20} l-6 9 h12 z`} fill="#1F2933" />
   </svg>
@@ -185,14 +185,16 @@ export default function SimpleComparison({ d, selectedArea, onPick }) {
         <p className="simple-key"><span><i className="k k-below" />Below goal</span><span><i className="k k-inconclusive" />Uncertain</span><span><i className="k k-meets" />Meets goal</span><span>▲ selected area</span></p>
       </div>
     </div>
-    <section id="simple-selected" className={`comparison-selection selection-${selected.spec}`} aria-label="Selected area overview" aria-live="polite">
-      <div className="comparison-selection-head"><strong>{selected.name}</strong><span className={`card-badge badge-${selected.spec}`}>{LABELS[selected.spec] || 'Uncertain'}</span><span className="comparison-calls">{fmtInt(selected.response_profile.n)} calls</span></div>
-      <div className="comparison-selection-stats">
-        <div><strong className={`rate-${selected.spec}`}>{fmtPct(selected.on_time_pct, 1)}</strong><span>On time · {deadline}</span></div>
-        <div><strong>{fmtMin(selected.response_profile.p90_min)}</strong><span>Slowest 1 in 10</span></div>
-      </div>
-    </section>
-    <div className="comparison-actions"><span>Choose a bar to explore areas</span><button type="button" onClick={() => { setListing(false); setDetailsOpen(true) }}>Details & confidence <span aria-hidden="true">↗</span></button></div>
+    <div className="comparison-side-panel">
+      <section id="simple-selected" className={`comparison-selection selection-${selected.spec}`} aria-label="Selected area overview" aria-live="polite">
+        <div className="comparison-selection-head"><strong>{selected.name}</strong><span className={`card-badge badge-${selected.spec}`}>{LABELS[selected.spec] || 'Uncertain'}</span><span className="comparison-calls">{fmtInt(selected.response_profile.n)} calls</span></div>
+        <div className="comparison-selection-stats">
+          <div><strong className={`rate-${selected.spec}`}>{fmtPct(selected.on_time_pct, 1)}</strong><span>On time · {deadline}</span></div>
+          <div><strong>{fmtMin(selected.response_profile.p90_min)}</strong><span>Slowest 1 in 10</span></div>
+        </div>
+      </section>
+      <div className="comparison-actions"><span>Choose a bar to explore areas</span><button type="button" onClick={() => { setListing(false); setDetailsOpen(true) }}>Details & confidence <span aria-hidden="true">↗</span></button></div>
+    </div>
     <EvidenceDrawer open={detailsOpen} onClose={() => setDetailsOpen(false)}>
       <p className="comparison-context">{d.selection.name} · {d.selection.from} – {d.selection.to} · {urgencyText(d.selection.urgency[0])}</p>
       <section className={`simple-card card-${selected.spec}`}>

@@ -483,7 +483,7 @@ footer.small { padding: 0 4px; }
 .hist-bin:hover .hist-bar { opacity: .8; }
 .hist-count { font-size: 13px; font-weight: 700; fill: #1F2933; }
 .hist-tick { font-size: 12px; fill: #6B737B; }
-.hist-goal { font-size: 12px; font-weight: 700; fill: #1F2933; }
+.hist-goal { font-size: 12px; font-weight: 800; fill: #A21CAF; }
 .hist-axis-title { font-size: 11px; font-weight: 700; fill: #52677e; }
 .hist-worst { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 12px; margin: 10px 0 0; }
 .chip { font: inherit; font-size: 12px; border: 1px solid var(--line); background: white; color: var(--ink); border-radius: 999px; padding: 4px 10px; min-height: 30px; cursor: pointer; }

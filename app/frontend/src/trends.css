@@ -54,7 +54,7 @@
 .control-point { cursor: pointer; }
 .control-point:focus-visible { outline: none; }
 .control-point:focus-visible > circle:first-of-type { stroke: var(--brand); stroke-width: 2; }
-.trend-selection { grid-column: 2; grid-row: 1; display: flex; flex-direction: column; justify-content: center; gap: 6px; padding: 9px 10px; }
+.trend-selection { grid-column: 2; grid-row: 1; align-self: start; display: flex; flex-direction: column; justify-content: flex-start; gap: 6px; padding: 9px 10px; }
 .trend-selection label { font-size: 10px; font-weight: 700; color: var(--muted); }
 .trend-selection select, .control-card select { width: 100%; min-height: 28px; padding: 3px 5px; font: inherit; font-size: 11px; color: var(--ink); border: 1px solid var(--line); border-radius: 6px; background: white; }
 .trend-selected-rate, .trend-selected-limit { display: flex; flex-direction: column; gap: 2px; }
