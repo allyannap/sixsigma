@@ -127,7 +127,7 @@ export default function App() {
           {/* Slides out to the right while the Investigate list is open; inert then, so Tab skips it. */}
           <div className="right-col" inert={railOpen ? '' : undefined} aria-hidden={railOpen || undefined}>
             <PlaceHead summaryState={summary} selected={selected} parent={parent} from={shownFrom} to={shownTo} replayOn={replay.on}
-              dateMin={meta.data ? meta.data.date_min : undefined} dateMax={meta.data ? meta.data.date_max : undefined}
+              dateMin={meta.data ? meta.data.earliest_from || meta.data.date_min : undefined} dateMax={meta.data ? meta.data.date_max : undefined}
               onApply={(a, b) => { setFrom(a); setTo(b) }} onDrill={drill} />
             <MetricsSection summaryState={summary} selected={selected} parent={parent} urgency={urgency}
               onToggleUrgency={toggleUrgency} aiState={aiSummary} aiEnabled={aiEnabled}

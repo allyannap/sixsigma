@@ -2,6 +2,7 @@
 
 Draws the read-only dashboard from the JSON in `docs/api.md` section B. It computes no statistics, has no incident-entry form and no what-if card.
 
+- **Date range** (`DatePicker.jsx`): a small calendar that only offers usable dates. From runs from `earliest_from` (`/api/meta`: the first day with the 60-day baseline before it, Dec 15, 2025) to the chosen To; To runs from the chosen From to the last day of data. The month menu lists only those months, so no out-of-range years appear.
 - **Replay bar** (Simulation / Replay): requires an explicit date range; fixed start and baseline at the selected From date, stopping at To or the dataset end; the end date advances one simulated day every 3 s (`/api/replay`).
 - **Summary** (`/api/summary`): places needing review split into recent signal (Act now + Recent change) and ongoing gap, with the number expected Below target by chance; on-time k of n with CI; median and P95 with intervals; calls, cancelled, invalid, cancel %, calls per day.
 - **(1) Map + ranked areas**: the map is coloured by `mapTier` (Critical, Watch, Near goal, Stable, gray only under 30 valid calls) or, with the legend's Status / Late % switch, by late share (sparse areas faded); separate Target and Control badges, a "watch" chip for one unconfirmed signal, queue label ("Meets goal; no change signal" for meets + in control), rows ranked within a label by excess late calls vs the goal, baseline stability.

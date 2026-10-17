@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { fmtDate, fmtInt } from '../format.js'
 import { Icon } from './common.jsx'
+import DatePicker from './DatePicker.jsx'
 
 const LEVEL_WORD = { state: 'Statewide', county: 'County', zcta: 'ZIP area' }
 
@@ -14,10 +15,26 @@ export function rangeMessage(from, to) {
     + 'Pick an end date on or after the start date, or swap the two dates.'
 }
 
+/** A typed date outside the allowed range (the calendar greys these out, but a date can still be typed). */
+export function boundsMessage(from, to, min, max) {
+  if (min && from && from < min) {
+    return `The start date (${longDate(from)}) is too early: the analysis compares each period with the 60 days before it, `
+      + `and the data begins 60 days before ${longDate(min)}. Pick a start date on or after ${longDate(min)}.`
+  }
+  if (max && to && to > max) return `The end date (${longDate(to)}) is after the last day of data. Pick ${longDate(max)} or earlier.`
+  if (max && from && from > max) return `The start date (${longDate(from)}) is after the last day of data. Pick ${longDate(max)} or earlier.`
+  return ''
+}
+
+/**
+ * min = the earliest start date (a full baseline before it), max = the last day of data. The calendars only allow
+ * valid days: From runs from min to the chosen To, and To from the chosen From to max.
+ */
 function DateForm({ from, to, disabled, min, max, onApply }) {
   const [a, setA] = useState(from)
   const [b, setB] = useState(to)
   const [error, setError] = useState('')
+  const [canSwap, setCanSwap] = useState(false)
   const errorRef = useRef(null)
   useEffect(() => { setA(from); setB(to) }, [from, to])
   // The message goes away on a click or tap anywhere outside it, or on Escape.
@@ -34,25 +51,29 @@ function DateForm({ from, to, disabled, min, max, onApply }) {
   }, [error])
   const submit = (e) => {
     e.preventDefault()
-    if (a && b && a > b) { setError(rangeMessage(a, b)); return }
+    const outside = boundsMessage(a, b, min, max)
+    if (outside) { setError(outside); setCanSwap(false); return }
+    if (a && b && a > b) { setError(rangeMessage(a, b)); setCanSwap(true); return }
     setError('')
     onApply(a, b)
   }
   return (
     <form className="daterange" onSubmit={submit} noValidate aria-label="Date range" aria-describedby={disabled ? 'range-hint' : undefined}>
-      <label className="date-field" htmlFor="date-from"><span className="date-label">From</span>
-        <input type="date" id="date-from" value={a} min={min} max={max} disabled={disabled} aria-invalid={!!error} aria-describedby={error ? 'range-error' : undefined} onChange={(e) => { setA(e.target.value); setError('') }} />
-      </label>
+      <div className="date-field"><span className="date-label" id="date-from-label">From</span>
+        <DatePicker id="date-from" labelledBy="date-from-label" label="start" value={a} min={min} max={b || max} disabled={disabled}
+          invalid={!!error} describedBy={error ? 'range-error' : undefined} onChange={(v) => { setA(v); setError('') }} />
+      </div>
       <span className="date-sep" aria-hidden="true">&ndash;</span>
-      <label className="date-field" htmlFor="date-to"><span className="date-label">To</span>
-        <input type="date" id="date-to" value={b} min={min} max={max} disabled={disabled} aria-invalid={!!error} aria-describedby={error ? 'range-error' : undefined} onChange={(e) => { setB(e.target.value); setError('') }} />
-      </label>
+      <div className="date-field"><span className="date-label" id="date-to-label">To</span>
+        <DatePicker id="date-to" labelledBy="date-to-label" label="end" value={b} min={a || min} max={max} disabled={disabled}
+          invalid={!!error} describedBy={error ? 'range-error' : undefined} onChange={(v) => { setB(v); setError('') }} />
+      </div>
       <button className="btn-primary" type="submit" disabled={disabled}><Icon name="search" size={14} />Search</button>
       {error && (
         <div className="range-error" id="range-error" role="alert" ref={errorRef}>
           <span className="range-error-icon" aria-hidden="true">!</span>
           <span>{error}</span>
-          <button type="button" className="range-swap" onClick={() => { setA(b); setB(a); setError(''); onApply(b, a) }}>Swap dates</button>
+          {canSwap && <button type="button" className="range-swap" onClick={() => { setA(b); setB(a); setError(''); onApply(b, a) }}>Swap dates</button>}
           <button type="button" className="range-close" aria-label="Dismiss this message" title="Dismiss" onClick={() => setError('')}>
             <span aria-hidden="true">×</span>
           </button>

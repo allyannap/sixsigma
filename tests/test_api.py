@@ -40,6 +40,8 @@ def test_meta_has_62_counties_40_targets_and_the_90_day_default():
     body = get("/api/meta")
     assert len(body["counties"]) == 62 and len(body["targets"]) == 40
     assert body["date_min"] == "2025-10-16" and body["date_max"] == "2026-10-15"
+    # the first start date with the default 60-day baseline before it (Oct 16 + 60 days)
+    assert body["earliest_from"] == "2025-12-15"
     assert (body["default_from"], body["default_to"]) == ("2026-07-18", "2026-10-15")
 
 

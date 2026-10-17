@@ -162,6 +162,8 @@ const ICONS = {
   reset: <><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1" /><path d="M3.5 4.2v4.6h4.6" /></>, // circular arrow (start over)
   chev: <path d="m6 9 6 6 6-6" />,
   'chev-right': <path d="m9 6 6 6-6 6" />,
+  'chev-left': <path d="m15 6-6 6 6 6" />,
+  calendar: <><rect x="3.5" y="5" width="17" height="15" rx="2.5" /><path d="M3.5 9.5h17M8 3v4M16 3v4" /></>,
   spark: <><path d="M12 3.5 13.7 9l5.5 1.7-5.5 1.7L12 18l-1.7-5.6L4.8 10.7 10.3 9 12 3.5Z" /><path d="M19 16.5v3M17.5 18h3" /></>,
 }
 

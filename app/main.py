@@ -15,6 +15,7 @@ import importlib
 import math
 import threading
 from contextlib import asynccontextmanager
+from datetime import timedelta
 from pathlib import Path
 
 import pandas as pd
@@ -155,13 +156,16 @@ class Ctx:
         return {"selection": self.selection(), **body, "messages": list(dict.fromkeys(msgs))}
 
 
+DEFAULT_BASELINE_DAYS = 60   # the p chart's baseline: the days before `from` (stretched to 120 when sparse)
+
+
 def common(dataset: str = "baseline",
            from_: str | None = Query(None, alias="from"),
            to: str | None = None,
            urgency: str = "red",
            level: str = "state",
            id: str | None = None,
-           baseline_days: int = 60) -> Ctx:
+           baseline_days: int = DEFAULT_BASELINE_DAYS) -> Ctx:
     return Ctx(dataset, from_, to, urgency, level, id, baseline_days)
 
 
@@ -313,10 +317,13 @@ def meta():
     ranges = [data.date_range(data.load(d)) for d in data.DATASETS]
     counties = lk["counties"].sort_values("county_name")
     d_from, d_to = data.default_range(data.load(data.DATASETS[0]))
+    date_min = min(r[0] for r in ranges)
     return {
         "source": SOURCE,
         "datasets": list(data.DATASETS),
-        "date_min": min(r[0] for r in ranges).isoformat(),
+        "date_min": date_min.isoformat(),
+        # the first start date with a full default baseline before it: earlier starts have no baseline to compare with
+        "earliest_from": (date_min + timedelta(days=DEFAULT_BASELINE_DAYS)).isoformat(),
         "date_max": max(r[1] for r in ranges).isoformat(),
         "default_from": d_from.isoformat(), "default_to": d_to.isoformat(),
         "counties": [{"county_fips": f, "county_name": n}

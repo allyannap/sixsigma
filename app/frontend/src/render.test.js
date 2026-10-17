@@ -106,7 +106,10 @@ describe('sections render from fixtures', () => {
     expect(html).not.toMatch(/What Held Up the Call|travel-time difference|Google/i)
     expect(html).not.toMatch(/<textarea/)
     // the map search box, then From and To; no incident entry
-    expect([...html.matchAll(/<input[^>]*type="([^"]+)"/g)].map((m) => m[1])).toEqual(['text', 'date', 'date'])
+    // the only typed input is the place search; dates are picked from a calendar (DatePicker), never typed in
+    expect([...html.matchAll(/<input[^>]*type="([^"]+)"/g)].map((m) => m[1])).toEqual(['text'])
+    expect(html).toContain('id="date-from"')
+    expect(html).toContain('id="date-to"')
   })
 
   it('the top-bar "i" (next to Simulated service data) says t_received is provisional and the targets are NFPA 1720-based placeholders; no footer', () => {
@@ -458,6 +461,42 @@ describe('date range message', () => {
     expect(msg).toContain('The end date (Oct 2, 2026) is before the start date (Oct 15, 2026)')
     expect(msg).toContain('Pick an end date on or after the start date, or swap the two dates.')
     expect(msg).not.toContain('From must be on or before To')
+  })
+})
+
+describe('date limits: the calendars only offer valid days', () => {
+  it('the month menu lists only the allowed months: no 2022-2024, nothing after the data', async () => {
+    const { default: DatePicker, monthsBetween } = await import('./components/DatePicker.jsx')
+    const months = monthsBetween('2025-12-15', '2026-10-15').map((x) => x.label)
+    expect(months[0]).toBe('Dec 2025')
+    expect(months[months.length - 1]).toBe('Oct 2026')
+    expect(months).toHaveLength(11)
+    const html = plain(renderToString(h(DatePicker, { id: 'd', label: 'start', value: '2026-07-18', min: '2025-12-15', max: '2026-10-15', onChange() {}, defaultOpen: true })))
+    expect(html).toContain('Dec 2025')
+    expect(html).not.toMatch(/202[2-4]/)
+    expect(html).not.toContain('Nov 2025')
+    expect(html).toContain('Available: Dec 15, 2025 to Oct 15, 2026')
+  })
+  it('days outside the range are disabled, and the arrows stop at the ends', async () => {
+    const { default: DatePicker, monthCells } = await import('./components/DatePicker.jsx')
+    const dec = monthCells(2025, 11, '2025-12-15', '2026-10-15').filter(Boolean)
+    expect(dec.filter((c) => c.disabled).map((c) => c.day)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14])
+    const first = plain(renderToString(h(DatePicker, { id: 'd', label: 'start', value: '2025-12-20', min: '2025-12-15', max: '2026-10-15', onChange() {}, defaultOpen: true })))
+    expect(first).toMatch(/aria-label="Previous month" disabled/)
+    expect(first).not.toMatch(/aria-label="Next month" disabled/)
+  })
+  it('the To calendar starts at the chosen From; the From calendar ends at the chosen To', async () => {
+    const { monthsBetween } = await import('./components/DatePicker.jsx')
+    const html = head({ from: '2026-07-18', to: '2026-10-15', dateMin: '2025-12-15', dateMax: '2026-10-15' })
+    expect(html).toContain('Jul 18, 2026')
+    expect(html).toContain('Oct 15, 2026')
+    expect(monthsBetween('2026-07-18', '2026-10-15').map((x) => x.label)).toEqual(['Jul 2026', 'Aug 2026', 'Sep 2026', 'Oct 2026'])
+  })
+  it('a typed date outside the range gets a plain message (and no swap)', async () => {
+    const { boundsMessage } = await import('./components/PlaceHead.jsx')
+    expect(boundsMessage('2025-11-01', '2026-01-31', '2025-12-15', '2026-10-15')).toContain('Pick a start date on or after Dec 15, 2025')
+    expect(boundsMessage('2026-09-01', '2026-11-30', '2025-12-15', '2026-10-15')).toContain('Pick Oct 15, 2026 or earlier')
+    expect(boundsMessage('2026-07-18', '2026-10-15', '2025-12-15', '2026-10-15')).toBe('')
   })
 })
 

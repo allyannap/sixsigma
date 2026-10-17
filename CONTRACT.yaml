@@ -379,3 +379,20 @@ tasks:
       validate.py plain, --reproduce and --messy print 0 FAIL; every data file under 25 MB; pytest passes; vite build
       succeeds; every number in the docs matches a re-measured value.
     result: "Rate 0.09 (about 60% of the US rate): baseline 1,818,312 rows, files about 22 MB each (under 25 MB). validate 71 PASS, --reproduce 75 PASS, --messy 14 PASS; pytest 181 passed; vitest 89 passed (7 pre-existing H-15 UI failures); vite build ok. 11368 Act now (72.2% of 407); Monroe Jul-Aug Act now (10 weekly signals); x1.15 and x1.25 closures detected, drift not; clean-file false alarms 3 of 186 county-windows; map counties Watch 40, Near goal 3, Stable 19, gray 0; ZIPs gray 1,019 of 1,826. Docs updated."
+
+  - id: H-20
+    title: Date range shows only usable dates (earliest start with a full baseline, linked From/To, own calendar)
+    points: "working tool (25) - users cannot pick a period the analysis cannot judge"
+    status: done
+    owner: "claude + Powerpuff Girls"
+    started_at: "2026-10-17 19:00"
+    owns: ["app/main.py", "app/frontend/src/App.jsx", "app/frontend/src/components/PlaceHead.jsx", "app/frontend/src/components/DatePicker.jsx", "app/frontend/src/components/common.jsx", "app/frontend/src/styles.css", "app/frontend/src/fixtures/meta.json", "app/frontend/src/render.test.js", "tests/test_api.py", "docs/api.md", "app/frontend/README.md"]
+    notes: >
+      User request Oct 17. /api/meta adds earliest_from = date_min + the default 60-day baseline (2025-12-15). The page
+      uses its own calendar (DatePicker.jsx) because the browser's date box lists every year in its month/year menu:
+      the month menu holds only Dec 2025 - Oct 2026, the arrows stop at the ends, days outside the range are disabled,
+      From ends at the chosen To and To starts at the chosen From. Out-of-range dates get a plain message.
+    definition_of_done: >
+      npm test passes (month menu has no out-of-range years; disabled days; linked limits); vite build succeeds;
+      the meta test checks earliest_from; the calendar opens in a browser.
+    result: "earliest_from in /api/meta; DatePicker with only Dec 2025 - Oct 2026; vitest 115 passed; meta API test passed; vite build ok; checked in a browser."
