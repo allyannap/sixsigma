@@ -390,12 +390,13 @@ describe('OnScene page (H-14)', () => {
     expect(plain(renderToString(h(LoadingBar, { active: true })))).toContain('loading-bar is-active')
     expect(plain(renderToString(h(LoadingBar, { active: false })))).not.toContain('is-active')
   })
-  it('Key Metrics shows the fixture totals: on time with k of n, CI and goal; median; P95 with P90', () => {
+  it('Key Metrics shows the fixture totals: on time with its goal, median and P95 (no fine print under the tiles)', () => {
     const html = metrics()
     expect(html).toContain('Key Metrics')
     expect(html).toContain(`${t.on_time_pct.toFixed(1)}%`)
-    expect(html).toContain(`${t.on_time.toLocaleString('en-US')} of ${t.valid.toLocaleString('en-US')} valid calls`)
-    expect(html).toContain(`95% CI ${t.on_time_ci[0].toFixed(1)}% to ${t.on_time_ci[1].toFixed(1)}%`)
+    // the k-of-n, interval and P90 fine print was removed from the tiles (team decision, Oct 17)
+    expect(html).not.toContain('valid calls · 95% CI')
+    expect(html).not.toContain('class="metric-foot"')
     expect(html).toContain('Within target · goal 90%')
     expect(html).toContain('Half of calls arrive sooner')
     expect(html).toContain('1 call in 20 waits longer')
@@ -403,10 +404,7 @@ describe('OnScene page (H-14)', () => {
     expect((html.match(/class="metric-meaning"/g) || []).length).toBe(3)
     expect(html).not.toContain('metric-sub')
     expect(html).toContain(`<span>${t.median_min.toFixed(1)}</span>`)
-    expect(html).toContain(`95% CI ${t.median_ci[0].toFixed(1)} to ${t.median_ci[1].toFixed(1)} min`)
     expect(html).toContain(`<span>${t.p95_min.toFixed(1)}</span>`)
-    expect(html).toContain(`95% CI ${t.p95_ci[0].toFixed(1)} to ${t.p95_ci[1].toFixed(1)} min`)
-    expect(html).toContain(`P90 ${t.p90_min.toFixed(1)} min`)
   })
   it('Call urgency is a single-select radio group of numbered chips (no status colours), with a hint that it filters', () => {
     const html = metrics({ urgency: ['red'] })

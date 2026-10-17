@@ -1,6 +1,6 @@
 // Key Metrics card (three tiles + a plain Summary) and the "Wait Time Insights" row that holds the two chart cards.
 // Every number is read from /api/summary (totals, or the picked place's own card); this file only formats it.
-import { fmtCi, fmtInt, fmtNum, fmtPct } from '../format.js'
+import { fmtNum, fmtPct } from '../format.js'
 import { QUEUE, TIER_LABEL, URGENCY, URGENCY_KEYS, mapTier } from '../status.js'
 import { placeFor } from './PlaceHead.jsx'
 import InsightsSlider from './InsightsSlider.jsx'
@@ -41,21 +41,29 @@ function Tiles({ t, note }) {
         <span className="metric-label">On time</span>
         <div className="metric-value"><span>{t.on_time_pct == null ? '—' : fmtPct(t.on_time_pct)}</span></div>
         <div className="metric-meaning">Within target · goal {fmtPct(t.goal_pct, 0)}</div>
-        <div className="metric-foot">
-          {t.on_time_pct == null ? note : `${fmtInt(t.on_time)} of ${fmtInt(t.valid)} valid calls · 95% CI ${fmtCi(t.on_time_ci, '%')}`}
-        </div>
+        {t.on_time_pct == null && <div className="metric-foot">{note}</div>}
       </div>
       <div className="metric" aria-label="Median wait">
         <span className="metric-label">Median wait</span>
         <div className="metric-value"><span>{dash(t.median_min)}</span>{t.median_min != null && <span className="unit">min</span>}</div>
         <div className="metric-meaning">Half of calls arrive sooner</div>
-        <div className="metric-foot">{t.median_min == null ? note : `call received to on scene · 95% CI ${fmtCi(t.median_ci)} min`}</div>
+        {t.median_min == null && <div className="metric-foot">{note}</div>}
       </div>
-      <div className="metric" aria-label="P95 wait">
+      <div className="metric metric-has-info" aria-label="P95 wait">
         <span className="metric-label">P95 wait</span>
+        <InfoTip id="p95-def" label="What P95 wait means" align="right">
+          <strong className="tip-title">What P95 wait means</strong>
+          <span className="tip-para">
+            95 of every 100 calls had help on scene within this time; the slowest 1 call in 20 waited longer.
+          </span>
+          <span className="tip-para">
+            Why it matters: an average hides the worst waits. P95 shows how long the slowest calls take, the delays most
+            likely to cost lives, so a place can look fine on average and still have a dangerous tail.
+          </span>
+        </InfoTip>
         <div className="metric-value"><span>{dash(t.p95_min)}</span>{t.p95_min != null && <span className="unit">min</span>}</div>
         <div className="metric-meaning">1 call in 20 waits longer</div>
-        <div className="metric-foot">{t.p95_min == null ? note : `95% CI ${fmtCi(t.p95_ci)} min · P90 ${t.p90_min == null ? 'n/a' : `${fmtNum(t.p90_min)} min`}`}</div>
+        {t.p95_min == null && <div className="metric-foot">{note}</div>}
       </div>
     </div>
   )

@@ -393,7 +393,7 @@ function MapCard({ summaryState, parent, selected, countyOptions = [], onPick, o
           <div className="legend-ramp">
             <span className="ramp-bar" aria-hidden="true" style={{ background: `linear-gradient(90deg, ${LATE_STOPS.map(([, c]) => c).join(', ')})` }} />
             <span className="ramp-labels">{LATE_STOPS.map(([v]) => <span key={v}>{v === LATE_STOPS[LATE_STOPS.length - 1][0] ? `${v}%+` : `${v}%`}</span>)}</span>
-            <span className="ramp-note">Late share. Faded: under 30 calls. Gray: no valid calls.</span>
+            <span className="ramp-note"><i className="dot dot-nodata" aria-hidden="true" />Gray: No valid calls</span>
           </div>
         )}
       </div>

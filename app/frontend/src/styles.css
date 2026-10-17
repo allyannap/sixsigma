@@ -716,7 +716,6 @@ table.places.narrow { min-width: 420px; }
 .legend-ramp { display: grid; gap: 4px; margin-top: 6px; }
 .ramp-bar { display: block; height: 10px; border-radius: 4px; }
 .ramp-labels { display: flex; justify-content: space-between; font-size: var(--fs-xs); color: var(--ink-2); }
-.ramp-note { font-size: var(--fs-xs); color: var(--ink-2); }
 
 /* Date picker (DatePicker.jsx): only the allowed months and days are offered */
 .date-picker { position: relative; }
@@ -807,3 +806,27 @@ table.places.narrow { min-width: 420px; }
 .guide-dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--line-strong); }
 .guide-dots i.is-on { width: 18px; border-radius: 4px; background: var(--brand); }
 @media (max-width: 520px) { .guide-tiers li { grid-template-columns: 12px 1fr; } .guide-tiers li span { grid-column: 2; } .guide-labels li { grid-template-columns: 1fr; gap: 4px; } }
+.ramp-note { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: var(--fs-xs); color: var(--ink-2); }
+.ramp-note .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+
+/* Key Metrics: bigger, brand-blue headline numbers; each meaning on one line */
+.metrics-card .metric-value { font-size: 34px; color: var(--brand-deep); }
+.metrics-card .metric-value .unit { font-size: 13px; color: var(--brand); }
+.metrics-card .metric-meaning { min-height: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 10.5px; }
+@media (max-width: 1400px) { .metrics-card .metric-value { font-size: 30px; } }
+@media (max-width: 720px) { .metrics-card .metric-value { font-size: 26px; } }
+/* room for the one-line meanings: the tiles get a little more of the card, the Summary a little less */
+.metrics-card .metrics-body { grid-template-columns: minmax(0, 1.22fr) 1px minmax(0, 0.78fr); }
+.metrics-card .metric { padding-left: 9px; padding-right: 8px; }
+.metrics-card .metric-grid { gap: 7px; }
+.metrics-card .metric-meaning { letter-spacing: -0.012em; }
+/* the one-line meaning scales with its tile's width (10.5px on wide screens, a little smaller on laptops) */
+.metrics-card .metric { container-type: inline-size; }
+.metrics-card .metric-meaning { font-size: clamp(9px, 8.4cqi, 10.5px); }
+
+/* the "i" in the P95 tile's top-right corner; its popup opens down and to the left, over the tiles */
+.metrics-card .metric-has-info { position: relative; }
+.metrics-card .metric-has-info .info-tip { position: absolute; top: 8px; right: 8px; margin: 0; }
+.metrics-card .metric-has-info .metric-label { padding-right: 18px; }
+.metrics-card .metric-has-info .legend-tip { left: auto; right: -8px; width: 270px; }
+.metrics-card .metric-has-info:has(.info-tip:hover), .metrics-card .metric-has-info:has(.info-tip.is-open), .metrics-card .metric-has-info:focus-within { z-index: 8; }
