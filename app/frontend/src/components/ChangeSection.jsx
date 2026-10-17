@@ -140,21 +140,13 @@ export function ControlView({ p, params, selectedName }) {
   const [methodOpen, setMethodOpen] = useState(false)
   const point = chartPts.find((pt) => pt.start === selected) || initial
   const flagged = descriptive ? [] : pts.filter(isFlaggedPeriod)
-  const above = descriptive ? [] : pts.filter((pt) => pt.p > pt.ucl)
   const over = !descriptive && point && point.p > point.ucl
   const under = !descriptive && point && point.p < point.lcl
-  const nextAbove = () => {
-    const current = pts.findIndex((pt) => pt.start === point.start)
-    const next = above.find((pt) => pts.indexOf(pt) > current) || above[0]
-    if (next) choose(next.start)
-  }
   const b = p.baseline || {}
   const insufficient = p.control === 'insufficient_baseline' && !descriptive
   const headline = insufficient ? 'More history needed' : p.control === 'out_of_control' ? 'Recent increase detected' : ''
-  const count = (p.signals || []).length
-  const finding = descriptive ? 'Observed ZIP rates with pointwise 95% Wilson intervals. No control limits or signals are calculated.'
-    : insufficient ? p.control_reason : p.watch ? '' : p.control === 'out_of_control' ? `${count} statistical signals.` : ''
-  const tone = insufficient || descriptive ? 'data' : p.control === 'out_of_control' || p.watch ? 'signal' : 'calm'
+  const finding = insufficient ? p.control_reason : p.control === 'out_of_control' ? `${(p.signals || []).length} statistical signals.` : ''
+  const tone = insufficient ? 'data' : 'signal'
   const choose = (start) => { setSelected(start) }
   const review = (start) => { setSelected(start); setPanel('calls'); setDetailsOpen(true) }
   const openDetails = (tab = 'period') => { setPanel(tab === 'method' ? 'period' : tab); if (tab === 'method') setMethodOpen(true); setDetailsOpen(true) }
@@ -175,10 +167,9 @@ export function ControlView({ p, params, selectedName }) {
   const start = range?.from
   const end = range?.to
   return <div className="simple-comparison control-view">
-    {!descriptive && (headline || above.length > 0) && <div className={`control-finding finding-${tone}`} role="status">
-      {headline && <span className="control-finding-icon" aria-hidden="true">{tone === 'signal' ? '!' : tone === 'data' ? '…' : '—'}</span>}
-      {headline && <div><p className="control-headline">{headline}</p>{finding && <p className="control-summary">{finding}</p>}</div>}
-      {!insufficient && above.length > 0 && <button type="button" className="trend-next" onClick={nextAbove}>{above.length} above limit · Next <span aria-hidden="true">→</span></button>}
+    {!descriptive && headline && <div className={`control-finding finding-${tone}`} role="status">
+      <span className="control-finding-icon" aria-hidden="true">{tone === 'signal' ? '!' : '…'}</span>
+      <div><p className="control-headline">{headline}</p>{finding && <p className="control-summary">{finding}</p>}</div>
     </div>}
     {descriptive ? <div className="descriptive-intro">
       <div><span className="descriptive-status">ZIP {p.selection?.name || selectedName} · observed trend</span><span className="descriptive-why">Late = on-scene arrival after the configured target.</span></div>
@@ -227,10 +218,12 @@ export function ControlView({ p, params, selectedName }) {
     {p.control === 'insufficient_baseline' && !descriptive && <button type="button" className="trend-baseline-button" onClick={() => openDetails('method')}>View baseline checks <span aria-hidden="true">↗</span></button>}
     {!descriptive && !insufficient && (!point || !p.unit) && <button type="button" className="trend-baseline-button" onClick={() => openDetails('method')}>Details & evidence <span aria-hidden="true">↗</span></button>}
     <EvidenceDrawer open={detailsOpen} onClose={() => setDetailsOpen(false)} title="Response details" titleId="trend-drawer-title" className="trend-evidence-drawer">
-      <div className="response-context-chips" role="group" aria-label="Selected area and filters">
+      <div className="response-context-chips" role="group" aria-label="Selected area">
         <span className="response-context-chip">{p.selection?.level === 'zcta' ? `ZIP ${p.selection?.name || selectedName}` : p.selection?.name || selectedName}</span>
-        <span className="response-context-chip">{fmtDateYear(p.selection?.from)} – {fmtDateYear(p.selection?.to)}</span>
-        <span className="response-context-chip">{(p.selection?.urgency || []).map(urgencyText).join(', ')}</span>
+      </div>
+      <div className="response-filter-text" role="group" aria-label="Selected date range and call urgency">
+        <span>{fmtDateYear(p.selection?.from)} – {fmtDateYear(p.selection?.to)}</span>
+        <span>{(p.selection?.urgency || []).map(urgencyText).join(', ')}</span>
       </div>
       <div className="control-support">
         <div className="control-tabs" role="tablist" aria-label="Control chart supporting information">

@@ -13,13 +13,12 @@
 .control-view { gap: 6px; max-width: none; align-self: stretch; }
 .control-finding { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 9px; background: #f0f4f8; flex: none; }
 .finding-signal { background: #fff0e6; }
-.finding-calm { background: #eef5f1; }
+.finding-data { background: #f0f4f8; }
 .control-finding-icon { display: grid; place-items: center; font-size: 12px; font-weight: 800; width: 21px; height: 21px; flex: none; border-radius: 50%; background: #dfe6ed; }
 .finding-signal .control-finding-icon { background: #f9d4bf; color: #9a3412; }
 .control-finding > div { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; }
 .control-headline { margin: 0; font-size: 12px; font-weight: 750; color: var(--ink); }
 .control-summary { margin: 0; font-size: 11px; color: var(--ink-2); }
-.trend-next { margin-left: auto; flex: none; border: 0; background: transparent; color: #9a3412; font: inherit; font-weight: 700; font-size: 10px; padding: 4px 0 4px 8px; cursor: pointer; min-height: 24px; }
 .control-baseline-row { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; margin: 0; flex: none; }
 .control-baseline-detail { font-size: 10px; color: var(--muted); }
 .control-view .control-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(190px, .34fr) !important; grid-template-rows: minmax(0, 1fr) auto; gap: 5px 14px; min-height: 0; flex: 1; align-items: stretch; }
@@ -79,6 +78,9 @@
 .trend-evidence-drawer .comparison-drawer-body { display: flex; flex-direction: column; overflow: hidden; }
 .trend-evidence-drawer .control-support { min-height: 0; display: flex; flex-direction: column; }
 .trend-evidence-drawer .control-tab-panel { min-height: 0; }
+.trend-evidence-drawer .response-context-chips { margin-bottom: 6px; }
+.response-filter-text { display: flex; flex-wrap: wrap; align-items: center; gap: 0 8px; margin: 0 0 14px; color: var(--muted); font-size: 11px; line-height: 1.5; }
+.response-filter-text span + span::before { content: '·'; margin-right: 8px; }
 .response-method-dropdown { margin: 0 0 12px; border-bottom: 1px solid var(--line); padding: 0 2px 10px; }
 .response-method-dropdown summary { color: var(--brand-deep); font-size: 12px; font-weight: 700; cursor: pointer; }
 .response-method-dropdown[open] summary { margin-bottom: 8px; }
@@ -86,7 +88,7 @@
 .control-tabs { display: flex; flex-wrap: wrap; gap: 4px; border-bottom: 1px solid var(--line); padding-bottom: 9px; margin-bottom: 15px; }
 .control-tabs button { border: 1px solid transparent; border-radius: 7px; background: transparent; padding: 7px 9px; font: inherit; font-size: 11px; font-weight: 650; color: var(--muted); cursor: pointer; }
 .control-tabs button[aria-selected="true"] { border-color: #d6e4f2; background: var(--brand-soft); color: var(--brand-deep); }
-.control-tabs button:focus-visible, .trend-next:focus-visible, .trend-baseline-button:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+.control-tabs button:focus-visible, .trend-baseline-button:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
 .control-tab-panel { font-size: 12px; line-height: 1.6; }
 .control-tab-panel:focus-visible { outline: 2px solid var(--brand); outline-offset: 4px; }
 .control-tab-panel .table-scroll { max-height: none; }
@@ -119,8 +121,6 @@
   .insights-tabs { margin-bottom: 7px; }
   .insights-tabs button { min-height: 28px; }
   .control-view > .control-baseline-row { display: none; }
-  .control-finding { padding-block: 3px; }
-  .control-finding-icon { width: 18px; height: 18px; }
   .trend-selection > label, .trend-selection > .card-badge { display: none; }
   .trend-selection { padding-block: 6px; gap: 4px; }
   .trend-selected-rate strong { font-size: 22px; }
@@ -135,8 +135,6 @@
   .trend-selection-metrics { grid-template-columns: 1fr 1fr; grid-column: 1 / -1; }
   .trend-selected-limit { border-left: 1px solid var(--line); padding: 0 0 0 9px; display: flex; }
   .trend-actions { grid-column: 1; grid-row: 3; }
-  .trend-next { font-size: 9px; }
-  .control-finding > div { display: block; }
   .descriptive-intro { align-items: flex-start; flex-direction: column; }
   .descriptive-split .control-chart { height: 190px; max-height: 190px; }
 }
