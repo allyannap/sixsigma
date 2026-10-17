@@ -39,7 +39,7 @@ export const QUEUE = {
   needs_data: {
     label: 'Needs more data / Inconclusive',
     short: 'Needs more data',
-    help: 'Too few calls, too little baseline, an on-time interval that includes the goal, or confirmed below target but too little baseline to judge change. Not a pass.',
+    help: 'Too few calls, too little baseline, an on-time interval that includes the goal, or confirmed below goal but too little baseline to judge change. Not a pass.',
     bg: '#E3E6E1',
     fg: '#3D4842',
     next: 'Widen the date range, or look at the county or the state.',
@@ -52,8 +52,8 @@ export const QUEUE_ORDER = ['act_now', 'ongoing_gap', 'recent_change', 'needs_da
 export const ATTENTION = ['act_now', 'ongoing_gap', 'recent_change']
 
 export const SPEC = {
-  below: { label: 'Below target', bg: '#FBE3E0', fg: '#8F1D14' },
-  meets: { label: 'Meets target', bg: '#DCEFE2', fg: '#1E6B3A' },
+  below: { label: 'Below goal', bg: '#FBE3E0', fg: '#8F1D14' },
+  meets: { label: 'Meets goal', bg: '#DCEFE2', fg: '#1E6B3A' },
   inconclusive: { label: 'Inconclusive', bg: '#EEF0EC', fg: '#3D4842' },
 }
 
@@ -114,7 +114,7 @@ function byExcessLate(a, b) {
 }
 
 /**
- * Queue order first; inside a label, confirmed below-target places first, then the most late calls beyond
+ * Queue order first; inside a label, confirmed below-goal places first, then the most late calls beyond
  * what the goal allows (excess_late, desc). Raw late counts are not used: they favor big places.
  */
 export function rankPlaces(places) {
@@ -151,7 +151,7 @@ export function attentionCount(summary) {
 // calls that sit close to the goal, or that meet it but have too few late calls to chart. The map therefore also
 // reads the place's target result and call count, so gray means only "too few calls":
 //   Critical  = Act now
-//   Watch     = Ongoing gap, Recent change, or confirmed below target when change cannot be judged yet
+//   Watch     = Ongoing gap, Recent change, or confirmed below goal when change cannot be judged yet
 //   Near goal = 30+ valid calls but the on-time interval includes the goal (and no change signal)
 //   Stable    = Meets goal (with or without a usable baseline)
 //   gray      = under 30 valid calls (or none)

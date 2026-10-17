@@ -693,10 +693,6 @@ table.places.narrow { min-width: 420px; }
   .insights-slider .slider-arrow { top: 50%; }
 }
 
-/* the "i" next to "Simulated service data": same button as the legend's, tooltip opens downward and wraps */
-.data-info { display: inline-grid; place-items: center; margin-left: -10px; }
-.legend-tip.tip-below { top: calc(100% + 10px); bottom: auto; right: -8px; width: min(380px, 80vw); white-space: normal; font-size: 11.5px; line-height: 1.5; z-index: 70; }
-.legend-tip.tip-below code { font-size: 10.5px; padding: 0 3px; border-radius: 4px; background: rgba(255, 255, 255, 0.14); color: #fff; }
 
 /* Priority is exclusive: exactly one of red, yellow or green. */
 /* Call urgency: a filter, shown by number (never in status colours). Chips look like buttons: border, hover, pointer. */
@@ -750,3 +746,41 @@ table.places.narrow { min-width: 420px; }
 /* Key Metrics tiles: same rows in every tile (label, number, meaning, fine print), so the big numbers line up */
 .metric-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .metric-meaning { font-size: 11px; font-weight: 700; line-height: 1.35; min-height: 2.7em; color: var(--ink-2); } /* 2 lines, so the fine print starts level */
+
+/* "How to read this dashboard" guide (HowItWorks.jsx): a centred modal, three short pages */
+.tb-help { margin-left: -6px; }
+.guide { width: min(560px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); margin: auto; padding: 0; border: 0; border-radius: 18px; background: var(--surface); color: var(--ink); box-shadow: 0 30px 80px -20px rgba(15, 22, 32, 0.45); }
+.guide::backdrop { background: rgba(15, 22, 32, 0.45); }
+.guide[open] { animation: guide-enter .2s ease-out; }
+@keyframes guide-enter { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .guide[open] { animation: none; } }
+.guide-inner { display: flex; flex-direction: column; max-height: inherit; }
+.guide-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 22px 24px 6px; }
+.guide-head h2 { margin: 4px 0 0; font-size: 21px; letter-spacing: -0.02em; }
+.guide-body { padding: 12px 24px 4px; overflow-y: auto; min-height: 0; font-size: 14px; line-height: 1.5; }
+.guide-defs { display: grid; gap: 6px; margin: 0 0 14px; }
+.guide-defs div { display: grid; grid-template-columns: 64px 1fr; gap: 10px; align-items: baseline; }
+.guide-defs dt { font-weight: 800; color: var(--brand-deep); }
+.guide-defs dd { margin: 0; color: var(--ink-2); }
+.guide-table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
+.guide-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.guide-table th, .guide-table td { padding: 8px 10px; text-align: right; white-space: nowrap; border-top: 1px solid var(--line); }
+.guide-table thead th { border-top: 0; background: var(--surface-2); font-size: 11.5px; font-weight: 700; color: var(--muted); }
+.guide-table th:first-child { text-align: left; }
+.guide-table tbody th { font-weight: 700; }
+.guide-table td { font-variant-numeric: tabular-nums; font-weight: 700; }
+.guide-unit { font-weight: 500; color: var(--muted); font-size: 11.5px; }
+.guide-num { display: inline-grid; place-items: center; width: 20px; height: 20px; margin-right: 8px; border-radius: 50%; background: var(--brand-soft); color: var(--brand-deep); font-size: 11.5px; font-weight: 800; }
+.guide-note { margin: 10px 0 0; font-size: 12px; color: var(--muted); }
+.guide-tiers { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.guide-tiers li { display: grid; grid-template-columns: 12px 108px 1fr; gap: 10px; align-items: start; }
+.guide-tiers .dot { width: 11px; height: 11px; border-radius: 50%; margin-top: 5px; }
+.guide-tiers span { color: var(--ink-2); }
+.guide-steps { margin: 0; padding-left: 20px; display: grid; gap: 8px; }
+.guide-foot { display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding: 16px 24px 20px; }
+.guide-foot .btn { min-height: 34px; font-size: 12px; }
+.guide-foot .btn-quiet { border-color: transparent; color: var(--muted); }
+.guide-dots { display: flex; gap: 6px; margin-right: auto; }
+.guide-dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--line-strong); }
+.guide-dots i.is-on { width: 18px; border-radius: 4px; background: var(--brand); }
+@media (max-width: 520px) { .guide-tiers li { grid-template-columns: 12px 1fr; } .guide-tiers li span { grid-column: 2; } }

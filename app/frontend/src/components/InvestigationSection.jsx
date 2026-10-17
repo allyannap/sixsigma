@@ -2,7 +2,7 @@ import { fmtChanceBelow, fmtCi, fmtDate, fmtInt, fmtNum, fmtPct, fmtRange } from
 import { ATTENTION, rankPlaces } from '../status.js'
 import { Async, Judgments, Messages, Section, StatusBadge } from './common.jsx'
 
-/** Flagged places: the three attention labels, then confirmed below-target places whose control could not be judged. */
+/** Flagged places: the three attention labels, then confirmed below-goal places whose control could not be judged. */
 export function investigationRows(places) {
   const ranked = rankPlaces(places)
   return [
@@ -86,7 +86,7 @@ export default function InvestigationSection({ summaryState, flaggedState, onPic
               <table className="places">
                 <thead>
                   <tr>
-                    <th scope="col">Area</th><th scope="col">Queue and judgments</th><th scope="col">Target evidence</th>
+                    <th scope="col">Area</th><th scope="col">Queue and judgments</th><th scope="col">Goal evidence</th>
                     <th scope="col">Control evidence</th>
                   </tr>
                 </thead>

@@ -509,3 +509,29 @@ tasks:
       npm test passes; vite build succeeds; in a browser the map and the right side (and the open panel) have the same
       width.
     result: "Map 710 px, right side 710 px, open panel 710 px with the 14 px gap kept (1490 px window); vitest 112 passed; vite build ok."
+
+  - id: H-27
+    title: Target vs goal - one meaning each, and a "How it works" guide instead of the top-bar tooltip
+    points: "working tool (25) and demonstration (10) - users can tell the minutes from the 90%"
+    status: done
+    owner: "claude + Powerpuff Girls"
+    started_at: "2026-10-17 23:50"
+    owns: ["app/frontend/src/components/HowItWorks.jsx", "app/frontend/src/components/TopBar.jsx", "app/frontend/src/App.jsx",
+           "app/frontend/src/status.js", "app/frontend/src/format.js", "app/frontend/src/components/common.jsx",
+           "app/frontend/src/components/MapSection.jsx", "app/frontend/src/components/MetricsSection.jsx",
+           "app/frontend/src/components/InvestigateRail.jsx", "app/frontend/src/components/InvestigationSection.jsx",
+           "app/frontend/src/styles.css", "app/frontend/src/guide.test.js", "app/frontend/src/render.test.js",
+           "app/frontend/src/status.test.js", "app/main.py", "app/qc.py", "app/ai_summary.py",
+           "SPEC.md", "README.md", "app/frontend/README.md", "data/README.md"]
+    notes: >
+      User request Oct 17. "Target" meant both the minutes for one call and the 90% on-time goal. Now target = the minutes
+      (late = missed it) and goal = 90% on time; the place judgment reads Meets goal / Below goal / Inconclusive across the
+      page, legend, table, section 3, docstrings, AI-summary prompt and docs. API codes and every number unchanged. The
+      unread "i" tooltip is replaced by a "How it works" button and a three-page guide (also shown on the first visit):
+      target vs goal with the target table from /api/meta (urgency as 1 / 2 / 3, remote reuses rural, NFPA 1720-based
+      placeholders), the five map colours, and how to use the page with the data caveats. No extra text on the page.
+    definition_of_done: >
+      npm test passes (target table known answer = config/targets.csv; empty and mixed-target degenerate cases; labels say
+      goal); pytest tests/test_ai_summary.py passes; vite build succeeds; in a browser the guide opens on the first visit
+      only, steps Next / Back / Start, closes on Escape and reopens from "How it works".
+    result: "Target table 8/10/14/14, 15, 30 min and goal 90% match config/targets.csv (40 of 40 rows); labels say goal everywhere; vitest 118 passed; pytest test_ai_summary 42 passed; vite build ok; guide checked in a browser (first visit only, Next/Back/Start, Escape, reopen)."

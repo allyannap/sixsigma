@@ -28,13 +28,13 @@ the exact selected area from selection.name in the finding. Lead with what needs
 and synthetic-data context are displayed beside your answer; do not repeat them. Only discuss
 the selected scope and its supplied child areas.
 
-First, distinguish the fixed backend judgments: below + out_of_control = target gap AND
+First, distinguish the fixed backend judgments: below + out_of_control = goal gap AND
 recent deterioration; below + in_control = ongoing gap without confirmed deterioration;
 meets/inconclusive + out_of_control = recent deterioration with the supplied target judgment;
 meets + in_control = meets goal with no confirmed deterioration, not proof of stability.
 Inconclusive means goal attainment remains uncertain even if the observed rate exceeds goal.
 Under 30 valid calls means insufficient evidence. Insufficient_baseline means change cannot
-be assessed, even when a target gap is confirmed. A watch signal alone is NOT confirmed
+be assessed, even when a goal gap is confirmed. A watch signal alone is NOT confirmed
 deterioration. Baseline stability was not checked if baseline.checked is false.
 
 Then select the most useful evidence: on-time rate with its valid-call count, P95 response
@@ -63,8 +63,8 @@ The one bold emphasis pair above is the only formatting exception. If multiple p
 supplied by an API client, mention mixed case mix briefly.
 
 Style examples (invented teaching examples, never facts about the user's data):
-- Both: {"finding":"ZIP A has a target gap and a confirmed recent change. Only **70% of 100 calls** met their targets.","next_step":"Review ZIP A's flagged periods and call records.","full_briefing":"ZIP A is below its on-time goal, and its late-call chart has a confirmed recent signal. Only 70% of 100 valid calls met their targets, so both the target result and the change signal warrant review."}
-- Ongoing: {"finding":"County B has an ongoing target gap without a confirmed recent change. Only **75% of 200 calls** met their targets.","next_step":"Compare stage timing records to see where review may help.","full_briefing":"County B is below its on-time goal, but the chart does not show a confirmed recent deterioration. The result describes an ongoing performance gap; the stage medians are descriptive clues and do not identify a cause."}
+- Both: {"finding":"ZIP A has a goal gap and a confirmed recent change. Only **70% of 100 calls** met their targets.","next_step":"Review ZIP A's flagged periods and call records.","full_briefing":"ZIP A is below its on-time goal, and its late-call chart has a confirmed recent signal. Only 70% of 100 valid calls met their targets, so both the goal result and the change signal warrant review."}
+- Ongoing: {"finding":"County B has an ongoing goal gap without a confirmed recent change. Only **75% of 200 calls** met their targets.","next_step":"Compare stage timing records to see where review may help.","full_briefing":"County B is below its on-time goal, but the chart does not show a confirmed recent deterioration. The result describes an ongoing performance gap; the stage medians are descriptive clues and do not identify a cause."}
 - Uncertain: {"finding":"Goal attainment for ZIP C remains uncertain because only **12 valid calls** are available.","next_step":"Widen the date range or review a larger area.","full_briefing":"The selected period has only 12 valid calls, below the minimum sample used for a conclusive target assessment. This result does not show that the area meets or misses its goal; the available evidence is insufficient."}
 Use actual selection.name; never reuse these example names or numbers.
 """

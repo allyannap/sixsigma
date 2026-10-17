@@ -66,14 +66,14 @@ describe('sections render from fixtures', () => {
     const html = await railHtml()
     expect(html).not.toContain('rail-card')
     expect(html).not.toContain('rail-layout')
-    for (const col of ['Valid calls', 'On time [95% CI]', 'Target', 'Control', 'Label', 'Late beyond goal', 'Cancelled / invalid', 'Calls per day: now (baseline)', 'P95 min [95% CI]', 'Cpk [upper]']) {
+    for (const col of ['Valid calls', 'On time [95% CI]', 'Goal', 'Control', 'Label', 'Late beyond goal', 'Cancelled / invalid', 'Calls per day: now (baseline)', 'P95 min [95% CI]', 'Cpk [upper]']) {
       expect(html).toContain(`>${col}</th>`)
     }
   })
   it('a place row shows its queue label and both judgments; the place header no longer repeats them', async () => {
     const p = summary.places.find((x) => x.queue === 'act_now')
     const row = rowOf(await railHtml(), p.name)
-    expect(row).toMatch(/Below target|Inconclusive|Meets target/)
+    expect(row).toMatch(/Below goal|Inconclusive|Meets goal/)
     expect(row).toContain('Act now')
     expect(row).toContain(`${p.valid.toLocaleString('en-US')}</td>`)
     const top = head({ selected: { level: 'county', id: p.id, name: p.name, place: p } })
@@ -100,7 +100,7 @@ describe('sections render from fixtures', () => {
   })
   it('section 3 lists flagged areas with their evidence, never a chosen fix', () => {
     const html = plain(renderToString(h(InvestigationSection, { summaryState: ok(summary), onPick() {} })))
-    expect(html).toContain('Target evidence')
+    expect(html).toContain('Goal evidence')
     expect(html).toContain('Control evidence')
     expect(html).toContain('does not choose or rank interventions')
     expect(investigationRows(summary.places).every((p) => ['act_now', 'ongoing_gap', 'recent_change'].includes(p.queue) || p.spec === 'below')).toBe(true)
@@ -134,15 +134,16 @@ describe('sections render from fixtures', () => {
     expect(html).toContain('id="date-to"')
   })
 
-  it('the top-bar "i" (next to Simulated service data) says t_received is provisional and the targets are NFPA 1720-based placeholders; no footer', () => {
+  it('the "How it works" guide says the clock start is not yet confirmed and the targets are NFPA 1720-based placeholders; no footer', async () => {
     const html = plain(renderToString(h(App)))
     expect(html).not.toContain('<footer')
-    expect(html).toContain('aria-label="About the data and targets"')
-    expect(html).toContain('Every number on this page is computed by the API')
-    expect(html).toContain('provisional')
-    expect(html).toContain('911 answer')
-    expect(html).toContain('NFPA 1720')
-    expect(html).toContain('red 8 minutes in urban areas, 10 suburban, 14 rural and remote; yellow 15; green 30')
+    expect(html).toContain('>How it works</button>')
+    expect(html).not.toContain('About the data and targets')
+    const { default: HowItWorks } = await import('./components/HowItWorks.jsx')
+    const guide = (i) => plain(renderToString(h(HowItWorks, { open: true, onClose() {}, targets: [], initialPage: i })))
+    expect(guide(0)).toContain('placeholders based on NFPA 1720')
+    expect(guide(2)).toContain('911 answer or the CAD record: not yet confirmed')
+    expect(guide(2)).toContain('Every number comes from the read-only API')
   })
   it('the replay bar takes the baseline length from the API (60, or 120 when stretched)', () => {
     const bar = (days) => plain(renderToString(h(ReplayBar, { replay: { on: true, playing: false, start: '2026-08-25', day: '2026-09-02' }, feedState: ok(replay), baselineDays: days, onStart() {}, onToggle() {}, onStep() {}, onStop() {} })))

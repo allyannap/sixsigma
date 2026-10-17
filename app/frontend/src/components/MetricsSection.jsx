@@ -76,7 +76,7 @@ function Summary({ place, name, busy }) {
         <>
           <p className="summary-text">
             <strong>{name}: {q ? q.label : place.queue}.</strong>
-            {' '}Target: {place.spec_reason || 'n/a'}.
+            {' '}Goal: {place.spec_reason || 'n/a'}.
             {' '}Control: {place.control_reason || 'n/a'}.
           </p>
           <p className="summary-foot">{q ? `Next: ${q.next}` : ''}</p>

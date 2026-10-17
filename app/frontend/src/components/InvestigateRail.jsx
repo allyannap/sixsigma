@@ -20,7 +20,7 @@ function RailTable({ rows, selected, onPick }) {
         <thead>
           <tr>
             <th scope="col">#</th><th scope="col">Place</th><th scope="col">Valid calls</th>
-            <th scope="col">On time [95% CI]</th><th scope="col">Target</th><th scope="col">Control</th><th scope="col">Label</th>
+            <th scope="col">On time [95% CI]</th><th scope="col">Goal</th><th scope="col">Control</th><th scope="col">Label</th>
             <th scope="col" title="Late calls beyond what the goal allows: late - (1 - goal) x valid. Negative = fewer than allowed.">Late beyond goal</th>
             <th scope="col">Cancelled / invalid</th><th scope="col">Calls per day: now (baseline)</th>
             <th scope="col">P95 min [95% CI]</th><th scope="col" title="Secondary; assumes lognormal times; never sets a label">Cpk [upper]</th>
@@ -109,11 +109,11 @@ export default function InvestigateRail({ open, onClose, summaryState, parent, s
         {split && (
           <div className="rail-summary">
             {/* Same count as the list and the map's Critical + Watch: the queue labels needing review, plus places
-                confirmed below target whose change cannot be judged yet. */}
+                confirmed below goal whose change cannot be judged yet. */}
             <p className="rail-count">{flagged.length} of {places.length} {noun} need review</p>
             <p className="rail-split">
               Act now <b className="n-act">{qc.act_now || 0}</b> · Recent change <b className="n-recent">{qc.recent_change || 0}</b> · Ongoing gap <b className="n-gap">{qc.ongoing_gap || 0}</b>
-              {flagged.length > split.total && <> · Below target, change not yet judged <b className="n-gap">{flagged.length - split.total}</b></>}
+              {flagged.length > split.total && <> · Below goal, change not yet judged <b className="n-gap">{flagged.length - split.total}</b></>}
             </p>
           </div>
         )}
@@ -133,7 +133,7 @@ export default function InvestigateRail({ open, onClose, summaryState, parent, s
           <details className="rail-howto">
             <summary>How to read this list</summary>
             <p>Most urgent first: Act now, then Ongoing gap, then Recent change; inside each, the places with the most late calls beyond the goal come first. Pick a place name to show it on the map and in the charts.</p>
-            <p><strong>Target</strong>: is the on-time rate confidently at or above the goal? <strong>Control</strong>: has the late share risen above its own recent past? Being in control does not mean the service is good.</p>
+            <p><strong>Goal</strong>: is the on-time rate confidently at or above the 90% goal? <strong>Control</strong>: has the late share risen above its own recent past? Being in control does not mean the service is good.</p>
             {fmtChanceBelow(s.chance_below, noun) && <p>{fmtChanceBelow(s.chance_below, noun)}</p>}
             <Messages messages={s.messages} />
           </details>

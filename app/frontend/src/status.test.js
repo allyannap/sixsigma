@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { QUEUE, WATCH, attentionCount, attentionSplit, fillFor, latePct, legendRows, mapTier, rankPlaces } from './status.js'
 
 describe('status helpers', () => {
-  it('ranks by queue label, then confirmed below-target first, then excess late calls (not raw late counts)', () => {
+  it('ranks by queue label, then confirmed below-goal first, then excess late calls (not raw late counts)', () => {
     const out = rankPlaces([
       { id: 'a', queue: 'meets_stable', spec: 'meets', late: 99, excess_late: -5 },
       { id: 'b', queue: 'act_now', spec: 'below', late: 40, excess_late: 2 },
@@ -30,7 +30,7 @@ describe('status helpers', () => {
   it('wording: no "statistically stable" claim, watch is not confirmed, needs_data mentions too little baseline', () => {
     expect(QUEUE.meets_stable.label).toBe('Meets goal; no change signal')
     expect(JSON.stringify(QUEUE)).not.toMatch(/statistically stable/i)
-    expect(QUEUE.needs_data.help).toContain('or confirmed below target but too little baseline to judge change')
+    expect(QUEUE.needs_data.help).toContain('or confirmed below goal but too little baseline to judge change')
     expect(WATCH.tip).toBe('1 period above the limit, not confirmed')
   })
   it('uses needs_attention (an int), and counts places only if it is missing', () => {
@@ -63,7 +63,7 @@ describe('map colour groups (OnScene legend)', () => {
     expect(mapTier(place('needs_data', 'inconclusive', 318))).toBe('near')
     // yellow calls: 396 valid, 100% on time, but too few late calls to chart -> meets goal, not gray
     expect(mapTier(place('needs_data', 'meets', 396))).toBe('stable')
-    // confirmed below target while change cannot be judged -> watch, not gray
+    // confirmed below goal while change cannot be judged -> watch, not gray
     expect(mapTier(place('needs_data', 'below', 120))).toBe('watch')
     // genuinely too few calls -> gray
     expect(mapTier(place('needs_data', 'inconclusive', 29))).toBe('nodata')

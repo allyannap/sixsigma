@@ -349,7 +349,7 @@ def meta():
 # ---------------------------------------------------------------- statistics routes
 
 def chance_below_card(qc, places: list[dict], goal_pct) -> dict:
-    """How many places would read "Below target" by chance alone, beside how many do (qc.chance_below)."""
+    """How many places would read "Below goal" by chance alone, beside how many do (qc.chance_below)."""
     cb = qc.chance_below([p["valid"] for p in places], goal_pct)
     return {"expected": num(cb["expected"], 2), "n_places": cb["n_places"],
             "observed_below": sum(p["spec"] == "below" for p in places), "messages": cb["messages"]}

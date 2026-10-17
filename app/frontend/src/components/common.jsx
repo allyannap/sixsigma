@@ -103,7 +103,7 @@ export function StatusBadge({ status, short = false }) {
 export function JudgmentBadge({ kind, value }) {
   const table = kind === 'spec' ? SPEC : CONTROL
   const s = table[value]
-  const prefix = kind === 'spec' ? 'Target' : 'Control'
+  const prefix = kind === 'spec' ? 'Goal' : 'Control'
   if (!s) return <span className="badge">{value || 'unknown'}</span>
   return (
     <span className="badge badge-judgment" style={{ background: s.bg, color: s.fg }} title={`${prefix}: ${s.label}`}>

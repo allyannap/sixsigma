@@ -86,7 +86,7 @@ export function periodBounds(start, unit, selection = {}) {
 
 /**
  * chance_below{expected, n_places, observed_below} -> one plain sentence, or '' when it could not be computed.
- * It says how many places would read Below target purely by chance if every place were exactly at the goal.
+ * It says how many places would read Below goal purely by chance if every place were exactly at the goal.
  */
 export function fmtChanceBelow(cb, noun = 'places') {
   if (!cb || missing(cb.expected)) return ''
