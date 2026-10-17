@@ -574,3 +574,17 @@ describe('Investigate table goal heading', () => {
     expect(rowOf(html, odd.name)).toContain('· goal 85%')
   })
 })
+
+describe('On time colour', () => {
+  it('follows the API target judgment: green meets, amber inconclusive, red below, with words for screen readers', () => {
+    const tile = (spec) => plain(renderToString(h(MetricsSection, {
+      summaryState: ok({ ...summary, totals: { ...summary.totals, spec } }), parent: STATE, selected: { level: 'state', place: null },
+      urgency: ['red'], onToggleUrgency() {}, selection: summary.selection, dataset: 'baseline',
+    })))
+    expect(tile('meets')).toContain('metric-value spec-meets')
+    expect(tile('meets')).toContain('(meets the goal)')
+    expect(tile('inconclusive')).toContain('metric-value spec-inconclusive')
+    expect(tile('below')).toContain('metric-value spec-below')
+    expect(tile('below')).toContain('(below the goal)')
+  })
+})

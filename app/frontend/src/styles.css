@@ -838,3 +838,8 @@ table.places.narrow { min-width: 420px; }
 /* Investigate list, Label column: the queue badge and the "watch" tag side by side, centred on one line */
 .label-cell { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
 .label-cell .chip-watch { display: inline-flex; align-items: center; line-height: 1.2; }
+
+/* On time number coloured by the target judgment (same greens / ambers / reds as the Target badges) */
+.metrics-card .metric-value.spec-meets { color: #1E6B3A; }
+.metrics-card .metric-value.spec-inconclusive { color: #8A6A00; }
+.metrics-card .metric-value.spec-below { color: #B42318; }

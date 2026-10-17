@@ -19,6 +19,9 @@ export function metricsSource(summary, selected, parent) {
   return placeFor(summary, selected, parent) || null
 }
 
+// Plain words for the on-time judgment, read out with the coloured number (colour alone is not enough).
+const SPEC_WORD = { meets: 'meets the goal', inconclusive: 'too close to the goal to call', below: 'below the goal' }
+
 const dash = (v, digits = 1) => (v == null || Number.isNaN(v) ? '—' : fmtNum(v, digits))
 
 /**
@@ -39,7 +42,11 @@ function Tiles({ t, note }) {
     <div className="metric-grid">
       <div className="metric" aria-label="On time">
         <span className="metric-label">On time</span>
-        <div className="metric-value"><span>{t.on_time_pct == null ? '—' : fmtPct(t.on_time_pct)}</span></div>
+        {/* colour = the API's target judgment (95% interval vs the goal): green meets, amber too close to call, red below */}
+        <div className={`metric-value${t.on_time_pct != null && SPEC_WORD[t.spec] ? ` spec-${t.spec}` : ''}`}>
+          <span>{t.on_time_pct == null ? '—' : fmtPct(t.on_time_pct)}</span>
+          {t.on_time_pct != null && SPEC_WORD[t.spec] && <span className="sr-only"> ({SPEC_WORD[t.spec]})</span>}
+        </div>
         <div className="metric-meaning">Within target · goal {fmtPct(t.goal_pct, 0)}</div>
         {t.on_time_pct == null && <div className="metric-foot">{note}</div>}
       </div>
