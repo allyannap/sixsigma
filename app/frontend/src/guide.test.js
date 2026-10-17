@@ -39,20 +39,32 @@ describe('guide: target table', () => {
 describe('guide: pages', () => {
   it('page 1 defines target and goal and draws the table with numbers, not colours, for urgency', () => {
     const html = page(0)
-    expect(html).toContain('1 of 3')
+    expect(html).toContain('1 of 4')
     expect(html).toMatch(/<dt>Target<\/dt><dd>how fast one call should be reached/)
     expect(html).toMatch(/<dt>Goal<\/dt><dd>at least 90% of calls reached within their target/)
     expect(html).toContain('Most urgent')
     expect(html).not.toMatch(/>Red|>Yellow|>Green/)
     expect(html).toContain('NFPA 1720 sets no fixed time for remote areas')
   })
-  it('page 2 explains every map colour; page 3 how to use it and the data caveats', () => {
+  it('page 2 explains every map colour; page 4 how to use it and the data caveats', () => {
     const two = page(1)
     for (const t of ['Critical', 'Watch', 'Near goal', 'Stable', 'Too few calls']) expect(two).toContain(`<strong>${t}</strong>`)
+    const four = page(3)
+    expect(four).toContain('Investigate')
+    expect(four).toContain('Simulated data')
+    expect(four).toContain('>Start<')
+  })
+  it('page 3 explains every table label, in ranking order, and the watch tag', async () => {
+    const { QUEUE, QUEUE_ORDER } = await import('./status.js')
     const three = page(2)
-    expect(three).toContain('Investigate')
-    expect(three).toContain('Simulated data')
-    expect(three).toContain('>Start<')
+    expect(three).toContain('What the table labels mean')
+    const at = QUEUE_ORDER.map((k) => three.indexOf(`${QUEUE[k].short}</span>`))
+    expect(at.every((i) => i > 0)).toBe(true)
+    expect([...at].sort((a, b) => a - b)).toEqual(at)
+    expect(three).toContain('long-running problem')
+    expect(three).toContain('Not a pass')
+    expect(three).toContain('chip-watch')
+    expect(three).toContain('not confirmed yet')
   })
 })
 

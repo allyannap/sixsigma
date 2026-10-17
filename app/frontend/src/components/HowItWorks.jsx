@@ -1,10 +1,11 @@
-// "How to read this dashboard": a short three-page guide that opens on the first visit and from the top bar's
+// "How to read this dashboard": a short four-page guide that opens on the first visit and from the top bar's
 // "How it works" button. Page 1 defines target (minutes per call) and goal (share of calls on time) with the target
-// table read from /api/meta, page 2 the map colours, page 3 how to use the page and what the data is.
+// table read from /api/meta, page 2 the map colours, page 3 the Investigate table's labels (and the "watch" tag),
+// page 4 how to use the page and what the data is.
 import { useEffect, useRef, useState } from 'react'
 import { fmtPct } from '../format.js'
-import { TIERS, URGENCY, URGENCY_KEYS } from '../status.js'
-import { Icon } from './common.jsx'
+import { QUEUE_ORDER, TIERS, URGENCY, URGENCY_KEYS } from '../status.js'
+import { Icon, StatusBadge, WatchChip } from './common.jsx'
 
 const AREAS = ['urban', 'suburban', 'rural', 'remote']
 const SEEN_KEY = 'onscene.howto.seen'
@@ -47,6 +48,27 @@ const TIER_MEANING = {
   near: 'enough calls, but too close to the goal to call it either way.',
   stable: 'meets the goal.',
   nodata: 'under 30 calls, so not judged yet.',
+}
+
+// One line per queue label, in the order the Investigate table ranks them (QUEUE_ORDER).
+const LABEL_MEANING = {
+  act_now: 'below the goal, and late calls have risen recently. Look at these first.',
+  ongoing_gap: 'below the goal for a while, with no recent rise: a long-running problem, such as long rural drives.',
+  recent_change: 'late calls have risen recently, but the place is not confirmed below the goal.',
+  needs_data: 'too few calls, or too short a history, to judge. Not a pass.',
+  meets_stable: 'on time at or above the goal, with no recent rise.',
+}
+
+function LabelsPage() {
+  return (
+    <>
+      <p className="guide-lead">Each place in the Investigate table gets one label, most urgent first:</p>
+      <ul className="guide-labels">
+        {QUEUE_ORDER.map((k) => <li key={k}><span><StatusBadge status={k} short /></span><span>{LABEL_MEANING[k]}</span></li>)}
+        <li><span><WatchChip p={{ watch: true, control: 'in_control' }} /></span><span>one recent period looked high but is not confirmed yet. It does not change the label, the rank or the map colour.</span></li>
+      </ul>
+    </>
+  )
 }
 
 function TargetsPage({ targets }) {
@@ -108,6 +130,7 @@ function UsePage() {
 const PAGES = [
   { title: 'Target and goal', body: (t) => <TargetsPage targets={t} /> },
   { title: 'What the map colours mean', body: () => <ColoursPage /> },
+  { title: 'What the table labels mean', body: () => <LabelsPage /> },
   { title: 'How to use it', body: () => <UsePage /> },
 ]
 

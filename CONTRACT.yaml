@@ -569,3 +569,20 @@ tasks:
       npm test passes (heading Goal (90%), no "vs 90", interval text, different-goal row); vite build succeeds; checked in
       a browser.
     result: "Headings 'On time (95% CI)' and 'Goal (90%)'; rows read '77.3% 74.4–80.0'; vitest 119 passed; vite build ok; checked in a browser."
+
+  - id: H-30
+    title: Guide page "What the table labels mean" (queue labels and the watch tag)
+    points: "demonstration (10) - users can read every label in the Investigate table"
+    status: done
+    owner: "claude + Powerpuff Girls"
+    started_at: "2026-10-18 00:10"
+    owns: ["app/frontend/src/components/HowItWorks.jsx", "app/frontend/src/styles.css", "app/frontend/src/guide.test.js",
+           "app/frontend/src/render.test.js", "README.md", "SPEC.md", "app/frontend/README.md"]
+    notes: >
+      User request Oct 18. The guide gains a third page (now four): each queue label as its real badge, in the table's
+      ranking order (Act now, Ongoing gap, Recent change, Needs more data, Meets goal no signal), one plain line each, plus
+      the "watch" tag (one unconfirmed high period; changes no label, rank or map colour). No statistic changed.
+    definition_of_done: >
+      npm test passes (every label present in ranking order, watch tag explained); vite build succeeds; checked in a
+      browser (fits without scrolling).
+    result: "Labels page added (3 of 4); vitest 120 passed; vite build ok; checked in a browser."

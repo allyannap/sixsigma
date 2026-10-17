@@ -221,10 +221,11 @@ When a ZIP's baseline is insufficient, show its observed late-call rate, late-ca
   share of calls that should be within their target (90%). The specification judgment compares the on-time rate with the
   goal, so it is labelled **Meets goal / Below goal / Inconclusive** (it was "Meets / Below target"). The API codes
   (`spec: meets / below / inconclusive`) and every number are unchanged; "target" is kept only where it means the minutes.
-- The top bar's "i" tooltip is replaced by a **How it works** button that opens a three-page guide, also shown once on
+- The top bar's "i" tooltip is replaced by a **How it works** button that opens a four-page guide, also shown once on
   the first visit: (1) target vs goal with the target table read from `/api/meta` (`targets`), urgency shown as numbers
   1 / 2 / 3, with a footnote that remote reuses the rural time (NFPA 1720 has no fixed remote time); (2) the five map
-  colours; (3) how to use the page plus the caveats (simulated data, provisional `t_received`, placeholder targets). The
+  colours; (3) the Investigate table's labels in ranking order, one plain line each, plus the "watch" tag (one
+  unconfirmed high period; it changes no label, rank or colour); (4) how to use the page plus the caveats (simulated data, provisional `t_received`, placeholder targets). The
   page itself gains no extra text.
 =======
 When a ZIP's baseline is insufficient, label the view with its ZIP code and “observed trend”, show the late-call rate/count for the user's full selected date range, and plot period rates with simple uncertainty whiskers. A call is late when elapsed time from call receipt (`t_received`) to on-scene arrival (`t_onscene`) exceeds that call's configured response target (`target_s`). This measures a late arrival; it does not mean an ambulance failed to reach its designated area. Calculate the rate only from valid completed calls, and show the count over that denominator. An Evidence button opens a concise selected-period count/rate and definition. Keep the legend and Evidence button visible without an internally scrollable card. Give both axes labels; omit the long warning banner, per-week selector and statistical interval jargon from the card. Do not show control limits, flagged periods, or statistical change signals for this view. Keep county p charts and their statistical change signals unchanged; a county result describes the county process and is not evidence about any individual ZIP. The intervals describe per-period binomial uncertainty and do not create missing history or justify a ZIP control claim.
