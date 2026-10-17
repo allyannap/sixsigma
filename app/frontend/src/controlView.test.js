@@ -9,6 +9,8 @@ const render = (p) => renderToString(h(ControlView, { p, selectedName: 'Monroe',
 it('leads with the confirmed finding and pairs the chart with one selectable period card', () => {
   const html = render(pchart)
   expect(html).toContain('Recent increase detected')
+  expect(html).toContain('Monroe (fixture)')
+  expect(html).toContain('control-baseline-detail')
   expect(html).toContain('simple-split control-split')
   expect(html).toContain('Selected period overview')
   expect(html).toContain('Response details')
@@ -24,9 +26,10 @@ it('leads with the confirmed finding and pairs the chart with one selectable per
   expect(html).not.toContain('>CL<')
 })
 
-it('keeps one unconfirmed unusual period distinct from confirmed deterioration', () => {
+it('keeps the watch judgment in Method without adding a card banner', () => {
   const html = render({ ...pchart, control: 'in_control', watch: true, signals: pchart.signals.slice(0, 1) })
-  expect(html).toContain('Change not confirmed')
+  expect(html.split('<dialog')[0]).not.toContain('Change not confirmed')
+  expect(html.split('<dialog')[0]).toContain('above limit · Next')
   expect(html).not.toContain('Watching one signal')
   expect(html).not.toContain('Recent increase detected')
   expect(renderToString(h(ControlMethod, { p: pchart }))).toContain('two unusual periods, or one exceptionally strong signal')
@@ -34,8 +37,9 @@ it('keeps one unconfirmed unusual period distinct from confirmed deterioration',
 
 it('omits the empty neutral banner when there is no change or watch and explains the service-goal distinction', () => {
   const html = render({ ...pchart, control: 'in_control', watch: false, signals: [], points: pchart.points.map((p) => ({ ...p, p: pchart.p_bar, signal: false })) })
-  expect(html).not.toContain('No confirmed increase')
-  expect(html).not.toContain('control-finding')
+  const card = html.split('<dialog')[0]
+  expect(card).not.toContain('No confirmed increase')
+  expect(card).not.toContain('control-finding')
   expect(renderToString(h(ControlMethod, { p: pchart }))).toContain('does not mean the service goal is met')
   expect(html).not.toContain('Review calls')
 })
@@ -81,7 +85,7 @@ it('shows sparse ZIP history as a descriptive trend with call counts and Wilson 
   expect(html).toContain('control-tab-calls')
   expect(html).not.toContain('control-tab-stages')
   expect(html).not.toContain('control-tab-method')
-  expect(html).toContain('How this is measured')
+  expect(html).toContain('<summary>Method</summary>')
   expect(html.match(/>Evidence /g)).toHaveLength(1)
   expect(renderToString(h(ControlMethod, { p })).replace(/<!-- -->/g, '')).toContain('no significance test or change signal is calculated')
   const chart = renderToString(h(DescriptiveTrendChart, { d: { ...p.descriptive_trend, selection: p.selection } }))
@@ -90,7 +94,8 @@ it('shows sparse ZIP history as a descriptive trend with call counts and Wilson 
 
 it('shows a single panel with accessible tabs and point selection', () => {
   const html = render(pchart)
-  expect(html).not.toContain('<details')
+  expect(html).toContain('<details class="response-method-dropdown"')
+  expect(html).toContain('<summary>Method</summary>')
   expect(html).toContain('role="tablist"')
   expect((html.match(/role="tabpanel"/g) || []).length).toBe(1)
   expect(html).toContain('aria-labelledby="control-tab-period"')
@@ -118,7 +123,7 @@ it('explains upper-limit crossings visibly without treating every crossing as a 
   expect(html).toContain('Upper limit')
   expect(html).toContain('above limit · Next')
   expect(html).toContain('Over upper limit')
-  expect(html).not.toContain('No confirmed increase')
+  expect(html.split('<dialog')[0]).not.toContain('No confirmed increase')
   expect(html).not.toContain('Recent increase detected')
 })
 
@@ -140,7 +145,7 @@ it('lists every highlighted day while retaining the one-signal watch judgment', 
   expect(table).toContain('Sep 11')
   expect(table).toContain('Sep 12')
 
-  expect(html).toContain('Change not confirmed')
+  expect(html.split('<dialog')[0]).not.toContain('Change not confirmed')
   expect(html).not.toContain('Watching one signal')
   expect(html).not.toContain('Recent increase detected')
 })
@@ -166,5 +171,6 @@ it('keeps call tables and method explanations outside the compact card in a clos
   expect(html).toContain('aria-labelledby="trend-drawer-title"')
   expect(html).not.toMatch(/<dialog[^>]*\sopen(?:\s|=|>)/)
   expect(html).toContain('control-tab-calls')
-  expect(html).toContain('control-tab-method')
+  expect(html).not.toContain('control-tab-method')
+  expect(html).toContain('<summary>Method</summary>')
 })

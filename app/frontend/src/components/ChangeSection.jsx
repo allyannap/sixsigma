@@ -129,7 +129,7 @@ export function DescriptiveTrendChart({ d }) {
   </svg>
 }
 
-export function ControlView({ p, params, selectedName, stagesState }) {
+export function ControlView({ p, params, selectedName }) {
   const pts = p.points || []
   const descriptive = p.selection?.level === 'zcta' && p.control === 'insufficient_baseline' ? p.descriptive_trend : null
   const chartPts = descriptive?.points || pts
@@ -137,6 +137,7 @@ export function ControlView({ p, params, selectedName, stagesState }) {
   const [selected, setSelected] = useState(initial?.start)
   const [panel, setPanel] = useState('period')
   const [detailsOpen, setDetailsOpen] = useState(false)
+  const [methodOpen, setMethodOpen] = useState(false)
   const point = chartPts.find((pt) => pt.start === selected) || initial
   const flagged = descriptive ? [] : pts.filter(isFlaggedPeriod)
   const above = descriptive ? [] : pts.filter((pt) => pt.p > pt.ucl)
@@ -149,15 +150,15 @@ export function ControlView({ p, params, selectedName, stagesState }) {
   }
   const b = p.baseline || {}
   const insufficient = p.control === 'insufficient_baseline' && !descriptive
-  const headline = insufficient ? 'More history needed' : p.control === 'out_of_control' ? 'Recent increase detected' : p.watch ? 'Change not confirmed' : ''
+  const headline = insufficient ? 'More history needed' : p.control === 'out_of_control' ? 'Recent increase detected' : ''
   const count = (p.signals || []).length
   const finding = descriptive ? 'Observed ZIP rates with pointwise 95% Wilson intervals. No control limits or signals are calculated.'
     : insufficient ? p.control_reason : p.watch ? '' : p.control === 'out_of_control' ? `${count} statistical signals.` : ''
   const tone = insufficient || descriptive ? 'data' : p.control === 'out_of_control' || p.watch ? 'signal' : 'calm'
   const choose = (start) => { setSelected(start) }
   const review = (start) => { setSelected(start); setPanel('calls'); setDetailsOpen(true) }
-  const openDetails = (tab = 'period') => { setPanel(tab); setDetailsOpen(true) }
-  const tabs = [{ id: 'period', label: 'Period' }, ...(!descriptive ? [{ id: 'signals', label: `Flagged periods (${flagged.length})` }] : []), { id: 'calls', label: 'Calls' }, ...(!descriptive && stagesState ? [{ id: 'stages', label: 'Stage times' }] : []), ...(!descriptive ? [{ id: 'method', label: 'Method' }] : [])]
+  const openDetails = (tab = 'period') => { setPanel(tab === 'method' ? 'period' : tab); if (tab === 'method') setMethodOpen(true); setDetailsOpen(true) }
+  const tabs = [{ id: 'period', label: 'Period' }, ...(!descriptive ? [{ id: 'signals', label: `Flagged periods (${flagged.length})` }] : []), { id: 'calls', label: 'Calls' }]
   const navigateTabs = (event, index) => {
     let next
     if (event.key === 'ArrowRight') next = (index + 1) % tabs.length
@@ -175,7 +176,7 @@ export function ControlView({ p, params, selectedName, stagesState }) {
   const end = range?.to
   return <div className="simple-comparison control-view">
     {!descriptive && (headline || above.length > 0) && <div className={`control-finding finding-${tone}`} role="status">
-      <span className="control-finding-icon" aria-hidden="true">{tone === 'signal' ? '!' : tone === 'data' ? '…' : '—'}</span>
+      {headline && <span className="control-finding-icon" aria-hidden="true">{tone === 'signal' ? '!' : tone === 'data' ? '…' : '—'}</span>}
       {headline && <div><p className="control-headline">{headline}</p>{finding && <p className="control-summary">{finding}</p>}</div>}
       {!insufficient && above.length > 0 && <button type="button" className="trend-next" onClick={nextAbove}>{above.length} above limit · Next <span aria-hidden="true">→</span></button>}
     </div>}
@@ -184,7 +185,10 @@ export function ControlView({ p, params, selectedName, stagesState }) {
       <p className="descriptive-range">{fmtDate(p.selection?.from)}–{fmtDate(p.selection?.to)} · {fmtInt(descriptive.selected_range?.n)} valid calls</p>
       {descriptive.selected_range?.n ? <p className="descriptive-total"><strong>{fmtPct(descriptive.selected_range.p * 100)}</strong> over target <span>· {fmtInt(descriptive.selected_range.late)} of {fmtInt(descriptive.selected_range.n)} valid calls</span></p>
         : <p className="descriptive-total">No valid calls in the selected range.</p>}
-    </div> : <p className="control-baseline">{p.selection?.name || selectedName} · Baseline {fmtDate(b.from)}–{fmtDate(b.to)} · {fmtInt(p.base_n)} calls</p>}
+    </div> : <div className="control-baseline-row">
+      <span className="descriptive-status">{p.selection?.level === 'zcta' ? `ZIP ${p.selection?.name || selectedName}` : p.selection?.name || selectedName}</span>
+      <span className="control-baseline-detail">Baseline {fmtDate(b.from)}–{fmtDate(b.to)} · {fmtInt(p.base_n)} calls</span>
+    </div>}
     {descriptive ? point ? <div className="simple-split control-split descriptive-split">
       <figure className="figure">
         <DescriptiveTrendChart d={{ ...descriptive, selection: p.selection }} />
@@ -239,14 +243,6 @@ export function ControlView({ p, params, selectedName, stagesState }) {
             <p><strong>{fmtInt(point.late)} / {fmtInt(point.n)}</strong> valid calls · receipt to scene exceeded target.</p>
             <p className="small muted">Descriptive only. No significance test.</p>
             {params && <button type="button" className="btn control-calls-btn" aria-controls="control-support-panel" onClick={() => { setPanel('calls'); setDetailsOpen(true) }}>Review calls <span aria-hidden="true">→</span></button>}
-            {stagesState && <details className="response-extra-evidence">
-              <summary>Stage times</summary>
-              <Async state={stagesState}>{(d) => <><StageTable data={d} /><Messages messages={d.messages} /></>}</Async>
-            </details>}
-            <details className="response-extra-evidence">
-              <summary>How this is measured</summary>
-              <p>Late means call-receipt-to-scene time exceeded the call’s configured target. This ZIP has too little baseline history for a statistical change signal; county results describe the county aggregate.</p>
-            </details>
           </aside> : panel === 'period' && (point && !insufficient ? <>      <aside id="control-full-selected" className={`simple-card control-card card-${over || point.signal ? 'below' : under ? 'improvement' : 'inconclusive'}`} aria-label="Selected period details" aria-live="polite">
         <label className="eyebrow" htmlFor="control-period-details">Explore a {p.unit}</label>
         <select id="control-period-details" value={point.start} onChange={(event) => choose(event.target.value)}>
@@ -261,9 +257,11 @@ export function ControlView({ p, params, selectedName, stagesState }) {
       </aside></> : <p className="small muted">No usable control chart for this selection. Open Method for baseline checks.</p>)}
           {panel === 'signals' && <SignalList p={descriptive ? { ...p, points: [] } : p} onReview={review} />}
           {detailsOpen && panel === 'calls' && (point && params ? <><p className="control-panel-caption"><strong>{periodLabel(point.start, viewUnit, p.selection)}</strong> · {fmtInt(point.late)} of {fmtInt(point.n)} late</p><SignalCalls key={point.start} params={params} start={start} end={end} /></> : <p className="small muted">Select a period with calls to review.</p>)}
-          {panel === 'stages' && stagesState && <Async state={stagesState}>{(d) => <><StageTable data={d} /><Messages messages={d.messages} /></>}</Async>}
-          {panel === 'method' && <ControlMethod p={p} />}
         </div>
+        <details className="response-method-dropdown" open={methodOpen} onToggle={(event) => setMethodOpen(event.currentTarget.open)}>
+          <summary>Method</summary>
+          <ControlMethod p={p} />
+        </details>
       </div>
     </EvidenceDrawer>
 
@@ -392,11 +390,11 @@ export function StageTable({ data }) {
   )
 }
 
-export default function ChangeSection({ pState, stagesState, params, selectedName }) {
+export default function ChangeSection({ pState, params, selectedName }) {
   return (
     <Section num={2} id="section-2" title="Are more calls missing their response target?" tag="Change over time"
       intro="Track missed targets that averages can hide—and spot unusual increases.">
-      <Async state={pState}>{(p) => <ControlView key={JSON.stringify(p.selection)} p={p} params={params} selectedName={selectedName} stagesState={stagesState} />}</Async>
+      <Async state={pState}>{(p) => <ControlView key={JSON.stringify(p.selection)} p={p} params={params} selectedName={selectedName} />}</Async>
     </Section>
   )
 }

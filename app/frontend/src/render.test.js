@@ -172,11 +172,11 @@ describe('H-13 supervisor data', () => {
     const calm = { ...summary, places: summary.places.map((p) => ({ ...p, watch: false })) }
     expect(await rail(calm)).not.toContain('chip-watch')
   })
-  it('section 2 says one signal is unconfirmed and retains its watch evidence in Method', () => {
+  it('section 2 omits the watch banner and retains watch evidence in Method', () => {
     const p = { ...pchart, control: 'in_control', watch: true, control_reason: '1 period above the limit, not confirmed (needs 2, or a stronger single signal)' }
     const html = plain(renderToString(h(ChangeSection, { pState: ok(p), imrState: ok(imr), selectedName: 'X' })))
     expect(html).not.toContain('Watching one signal')
-    expect(html).toContain('Change not confirmed')
+    expect(html.split('<dialog')[0]).not.toContain('Change not confirmed')
     expect(plain(renderToString(h(ControlMethod, { p })))).toContain('chip-watch')
   })
   it('the queue label meets_stable never claims "statistically stable"', async () => {
@@ -250,11 +250,15 @@ describe('H-13 supervisor data', () => {
     const blank = { now: { dispatch_s: null, turnout_s: null, drive_s: null, held_pct: null, n: 0 }, base: { dispatch_s: null, turnout_s: null, drive_s: null, held_pct: null, n: 0 } }
     expect(plain(renderToString(h(StageTable, { data: blank })))).toContain('n/a')
   })
-  it('section 2 moves stage times into its evidence drawer', () => {
-    const html = plain(renderToString(h(ChangeSection, { pState: ok(pchart), imrState: ok(imr), stagesState: ok(stages), params: {}, selectedName: 'X' })))
+  it('section 2 removes stage times and puts Method in a disclosure', () => {
+    const html = plain(renderToString(h(ChangeSection, { pState: ok(pchart), imrState: ok(imr), params: {}, selectedName: 'X' })))
     const compact = html.split('<dialog')[0]
     expect(compact).not.toContain('Stage times (descriptive)')
-    expect(html.split('<dialog')[1]).toContain('control-tab-stages')
+    const drawer = html.split('<dialog')[1]
+    expect(drawer).not.toContain('Stage times')
+    expect(drawer).not.toContain('control-tab-stages')
+    expect(drawer).toContain('<summary>Method</summary>')
+    expect(drawer).not.toContain('control-tab-method')
   })
   it('the statewide flagged list renders with chance-below context and no input fields', () => {
     const html = plain(renderToString(h(FlaggedList, { data: flagged, onPick() {} })))

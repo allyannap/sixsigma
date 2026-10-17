@@ -50,7 +50,6 @@ export default function App() {
   const summary = useEndpoint('summary', parentParams)
   const pchart = useEndpoint('pchart', selParams)
   const imr = useEndpoint('imr', selParams)
-  const stages = useEndpoint('stages', selParams)
   // Match the dates displayed in the form, including its initial dataset default window.
   const aiEnabled = Boolean(shownFrom && shownTo && shownFrom <= shownTo)
   const aiSummary = useEndpoint('ai_summary', { ...selParams, from: shownFrom, to: shownTo }, {
@@ -121,7 +120,7 @@ export default function App() {
       <TopBar dataset={dataset} datasets={meta.data && meta.data.datasets} onDataset={(d) => { setDataset(d); resetScope() }}
         replay={replay} fixtures={fixtures} replayHandlers={replayHandlers} onHelp={() => setGuideOpen(true)} />
       <HowItWorks open={guideOpen} onClose={closeGuide} targets={meta.data && meta.data.targets} />
-      <LoadingBar active={[meta, summary, pchart, imr, stages].some((x) => x.loading)} />
+      <LoadingBar active={[meta, summary, pchart, imr].some((x) => x.loading)} />
       <div className="app">
         <main className={`workspace${railOpen ? ' has-rail' : ''}`}>
           <InvestigateRail open={railOpen} onClose={closeRail} summaryState={summary} parent={parent} selected={selected} onPick={pick} />
@@ -140,7 +139,7 @@ export default function App() {
               aiPaused={replay.playing} fixtures={fixtures} />
             <InsightsSection placeName={selectedName}>
               <AnomSection summaryState={summary} selected={selected} onPick={pick} />
-              <ChangeSection pState={pchart} imrState={imr} stagesState={stages} params={selParams} selectedName={selectedName} />
+              <ChangeSection pState={pchart} imrState={imr} params={selParams} selectedName={selectedName} />
             </InsightsSection>
           </div>
         </main>
