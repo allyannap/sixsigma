@@ -165,6 +165,7 @@ def test_at5_replay_is_read_only_and_labelled_synthetic():
     assert body["received"] >= body["valid"] >= body["late"] and len(body["events"]) == 5
     times = [e["t_received"] for e in body["events"]]
     assert times == sorted(times, reverse=True) and all(t.startswith("2026-09-02") for t in times)
+    assert all(isinstance(e["cancelled"], bool) and "disposition" not in e for e in body["events"])
     nxt = get("/api/replay?dataset=station_closure&day=2026-09-03&limit=5")
     assert nxt["events"][0]["incident_id"] != body["events"][0]["incident_id"]
 

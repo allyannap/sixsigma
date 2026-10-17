@@ -102,17 +102,18 @@ flowchart LR
 
 ## 5. Inputs
 
-**`incidents.csv`, one row per EMS call.** Nine required columns that dispatch (CAD) systems already record, two optional:
+**`incidents.csv`, one row per EMS call.** Ten columns, all of which a dispatch (CAD) system already records. Only six
+are needed for the on-time and control statistics; the stage times and `held` feed the descriptive stage table, and
+`cancelled` only separates cancelled calls from the rest. **No travel-estimate column is needed** (removed Oct 17, H-14).
 
 | Column | Required | Meaning |
 |---|---|---|
 | `incident_id` | yes | one call |
 | `zcta` | yes | 5-digit ZIP code area where the patient was |
 | `urgency_code` | yes | 0 = most urgent to 9 = least (0-2 red, 3-5 yellow, 6-9 green) |
-| `t_received`, `t_assigned`, `t_enroute`, `t_onscene` | yes (`t_onscene` empty if cancelled) | ISO 8601 times with the New York offset |
-| `disposition` | yes | TRANSPORTED / TREATED / REFUSED / CANCELLED |
+| `t_received`, `t_assigned`, `t_enroute`, `t_onscene` | yes (`t_onscene` empty if cancelled) | ISO 8601 times with the New York offset. `t_received` and `t_onscene` drive the core statistics; the other two give the stage times |
+| `cancelled` | yes | Y/N: the call was cancelled (its `t_onscene` is then empty) |
 | `valid_time` | yes | Y/N: the times are trustworthy |
-| `eta_google_s` | optional | travel estimate at assignment, seconds (**generated** in these files; checked by `validate.py` but not used by the dashboard) |
 | `held` | optional | Y/N: the call waited because no unit was free (shown as % held in the stage table) |
 
 **Messy input never crashes the tool.** Rows with a repeated `incident_id`, an empty or unreadable `t_received`, an
@@ -133,8 +134,8 @@ All numbers below are red calls, 60-day baseline, measured with the API on the c
 | Dataset | Planted scenario | Try this | What the tool shows |
 |---|---|---|---|
 | `baseline` | none (seasonal pattern; rural long trips) | default (Jul 18 to Oct 15), state view | 62 counties: Act now 0, Ongoing gap 19, Recent change 0, Meets goal 16, Needs more data 27. 23 of 60 counties read Below target where chance alone would give about 1.7. 3 counties carry a watch chip. Statewide flagged ZIP list: empty (367 ZIPs checked). The state as a whole reads Recent change (2 daily signals, Aug 6 and Sep 6): a **false alarm** on a file with no planted change; the state's daily chart is the least reliable view (section 7) |
-| `station_closure` | from Sep 1, 2026, travel estimates **and actual drives** in ZIP 11368 (Corona, Queens) +60% | Queens → ZIP 11368, dates 2026-09-01 to 2026-10-15 | **Act now**: 69.1% on time of 68 calls (95% CI 57.4-78.8%), out of control in both months (exact p = 3.5e-5 for Sep, 5.3e-5 for Oct), 14.2 late calls beyond the goal. The same dates on the clean file: 95.6%, in control, Needs more data |
-| `station_closure` | same | Jul 18–Oct 15, 2026 | 11368 reads **Act now** (85.2% of 183 calls, CI 79.4-89.7%; Sep and Oct above the limit) and is the only entry in the statewide flagged ZIP list; Queens county as a whole reads Meets goal |
+| `station_closure` | from Sep 1, 2026, drive times in ZIP 11368 (Corona, Queens) +60% (set through the generator's travel model) | Queens → ZIP 11368, dates 2026-09-01 to 2026-10-15 | **Act now**: 69.1% on time of 68 calls (95% CI 57.4-78.8%), out of control in both months (exact p = 3.5e-5 for Sep, 5.3e-5 for Oct), 14.2 late calls beyond the goal. The same dates on the clean file: 95.6%, in control, Needs more data |
+| `station_closure` | same | default 90 days | 11368 reads **Act now** (85.2% of 183 calls, CI 79.4-89.7%; Sep and Oct above the limit) and is the only entry in the statewide flagged ZIP list; Queens county as a whole reads Meets goal |
 | `summer_surge` | Jul-Aug 2026, Monroe County volume +30%, held calls common | Monroe, dates 2026-07-01 to 2026-08-31 | **Act now**: 78.8% of 1,163 calls (CI 76.4-81.1%), 10 weekly signals, 129.7 late calls beyond the goal. Stage medians: received → assigned 86 s vs 42 s in the baseline, held 28.4% vs 2.0%; turnout and drive unchanged. Clean file, same dates: Meets goal, in control. Sep-Oct: Meets goal, in control |
 | `summer_surge` | same | Jul 18–Oct 15, 2026 | Monroe reads Below target but **Needs more data**: its baseline (May 19 to Jul 17) contains the start of the surge, and the baseline screen finds it unstable and refuses to set limits |
 
@@ -180,7 +181,7 @@ sees large changes in a single ZIP. Look at the county, widen the dates, or trea
 | Part | Task | Status |
 |---|---|---|
 | Spec, plan, decisions | H-01, H-11, H-13 | done; open dependencies in SPEC section 10 |
-| Test data + codebook + validation | H-02, H-13 | implemented, tested (`validate.py` 70 PASS; `--reproduce` 74 PASS with identical rebuild; `--messy` 13 PASS) |
+| Test data + codebook + validation | H-02, H-13, H-14 | implemented, tested (`validate.py` 71 PASS; `--reproduce` 75 PASS with identical rebuild; `--messy` 14 PASS) |
 | Statistics (`app/qc.py`) | H-03, H-11, H-13 | implemented, tested (known answers + degenerate cases, 86 tests) |
 | API (FastAPI, read-only) | H-04, H-11, H-13 | implemented, tested (45 API tests incl. acceptance tests AT-1 to AT-10, 31 data tests) |
 | Dashboard | H-05, H-13 | H-13 page changes (watch chip, flagged ZIP list, stage medians, calls behind a signal, split headline) in progress; `demo/README.md` planned |
@@ -201,10 +202,10 @@ bash app/testme.sh                             # http://localhost:8000
 Verify:
 
 ```bash
-.venv/bin/python -m pytest tests -q            # 162 passed
+.venv/bin/python -m pytest tests -q            # 164 passed
 (cd app/frontend && npm test)                  # 52 passed
-.venv/bin/python data/validate.py --reproduce  # 74 PASS, 0 FAIL
-.venv/bin/python data/validate.py --messy      # 13 PASS, 0 FAIL
+.venv/bin/python data/validate.py --reproduce  # 75 PASS, 0 FAIL
+.venv/bin/python data/validate.py --messy      # 14 PASS, 0 FAIL
 PYTHONPATH=. .venv/bin/python data/sensitivity.py   # the false-alarm and detection tables of section 7
 ```
 

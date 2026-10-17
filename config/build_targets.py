@@ -67,7 +67,7 @@ def reference_calls():
     date = df["t_received"].dt.tz_convert("America/New_York").dt.strftime("%Y-%m-%d")
     in_order = ((df["t_received"] <= df["t_assigned"]) & (df["t_assigned"] <= df["t_enroute"])
                 & (df["t_enroute"] <= df["t_onscene"]))
-    keep = ((df["disposition"] != "CANCELLED") & df["t_onscene"].notna() & (df["valid_time"] == "Y")
+    keep = ((df["cancelled"] != "Y") & df["t_onscene"].notna() & (df["valid_time"] == "Y")
             & in_order & (date >= REF_FROM) & (date <= REF_TO))
     df = df[keep].copy()
     df["total_s"] = (df["t_onscene"] - df["t_received"]).dt.total_seconds()

@@ -10,7 +10,7 @@ No real public EMS extract has been checked against the tool yet (planned, see "
 | File | What it is |
 |---|---|
 | `incidents_baseline.csv.gz` | 12 months (2025-10-16 to 2026-10-15), about 400,000 calls, every New York ZCTA. Normal seasonal pattern (summer peak) and no planted change. Since H-13 (Oct 16) it is also less tidy: day-to-day effects shared by a county, winter and summer effects on lateness, an hour-of-day profile and congestion (see "How the generator works"). Rural and remote ZIPs have long trips, so against their red targets they show **persistent gaps** (Below target, in control: "Ongoing gap"). Control signals here are false alarms; they are counted, not assumed away. Measured Oct 17 with the H-13 rules (60-day baseline, county-windows): red 0 of 186 and yellow 1 of 186 over the three non-overlapping 90-day windows ending Oct 15 (`data/sensitivity.py`), and red 1 of 186 (0.5%) over the three windows of `tests/test_api.py`; see "Expected signals". |
-| `incidents_station_closure.csv.gz` | Same as baseline, except in ONE urban ZIP (`station_closure.zcta_resolved` in `params.json`: 11368, Corona, Queens, the most populous urban ZCTA) calls received on or after 2026-09-01 have `eta_google_s` x 1.6, **and the actual drive follows it** (drive = estimate x ratio), so observed response times really get longer, not only the estimate. The team first planned +25%; at that size the rules did not flag the ZIP, so it was raised to +60% on Oct 16. Measured after H-13 (late = over 480 s): red late share 8.4% in Jul-Aug, 30.9% from Sep 1 to Oct 15. All other ZIPs, and this ZIP before Sep 1, are identical to baseline. |
+| `incidents_station_closure.csv.gz` | Same as baseline, except in ONE urban ZIP (`station_closure.zcta_resolved` in `params.json`: 11368, Corona, Queens, the most populous urban ZCTA) calls received on or after 2026-09-01 have their travel estimate x 1.6 in the generator (internal, not in the file), **and the actual drive follows it** (drive = estimate x ratio), so observed response times really get longer, not only the estimate. The team first planned +25%; at that size the rules did not flag the ZIP, so it was raised to +60% on Oct 16. Measured after H-13 (late = over 480 s): red late share 8.4% in Jul-Aug, 30.9% from Sep 1 to Oct 15. All other ZIPs, and this ZIP before Sep 1, are identical to baseline. |
 | `incidents_summer_surge.csv.gz` | Same as baseline, except in Monroe County (36055) for calls received 2026-07-01 to 2026-08-31: volume x 1.30, `held = Y` with probability 0.25 (baseline 0.02), `dispatch_s` x 1.6. Normal from Sep 1. Since H-13 the extra surge calls come from a separate random stream (an additional Poisson(expected x 0.30) per ZIP and surge day), so every other row of the file, Monroe's included, is identical to baseline outside Jul 1 to Aug 31. Measured: Monroe Jul-Aug volume 1.29 x baseline (3,774 vs 2,925 calls), held 27% in Jul-Aug and 1.9% in Sep-Oct. The tool does not say which intervention is best. |
 | `incidents_messy_sample.csv.gz` | **A small separate file (2,901 rows, 74 KB) for testing data cleaning; NOT mixed into the three files above.** Baseline rows of Suffolk County (36103) for July 2026 (2,883 calls) with problems injected into disjoint rows; the exact counts are the injection log in `params.json` (`messy_sample`): 8 missing `t_received`, 8 missing `t_assigned`, 10 out-of-order times (5 with `t_assigned` after `t_enroute`, 5 with `t_onscene` before `t_received`), 12 exact duplicate rows, 6 repeated `incident_id` with different content (`t_onscene` 45 s later), 5 unknown ZCTA (`99999`), 5 unknown urgency codes (10 or 99), 8 rows with `valid_time = N` and genuinely bad times (arrival 8 to 30 hours after the crew left). `python data/validate.py --messy` detects each type and must find exactly the logged count. |
 | `lookup/zcta_county.csv` | One row per New York ZCTA (ZIP area). Built by `build_lookups.py`. |
@@ -40,19 +40,17 @@ Real-world source: NYC "EMS Incident Dispatch Data" (NYC Open Data) field names.
 | `t_assigned` | same | same | `2026-10-11T22:15:02-04:00` | First ambulance assigned | `first_assignment_datetime` |
 | `t_enroute` | same | same | `2026-10-11T22:16:10-04:00` | Crew starts driving | `first_activation_datetime` |
 | `t_onscene` | same, **empty if cancelled** | same | `2026-10-11T22:21:44-04:00` | First ambulance arrives | `first_on_scene_datetime` |
-| `disposition` | text | none | `TRANSPORTED` | `CANCELLED`, `REFUSED`, `TREATED` or `TRANSPORTED` | `incident_disposition_code` |
+| `cancelled` | `Y`/`N` | none | `N` | `Y` when the call was cancelled (then `t_onscene` is empty). Replaces the old `disposition` column (H-14, Oct 17): the only distinction any output uses | `incident_disposition_code` (CANCELLED value) |
 | `valid_time` | `Y`/`N` | none | `Y` | `N` means the times are not trusted (counts in volume only) | `valid_incident_rspns_time_indc` |
-| `eta_google_s` | integer, optional | seconds | `312` | Drive estimate with traffic, made at assignment. Validated, but not used by the dashboard since the travel comparison was removed (Oct 16). **Synthetic here** (generated); real data has no ambulance origin coordinates, so never invent it for real incidents | not in NYC data |
 | `held` | `Y`/`N` | none | `N` | The call waited because no ambulance was free | `held_indicator` |
 
 Always `t_received <= t_assigned <= t_enroute <= t_onscene`. The tool derives
 `dispatch_s = t_assigned - t_received`, `turnout_s = t_enroute - t_assigned`,
 `drive_s = t_onscene - t_enroute`, `total_s = t_onscene - t_received`.
 
-**How to collect it for real.** Everything except `eta_google_s` is already in a CAD system and in
-NYC's public data. `eta_google_s` is NOT collected today: the center would call the Google Routes API
-(traffic-aware drive time from the ambulance's position to the scene) at the moment of assignment and
-store the seconds in the CAD record.
+**How to collect it for real.** Every column is already in a CAD system and in NYC's public data (the cancelled flag
+is the CANCELLED disposition code). The file no longer contains a travel-estimate column: collecting one would need a
+paid routing call at assignment and the ambulance's origin, which the center does not store (removed Oct 17, H-14).
 
 ## Lookup columns
 
@@ -147,11 +145,11 @@ All values are in `params.json`; changing them and re-running `generate.py` rebu
 - Urgency code probabilities 0-9: 0.04, 0.12, 0.18, 0.12, 0.15, 0.13, 0.10, 0.08, 0.05, 0.03.
 - All durations are lognormal (median, sigma), rounded to whole seconds, minimum 1:
   `dispatch_s` median red 40, yellow 90, green 180, sigma 0.5; `turnout_s` median 50, sigma 0.35;
-  `eta_google_s` median urban 200, suburban 215, rural 500, remote 750, sigma 0.45 (remote added Oct 16 with the same sigma as rural, so remote trips are longer; everything else and the seed are unchanged);
-  `drive_s = eta_google_s x lognormal(median red 0.85, yellow 0.95, green 1.05, sigma 0.15)`, and with probability
+  `eta_google_s` (internal to the generator; not written to the file since H-14) median urban 200, suburban 215, rural 500, remote 750, sigma 0.45 (remote added Oct 16 with the same sigma as rural, so remote trips are longer; everything else and the seed are unchanged);
+  `drive_s = eta_google_s (internal) x lognormal(median red 0.85, yellow 0.95, green 1.05, sigma 0.15)`, and with probability
   0.01 also x lognormal(median 1.4, sigma 0.25) (slow outliers: detours, wrong addresses; added Oct 16 and drawn last, so
   every other draw is unchanged). So ambulances are usually a little faster than the estimate but often slower
-  (about 36% of drives), with a long slow tail. `eta_google_s` is generated, not a Google response.
+  (about 36% of drives), with a long slow tail. The travel estimate is generated, not a Google response.
   These medians were tuned from the starting values (red dispatch 55, turnout 65, eta 240/330/780) so the
   baseline red % late falls in the bands below. Sigmas were not changed.
 - `held = Y` with probability 0.02; if held, `dispatch_s` gets an extra lognormal(median 240, sigma 0.6).
@@ -185,8 +183,8 @@ CENSUS_API_KEY=your_key .venv/bin/python data/build_lookups.py   # or put CENSUS
 ```
 
 `validate.py` checks per file: times in order, sorted, ZCTAs in the lookup (ZCTA -> county), urgency codes in
-`config/targets.csv`, `eta_google_s > 0` when on scene, CANCELLED <=> empty `t_onscene`, stage intervals add up to
-`total_s`, drive vs estimate goes both ways (and slow outliers exist), at least 120 baseline days before every demo window,
+`config/targets.csv`, the exact 10-column header (no travel-estimate or disposition column), `cancelled = Y` <=> empty
+`t_onscene`, stage intervals add up to `total_s`, at least 120 baseline days before every demo window,
 summer volume peak, size under 25 MB, unique IDs, all 62 counties have calls. It then checks the baseline red % late bands
 (late = `total_s` over 480 s; cancelled, no-onscene and `valid_time = N` excluded): urban 5-10%, suburban 6-10%, rural over
 30%, remote > rural. It checks the stories: closure ZIP red % late from Sep 1 to Oct 15 is at least 2x its Jul-Aug value,
@@ -229,5 +227,5 @@ by a sudden shift (the baseline must not see the shift). Statistical fixtures wi
 
 The column names follow NYC's public EMS Incident Dispatch Data, so a separately labelled compatibility check on a real
 extract is possible: map its fields, confirm what `incident_datetime` means (911 receipt or CAD creation), drop
-`eta_google_s` (it does not exist there) and run the same `validate.py` schema checks. This has not been run. The three
+the travel-estimate column is not needed, so the same minimal input set applies, and run the same `validate.py` schema checks. This has not been run. The three
 files here are synthetic and must never be presented as historical data.

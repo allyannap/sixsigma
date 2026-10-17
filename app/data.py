@@ -40,7 +40,7 @@ STATE_NAME = "New York State"
 
 TIME_COLUMNS = ["t_received", "t_assigned", "t_enroute", "t_onscene"]
 REQUIRED_COLUMNS = ["incident_id", "zcta", "urgency_code", "t_received", "t_assigned",
-                    "t_enroute", "disposition", "valid_time"]
+                    "t_enroute", "cancelled", "valid_time"]
 EPOCH_DAY = pd.Timestamp("1970-01-01")
 
 
@@ -101,12 +101,9 @@ def derive(raw: pd.DataFrame, targets: pd.DataFrame | None = None,
         "incident_id": raw["incident_id"].astype(str).to_numpy(),
         "zcta": raw["zcta"].astype(str).str.strip().str.zfill(5).to_numpy(),
         "urgency_code": pd.to_numeric(raw["urgency_code"]).astype("int64").to_numpy(),
-        "disposition": raw["disposition"].astype(str).to_numpy(),
         "valid_time": raw["valid_time"].astype(str).to_numpy(),
     })
     n = len(df)
-    df["eta_google_s"] = (pd.to_numeric(raw["eta_google_s"], errors="coerce").to_numpy(dtype=float)
-                          if "eta_google_s" in raw.columns else np.full(n, np.nan))
     df["held"] = (raw["held"].astype(str).to_numpy() == "Y") if "held" in raw.columns else np.zeros(n, bool)
 
     # Times: parse with the offset, then work in seconds since the epoch (UTC).
@@ -137,7 +134,7 @@ def derive(raw: pd.DataFrame, targets: pd.DataFrame | None = None,
     # Timed call: not cancelled, has t_onscene, valid_time = Y, and the times are in order.
     in_order = ((df["dispatch_s"] >= 0) & (df["turnout_s"] >= 0)
                 & (df["drive_s"] >= 0) & (df["total_s"] > 0))
-    df["cancelled"] = (df["disposition"] == "CANCELLED").to_numpy()
+    df["cancelled"] = (raw["cancelled"].astype(str).str.strip().to_numpy() == "Y")
     df["timed"] = (~df["cancelled"] & df["total_s"].notna()
                    & (df["valid_time"] == "Y") & in_order).to_numpy()
     df["minutes"] = np.where(df["timed"], df["total_s"] / 60.0, np.nan)
@@ -200,7 +197,7 @@ def _quality_counts(df: pd.DataFrame, dropped: dict) -> dict:
     """What was dropped on loading and why the kept calls are untimed (df.attrs["quality"]).
 
     Untimed calls (they stay in the call count but never enter a time statistic), each counted once, in this order:
-      cancelled         disposition CANCELLED
+      cancelled         cancelled = Y
       invalid_time_flag valid_time is not Y
       missing_time      t_assigned, t_enroute or t_onscene missing (and not cancelled)
       out_of_order      all times present but not in order (assigned before received, and so on)

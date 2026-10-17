@@ -76,7 +76,7 @@ def make_calls(per_day_by_date):
             rows.append({"incident_id": f"X-{k:05d}", "zcta": "10001", "urgency_code": 0,
                          "t_received": f"{d}T{h:02d}:00:00-04:00", "t_assigned": f"{d}T{h:02d}:01:00-04:00",
                          "t_enroute": f"{d}T{h:02d}:02:00-04:00", "t_onscene": f"{d}T{h:02d}:07:00-04:00",
-                         "disposition": "TRANSPORTED", "valid_time": "Y", "eta_google_s": 200, "held": "N"})
+                         "cancelled": "N", "valid_time": "Y", "held": "N"})
     return data.derive(pd.DataFrame(rows))
 
 
@@ -229,11 +229,10 @@ def test_invalid_records_never_enter_completed_statistics():
     """Cancelled, valid_time = N, missing t_onscene and out-of-order rows are counted as calls but never timed."""
     base = {"zcta": "10001", "urgency_code": 0, "t_received": "2026-08-01T10:00:00-04:00",
             "t_assigned": "2026-08-01T10:01:00-04:00", "t_enroute": "2026-08-01T10:02:00-04:00",
-            "t_onscene": "2026-08-01T10:09:00-04:00", "disposition": "TRANSPORTED", "valid_time": "Y",
-            "eta_google_s": 400, "held": "N"}
+            "t_onscene": "2026-08-01T10:09:00-04:00", "cancelled": "N", "valid_time": "Y", "held": "N"}
     rows = [
         {**base, "incident_id": "OK"},
-        {**base, "incident_id": "CANCELLED", "disposition": "CANCELLED", "t_onscene": None},
+        {**base, "incident_id": "CANCELLED", "cancelled": "Y", "t_onscene": None},
         {**base, "incident_id": "INVALID", "valid_time": "N"},
         {**base, "incident_id": "NO_ONSCENE", "t_onscene": None},
         {**base, "incident_id": "ENROUTE_BEFORE_ASSIGNED", "t_enroute": "2026-08-01T10:00:30-04:00"},
@@ -318,7 +317,7 @@ def test_messy_sample_keeps_the_first_row_of_a_duplicate_id(messy):
 def test_bad_values_are_dropped_and_counted_never_raised():
     ok = {"zcta": "10001", "urgency_code": 0, "t_received": "2026-08-01T10:00:00-04:00",
           "t_assigned": "2026-08-01T10:01:00-04:00", "t_enroute": "2026-08-01T10:02:00-04:00",
-          "t_onscene": "2026-08-01T10:07:00-04:00", "disposition": "TRANSPORTED", "valid_time": "Y"}
+          "t_onscene": "2026-08-01T10:07:00-04:00", "cancelled": "N", "valid_time": "Y"}
     rows = [{**ok, "incident_id": "GOOD"},
             {**ok, "incident_id": "GOOD", "t_onscene": "2026-08-01T11:00:00-04:00"},      # duplicate id
             {**ok, "incident_id": "NO-TIME", "t_received": None},
@@ -358,3 +357,26 @@ def test_child_baselines_can_group_by_zcta_for_the_whole_state():
     assert len(rows) == 40 and info["enough"] and info["days"] == 60
     assert len(base["10002"][0]) == 0 and not base["10002"][1]["enough"] and base["10002"][1]["days"] == 120
     assert "10001" in data.all_zctas() and len(data.all_zctas()) > 1500
+
+
+# ---------------------------------------------------------------- H-14: minimal input contract
+
+def test_loader_reads_cancelled_flag_and_drops_eta_and_disposition():
+    """The incident file has no eta_google_s and no disposition: cancelled is a Y/N column, nothing else is read."""
+    raw = pd.read_csv(FIX / "three_calls.csv", dtype=str)
+    assert "eta_google_s" not in raw.columns and "disposition" not in raw.columns
+    assert raw["cancelled"].tolist() == ["N", "N", "Y"]       # T-003 is the cancelled call
+    raw.loc[0, "cancelled"] = "Y"
+    raw.loc[0, "t_onscene"] = None
+    df = data.derive(raw)
+    assert "eta_google_s" not in df.columns and "disposition" not in df.columns
+    assert df["cancelled"].tolist().count(True) == 2 and not df.loc[df["cancelled"], "timed"].any()
+    assert df.attrs["quality"]["cancelled"] == 2
+
+
+def test_old_disposition_column_is_not_accepted():
+    """A file that still has disposition and no cancelled column is refused with a clear message."""
+    raw = pd.read_csv(FIX / "three_calls.csv", dtype=str)
+    raw = raw.rename(columns={"cancelled": "disposition"})
+    with pytest.raises(ValueError, match="cancelled"):
+        data.derive(raw)

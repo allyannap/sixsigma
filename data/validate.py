@@ -24,6 +24,8 @@ ROOT = HERE.parent
 NAMES = ["baseline", "station_closure", "summer_surge"]
 # The demo windows in README.md; each needs 120 days of history before it (the longest baseline).
 DEMO_WINDOWS = [("2026-07-18", "2026-10-15"), ("2026-09-01", "2026-10-15"), ("2026-07-01", "2026-08-31")]
+FILE_COLUMNS = ["incident_id", "zcta", "urgency_code", "t_received", "t_assigned", "t_enroute",
+                "t_onscene", "cancelled", "valid_time", "held"]  # the whole input contract: 10 columns
 TIME_COLS = ["t_received", "t_assigned", "t_enroute", "t_onscene"]
 BAD_TOTAL_S = 4 * 3600  # a response over 4 hours is not a real response time (messy-sample detector)
 RED_REF_S = 480  # the bands below judge every red call against 480 s (NFPA-style), not the tier target
@@ -124,7 +126,7 @@ def messy_checks(d, ld, lookup, codes):
         return
     m = json.load(open(HERE / "params.json"))["messy_sample"]
     df = pd.read_csv(path, dtype={"zcta": str, "incident_id": str}, keep_default_na=False, na_values=[""])
-    df["disposition"] = df["disposition"].astype(str)
+    report(list(df.columns) == FILE_COLUMNS, "messy sample: header is exactly the 10 input columns")
     df["valid_time"] = df["valid_time"].astype(str)
     mb = path.stat().st_size / 1e6
     report(mb < 1 and 2000 <= len(df) <= 5000, f"messy sample: {len(df):,} rows (2,000-5,000), {mb:.2f} MB")
@@ -185,7 +187,9 @@ def main():
             continue
         df = pd.read_csv(path, dtype={"zcta": str, "incident_id": str}, keep_default_na=False,
                          na_values=[""])
-        df["disposition"] = df["disposition"].astype(str)
+        report(list(df.columns) == FILE_COLUMNS and "eta_google_s" not in df.columns
+               and "disposition" not in df.columns,
+               f"{n}: header is exactly the 10 input columns, no eta_google_s, no disposition")
         frames[n] = df
         t = parse_times(df)
         parsed[n] = t
@@ -198,10 +202,10 @@ def main():
         report(bool(df["zcta"].isin(set(lookup["zcta"])).all()), f"{n}: every zcta is in zcta_county.csv")
         report(bool(df["urgency_code"].isin(codes).all()), f"{n}: every urgency_code is in config/targets.csv")
         on = df["t_onscene"].notna()
-        report(bool((df.loc[on, "eta_google_s"] > 0).all()), f"{n}: eta_google_s > 0 whenever t_onscene is filled")
-        canc = df["disposition"] == "CANCELLED"
+        report(bool(df["cancelled"].isin(["Y", "N"]).all()), f"{n}: cancelled is Y or N on every row")
+        canc = df["cancelled"] == "Y"
         report(bool((~on[canc]).all()) and bool(canc[~on].all()),
-               f"{n}: CANCELLED has empty t_onscene and every empty t_onscene is CANCELLED")
+               f"{n}: cancelled = Y has empty t_onscene and every empty t_onscene is cancelled")
         month = t["t_received"].dt.tz_convert("America/New_York").dt.month
         peak = int(month.value_counts().idxmax())
         report(peak in (6, 7, 8), f"{n}: monthly volume peaks in Jun-Aug (peak month {peak})")
@@ -211,12 +215,6 @@ def main():
                  + (t.loc[ok_on, "t_enroute"] - t.loc[ok_on, "t_assigned"]).dt.total_seconds()
                  + (t.loc[ok_on, "t_onscene"] - t.loc[ok_on, "t_enroute"]).dt.total_seconds())
         report(bool((tot == parts).all()), f"{n}: stage intervals add up to total_s for every completed call")
-        drive = (t.loc[on, "t_onscene"] - t.loc[on, "t_enroute"]).dt.total_seconds()
-        ratio = drive / df.loc[on, "eta_google_s"]
-        slower, faster, outliers = (ratio > 1).mean(), (ratio < 1).mean(), int((ratio > 1.5).sum())
-        report(slower > 0.05 and faster > 0.05 and outliers > 0,
-               f"{n}: drive vs estimate goes both ways (slower {100 * slower:.1f}%, faster {100 * faster:.1f}%, "
-               f"{outliers:,} slow outliers over 1.5x)")
         first = t["t_received"].dt.tz_convert("America/New_York").dt.date.min()
         need = min(date.fromisoformat(a) for a, _ in DEMO_WINDOWS) - timedelta(days=120)
         report(first <= need, f"{n}: data starts {first}, at least 120 baseline days before every demo window ({need})")
