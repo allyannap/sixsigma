@@ -218,6 +218,11 @@ def main():
         first = t["t_received"].dt.tz_convert("America/New_York").dt.date.min()
         need = min(date.fromisoformat(a) for a, _ in DEMO_WINDOWS) - timedelta(days=120)
         report(first <= need, f"{n}: data starts {first}, at least 120 baseline days before every demo window ({need})")
+        # the API reads the date range from the first file only, so every file must cover exactly the same days
+        span = json.load(open(HERE / "params.json"))
+        local_days = t["t_received"].dt.tz_convert("America/New_York").dt.date
+        report(str(local_days.min()) == span["date_start"] and str(local_days.max()) == span["date_end"],
+               f"{n}: covers exactly {span['date_start']} to {span['date_end']} (found {local_days.min()} to {local_days.max()})")
         cty = df.merge(lookup[["zcta", "county_fips"]], on="zcta")["county_fips"]
         report(cty.nunique() == 62 and set(cty) == set(counties["county_fips"]),
                f"{n}: 62 counties and every county has calls ({cty.nunique()} with calls)")

@@ -314,17 +314,19 @@ def health():
 @app.get("/api/meta")
 def meta():
     lk = data.lookups()
-    ranges = [data.date_range(data.load(d)) for d in data.DATASETS]
+    # The three files cover the same 12 months (data/validate.py checks every file starts and ends on the same days),
+    # so the first file alone gives the range. Loading all three here made the page wait for every file on start-up.
+    first = data.load(data.DATASETS[0])
+    date_min, date_max = data.date_range(first)
     counties = lk["counties"].sort_values("county_name")
-    d_from, d_to = data.default_range(data.load(data.DATASETS[0]))
-    date_min = min(r[0] for r in ranges)
+    d_from, d_to = data.default_range(first)
     return {
         "source": SOURCE,
         "datasets": list(data.DATASETS),
         "date_min": date_min.isoformat(),
         # the first start date with a full default baseline before it: earlier starts have no baseline to compare with
         "earliest_from": (date_min + timedelta(days=DEFAULT_BASELINE_DAYS)).isoformat(),
-        "date_max": max(r[1] for r in ranges).isoformat(),
+        "date_max": date_max.isoformat(),
         "default_from": d_from.isoformat(), "default_to": d_to.isoformat(),
         "counties": [{"county_fips": f, "county_name": n}
                      for f, n in zip(counties["county_fips"], counties["county_name"])],

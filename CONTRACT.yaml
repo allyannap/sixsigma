@@ -413,3 +413,22 @@ tasks:
       npm test passes (numbered chips, the hint, no urgency colour classes or "Red (most urgent)" text); vite build
       succeeds; the chips are checked in a browser; SPEC, plan and frontend README use "Call urgency".
     result: "Call urgency chips 1 / 2 / 3, uncoloured, with a filter hint; hover card uses Urgency 1-3 badges; vitest 115 passed; vite build ok; checked in a browser."
+
+  - id: H-22
+    title: Faster start-up - fast timestamp parsing, meta from one file, per-dataset load locks
+    points: "working tool (25) - the page draws in about 19 s after a restart instead of about 100 s"
+    status: done
+    owner: "claude + Powerpuff Girls"
+    started_at: "2026-10-17 21:00"
+    owns: ["app/data.py", "app/main.py", "data/validate.py"]
+    notes: >
+      User request Oct 17 (slow loading). Profile per dataset: read 6.3 s, timestamp parsing 20 s (4 columns), dropping
+      unusable rows 7.4 s. Fixes: data.epoch_seconds decodes the files' fixed "YYYY-MM-DDTHH:MM:SS+HH:MM" times with
+      integer arithmetic and falls back to pd.to_datetime(format="ISO8601") for any other shape (verified identical on
+      every time in the baseline file and the messy sample); the ZIP column is cleaned once; /api/meta reads the date
+      range from the first file only (validate.py now checks every file covers exactly the same days); one load lock per
+      dataset, and a loaded dataset is returned without waiting.
+    definition_of_done: >
+      pytest passes; validate plain and --messy print 0 FAIL; the parser gives identical results to the old one on the
+      real files; restart-to-first-data time measured before and after.
+    result: "derive 26.4 s -> 9.8 s per dataset; restart to /api/meta ~100 s -> 16 s, to first page data ~19 s; pytest 211 passed (142 s -> 100 s); validate 74 PASS (3 new date checks), --messy 14 PASS; vitest 115 passed."
