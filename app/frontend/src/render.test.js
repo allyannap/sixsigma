@@ -66,9 +66,13 @@ describe('sections render from fixtures', () => {
     const html = await railHtml()
     expect(html).not.toContain('rail-card')
     expect(html).not.toContain('rail-layout')
-    for (const col of ['Valid calls', 'On time [95% CI]', 'Goal', 'Control', 'Label', 'Late beyond goal', 'Cancelled / invalid', 'Calls per day: now (baseline)', 'P95 min [95% CI]', 'Cpk [upper]']) {
+    for (const col of ['Valid calls', 'On time (95% CI)', 'Goal (90%)', 'Control', 'Label', 'Late beyond goal', 'Cancelled / invalid', 'Calls per day: now (baseline)', 'P95 min (95% CI)', 'Cpk [upper]']) {
       expect(html).toContain(`>${col}</th>`)
     }
+    // the goal is named once, in the heading, not as "vs 90" on every row
+    expect(html).not.toMatch(/vs 90/)
+    const p = summary.places.find((x) => x.queue === 'act_now')
+    expect(rowOf(html, p.name)).toContain(`${p.on_time_ci[0].toFixed(1)}–${p.on_time_ci[1].toFixed(1)}`)
   })
   it('a place row shows its queue label and both judgments; the place header no longer repeats them', async () => {
     const p = summary.places.find((x) => x.queue === 'act_now')
@@ -536,5 +540,18 @@ describe('date range message controls', () => {
     const src = readFileSync(new URL('./components/PlaceHead.jsx', import.meta.url), 'utf8')
     expect(src).toContain('className="range-close" aria-label="Dismiss this message"')
     expect(src).toContain('Swap dates')
+  })
+})
+
+describe('Investigate table goal heading', () => {
+  it('names the shared goal once; a place with a different goal shows its own in its row', async () => {
+    const { sharedGoal } = await import('./components/InvestigateRail.jsx')
+    expect(sharedGoal([{ goal_pct: 90 }, { goal_pct: 90 }, { goal_pct: 85 }])).toBe(90)
+    expect(sharedGoal([])).toBe(null)
+    expect(sharedGoal([{ goal_pct: null }])).toBe(null)
+    const odd = { ...summary.places[0], goal_pct: 85 }
+    const html = await railHtml({ summaryState: ok({ ...summary, places: [odd, ...summary.places.slice(1)] }), initialView: 'review' })
+      + await railHtml({ summaryState: ok({ ...summary, places: [odd, ...summary.places.slice(1)] }), initialView: 'others' })
+    expect(rowOf(html, odd.name)).toContain('· goal 85%')
   })
 })

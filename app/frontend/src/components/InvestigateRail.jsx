@@ -13,17 +13,30 @@ import '../rail.css'
  * The tab's places with every number side by side. Rows keep the tab's order; the place name selects the place. The
  * name column stays pinned while the table scrolls sideways.
  */
+/** "74.4–80.0": an interval, short enough for a table cell. */
+const range = (ci) => fmtCi(ci).replace(' to ', '–')
+
+/** The goal most places share (90 today), named once in the column heading; a place with another goal says so in its row. */
+export function sharedGoal(rows) {
+  const counts = new Map()
+  for (const p of rows) if (p.goal_pct != null) counts.set(p.goal_pct, (counts.get(p.goal_pct) || 0) + 1)
+  let best = null
+  for (const [g, n] of counts) if (best == null || n > counts.get(best)) best = g
+  return best
+}
+
 function RailTable({ rows, selected, onPick }) {
+  const goal = sharedGoal(rows)
   return (
     <div className="table-scroll rail-table" tabIndex={0} role="region" aria-label="Places with their numbers (scrolls sideways)">
       <table className="places">
         <thead>
           <tr>
             <th scope="col">#</th><th scope="col">Place</th><th scope="col">Valid calls</th>
-            <th scope="col">On time [95% CI]</th><th scope="col">Goal</th><th scope="col">Control</th><th scope="col">Label</th>
+            <th scope="col">On time (95% CI)</th><th scope="col">{goal != null ? `Goal (${fmtNum(goal, 0)}%)` : 'Goal'}</th><th scope="col">Control</th><th scope="col">Label</th>
             <th scope="col" title="Late calls beyond what the goal allows: late - (1 - goal) x valid. Negative = fewer than allowed.">Late beyond goal</th>
             <th scope="col">Cancelled / invalid</th><th scope="col">Calls per day: now (baseline)</th>
-            <th scope="col">P95 min [95% CI]</th><th scope="col" title="Secondary; assumes lognormal times; never sets a label">Cpk [upper]</th>
+            <th scope="col">P95 min (95% CI)</th><th scope="col" title="Secondary; assumes lognormal times; never sets a label">Cpk [upper]</th>
           </tr>
         </thead>
         <tbody>
@@ -32,14 +45,14 @@ function RailTable({ rows, selected, onPick }) {
               <td className="mono">{i + 1}</td>
               <th scope="row"><button type="button" className="link-btn" onClick={() => onPick(p, false)} aria-pressed={selected.id === p.id}>{p.name}</button></th>
               <td className="mono">{fmtInt(p.valid)}</td>
-              <td className="mono">{fmtPct(p.on_time_pct)} <span className="muted">[{fmtCi(p.on_time_ci)}] vs {fmtNum(p.goal_pct, 0)}</span></td>
+              <td className="mono">{fmtPct(p.on_time_pct)} <span className="muted">{range(p.on_time_ci)}{p.goal_pct != null && p.goal_pct !== goal ? ` · goal ${fmtNum(p.goal_pct, 0)}%` : ''}</span></td>
               <td><span className="chip" style={{ background: SPEC[p.spec]?.bg, color: SPEC[p.spec]?.fg }}>{SPEC[p.spec]?.label}</span></td>
               <td><span className="chip" style={{ background: CONTROL[p.control]?.bg, color: CONTROL[p.control]?.fg }}>{CONTROL[p.control]?.label}</span></td>
               <td><StatusBadge status={p.queue} short /><WatchChip p={p} /></td>
               <td className="mono">{fmtNum(p.excess_late, 1)}</td>
               <td className="mono">{fmtInt(p.cancelled)} ({fmtPct(p.cancel_pct)}) / {fmtInt(p.invalid)}</td>
               <td className="mono">{fmtNum(p.calls_per_day, 1)} ({fmtNum(p.base_calls_per_day, 1)})</td>
-              <td className="mono">{p.p95_min == null ? 'n/a' : fmtNum(p.p95_min)} <span className="muted">[{fmtCi(p.p95_ci)}]</span></td>
+              <td className="mono">{p.p95_min == null ? 'n/a' : fmtNum(p.p95_min)} <span className="muted">{range(p.p95_ci)}</span></td>
               <td className="mono" title={p.cpk == null ? 'Cpk undefined (under 30 calls or no spread)' : ''}>
                 {p.cpk == null ? 'n/a' : fmtNum(p.cpk, 2)}{p.cpk_upper != null && <span className="muted"> [{fmtNum(p.cpk_upper, 2)}]</span>}
               </td>

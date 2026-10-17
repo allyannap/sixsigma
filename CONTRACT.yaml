@@ -551,3 +551,20 @@ tasks:
     definition_of_done: >
       npm test passes (no pill; subtitle says SYNTHETIC DATA / Simulated data); vite build succeeds; checked in a browser.
     result: "Pill removed; subtitle reads 'New York State · EMS response quality · Simulated data'; vitest 118 passed; vite build ok; checked in a browser."
+
+  - id: H-29
+    title: Investigate table - goal named once in the Goal (90%) heading, shorter intervals
+    points: "demonstration (10) - less repetition in the table"
+    status: done
+    owner: "claude + Powerpuff Girls"
+    started_at: "2026-10-18 00:00"
+    owns: ["app/frontend/src/components/InvestigateRail.jsx", "app/frontend/src/rail.css", "app/frontend/src/render.test.js"]
+    notes: >
+      User request Oct 17. Every row repeated "vs 90" and wrote intervals as "[74.4 to 80.0]". The goal most places share
+      is now named once in the next column's heading, "Goal (90%)"; a place with a different goal adds "· goal X%" in its
+      row. Intervals read "74.4–80.0" in the On time and P95 columns. A visual interval bar was offered and declined (the
+      user wants the exact numbers). No statistic changed.
+    definition_of_done: >
+      npm test passes (heading Goal (90%), no "vs 90", interval text, different-goal row); vite build succeeds; checked in
+      a browser.
+    result: "Headings 'On time (95% CI)' and 'Goal (90%)'; rows read '77.3% 74.4–80.0'; vitest 119 passed; vite build ok; checked in a browser."
