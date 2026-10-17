@@ -1,0 +1,273 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e30] [cursor=pointer]:
+      - generic [ref=e31]: OnScene
+      - generic [ref=e32]: New York State · EMS response quality
+    - generic [ref=e33]:
+      - generic [ref=e34]:
+        - generic [ref=e35]: Dataset
+        - combobox "Dataset" [ref=e36]:
+          - option "baseline" [selected]
+          - option "station_closure"
+          - option "summer_surge"
+      - button "Start replay" [ref=e37] [cursor=pointer]
+    - generic [ref=e38]:
+      - 'generic "SYNTHETIC DATA: invented calls on real 2020 Census geography. Not real patients, not live CAD." [ref=e39]':
+        - generic [ref=e41]:
+          - generic [ref=e42]: "SYNTHETIC DATA:"
+          - text: Simulated service data
+      - generic [ref=e43]:
+        - img "Team Powerpuff Girls" [ref=e44]
+        - generic [aria-hidden] [ref=e45]: Team Powerpuff Girls
+  - status [ref=e46]
+  - generic [ref=e48]:
+    - main [ref=e49]:
+      - generic [ref=e50]:
+        - region [ref=e237]:
+          - heading "Delaware ZIP area map" [level=2] [ref=e238]
+          - img "Map of ZIP areas, colored by queue label. Select one to see it on the right. Gray areas outside New York are for orientation only." [ref=e239]:
+            - generic:
+              - region "Map" [active] [ref=e240]
+              - generic [aria-hidden]:
+                - generic: Use ⌘ + scroll to zoom the map
+            - generic:
+              - generic [ref=e241]:
+                - button "Zoom in" [ref=e242] [cursor=pointer]
+                - button "Zoom out" [ref=e244] [cursor=pointer]
+              - group [ref=e246]:
+                - generic "Toggle attribution" [ref=e247] [cursor=pointer]
+          - navigation "ZIP areas on the map":
+            - list:
+              - listitem:
+                - 'button "ZIP 12438, Delaware County: Needs more data; Late calls too few calls; Typical wait 9:02 (county 12:51); calls Red 0, Yellow 1, Green 0" [ref=e248] [cursor=pointer]'
+              - listitem:
+                - 'button "ZIP 13751, Delaware County: Needs more data; Late calls no calls; calls Red 0, Yellow 0, Green 0" [ref=e249] [cursor=pointer]'
+              - listitem:
+                - 'button "ZIP 13783, Delaware County: Needs more data; Late calls too few calls; Typical wait 14:57 (county 12:51); calls Red 7, Yellow 6, Green 2" [ref=e250] [cursor=pointer]'
+              - listitem:
+                - 'button "ZIP 13856, Delaware County: Needs more data; Late calls 1 in 3 (goal 1 in 10); Typical wait 13:45 (county 12:51); calls Red 21, Yellow 13, Green 8" [ref=e251] [cursor=pointer]'
+              - listitem:
+                - 'button "ZIP 12459, Delaware County: Needs more data; Late calls too few calls; Typical wait 10:12 (county 12:51); calls Red 0, Yellow 1, Green 1" [ref=e252] [cursor=pointer]'
+              - listitem:
+                - 'button "ZIP 13838, Delaware County: Needs more data; Late calls too few calls; Typical wait 9:37 (county 12:51); calls Red 8, Yellow 7, Green 5" [ref=e253] [cursor=pointer]'
+              - listitem:
+                - 'button "ZIP 13847, Delaware County: Needs more data; Late calls no calls; calls Red 0, Yellow 0, Green 0" [ref=e254] [cursor=pointer]'
+              - listitem:
+                - 'button "ZIP 12760, Delaware County: Needs more data; Late calls too few calls; Typical wait 19:12 (county 12:51); calls Red 1, Yellow 2, Green 1" [ref=e255] [cursor=pointer]'
+              - listitem:
+                - 'button "ZIP 13775, Delaware County: Needs more data; Late calls too few calls; Typical wait 13:04 (county 12:51); calls Red 5, Yellow 3, Green 1" [ref=e256] [cursor=pointer]'
+              - listitem:
+                - 'button "ZIP 13756, Delaware County: Needs more data; Late calls too few calls; Typical wait 14:44 (county 12:51); calls Red 1, Yellow 2, Green 2" [ref=e257] [cursor=pointer]'
+              - listitem:
+                - 'button "ZIP 12474, Delaware County: Needs more data; Late calls too few calls; Typical wait 14:12 (county 12:51); calls Red 3, Yellow 2, Green 0" [ref=e258] [cursor=pointer]'
+              - listitem:
+                - 'button "ZIP 12430, Delaware County: Needs more data; Late calls too few calls; Typical wait 11:14 (county 12:51); calls Red 1, Yellow 6, Green 2" [ref=e259] [cursor=pointer]'
+              - listitem:
+                - 'button "ZIP 13757, Delaware County: Needs more data; Late calls too few calls; Typical wait 12:02 (county 12:51); calls Red 3, Yellow 0, Green 2" [ref=e260] [cursor=pointer]'
+              - listitem:
+                - 'button "ZIP 13740, Delaware County: Needs more data; Late calls too few calls; Typical wait 12:10 (county 12:51); calls Red 2, Yellow 0, Green 0" [ref=e261] [cursor=pointer]'
+              - listitem:
+                - 'button "ZIP 13846, Delaware County: Needs more data; Late calls too few calls; Typical wait 13:03 (county 12:51); calls Red 1, Yellow 0, Green 1" [ref=e262] [cursor=pointer]'
+              - listitem:
+                - 'button "ZIP 13839, Delaware County: Needs more data; Late calls too few calls; Typical wait 14:53 (county 12:51); calls Red 2, Yellow 1, Green 2" [ref=e263] [cursor=pointer]'
+              - listitem:
+                - 'button "ZIP 13842, Delaware County: Needs more data; Late calls too few calls; Typical wait 17:02 (county 12:51); calls Red 0, Yellow 1, Green 1" [ref=e264] [cursor=pointer]'
+              - listitem:
+                - 'button "ZIP 13860, Delaware County: Needs more data; Late calls too few calls; Typical wait 8:46 (county 12:51); calls Red 0, Yellow 1, Green 1" [ref=e265] [cursor=pointer]'
+              - listitem:
+                - 'button "ZIP 13731, Delaware County: Needs more data; Late calls too few calls; Typical wait 15:05 (county 12:51); calls Red 1, Yellow 3, Green 0" [ref=e266] [cursor=pointer]'
+              - listitem:
+                - 'button "ZIP 13739, Delaware County: Needs more data; Late calls too few calls; Typical wait 15:32 (county 12:51); calls Red 3, Yellow 1, Green 1" [ref=e267] [cursor=pointer]'
+              - listitem:
+                - 'button "ZIP 13750, Delaware County: Needs more data; Late calls too few calls; Typical wait 14:43 (county 12:51); calls Red 1, Yellow 2, Green 3" [ref=e268] [cursor=pointer]'
+              - listitem:
+                - 'button "ZIP 13752, Delaware County: Needs more data; Late calls too few calls; Typical wait 10:57 (county 12:51); calls Red 1, Yellow 2, Green 1" [ref=e269] [cursor=pointer]'
+              - listitem:
+                - 'button "ZIP 13753, Delaware County: Needs more data; Late calls too few calls; Typical wait 9:51 (county 12:51); calls Red 6, Yellow 12, Green 9" [ref=e270] [cursor=pointer]'
+              - listitem:
+                - 'button "ZIP 13804, Delaware County: Needs more data; Late calls too few calls; Typical wait 12:26 (county 12:51); calls Red 1, Yellow 0, Green 0" [ref=e271] [cursor=pointer]'
+              - listitem:
+                - 'button "ZIP 12465, Delaware County: Needs more data; Late calls too few calls; Typical wait 12:05 (county 12:51); calls Red 0, Yellow 2, Green 1" [ref=e272] [cursor=pointer]'
+              - listitem:
+                - 'button "ZIP 12434, Delaware County: Needs more data; Late calls no calls; calls Red 0, Yellow 0, Green 0" [ref=e273] [cursor=pointer]'
+              - listitem:
+                - 'button "ZIP 12441, Delaware County: Needs more data; Late calls too few calls; Typical wait 12:25 (county 12:51); calls Red 0, Yellow 1, Green 0" [ref=e274] [cursor=pointer]'
+              - listitem:
+                - 'button "ZIP 12455, Delaware County: Needs more data; Late calls too few calls; Typical wait 15:43 (county 12:51); calls Red 7, Yellow 7, Green 1" [ref=e275] [cursor=pointer]'
+              - listitem:
+                - 'button "ZIP 12421, Delaware County: Needs more data; Late calls too few calls; Typical wait 15:36 (county 12:51); calls Red 1, Yellow 0, Green 1" [ref=e276] [cursor=pointer]'
+              - listitem:
+                - 'button "ZIP 13806, Delaware County: Needs more data; Late calls no calls; calls Red 0, Yellow 0, Green 0" [ref=e277] [cursor=pointer]'
+              - listitem:
+                - 'button "ZIP 13788, Delaware County: Needs more data; Late calls too few calls; Typical wait 9:27 (county 12:51); calls Red 2, Yellow 1, Green 0" [ref=e278] [cursor=pointer]'
+              - listitem:
+                - 'button "ZIP 12406, Delaware County: Needs more data; Late calls too few calls; Typical wait 24:28 (county 12:51); calls Red 0, Yellow 1, Green 0" [ref=e279] [cursor=pointer]'
+              - listitem:
+                - 'button "ZIP 12167, Delaware County: Needs more data; Late calls too few calls; Typical wait 13:50 (county 12:51); calls Red 1, Yellow 5, Green 7" [ref=e280] [cursor=pointer]'
+              - listitem:
+                - 'button "ZIP 13782, Delaware County: Needs more data; Late calls too few calls; Typical wait 15:34 (county 12:51); calls Red 1, Yellow 0, Green 0" [ref=e281] [cursor=pointer]'
+              - listitem:
+                - 'button "ZIP 13786, Delaware County: Needs more data; Late calls too few calls; Typical wait 8:43 (county 12:51); calls Red 0, Yellow 1, Green 0" [ref=e282] [cursor=pointer]'
+              - listitem:
+                - 'button "ZIP 13774, Delaware County: Needs more data; Late calls too few calls; Typical wait 31:28 (county 12:51); calls Red 0, Yellow 0, Green 1" [ref=e283] [cursor=pointer]'
+              - listitem:
+                - 'button "ZIP 13755, Delaware County: Needs more data; Late calls too few calls; Typical wait 13:24 (county 12:51); calls Red 1, Yellow 2, Green 1" [ref=e284] [cursor=pointer]'
+          - button "Open the investigation list, 0 need review" [ref=e285] [cursor=pointer]:
+            - generic [aria-hidden] [ref=e55]: ›
+            - generic [aria-hidden] [ref=e56]: Investigate
+            - generic [aria-hidden] [ref=e286]: "0"
+          - combobox "Search for a New York ZIP code or county" [ref=e62]
+          - generic [ref=e63]:
+            - button "Back to all counties" [ref=e287] [cursor=pointer]
+            - button "Reset map to New York State" [ref=e64] [cursor=pointer]
+          - navigation "Map drilldown" [ref=e290]:
+            - button "New York State" [ref=e291] [cursor=pointer]
+            - generic [ref=e294]: Delaware
+          - generic "Status legend":
+            - generic:
+              - generic: Status
+              - button "What the status colours mean" [ref=e111]: i
+            - generic:
+              - generic: Critical
+              - generic: "0"
+            - generic:
+              - generic: Watch
+              - generic: "0"
+            - generic:
+              - generic: Stable
+              - generic: "0"
+            - generic:
+              - generic: Needs data
+              - generic: "37"
+        - generic [ref=e114]:
+          - generic "Labels for Delaware" [ref=e295]:
+            - generic [ref=e296]: "Delaware:"
+            - generic [ref=e297]: Ongoing gap
+            - generic [ref=e300]:
+              - 'generic "Target: Below target" [ref=e301]':
+                - generic [ref=e302]: "Target:"
+                - text: Below target
+              - 'generic "Control: In control" [ref=e303]':
+                - generic [ref=e304]: "Control:"
+                - text: In control
+          - generic [ref=e305]:
+            - status [ref=e306]: "0 of 37 ZIP areas need review: 0 with a recent signal (Act now + Recent change) · 0 ongoing gaps."
+            - note [ref=e307]: About 0.0 would read Below by chance alone if every place were exactly at the goal (expected, of 1 ZIP areas); 1 read Below here.
+          - button "Toggle table for map Ranked by queue label, then late calls beyond the goal 37 ZIP areas" [ref=e308] [cursor=pointer]:
+            - generic [ref=e119]:
+              - generic [ref=e120]: Toggle table for map
+              - generic [ref=e121]: Ranked by queue label, then late calls beyond the goal
+            - generic [ref=e309]: 37 ZIP areas
+      - generic [ref=e122]:
+        - generic [ref=e124]:
+          - generic [ref=e125]:
+            - generic [ref=e126]: Selected place
+            - heading "Delaware" [level=1] [ref=e310]
+            - generic [ref=e128]:
+              - generic [ref=e129]: County
+              - generic [aria-hidden] [ref=e311]: ·
+              - generic [ref=e312]: 37 ZIP areas
+          - form "Date range" [ref=e130]:
+            - generic [ref=e131]:
+              - generic [ref=e132]: From
+              - textbox "From" [ref=e133]: 2026-07-18
+            - generic [aria-hidden] [ref=e134]: –
+            - generic [ref=e135]:
+              - generic [ref=e136]: To
+              - textbox "To" [ref=e137]: 2026-10-15
+            - button "Search" [ref=e138] [cursor=pointer]
+        - region [ref=e142]:
+          - heading "Key Metrics" [level=2] [ref=e144]
+          - generic [ref=e145]:
+            - group "Priority (urgency)" [ref=e147]:
+              - text: Priority
+              - generic [ref=e148]:
+                - button "Red (most urgent)" [pressed] [ref=e149] [cursor=pointer]
+                - button "Yellow" [pressed] [ref=e151] [cursor=pointer]
+                - button "Green" [pressed] [ref=e153] [cursor=pointer]
+            - generic [ref=e155]:
+              - generic [ref=e156]:
+                - generic "On time" [ref=e313]:
+                  - generic [ref=e315]: 72.2%
+                  - generic [ref=e317]: 151 of 209 valid calls · 95% CI 65.8% to 77.9% · goal 90%
+                - generic "Median wait" [ref=e318]:
+                  - generic [ref=e319]:
+                    - text: Median wait
+                    - generic [ref=e320]: call received to on scene
+                  - generic [ref=e321]:
+                    - generic [ref=e322]: "12.8"
+                    - generic [ref=e323]: min
+                  - generic [ref=e324]: 95% CI 12.2 to 14.2 min
+                - generic "P95 wait" [ref=e325]:
+                  - generic [ref=e326]:
+                    - text: P95 wait
+                    - generic [ref=e327]: 1 call in 20 waited longer
+                  - generic [ref=e328]:
+                    - generic [ref=e329]: "26.4"
+                    - generic [ref=e330]: min
+                  - generic [ref=e331]: 95% CI 24.0 to 29.6 min · P90 22.8 min
+              - generic [ref=e178]:
+                - generic [ref=e179]:
+                  - generic [ref=e180]: Summary
+                  - generic [ref=e332]: Watch
+                - paragraph [ref=e333]:
+                  - strong [ref=e334]: "Delaware: Ongoing gap."
+                  - text: "Target: upper 95% bound is below the goal. Control: no month above the upper control limit."
+                - paragraph [ref=e335]: "Next: A planning question (for example, where units are posted), not a sudden change."
+        - region [ref=e336]:
+          - heading "Delaware Wait Time Insights" [level=2] [ref=e337]
+          - group "Wait time charts" [ref=e190]:
+            - generic [ref=e191]:
+              - generic [ref=e192]: 1 / 2
+              - generic [ref=e193]:
+                - 'button "Show chart 1: Are calls arriving on time?" [ref=e194] [cursor=pointer]'
+                - 'button "Show chart 2: Are late calls being unusually frequent?" [ref=e195] [cursor=pointer]'
+            - 'button "Next chart: Are late calls being unusually frequent?" [ref=e196] [cursor=pointer]'
+            - group "1 of 2" [ref=e200]:
+              - region [ref=e201]:
+                - generic [ref=e202]:
+                  - generic [ref=e203]:
+                    - heading "Are calls arriving on time?" [level=3] [ref=e204]
+                    - paragraph [ref=e205]: Each area's on-time rate against the service goal
+                  - generic [ref=e206]: Geographic comparison
+                - paragraph [ref=e338]: Choose one urgency group to see this view.
+    - generic [ref=e215]:
+      - region [ref=e216]:
+        - heading "Investigation list" [level=2] [ref=e218]
+        - paragraph [ref=e219]: "Every flagged area in the current map view with its evidence, then every ZIP area in the state with a confirmed signal. A starting point for a review: the tool does not choose or rank interventions."
+        - region "Investigation list" [ref=e339]:
+          - table [ref=e340]:
+            - rowgroup [ref=e341]:
+              - row [ref=e342]:
+                - columnheader "Area" [ref=e343]
+                - columnheader "Queue and judgments" [ref=e344]
+                - columnheader "Target evidence" [ref=e345]
+                - columnheader "Control evidence" [ref=e346]
+            - rowgroup [ref=e347]:
+              - row [ref=e348]:
+                - rowheader [ref=e349]:
+                  - button "13856" [ref=e350] [cursor=pointer]
+                - 'cell "Needs more data Target: Below target Control: Insufficient baseline" [ref=e351]':
+                  - generic [ref=e352]: Needs more data
+                  - generic [ref=e356]:
+                    - 'generic "Target: Below target" [ref=e357]':
+                      - generic [ref=e358]: "Target:"
+                      - text: Below target
+                    - 'generic "Control: Insufficient baseline" [ref=e359]':
+                      - generic [ref=e360]: "Control:"
+                      - text: Insufficient baseline
+                - cell "67.6% on time (25 of 37), 95% CI 51.5% to 80.4%, goal 90%" [ref=e361]
+                - cell "not assessable (insufficient baseline); baseline Mar 20 to Jul 17" [ref=e362]
+        - generic [ref=e363]:
+          - heading "ZIP areas with a confirmed signal anywhere in the state" [level=3] [ref=e364]
+          - paragraph [ref=e365]: 0 of 663 ZIP areas with 30 or more valid calls (Jul 18 to Oct 15, 2026) have a confirmed signal (Act now or Recent change). This list covers the whole state, so a ZIP inside a county that looks fine still appears.
+          - note [ref=e366]: About 21.0 would read Below by chance alone if every place were exactly at the goal (expected, of 663 ZIP areas); 30 read Below here.
+          - paragraph [ref=e367]: No ZIP area in the state has a confirmed signal in this period.
+          - list "Notes from the analysis" [ref=e368]:
+            - listitem [ref=e369]: "several urgency groups combined: the p chart mixes case mix; pick one group for SPC"
+      - contentinfo [ref=e234]:
+        - text: Every number on this page is computed by the API (
+        - code [ref=e235]: /api/*
+        - text: ", read-only); the page only draws and formats it. Source: synthetic incidents replayed from the server. The response clock start ("
+        - code [ref=e236]: t_received
+        - text: ") is provisional: it may be the 911 answer or the CAD record, and that is not yet confirmed. Targets are NFPA 1720-based placeholders, configurable and not certified standards: red 8 minutes in urban areas, 10 suburban, 14 rural and remote; yellow 15; green 30; 90% on time. The tool reviews the response process, not individual dispatchers or crews."

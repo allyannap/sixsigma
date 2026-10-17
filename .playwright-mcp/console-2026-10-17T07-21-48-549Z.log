@@ -1122,3 +1122,16 @@ Visit https://reactjs.org/link/error-boundaries to learn more about error bounda
 [ 2796383ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:21608
 [ 2796484ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=red%2Cyellow%2Cgreen&level=state:0
 [ 2796494ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=red%2Cyellow%2Cgreen:0
+[ 2833634ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:21608
+[ 2833721ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=red%2Cyellow%2Cgreen&level=state:0
+[ 2833721ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=red%2Cyellow%2Cgreen:0
+[ 2838209ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=red%2Cgreen&level=state:0
+[ 2838209ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=red%2Cgreen:0
+[ 2839041ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=red:0
+[ 2839044ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=red&level=state:0
+[ 3350211ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=red%2Cyellow%2Cgreen:0
+[ 3350214ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=red%2Cyellow%2Cgreen&level=state:0
+[ 3364498ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=red%2Cyellow%2Cgreen:0
+[ 3364502ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=red%2Cyellow%2Cgreen&level=state:0
+[ 3372185ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=red%2Cyellow%2Cgreen:0
+[ 3372191ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=red%2Cyellow%2Cgreen&level=state:0

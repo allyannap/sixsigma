@@ -404,3 +404,48 @@ describe('OnScene page (H-14)', () => {
     expect(html).not.toMatch(/Sentinel|AI summary/)
   })
 })
+
+describe('Investigate sidebar', () => {
+  it('lists the flagged places as cards with label, on-time bar and goal tick, signal or control status', async () => {
+    const { default: InvestigateRail } = await import('./components/InvestigateRail.jsx')
+    const { investigationRows } = await import('./components/InvestigationSection.jsx')
+    const rows = investigationRows(summary.places)
+    const html = plain(renderToString(h(InvestigateRail, { open: true, onClose() {}, summaryState: ok(summary), parent: STATE, selected: { level: 'state' }, onPick() {} })))
+    expect(html).toContain('Investigate')
+    expect(html).toMatch(/\d+ of \d+ counties need review/)
+    expect(html).toContain('Act now')
+    expect(html.match(/class="rail-card( is-active)?"/g).length).toBe(rows.length)
+    expect(html).toContain('class="rail-goal"')
+    expect(html).not.toContain('Collapse')
+    const closed = plain(renderToString(h(InvestigateRail, { open: false, onClose() {}, summaryState: ok(summary), parent: STATE, selected: { level: 'state' }, onPick() {} })))
+    expect(closed).toContain('inert=""')
+  })
+  it('the map has an Investigate edge tab with the review count; the top bar no longer has the button', () => {
+    const html = map({ railOpen: false, onRail() {}, reviewCount: 7 })
+    expect(html).toContain('class="edge-tab"')
+    expect(html).toContain('aria-controls="investigate-rail"')
+    expect(html).toContain('aria-expanded="false"')
+    expect(html).toContain('Open the investigation list, 7 need review')
+    expect(map({ railOpen: true, onRail() {}, reviewCount: 7 })).toContain('edge-tab is-open')
+    const top = plain(renderToString(h(TopBar, { dataset: 'baseline', datasets: ['baseline'], onDataset() {}, replay: { on: false }, fixtures: false, replayHandlers: {} })))
+    expect(top).not.toContain('tb-investigate')
+  })
+})
+
+describe('date range message', () => {
+  it('names both dates, says why, and how to fix it', async () => {
+    const { rangeMessage } = await import('./components/PlaceHead.jsx')
+    const msg = rangeMessage('2026-10-15', '2026-10-02')
+    expect(msg).toContain('The end date (Oct 2, 2026) is before the start date (Oct 15, 2026)')
+    expect(msg).toContain('Pick an end date on or after the start date, or swap the two dates.')
+    expect(msg).not.toContain('From must be on or before To')
+  })
+})
+
+describe('date range message controls', () => {
+  it('the message has a Swap dates button and an x to dismiss it', async () => {
+    const src = readFileSync(new URL('./components/PlaceHead.jsx', import.meta.url), 'utf8')
+    expect(src).toContain('className="range-close" aria-label="Dismiss this message"')
+    expect(src).toContain('Swap dates')
+  })
+})

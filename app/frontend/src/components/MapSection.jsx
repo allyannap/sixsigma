@@ -249,7 +249,7 @@ function Boroughs({ boroughs, byId, selected, onPick, setTip, tipFor, busy }) {
   )
 }
 
-function MapCard({ summaryState, parent, selected, countyOptions = [], onPick, onReset, onSearch }) {
+function MapCard({ summaryState, parent, selected, countyOptions = [], onPick, onReset, onSearch, railOpen, onRail, reviewCount }) {
   const drillIn = parent.level !== 'state'
   const [zipWanted, setZipWanted] = useState(false) // the ZIP shapes (about 0.9 MB) load when needed
   const counties = useGeo('counties', true)
@@ -301,6 +301,16 @@ function MapCard({ summaryState, parent, selected, countyOptions = [], onPick, o
         selectedId={selected.id} label={tipFor} onPick={onPick} setTip={setTip} fitKey={fitKey} busy={summaryState.loading}
         ariaLabel={drillIn ? 'Map of ZIP areas, colored by queue label. Select one to see it on the right. Gray areas outside New York are for orientation only.' : 'Map of New York counties, colored by queue label. Select one to open its ZIP areas. Gray areas outside New York are for orientation only.'} />
 
+      {onRail && (
+        <button type="button" className={`edge-tab${railOpen ? ' is-open' : ''}`} onClick={onRail}
+          aria-expanded={!!railOpen} aria-controls="investigate-rail"
+          aria-label={`${railOpen ? 'Close' : 'Open'} the investigation list${reviewCount != null ? `, ${reviewCount} need review` : ''}`}>
+          <span className="edge-chev" aria-hidden="true">{railOpen ? '‹' : '›'}</span>
+          <span className="edge-label" aria-hidden="true">Investigate</span>
+          {reviewCount != null && <span className="edge-count" aria-hidden="true">{reviewCount}</span>}
+        </button>
+      )}
+
       <SearchBox options={options} onChoose={onSearch} onType={(text) => /^\d/.test(text.trim()) && setZipWanted(true)} />
 
       <div className="map-tools">
@@ -309,8 +319,9 @@ function MapCard({ summaryState, parent, selected, countyOptions = [], onPick, o
             <Icon name="back" />
           </button>
         )}
-        <button type="button" className="map-tool" title="Reset to New York State" aria-label="Reset map to New York State" onClick={() => { onReset(); setFitKey((k) => k + 1) }}>
+        <button type="button" className="map-tool has-tip" aria-label="Reset map to New York State" onClick={() => { onReset(); setFitKey((k) => k + 1) }}>
           <Icon name="reset" />
+          <span className="tool-tip" aria-hidden="true">Reset</span>
         </button>
       </div>
 

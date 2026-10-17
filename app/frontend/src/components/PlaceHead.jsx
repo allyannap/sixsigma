@@ -1,32 +1,63 @@
 // Right column, top: the selected place and the From / To date form. Its labels sit with the table (MapSection).
-import { useEffect, useState } from 'react'
-import { fmtInt } from '../format.js'
+import { useEffect, useRef, useState } from 'react'
+import { fmtDate, fmtInt } from '../format.js'
 import { Icon } from './common.jsx'
 
 const LEVEL_WORD = { state: 'Statewide', county: 'County', zcta: 'ZIP area' }
+
+/** "2026-10-02" -> "Oct 2, 2026" for the date-range message. */
+const longDate = (iso) => `${fmtDate(iso)}, ${String(iso).slice(0, 4)}`
+
+/** The end date is before the start date: say which dates, why it cannot run, and how to fix it. */
+export function rangeMessage(from, to) {
+  return `The end date (${longDate(to)}) is before the start date (${longDate(from)}), so there are no days to show. `
+    + 'Pick an end date on or after the start date, or swap the two dates.'
+}
 
 function DateForm({ from, to, disabled, min, max, onApply }) {
   const [a, setA] = useState(from)
   const [b, setB] = useState(to)
   const [error, setError] = useState('')
+  const errorRef = useRef(null)
   useEffect(() => { setA(from); setB(to) }, [from, to])
+  // The message goes away on a click or tap anywhere outside it, or on Escape.
+  useEffect(() => {
+    if (!error) return undefined
+    const onDown = (e) => { if (errorRef.current && !errorRef.current.contains(e.target)) setError('') }
+    const onKey = (e) => { if (e.key === 'Escape') setError('') }
+    document.addEventListener('pointerdown', onDown)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('pointerdown', onDown)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [error])
   const submit = (e) => {
     e.preventDefault()
-    if (a && b && a > b) { setError('From must be on or before To.'); return }
+    if (a && b && a > b) { setError(rangeMessage(a, b)); return }
     setError('')
     onApply(a, b)
   }
   return (
     <form className="daterange" onSubmit={submit} noValidate aria-label="Date range" aria-describedby={disabled ? 'range-hint' : undefined}>
       <label className="date-field" htmlFor="date-from"><span className="date-label">From</span>
-        <input type="date" id="date-from" value={a} min={min} max={max} disabled={disabled} onChange={(e) => setA(e.target.value)} />
+        <input type="date" id="date-from" value={a} min={min} max={max} disabled={disabled} aria-invalid={!!error} aria-describedby={error ? 'range-error' : undefined} onChange={(e) => { setA(e.target.value); setError('') }} />
       </label>
       <span className="date-sep" aria-hidden="true">&ndash;</span>
       <label className="date-field" htmlFor="date-to"><span className="date-label">To</span>
-        <input type="date" id="date-to" value={b} min={min} max={max} disabled={disabled} onChange={(e) => setB(e.target.value)} />
+        <input type="date" id="date-to" value={b} min={min} max={max} disabled={disabled} aria-invalid={!!error} aria-describedby={error ? 'range-error' : undefined} onChange={(e) => { setB(e.target.value); setError('') }} />
       </label>
       <button className="btn-primary" type="submit" disabled={disabled}><Icon name="search" size={14} />Search</button>
-      {error && <span className="range-error" role="alert">{error}</span>}
+      {error && (
+        <div className="range-error" id="range-error" role="alert" ref={errorRef}>
+          <span className="range-error-icon" aria-hidden="true">!</span>
+          <span>{error}</span>
+          <button type="button" className="range-swap" onClick={() => { setA(b); setB(a); setError(''); onApply(b, a) }}>Swap dates</button>
+          <button type="button" className="range-close" aria-label="Dismiss this message" title="Dismiss" onClick={() => setError('')}>
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+      )}
       {disabled && <span className="range-hint" id="range-hint">Dates are fixed while the replay runs.</span>}
     </form>
   )

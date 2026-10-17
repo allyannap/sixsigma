@@ -159,7 +159,7 @@ export function BaselineCheck({ b }) {
 const ICONS = {
   search: <><circle cx="11" cy="11" r="6.6" /><path d="m20 20-3.6-3.6" /></>,
   back: <><path d="M19 12H5" /><path d="m12 19-7-7 7-7" /></>,
-  reset: <><path d="M4 9V5.8A1.8 1.8 0 0 1 5.8 4H9" /><path d="M15 4h3.2A1.8 1.8 0 0 1 20 5.8V9" /><path d="M20 15v3.2a1.8 1.8 0 0 1-1.8 1.8H15" /><path d="M9 20H5.8A1.8 1.8 0 0 1 4 18.2V15" /><circle cx="12" cy="12" r="2.1" /></>,
+  reset: <><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1" /><path d="M3.5 4.2v4.6h4.6" /></>, // circular arrow (start over)
   chev: <path d="m6 9 6 6 6-6" />,
   'chev-right': <path d="m9 6 6 6-6 6" />,
   spark: <><path d="M12 3.5 13.7 9l5.5 1.7-5.5 1.7L12 18l-1.7-5.6L4.8 10.7 10.3 9 12 3.5Z" /><path d="M19 16.5v3M17.5 18h3" /></>,

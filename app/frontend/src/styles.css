@@ -224,7 +224,19 @@ svg:not(.od-icon) { display: block; }
 .btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 34px; padding: 0 13px; border: 1px solid transparent; border-radius: 10px; background: var(--brand); color: #fff; font-size: 12px; font-weight: 700; white-space: nowrap; box-shadow: 0 6px 14px -8px rgba(31, 111, 184, 0.8); transition: background var(--t-fast) var(--ease); }
 .btn-primary:hover:not(:disabled) { background: var(--brand-deep); }
 .btn-primary:disabled { opacity: 0.5; cursor: default; box-shadow: none; }
-.range-error { flex-basis: 100%; text-align: right; font-size: 11px; font-weight: 600; color: var(--critical); }
+/* floats over the page under the header (full width of the right column), so Key Metrics never moves */
+.place-head { position: relative; }
+.range-error { position: absolute; z-index: 12; left: 0; right: 0; top: calc(100% + 6px); display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 12px;
+  box-shadow: 0 14px 30px -16px rgba(122, 29, 20, 0.45); animation: range-error-in 0.18s var(--ease);
+  background: #fdf0ed; border: 1px solid rgba(180, 35, 24, 0.22); font-size: 12px; font-weight: 500; line-height: 1.45; color: #7a1d14; text-align: left; }
+.range-error-icon { flex: none; width: 16px; height: 16px; border-radius: 50%; background: #b42318; color: #fff; font-size: 11px; font-weight: 800; display: grid; place-items: center; }
+.range-swap { flex: none; align-self: center; padding: 4px 9px; border: 1px solid rgba(180, 35, 24, 0.35); border-radius: 8px; background: #fff; color: #7a1d14; font: inherit; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.range-swap:hover { background: #fff6f4; }
+.range-swap:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+.range-close { flex: none; align-self: center; width: 26px; height: 26px; margin-left: -2px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: #7a1d14; font-size: 18px; line-height: 1; cursor: pointer; display: grid; place-items: center; }
+.range-close:hover { background: rgba(180, 35, 24, 0.12); }
+.range-close:focus-visible { outline: 2px solid var(--brand); outline-offset: 1px; }
+.date-field input[aria-invalid="true"] { border-color: #b42318; box-shadow: 0 0 0 3px rgba(180, 35, 24, 0.12); }
 .range-hint { flex-basis: 100%; text-align: right; font-size: var(--fs-xs); color: var(--muted); }
 
 .sec-head { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; margin: 0 4px 8px; min-width: 0; }
@@ -631,3 +643,13 @@ table.places.narrow { min-width: 420px; }
 .map-keys ul { list-style: none; margin: 0; padding: 0; }
 .map-keys button { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; padding: 0; }
 .map-keys button:focus-visible { z-index: 15; left: 16px; top: 74px; width: auto; height: auto; clip: auto; padding: 7px 12px; border-radius: 10px; background: var(--ink); color: #fff; font: 600 12px/1.3 inherit; font-family: inherit; box-shadow: var(--shadow-float); outline: 2px solid var(--brand); outline-offset: 2px; }
+
+@keyframes range-error-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .range-error { animation: none; } }
+
+/* small tooltip under a map button (hover or keyboard focus) */
+.map-tool.has-tip { position: relative; }
+.tool-tip { position: absolute; top: calc(100% + 8px); left: 50%; transform: translate(-50%, -3px); padding: 4px 9px; border-radius: 7px; background: var(--ink); color: #fff;
+  font-size: 11.5px; font-weight: 700; white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity var(--t-fast) var(--ease), transform var(--t-fast) var(--ease); box-shadow: 0 6px 16px -8px rgba(15, 22, 32, 0.6); }
+.tool-tip::before { content: ''; position: absolute; bottom: 100%; left: 50%; margin-left: -4px; border: 4px solid transparent; border-bottom-color: var(--ink); }
+.map-tool.has-tip:hover .tool-tip, .map-tool.has-tip:focus-visible .tool-tip { opacity: 1; transform: translate(-50%, 0); transition-delay: 0.15s; }
