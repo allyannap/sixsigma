@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { isFixtureMode } from './api.js'
 import { addDays } from './format.js'
-import { attentionSplit } from './status.js'
 import { useEndpoint } from './useApi.js'
 import AnomSection from './components/AnomSection.jsx'
 import ChangeSection from './components/ChangeSection.jsx'
 import MapSection from './components/MapSection.jsx'
+import { investigationRows } from './components/InvestigationSection.jsx'
 import { InsightsSection, MetricsSection } from './components/MetricsSection.jsx'
 import PlaceHead from './components/PlaceHead.jsx'
 import ReplayBar from './components/ReplayBar.jsx'
@@ -122,7 +122,7 @@ export default function App() {
           <div className="left-col">
             <MapSection summaryState={summary} parent={parent} selected={selected} countyOptions={countyOptions}
               onPick={pick} onReset={resetScope} onSearch={searchPick}
-              railOpen={railOpen} onRail={() => setRailOpen((o) => !o)} reviewCount={summary.data ? attentionSplit(summary.data).total : null} />
+              railOpen={railOpen} onRail={() => setRailOpen((o) => !o)} reviewCount={summary.data ? investigationRows(summary.data.places || []).length : null} />
           </div>
           {/* Slides out to the right while the Investigate list is open; inert then, so Tab skips it. */}
           <div className="right-col" inert={railOpen ? '' : undefined} aria-hidden={railOpen || undefined}>

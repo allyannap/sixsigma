@@ -6,10 +6,9 @@ import { geoMercator, geoPath } from 'd3-geo'
 import { getGeo } from '../api.js'
 import { rewindForD3 } from '../geo.js'
 import GlMap, { LATE_STOPS } from './GlMap.jsx'
-import { fmtChanceBelow, fmtCi, fmtDate, fmtGoalOneIn, fmtInt, fmtNum, fmtOneIn, fmtPct, mmss } from '../format.js'
-import { CONTROL, QUEUE, SPEC, TIER_LABEL, URGENCY, URGENCY_KEYS, attentionSplit, legendRows, mapTier, rankPlaces } from '../status.js'
-import { Icon, Judgments, Messages, Spinner, StatusBadge, WatchChip } from './common.jsx'
-import { placeFor } from './PlaceHead.jsx'
+import { fmtGoalOneIn, fmtInt, fmtOneIn, mmss } from '../format.js'
+import { QUEUE, TIER_LABEL, URGENCY, URGENCY_KEYS, legendRows, mapTier } from '../status.js'
+import { Icon, Spinner } from './common.jsx'
 
 const NYC_BOROUGHS = ['36005', '36047', '36061', '36081', '36085'] // Bronx, Kings, New York, Queens, Richmond
 
@@ -388,110 +387,7 @@ function MapCard({ summaryState, parent, selected, countyOptions = [], onPick, o
   )
 }
 
-/** The ranked table (the team's full table). Place name selects the place; ranking comes from status.js rankPlaces. */
-function PlaceTable({ places, selected, onPick }) {
-  const ranked = rankPlaces(places)
-  return (
-    <div className="table-scroll" tabIndex={0} role="region" aria-label="Ranked places (scrolls sideways on small screens)">
-      <table className="places">
-        <thead>
-          <tr>
-            <th scope="col">#</th><th scope="col">Place</th><th scope="col">Valid calls</th><th scope="col">On time</th>
-            <th scope="col">On-time rate [95% CI]</th><th scope="col">Target</th><th scope="col">Control</th>
-            <th scope="col">Queue</th>
-            <th scope="col" title="Late calls beyond what the goal allows: late - (1 - goal) x valid. Negative = fewer than allowed. The ranking inside a queue label uses it.">Excess late vs goal</th>
-            <th scope="col">Cancelled / invalid</th><th scope="col">Calls per day: now (baseline)</th>
-            <th scope="col">P95 min [95% CI]</th><th scope="col" title="Secondary; assumes lognormal times; never sets the queue">Cpk [upper] (secondary)</th>
-          </tr>
-        </thead>
-        <tbody>
-          {ranked.map((p, i) => (
-            <tr key={p.id} className={selected.id === p.id ? 'row-selected' : ''}>
-              <td className="mono">{i + 1}</td>
-              <th scope="row">
-                <button type="button" className="link-btn" onClick={() => onPick(p, false)} aria-pressed={selected.id === p.id}>{p.name}</button>
-                {p.signals && p.signals[0] && <div className="small muted">signal: {p.unit} of {fmtDate(p.signals[0].start)}</div>}
-              </th>
-              <td className="mono">{fmtInt(p.valid)}</td>
-              <td className="mono">{fmtInt(p.on_time)}</td>
-              <td className="mono">{fmtPct(p.on_time_pct)} <span className="muted">[{fmtCi(p.on_time_ci)}]</span> <span className="muted">vs {fmtNum(p.goal_pct, 0)}</span></td>
-              <td><span className="chip" style={{ background: SPEC[p.spec]?.bg, color: SPEC[p.spec]?.fg }}>{SPEC[p.spec]?.label}</span></td>
-              <td><span className="chip" style={{ background: CONTROL[p.control]?.bg, color: CONTROL[p.control]?.fg }}>{CONTROL[p.control]?.label}</span></td>
-              <td><StatusBadge status={p.queue} short /><WatchChip p={p} /></td>
-              <td className="mono">{fmtNum(p.excess_late, 1)}</td>
-              <td className="mono">{fmtInt(p.cancelled)} ({fmtPct(p.cancel_pct)}) / {fmtInt(p.invalid)}</td>
-              <td className="mono">{fmtNum(p.calls_per_day, 1)} ({fmtNum(p.base_calls_per_day, 1)})</td>
-              <td className="mono">{p.p95_min == null ? 'n/a' : fmtNum(p.p95_min)}{p.p95_ci && p.p95_min != null && <span className="muted"> [{fmtCi(p.p95_ci)}]</span>}</td>
-              <td className="mono muted" title={p.cpk == null ? 'Cpk undefined (under 30 calls or no spread)' : ''}>
-                {p.cpk == null ? 'n/a' : fmtNum(p.cpk, 2)}{p.cpk_upper != null && <> [{fmtNum(p.cpk_upper, 2)}]</>}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  )
-}
-
-/** "Toggle table for map": collapsed by default; the headline stays visible above it. */
-function TableCard({ summaryState, parent, selected, onPick }) {
-  const [open, setOpen] = useState(false)
-  const s = summaryState.data
-  const places = (s && s.places) || []
-  const noun = parent.level === 'state' ? 'counties' : 'ZIP areas'
-  const split = s ? attentionSplit(s) : null
-  const chance = s ? fmtChanceBelow(s.chance_below, noun) : ''
-  const p = placeFor(s, selected, parent)
-  const name = selected.name || (s && s.selection && s.selection.name) || 'New York State'
-  return (
-    <div className="tablecard card">
-      {p && (
-        <div className="place-badges table-badges" aria-label={`Labels for ${name}`}>
-          <span className="badges-for">{name}:</span>
-          <StatusBadge status={p.queue} />
-          <Judgments p={p} />
-        </div>
-      )}
-      {split && (
-        <div className="table-headline">
-          <p role="status">
-            {split.total} of {places.length} {noun} need review: {split.recent} with a recent signal (Act now + Recent change) &middot; {split.ongoing} ongoing gaps{split.total > 0 ? '. Start at the top of the table.' : '.'}
-          </p>
-          {chance && <p className="small muted" role="note">{chance}</p>}
-        </div>
-      )}
-      <button className="table-toggle" type="button" aria-expanded={open} aria-controls="table-wrap" onClick={() => setOpen(!open)}>
-        <span className="toggle-icon" aria-hidden="true"><Icon name="chev" /></span>
-        <span className="toggle-text">
-          <span className="toggle-title">Toggle table for map</span>
-          <span className="toggle-sub">{s ? `Ranked by queue label, then late calls beyond the goal` : 'Places ranked by queue label'}</span>
-        </span>
-        <span className="toggle-count">{s ? `${places.length} ${noun}` : ''}</span>
-      </button>
-      <div className="table-wrap" id="table-wrap" hidden={!open}>
-        {places.length > 0 && <PlaceTable places={places} selected={selected} onPick={onPick} />}
-        {s && !places.length && <p className="table-empty">No place has calls in this selection.</p>}
-        <div className="table-note">
-          <p>
-            Two separate questions. <strong>Target</strong>: is the on-time rate confidently at or above the goal? Meets = the lower end
-            of its 95% interval is at or above the goal; Below = the upper end is below it; anything else, or under 30 valid calls, is Inconclusive.
-            {' '}<strong>Control</strong>: is the late share confirmed above its p-chart upper limit, set from the baseline before the period (two or more periods, or one very strong one; a single weaker period is only marked watch)?
-            Being in control does not mean the service is good, and no alert does not mean the target is met.
-            Rows are ranked inside each queue label by excess late calls vs the goal, so a big place with a modest gap is not buried under a tiny place with a high rate.
-            Map colour is the queue label: Critical = Act now, Watch = Ongoing gap or Recent change, Stable = Meets goal, gray = Needs more data.
-          </p>
-          {s && <Messages messages={s.messages} />}
-        </div>
-      </div>
-    </div>
-  )
-}
-
+/** The map card. The ranked list of places is the Investigate sidebar; a place's labels and numbers are in PlaceHead. */
 export default function MapSection(props) {
-  return (
-    <>
-      <MapCard {...props} />
-      <TableCard summaryState={props.summaryState} parent={props.parent} selected={props.selected} onPick={props.onPick} />
-    </>
-  )
+  return <MapCard {...props} />
 }

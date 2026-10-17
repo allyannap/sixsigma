@@ -1,4 +1,5 @@
-// Right column, top: the selected place and the From / To date form. Its labels sit with the table (MapSection).
+// Right column, top: the selected place and the From / To date form. The place's labels and numbers are in the
+// Investigate table.
 import { useEffect, useRef, useState } from 'react'
 import { fmtDate, fmtInt } from '../format.js'
 import { Icon } from './common.jsx'

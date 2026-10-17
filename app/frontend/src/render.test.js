@@ -32,31 +32,53 @@ const map = (extra = {}) => plain(renderToString(h(MapSection, {
   summaryState: ok(summary), parent: STATE, urgency: ['red'], countyOptions: [],
   selected: { level: 'state', place: null }, onPick() {}, onReset() {}, onSearch() {}, ...extra,
 })))
-// The right column's place header (name, level, dates). Its labels sit with the table card (map()).
+// The Investigate panel (its table holds every place's labels and numbers), and the names of its table rows.
+const railHtml = async (extra = {}) => {
+  const { default: InvestigateRail } = await import('./components/InvestigateRail.jsx')
+  return plain(renderToString(h(InvestigateRail, { open: true, onClose() {}, summaryState: ok(summary), parent: STATE, selected: { level: 'state' }, onPick() {}, ...extra })))
+}
+const rowNames = (html) => [...html.matchAll(/<th scope="row"><button[^>]*>([^<]+)</g)].map((m) => m[1])
+// One place's table row, from its name to the end of the row.
+const rowOf = (html, name) => html.slice(html.indexOf(`>${name}</button>`), html.indexOf('</tr>', html.indexOf(`>${name}</button>`)))
+// The right column's place header (name, level, dates).
 const head = (extra = {}) => plain(renderToString(h(PlaceHead, {
   summaryState: ok(summary), parent: STATE, selected: { level: 'state', place: null }, from: '', to: '', replayOn: false,
   onApply() {}, onDrill() {}, ...extra,
 })))
 
 describe('sections render from fixtures', () => {
-  it('section 1 shows n, on-time rate, CI, P95 and both badges for every place', () => {
+  it('two tabs that never overlap: Needs review + Not flagged = every place, once; the map card has no table', async () => {
+    const { investigationRows } = await import('./components/InvestigationSection.jsx')
+    const review = rowNames(await railHtml({ initialView: 'review' }))
+    const others = rowNames(await railHtml({ initialView: 'others' }))
+    expect(review).toEqual(investigationRows(summary.places).map((p) => p.name))
+    expect(review.filter((n) => others.includes(n))).toEqual([])
+    expect([...review, ...others].sort()).toEqual(summary.places.map((p) => p.name).sort())
+    const all = await railHtml({ initialView: 'others' })
+    expect(all).toMatch(/aria-selected="true"[^>]*>Not flagged/)
+    expect(all).toContain('How to read this list')
+    expect(all).toContain('Being in control does not mean the service is good')
     const html = map()
-    expect(html).toContain('Toggle table for map')
-    expect(html).toContain('On-time rate [95% CI]')
-    expect(html).toContain('>Target<')
-    expect(html).toContain('>Control<')
-    for (const p of summary.places) expect(html).toContain(p.name)
-    expect(html).toContain('no alert does not mean the target is met')
+    expect(html).not.toContain('Toggle table for map')
+    expect(html).not.toContain('class="places"')
   })
-  it('a selected place shows its queue label with both badges in the table card, not in the header', () => {
+  it('the list is a table only (no cards, no switch) with every number column', async () => {
+    const html = await railHtml()
+    expect(html).not.toContain('rail-card')
+    expect(html).not.toContain('rail-layout')
+    for (const col of ['Valid calls', 'On time [95% CI]', 'Target', 'Control', 'Label', 'Late beyond goal', 'Cancelled / invalid', 'Calls per day: now (baseline)', 'P95 min [95% CI]', 'Cpk [upper]']) {
+      expect(html).toContain(`>${col}</th>`)
+    }
+  })
+  it('a place row shows its queue label and both judgments; the place header no longer repeats them', async () => {
     const p = summary.places.find((x) => x.queue === 'act_now')
-    const sel = { selected: { level: 'county', id: p.id, name: p.name, place: p } }
-    const html = map(sel)
-    expect(html).toContain(`aria-label="Labels for ${p.name}"`)
-    expect(html).toMatch(/table-badges[\s\S]*Act now[\s\S]*Target[\s\S]*Control/)
-    const top = head(sel)
-    expect(top).not.toContain('Evidence and call counts')
-    expect(top).not.toContain('place-badges')
+    const row = rowOf(await railHtml(), p.name)
+    expect(row).toMatch(/Below target|Inconclusive|Meets target/)
+    expect(row).toContain('Act now')
+    expect(row).toContain(`${p.valid.toLocaleString('en-US')}</td>`)
+    const top = head({ selected: { level: 'county', id: p.id, name: p.name, place: p } })
+    expect(top).not.toContain('Labels for')
+    expect(top).not.toContain('<summary>Details</summary>')
   })
   it('section 2 keeps the finding and chart compact, with the baseline explanation in Method', () => {
     const html = plain(renderToString(h(ChangeSection, { pState: ok(pchart), selectedName: 'X' })))
@@ -135,15 +157,15 @@ describe('H-13 supervisor data', () => {
   it('the fixture has a watch place, and it is still In control', () => {
     expect(queens.control).toBe('in_control')
   })
-  it('a "watch" chip with its tooltip shows next to In control when watch is true', () => {
-    const html = map({ selected: { level: 'county', id: queens.id, name: queens.name, place: queens } })
-    expect(html).toContain('chip-watch')
-    expect(html).toContain('title="1 period above the limit, not confirmed"')
-    expect(html).toContain('>watch<')
-    // places without watch get no chip
-    expect(map({ selected: { level: 'state', place: null } })).toContain('chip-watch') // also in the table row of the watch place
+  it('a "watch" chip with its tooltip shows next to In control when watch is true', async () => {
+    // the watch place's row in the Investigate table has the chip; places without watch get none
+    const rail = async (s) => (await railHtml({ summaryState: ok(s), initialView: 'review' })) + (await railHtml({ summaryState: ok(s), initialView: 'others' }))
+    const row = rowOf(await rail(summary), queens.name)
+    expect(row).toContain('chip-watch')
+    expect(row).toContain('title="1 period above the limit, not confirmed"')
+    expect(row).toContain('>watch<')
     const calm = { ...summary, places: summary.places.map((p) => ({ ...p, watch: false })) }
-    expect(plain(renderToString(h(MapSection, { summaryState: ok(calm), parent: { level: 'state' }, urgency: ['red'], selected: { level: 'state', place: null }, onPick() {}, onBack() {}, onDrill() {} })))).not.toContain('chip-watch')
+    expect(await rail(calm)).not.toContain('chip-watch')
   })
   it('section 2 says one signal is unconfirmed and retains its watch evidence in Method', () => {
     const p = { ...pchart, control: 'in_control', watch: true, control_reason: '1 period above the limit, not confirmed (needs 2, or a stronger single signal)' }
@@ -152,27 +174,23 @@ describe('H-13 supervisor data', () => {
     expect(html).toContain('Change not confirmed')
     expect(plain(renderToString(h(ControlMethod, { p })))).toContain('chip-watch')
   })
-  it('the queue label meets_stable never claims "statistically stable"', () => {
+  it('the queue label meets_stable never claims "statistically stable"', async () => {
     const stable = summary.places.find((x) => x.queue === 'meets_stable')
-    const html = map({ selected: { level: 'county', id: stable.id, name: stable.name, place: stable } })
+    const html = rowOf(await railHtml({ initialView: 'others' }), stable.name)
     expect(html).toContain('Meets goal, no signal')
     expect(html).not.toMatch(/statistically stable/i)
   })
-  it('the headline splits needs-review and shows the chance-below context', () => {
-    const html = map()
-    expect(html).toMatch(/\d+ of \d+ counties need review: \d+ with a recent signal \(Act now \+ Recent change\) · \d+ ongoing gaps/)
+  it('the Investigate list shows the needs-review split, and the chance-below context in "How to read this list"', async () => {
+    const { default: InvestigateRail } = await import('./components/InvestigateRail.jsx')
+    const html = plain(renderToString(h(InvestigateRail, { open: true, onClose() {}, summaryState: ok(summary), parent: STATE, selected: { level: 'state' }, onPick() {} })))
+    expect(html).toMatch(/\d+ of \d+ counties need review/)
+    expect(html).toMatch(/Act now <b class="n-act">\d+<\/b> · Recent change <b class="n-recent">\d+<\/b> · Ongoing gap <b class="n-gap">\d+<\/b>/)
     expect(html).toContain('would read Below by chance alone if every place were exactly at the goal (expected, of 62 counties)')
     expect(html).toContain('About 1.8 would read')
   })
-  it('the table has an Excess late vs goal column, cancelled/invalid and calls per day', () => {
-    const html = map()
-    expect(html).toContain('Excess late vs goal')
-    expect(html).toContain('Cancelled / invalid')
-    expect(html).toContain('Calls per day: now (baseline)')
-  })
-  it('the table rows show cancelled, invalid, cancel %, calls/day now (baseline); section 2 shows the baseline screen', () => {
+  it('a table row shows cancelled, invalid, cancel %, calls/day now and baseline; section 2 shows the baseline screen', async () => {
     const p = summary.places.find((x) => x.queue === 'act_now')
-    const html = map()
+    const html = rowOf(await railHtml(), p.name)
     expect(html).toContain(`${p.cancelled} (${p.cancel_pct.toFixed(1)}%) / ${p.invalid}`)
     expect(html).toContain(`${p.calls_per_day.toFixed(1)} (${p.base_calls_per_day.toFixed(1)})`)
     const ok2 = { ...pchart, baseline: { ...pchart.baseline, checked: true, stable: true, removed: 0 } }
@@ -187,11 +205,12 @@ describe('H-13 supervisor data', () => {
     expect(html2).toContain('Screened: not stable.')
     expect(html2).toContain('2 unusual periods left out (Jun 8, Jun 15)')
   })
-  it('null interval bounds and missing counts print n/a and never crash or print NaN', () => {
+  it('null interval bounds and missing counts print n/a and never crash or print NaN', async () => {
     const p = { ...summary.places[0], on_time_ci: [null, null], median_ci: [null, null], p95_ci: [15.6, null], excess_late: null, cancel_pct: null, calls_per_day: null, base_calls_per_day: null, cpk: null }
     const bare = { ...summary, places: [p], place: p }
-    const html = map({ summaryState: ok(bare), selected: { level: 'county', id: p.id, name: p.name, place: p } })
-    expect(html).toContain('15.6 to n/a')
+    const html = (await railHtml({ summaryState: ok(bare), initialView: 'review' })) + (await railHtml({ summaryState: ok(bare), initialView: 'others' }))
+    const { fmtCi } = await import('./format.js')
+    expect(fmtCi(p.p95_ci)).toBe('15.6 to n/a')
     expect(html).toContain('n/a (n/a)')
     expect(html.replace(/title="[^"]*"/g, '')).not.toMatch(/NaN|undefined|\bnull\b/)
   })
@@ -432,14 +451,15 @@ describe('OnScene page (H-14)', () => {
     expect(html).toContain('Selected place')
     expect(html).toContain('Key Metrics')
     expect(html).toContain('Wait Time Insights')
-    expect(html).toContain('Toggle table for map')
+    expect(html).not.toContain('Toggle table for map')
+    expect(html).toContain('Investigate')
     expect(html).not.toContain('Sentinel')
     expect(html).toContain('>Summary<')
   })
 })
 
 describe('Investigate sidebar', () => {
-  it('lists the flagged places as cards with label, on-time bar and goal tick, signal or control status', async () => {
+  it('lists the flagged places as table rows, one per place', async () => {
     const { default: InvestigateRail } = await import('./components/InvestigateRail.jsx')
     const { investigationRows } = await import('./components/InvestigationSection.jsx')
     const rows = investigationRows(summary.places)
@@ -447,8 +467,7 @@ describe('Investigate sidebar', () => {
     expect(html).toContain('Investigate')
     expect(html).toMatch(/\d+ of \d+ counties need review/)
     expect(html).toContain('Act now')
-    expect(html.match(/class="rail-card( is-active)?"/g).length).toBe(rows.length)
-    expect(html).toContain('class="rail-goal"')
+    expect(rowNames(html).length).toBe(rows.length)
     expect(html).not.toContain('Collapse')
     const closed = plain(renderToString(h(InvestigateRail, { open: false, onClose() {}, summaryState: ok(summary), parent: STATE, selected: { level: 'state' }, onPick() {} })))
     expect(closed).toContain('inert=""')

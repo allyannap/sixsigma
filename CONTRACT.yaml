@@ -454,3 +454,25 @@ tasks:
       npm test passes (meaning lines, no metric-sub, hint is screen-reader only); vite build succeeds; checked in a
       browser at 1490 and 1280 px.
     result: "Search on the date line; tiles aligned with plain meanings; vitest 115 passed; vite build ok; checked in a browser."
+
+  - id: H-24
+    title: One ranked list - Investigate tabs (Needs review / Not flagged) as tables; place header shows name and dates only
+    points: "working tool (25) and demonstration (10) - less repeated information, every number still one click away"
+    status: done
+    owner: "claude + Powerpuff Girls"
+    started_at: "2026-10-17 23:00"
+    owns: ["app/frontend/src/App.jsx", "app/frontend/src/components/InvestigateRail.jsx", "app/frontend/src/components/MapSection.jsx",
+           "app/frontend/src/components/PlaceHead.jsx", "app/frontend/src/rail.css", "app/frontend/src/styles.css",
+           "app/frontend/src/render.test.js", "README.md", "app/frontend/README.md"]
+    notes: >
+      User requests Oct 17. The Investigate list and the table under the map repeated each other, so the table under the
+      map was removed and the Investigate panel is the one ranked list. Two tabs that never overlap: Needs review (the
+      flagged places, same count as the map's Critical + Watch and the edge tab) and Not flagged (the rest). Each tab is
+      a table with the old columns (valid calls, on-time rate + CI vs goal, Target, Control, label, late beyond goal,
+      cancelled / invalid, calls per day, P95 + CI, Cpk [upper]); the cards were tried and dropped at the user's
+      request, and so was the label row under the place name (the table already holds it). No statistic changed.
+    definition_of_done: >
+      npm test passes (tabs: union = every place, no overlap; table only, every column present; label, watch chip,
+      cancelled / invalid and calls per day in each row; no labels under the place name); vite build succeeds; checked
+      in a browser.
+    result: "One list in two non-overlapping tabs (40 + 22 = 62 counties), each a table with the old columns and a pinned name column; no cards, no labels under the place name; vitest 115 passed; vite build ok; checked in a browser."
