@@ -5,15 +5,13 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { geoMercator, geoPath } from 'd3-geo'
 import { getGeo } from '../api.js'
 import { rewindForD3 } from '../geo.js'
+import GlMap from './GlMap.jsx'
 import { fmtChanceBelow, fmtCi, fmtDate, fmtInt, fmtNum, fmtOneIn, fmtPct } from '../format.js'
 import { CONTROL, QUEUE, SPEC, attentionSplit, legendRows, rankPlaces, tierOf } from '../status.js'
 import { Icon, Judgments, Messages, Spinner, StatusBadge, WatchChip } from './common.jsx'
 import { placeFor } from './PlaceHead.jsx'
 
-const W = 1000
-const H = 800
 const NYC_BOROUGHS = ['36005', '36047', '36061', '36081', '36085'] // Bronx, Kings, New York, Queens, Richmond
-const FIT = [[70, 96], [930, 740]] // room for the search box (top) and the legend (bottom right)
 
 // Map shapes load once per page view.
 const geoCache = {}
@@ -158,7 +156,7 @@ function Boroughs({ boroughs, byId, selected, onPick, setTip, busy }) {
           {shapes.filter((s) => s.id === marked).map((s) => <path key="hot" d={s.d} className="borough-hot" />)}
         </svg>
         <div className="borough-table">
-          <div className="borough-cols" aria-hidden="true"><span>Borough</span><span>late calls</span></div>
+          <div className="borough-cols" aria-hidden="true"><span>Borough</span><span>Late Calls</span></div>
           <ul className="borough-list" aria-label="New York City boroughs, most late calls first">
             {rows.map((r) => {
               const tier = r.p ? tierOf(r.p.queue) : 'nodata'
@@ -196,29 +194,15 @@ function MapCard({ summaryState, parent, selected, countyOptions = [], onPick, o
   const places = (s && s.places) || []
   const byId = useMemo(() => Object.fromEntries(places.map((p) => [p.id, p])), [places])
 
-  const countyFeatures = useMemo(() => (counties.data ? counties.data.features.map(rewindForD3) : []), [counties.data])
-  const zctaFeatures = useMemo(
-    () => (drillIn && zctas.data ? zctas.data.features.filter((f) => f.properties.county_fips === parent.id).map(rewindForD3) : []),
+  const [fitKey, setFitKey] = useState(0) // bumped by the reset button so the map flies back to the state
+  // Raw GeoJSON for the map (drilled in: the ZIP areas of the open county; other counties stay as gray context).
+  const rawCounties = useMemo(() => (counties.data ? counties.data.features : []), [counties.data])
+  const rawZctas = useMemo(
+    () => (drillIn && zctas.data ? zctas.data.features.filter((f) => f.properties.county_fips === parent.id) : []),
     [drillIn, zctas.data, parent.id],
   )
-  // Drilled in: the ZIP areas of the county fill the frame ("camera" on the county); other counties stay as gray context.
-  const focus = drillIn && zctaFeatures.length ? zctaFeatures : countyFeatures
-  // One projection for the shapes, the gray context counties and the outline, fitted to `focus`.
-  const draw = useMemo(() => {
-    if (!focus.length) return null
-    const projection = geoMercator().fitExtent(FIT, { type: 'FeatureCollection', features: focus })
-    return geoPath(projection)
-  }, [focus])
-  const shapes = useMemo(() => (draw ? (drillIn ? zctaFeatures : countyFeatures).map((f) => ({ id: f.properties.GEOID, name: f.properties.NAME, d: draw(f) })) : []), [draw, drillIn, zctaFeatures, countyFeatures])
-  const contextShapes = useMemo(
-    () => (drillIn && draw ? countyFeatures.filter((f) => f.properties.GEOID !== parent.id).map((f) => ({ id: f.properties.GEOID, d: draw(f) })) : []),
-    [drillIn, draw, countyFeatures, parent.id],
-  )
-  const outline = useMemo(() => {
-    if (!drillIn || !draw) return null
-    const f = countyFeatures.find((c) => c.properties.GEOID === parent.id)
-    return f ? draw(f) : null
-  }, [drillIn, draw, countyFeatures, parent.id])
+  // The NYC card draws its own small d3 map, which wants the winding d3 expects.
+  const countyFeatures = useMemo(() => rawCounties.map(rewindForD3), [rawCounties])
 
   const boroughs = useMemo(() => (drillIn ? [] : countyFeatures.filter((f) => NYC_BOROUGHS.includes(f.properties.GEOID))), [drillIn, countyFeatures])
   const geoError = counties.error || ((drillIn || zipWanted) && zctas.error)
@@ -246,17 +230,9 @@ function MapCard({ summaryState, parent, selected, countyOptions = [], onPick, o
   return (
     <section className={`mapcard card${summaryState.loading ? ' is-loading' : ''}`} aria-labelledby="map-heading" aria-busy={summaryState.loading} ref={cardRef}>
       <h2 id="map-heading" className="sr-only">{drillIn ? `${parent.name} ZIP area map` : 'New York State county map'}</h2>
-      <svg className="map" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" role="group"
-        aria-label={drillIn ? 'Map of ZIP areas, colored by queue label. Select one to see it on the right.' : 'Map of New York counties, colored by queue label. Select one to open its ZIP areas.'}>
-        <rect className="map-water" x="0" y="0" width={W} height={H} />
-        <g className="map-context" pointerEvents="none" aria-hidden="true">
-          {contextShapes.map((c) => <path key={c.id} d={c.d} className="county ghost" />)}
-        </g>
-        <g className={drillIn ? 'layer-in' : undefined}>
-          {shapes.map((m) => <Shape key={m.id} s={m} p={byId[m.id]} selected={selected} onPick={onPick} setTip={setTip} cls={drillIn ? 'zip' : 'county'} />)}
-        </g>
-        {outline && <path d={outline} className="county-outline" />}
-      </svg>
+      <GlMap counties={rawCounties} zctas={rawZctas} drillIn={drillIn} parentId={parent.id} byId={byId}
+        selectedId={selected.id} label={tipText} onPick={onPick} setTip={setTip} fitKey={fitKey} busy={summaryState.loading}
+        ariaLabel={drillIn ? 'Map of ZIP areas, colored by queue label. Select one to see it on the right. Gray areas outside New York are for orientation only.' : 'Map of New York counties, colored by queue label. Select one to open its ZIP areas. Gray areas outside New York are for orientation only.'} />
 
       <SearchBox options={options} onChoose={onSearch} onType={(text) => /^\d/.test(text.trim()) && setZipWanted(true)} />
 
@@ -266,7 +242,7 @@ function MapCard({ summaryState, parent, selected, countyOptions = [], onPick, o
             <Icon name="back" />
           </button>
         )}
-        <button type="button" className="map-tool" title="Reset to New York State" aria-label="Reset map to New York State" onClick={onReset}>
+        <button type="button" className="map-tool" title="Reset to New York State" aria-label="Reset map to New York State" onClick={() => { onReset(); setFitKey((k) => k + 1) }}>
           <Icon name="reset" />
         </button>
       </div>
@@ -282,13 +258,23 @@ function MapCard({ summaryState, parent, selected, countyOptions = [], onPick, o
       {boroughs.length > 0 && <Boroughs boroughs={boroughs} byId={byId} selected={selected} onPick={onPick} setTip={setTip} busy={summaryState.loading} />}
 
       <div className="map-legend" aria-label="Status legend">
-        <div className="legend-title">Status</div>
+        <div className="legend-head">
+          <div className="legend-title">Status</div>
+          <span className="legend-info">
+            <button type="button" className="legend-info-btn" aria-label="What the status colours mean" aria-describedby="legend-def">i</button>
+            <span className="legend-tip" id="legend-def" role="tooltip">
+              <span className="tip-line"><strong>Critical</strong> = act now</span>
+              <span className="tip-line"><strong>Watch</strong> = ongoing gap or recent change</span>
+              <span className="tip-line"><strong>Stable</strong> = meets goal</span>
+              <span className="tip-line"><strong>Needs data</strong> = needs more data</span>
+            </span>
+          </span>
+        </div>
         {rows.map((r) => (
           <div key={r.key} className="legend-row">
             <i className={`dot dot-${r.key}`} aria-hidden="true" /><span>{r.label}</span><span className="legend-val">{summaryState.loading ? '…' : r.count}</span>
           </div>
         ))}
-        <div className="legend-foot">Critical = act now · Watch = ongoing gap or recent change · Stable = meets goal · gray = needs more data</div>
       </div>
 
       {tip && (

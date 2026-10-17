@@ -1,0 +1,275 @@
+- generic [ref=f8e3]:
+  - banner [ref=f8e4]:
+    - generic [ref=f8e30] [cursor=pointer]:
+      - generic [ref=f8e31]: OnScene
+      - generic [ref=f8e32]: New York State · EMS response quality
+    - generic [ref=f8e33]:
+      - generic [ref=f8e34]:
+        - generic [ref=f8e35]: Dataset
+        - combobox "Dataset" [ref=f8e36]:
+          - option "baseline" [selected]
+          - option "station_closure"
+          - option "summer_surge"
+      - button "Start replay" [ref=f8e37] [cursor=pointer]
+    - generic [ref=f8e38]:
+      - 'generic "SYNTHETIC DATA: invented calls on real 2020 Census geography. Not real patients, not live CAD." [ref=f8e39]':
+        - generic [ref=f8e41]:
+          - generic [ref=f8e42]: "SYNTHETIC DATA:"
+          - text: Simulated service data
+      - generic [ref=f8e43]:
+        - img "Team Powerpuff Girls" [ref=f8e44]
+        - generic [aria-hidden] [ref=f8e45]: Team Powerpuff Girls
+  - status [ref=f8e46]
+  - generic [ref=f8e48]:
+    - main [ref=f8e49]:
+      - generic [ref=f8e50]:
+        - region [ref=f8e794]:
+          - heading "Tompkins ZIP area map" [level=2] [ref=f8e795]
+          - img "Map of ZIP areas, colored by queue label. Select one to see it on the right. Gray areas outside New York are for orientation only." [ref=f8e796]:
+            - generic:
+              - region "Map" [active] [ref=f8e202] [cursor=pointer]
+              - generic [aria-hidden]:
+                - generic: Use ⌘ + scroll to zoom the map
+            - generic:
+              - generic [ref=f8e203]:
+                - button "Zoom in" [ref=f8e204] [cursor=pointer]
+                - button "Zoom out" [ref=f8e206] [cursor=pointer]
+              - group [ref=f8e208]:
+                - generic "Toggle attribution" [ref=f8e209] [cursor=pointer]
+                - generic [ref=f8e210]:
+                  - link "OpenFreeMap" [ref=f8e211] [cursor=pointer]:
+                    - /url: https://openfreemap.org
+                  - link "© OpenMapTiles" [ref=f8e212] [cursor=pointer]:
+                    - /url: https://www.openmaptiles.org/
+                  - text: Data from
+                  - link "OpenStreetMap" [ref=f8e213] [cursor=pointer]:
+                    - /url: https://www.openstreetmap.org/copyright
+          - navigation "ZIP areas on the map":
+            - list:
+              - listitem:
+                - 'button "14854: Needs more data / Inconclusive, On time n/a · n = 0 valid calls" [ref=f8e797] [cursor=pointer]'
+              - listitem:
+                - 'button "14853: Needs more data / Inconclusive, On time 100.0% · n = 1 valid calls" [ref=f8e798] [cursor=pointer]'
+              - listitem:
+                - 'button "13062: Needs more data / Inconclusive, On time n/a · n = 0 valid calls" [ref=f8e799] [cursor=pointer]'
+              - listitem:
+                - 'button "13102: Needs more data / Inconclusive, On time 100.0% · n = 1 valid calls" [ref=f8e800] [cursor=pointer]'
+              - listitem:
+                - 'button "14850: Needs more data / Inconclusive, On time 95.7% · n = 115 valid calls" [ref=f8e801] [cursor=pointer]'
+              - listitem:
+                - 'button "14881: Needs more data / Inconclusive, On time n/a · n = 0 valid calls" [ref=f8e802] [cursor=pointer]'
+              - listitem:
+                - 'button "13053: Needs more data / Inconclusive, On time 72.7% · n = 11 valid calls" [ref=f8e803] [cursor=pointer]'
+              - listitem:
+                - 'button "14882: Needs more data / Inconclusive, On time 100.0% · n = 3 valid calls" [ref=f8e804] [cursor=pointer]'
+              - listitem:
+                - 'button "13073: Needs more data / Inconclusive, On time 83.3% · n = 12 valid calls" [ref=f8e805] [cursor=pointer]'
+              - listitem:
+                - 'button "14867: Needs more data / Inconclusive, On time 88.9% · n = 9 valid calls" [ref=f8e806] [cursor=pointer]'
+              - listitem:
+                - 'button "14817: Needs more data / Inconclusive, On time 33.3% · n = 3 valid calls" [ref=f8e807] [cursor=pointer]'
+              - listitem:
+                - 'button "14886: Needs more data / Inconclusive, On time 100.0% · n = 10 valid calls" [ref=f8e808] [cursor=pointer]'
+              - listitem:
+                - 'button "13068: Needs more data / Inconclusive, On time 80.0% · n = 10 valid calls" [ref=f8e809] [cursor=pointer]'
+          - combobox "Search for a New York ZIP code or county" [ref=f8e59]
+          - generic [ref=f8e60]:
+            - button "Back to all counties" [ref=f8e810] [cursor=pointer]
+            - button "Reset map to New York State" [ref=f8e61] [cursor=pointer]
+          - navigation "Map drilldown" [ref=f8e813]:
+            - button "New York State" [ref=f8e814] [cursor=pointer]
+            - generic [ref=f8e817]: Tompkins
+          - generic "Status legend":
+            - generic:
+              - generic: Status
+              - button "What the status colours mean" [ref=f8e69]: i
+            - generic:
+              - generic: Critical
+              - generic: "0"
+            - generic:
+              - generic: Watch
+              - generic: "0"
+            - generic:
+              - generic: Stable
+              - generic: "0"
+            - generic:
+              - generic: Needs data
+              - generic: "13"
+          - strong: "14850"
+          - generic: Needs more data / Inconclusive
+          - generic: On time 95.7% · n = 115 valid calls
+        - generic [ref=f8e72]:
+          - generic "Labels for Tompkins" [ref=f8e818]:
+            - generic [ref=f8e819]: "Tompkins:"
+            - generic [ref=f8e820]: Needs more data / Inconclusive
+            - generic [ref=f8e823]:
+              - 'generic "Target: Inconclusive" [ref=f8e824]':
+                - generic [ref=f8e825]: "Target:"
+                - text: Inconclusive
+              - 'generic "Control: Insufficient baseline" [ref=f8e826]':
+                - generic [ref=f8e827]: "Control:"
+                - text: Insufficient baseline
+          - generic [ref=f8e828]:
+            - status [ref=f8e829]: "0 of 13 ZIP areas need review: 0 with a recent signal (Act now + Recent change) · 0 ongoing gaps."
+            - note [ref=f8e830]: About 0.0 would read Below by chance alone if every place were exactly at the goal (expected, of 1 ZIP areas); 0 read Below here.
+          - button "Toggle table for map Ranked by queue label, then late calls beyond the goal 13 ZIP areas" [ref=f8e831] [cursor=pointer]:
+            - generic [ref=f8e77]:
+              - generic [ref=f8e78]: Toggle table for map
+              - generic [ref=f8e79]: Ranked by queue label, then late calls beyond the goal
+            - generic [ref=f8e339]: 13 ZIP areas
+      - generic [ref=f8e80]:
+        - generic [ref=f8e82]:
+          - generic [ref=f8e83]:
+            - generic [ref=f8e84]: Selected place
+            - heading "Tompkins" [level=1] [ref=f8e832]
+            - generic [ref=f8e86]:
+              - generic [ref=f8e87]: County
+              - generic [aria-hidden] [ref=f8e833]: ·
+              - generic [ref=f8e834]: 13 ZIP areas
+          - form "Date range" [ref=f8e88]:
+            - generic [ref=f8e89]:
+              - generic [ref=f8e90]: From
+              - textbox "From" [ref=f8e91]
+            - generic [aria-hidden] [ref=f8e92]: –
+            - generic [ref=f8e93]:
+              - generic [ref=f8e94]:
+                - generic [ref=f8e95]: To
+                - button "What a blank date means" [ref=f8e97]: i
+              - textbox "To" [ref=f8e98]
+            - button "Search" [ref=f8e99] [cursor=pointer]
+            - generic [ref=f8e103]: Blank dates = the last 90 days of the dataset.
+        - region [ref=f8e104]:
+          - generic [ref=f8e105]:
+            - heading "Key Metrics" [level=2] [ref=f8e106]
+            - generic [ref=f8e107]: baseline · Jul 18 to Oct 15, 2026
+          - generic [ref=f8e108]:
+            - generic [ref=f8e109]:
+              - group "Priority (urgency)" [ref=f8e110]:
+                - text: Priority
+                - generic [ref=f8e111]:
+                  - button "Red (most urgent)" [pressed] [ref=f8e112] [cursor=pointer]
+                  - button "Yellow" [ref=f8e114] [cursor=pointer]
+                  - button "Green" [ref=f8e116] [cursor=pointer]
+              - generic [ref=f8e118]: At least one group stays on. Pick one for a clean control chart. No time-of-day filter.
+            - generic [ref=f8e119]:
+              - generic [ref=f8e120]:
+                - generic "On time" [ref=f8e835]:
+                  - generic [ref=f8e837]: 91.4%
+                  - generic [ref=f8e839]: 160 of 175 valid calls · 95% CI 86.3% to 94.7% · goal 90%
+                - generic "Median wait" [ref=f8e840]:
+                  - generic [ref=f8e841]:
+                    - text: Median wait
+                    - generic [ref=f8e842]: call received to on scene
+                  - generic [ref=f8e843]:
+                    - generic [ref=f8e844]: "5.8"
+                    - generic [ref=f8e845]: min
+                  - generic [ref=f8e846]: 95% CI 5.3 to 6.2 min
+                - generic "P95 wait" [ref=f8e847]:
+                  - generic [ref=f8e848]:
+                    - text: P95 wait
+                    - generic [ref=f8e849]: 1 call in 20 waited longer
+                  - generic [ref=f8e850]:
+                    - generic [ref=f8e851]: "14.5"
+                    - generic [ref=f8e852]: min
+                  - generic [ref=f8e853]: 95% CI 11.5 to 17.7 min · P90 11.4 min
+              - generic [ref=f8e142]:
+                - generic [ref=f8e143]:
+                  - generic [ref=f8e144]: Summary
+                  - generic [ref=f8e854]: Needs data
+                - paragraph [ref=f8e855]:
+                  - strong [ref=f8e856]: "Tompkins: Needs more data / Inconclusive."
+                  - text: "Target: the 95% interval includes the goal. Control: low volume: no subgroup size gives 5 expected late calls."
+                - paragraph [ref=f8e857]: "Next: Widen the date range, or look at the county or the state."
+        - region [ref=f8e858]:
+          - generic [ref=f8e152]:
+            - heading "Tompkins Wait Time Insights" [level=2] [ref=f8e859]
+            - generic [ref=f8e154]: baseline · Jul 18 to Oct 15, 2026
+          - group "Wait time charts" [ref=f8e155]:
+            - generic [ref=f8e156]:
+              - generic [ref=f8e157]: 1 / 2
+              - generic [ref=f8e158]:
+                - 'button "Show chart 1: Are calls arriving on time?" [ref=f8e159] [cursor=pointer]'
+                - 'button "Show chart 2: Are late calls being unusually frequent?" [ref=f8e160] [cursor=pointer]'
+            - 'button "Next chart: Are late calls being unusually frequent?" [ref=f8e161] [cursor=pointer]'
+            - group "1 of 2" [ref=f8e165]:
+              - region [ref=f8e166]:
+                - generic [ref=f8e167]:
+                  - generic [ref=f8e168]:
+                    - heading "Are calls arriving on time?" [level=3] [ref=f8e169]
+                    - paragraph [ref=f8e170]: Each area's on-time rate against the service goal
+                  - generic [ref=f8e171]: Geographic comparison
+                - generic [ref=f8e860]:
+                  - paragraph [ref=f8e861]:
+                    - strong [ref=f8e862]: "Goal: 90% of calls arrive within their configured call target of call receipt."
+                  - status [ref=f8e863]:
+                    - strong [ref=f8e864]: 0 of 10 areas
+                    - text: are confirmed below goal.
+                  - generic [ref=f8e865]:
+                    - generic [ref=f8e866]:
+                      - 'img "Number of areas by on-time rate. 30–40%: 1; 40–50%: 0; 50–60%: 0; 60–70%: 0; 70–80%: 1; 80–90%: 3; 90–100%: 5. Goal 90%." [ref=f8e867]':
+                        - 'generic "30–40% on time: 1 area. Click to list them." [ref=f8e868] [cursor=pointer]': "1"
+                        - 'generic "40–50% on time: 0 areas. Click to list them." [ref=f8e872] [cursor=pointer]'
+                        - 'generic "50–60% on time: 0 areas. Click to list them." [ref=f8e874] [cursor=pointer]'
+                        - 'generic "60–70% on time: 0 areas. Click to list them." [ref=f8e876] [cursor=pointer]'
+                        - 'generic "70–80% on time: 1 area. Click to list them." [ref=f8e878] [cursor=pointer]': "1"
+                        - 'generic "80–90% on time: 3 areas. Click to list them." [ref=f8e882] [cursor=pointer]': "3"
+                        - 'generic "90–100% on time: 5 areas. Click to list them." [ref=f8e886] [cursor=pointer]': "5"
+                        - generic [ref=f8e891]: 30%
+                        - generic [ref=f8e892]: 40%
+                        - generic [ref=f8e893]: 50%
+                        - generic [ref=f8e894]: 60%
+                        - generic [ref=f8e895]: 70%
+                        - generic [ref=f8e896]: 80%
+                        - generic [ref=f8e897]: 90%
+                        - generic [ref=f8e898]: 100%
+                        - generic [ref=f8e899]: Goal 90%
+                      - paragraph [ref=f8e901]:
+                        - generic [ref=f8e902]: Below goal
+                        - generic [ref=f8e904]: Uncertain
+                        - generic [ref=f8e906]: Meets goal
+                        - generic [ref=f8e908]: ▲ selected area · tap a bar to see its areas
+                      - paragraph [ref=f8e909]:
+                        - strong [ref=f8e910]: "Furthest below:"
+                        - button "14850 96%" [pressed] [ref=f8e911] [cursor=pointer]
+                    - generic [ref=f8e912]:
+                      - combobox "Search an area by name" [ref=f8e913]
+                      - generic [ref=f8e914]:
+                        - generic [ref=f8e915]:
+                          - generic [ref=f8e916]: 6th worst of 10 · 115 calls
+                          - heading "14850" [level=3] [ref=f8e917]
+                        - generic [ref=f8e918]: Meets goal
+                      - generic [ref=f8e919]:
+                        - generic [ref=f8e920]: Mostly suburban · 100% of calls
+                        - button "Why area type matters" [ref=f8e921] [cursor=pointer]: i
+                      - paragraph [ref=f8e922]:
+                        - strong [ref=f8e923]: 96%
+                        - text: of calls arrived within 10 min
+                      - paragraph [ref=f8e924]: 5.7 percentage points above goal of 90%
+                      - generic [ref=f8e925]:
+                        - generic [ref=f8e926]:
+                          - strong [ref=f8e927]: 5.0 min
+                          - text: Half of calls arrive by
+                        - generic [ref=f8e928]:
+                          - strong [ref=f8e929]: 8.2 min
+                          - text: Slowest 1 in 10 start at
+                      - paragraph [ref=f8e930]:
+                        - text: "Longest wait:"
+                        - strong [ref=f8e931]: 12.5 min
+                  - group [ref=f8e932]:
+                    - generic "How certain is this?" [ref=f8e933] [cursor=pointer]
+    - generic [ref=f8e180]:
+      - region [ref=f8e181]:
+        - heading "Investigation list" [level=2] [ref=f8e183]
+        - paragraph [ref=f8e184]: "Every flagged area in the current map view with its evidence, then every ZIP area in the state with a confirmed signal. A starting point for a review: the tool does not choose or rank interventions."
+        - paragraph [ref=f8e934]: No area in this selection is flagged.
+        - generic [ref=f8e253]:
+          - heading "ZIP areas with a confirmed signal anywhere in the state" [level=3] [ref=f8e254]
+          - paragraph [ref=f8e255]: 0 of 367 ZIP areas with 30 or more valid calls (Jul 18 to Oct 15, 2026) have a confirmed signal (Act now or Recent change). This list covers the whole state, so a ZIP inside a county that looks fine still appears.
+          - note [ref=f8e256]: About 12.6 would read Below by chance alone if every place were exactly at the goal (expected, of 367 ZIP areas); 5 read Below here.
+          - paragraph [ref=f8e257]: No ZIP area in the state has a confirmed signal in this period.
+      - contentinfo [ref=f8e199]:
+        - text: Every number on this page is computed by the API (
+        - code [ref=f8e200]: /api/*
+        - text: ", read-only); the page only draws and formats it. Source: synthetic incidents replayed from the server. The response clock start ("
+        - code [ref=f8e201]: t_received
+        - text: ") is provisional: it may be the 911 answer or the CAD record, and that is not yet confirmed. Targets are NFPA 1720-based placeholders, configurable and not certified standards: red 8 minutes in urban areas, 10 suburban, 14 rural and remote; yellow 15; green 30; 90% on time. The tool reviews the response process, not individual dispatchers or crews."

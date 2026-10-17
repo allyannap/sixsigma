@@ -17,17 +17,24 @@ function DateForm({ from, to, disabled, min, max, onApply }) {
     onApply(a, b)
   }
   return (
-    <form className="daterange" onSubmit={submit} noValidate aria-label="Date range" aria-describedby="range-hint">
-      <label className="date-field" htmlFor="date-from"><span>From</span>
+    <form className="daterange" onSubmit={submit} noValidate aria-label="Date range" aria-describedby={disabled ? 'range-hint' : undefined}>
+      <label className="date-field" htmlFor="date-from"><span className="date-label">From</span>
         <input type="date" id="date-from" value={a} min={min} max={max} disabled={disabled} onChange={(e) => setA(e.target.value)} />
       </label>
       <span className="date-sep" aria-hidden="true">&ndash;</span>
-      <label className="date-field" htmlFor="date-to"><span>To</span>
+      <div className="date-field">
+        <div className="date-label">
+          <label htmlFor="date-to">To</label>
+          <span className="legend-info">
+            <button type="button" className="legend-info-btn" aria-label="What a blank date means" aria-describedby="date-blank-tip">i</button>
+            <span className="legend-tip" id="date-blank-tip" role="tooltip">Blank dates use the last 90 days of the dataset. The boxes start empty on purpose; that period already has calls.</span>
+          </span>
+        </div>
         <input type="date" id="date-to" value={b} min={min} max={max} disabled={disabled} onChange={(e) => setB(e.target.value)} />
-      </label>
+      </div>
       <button className="btn-primary" type="submit" disabled={disabled}><Icon name="search" size={14} />Search</button>
       {error && <span className="range-error" role="alert">{error}</span>}
-      <span className="range-hint" id="range-hint">{disabled ? 'Dates are fixed while the replay runs.' : 'Blank dates = the last 90 days of the dataset.'}</span>
+      {disabled && <span className="range-hint" id="range-hint">Dates are fixed while the replay runs.</span>}
     </form>
   )
 }

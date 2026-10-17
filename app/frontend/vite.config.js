@@ -6,6 +6,8 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   base: './',
+  // Read the repo-root .env (gitignored). Only VITE_* names reach the page; CENSUS_API_KEY and the rest never do.
+  envDir: '../..',
   server: {
     proxy: {
       '/api': 'http://localhost:8000',

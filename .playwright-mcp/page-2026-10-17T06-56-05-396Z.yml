@@ -1,0 +1,133 @@
+- generic [ref=f18e3]:
+  - banner [ref=f18e4]:
+    - generic [ref=f18e30] [cursor=pointer]:
+      - generic [ref=f18e31]: OnScene
+      - generic [ref=f18e32]: New York State · EMS response quality
+    - generic [ref=f18e33]:
+      - generic [ref=f18e34]:
+        - generic [ref=f18e35]: Dataset
+        - combobox "Dataset" [ref=f18e36]:
+          - option "baseline" [selected]
+          - option "station_closure"
+          - option "summer_surge"
+      - button "Start replay" [ref=f18e37] [cursor=pointer]
+    - generic [ref=f18e38]:
+      - 'generic "SYNTHETIC DATA: invented calls on real 2020 Census geography. Not real patients, not live CAD." [ref=f18e39]':
+        - generic [ref=f18e41]:
+          - generic [ref=f18e42]: "SYNTHETIC DATA:"
+          - text: Simulated service data
+      - generic [ref=f18e43]:
+        - img "Team Powerpuff Girls" [ref=f18e44]
+        - generic [aria-hidden] [ref=f18e45]: Team Powerpuff Girls
+  - status [ref=f18e46]:
+    - generic [ref=f18e47]: Loading the numbers...
+  - generic [ref=f18e48]:
+    - main [ref=f18e49]:
+      - generic [ref=f18e50]:
+        - region [ref=f18e51]:
+          - heading "New York State county map" [level=2] [ref=f18e52]
+          - group "Map of New York counties, colored by queue label. Select one to open its ZIP areas." [ref=f18e53]
+          - combobox "Search for a New York ZIP code or county" [ref=f18e60]
+          - button "Reset map to New York State" [ref=f18e62] [cursor=pointer]
+          - generic "Status legend":
+            - generic:
+              - generic: Status
+              - button "What the status colours mean" [ref=f18e70]: i
+            - generic:
+              - generic: Critical
+              - generic: …
+            - generic:
+              - generic: Watch
+              - generic: …
+            - generic:
+              - generic: Stable
+              - generic: …
+            - generic:
+              - generic: Needs data
+              - generic: …
+          - status [ref=f18e71]: Loading map...
+        - button "Toggle table for map Places ranked by queue label" [ref=f18e74] [cursor=pointer]:
+          - generic [ref=f18e78]:
+            - generic [ref=f18e79]: Toggle table for map
+            - generic [ref=f18e80]: Places ranked by queue label
+      - generic [ref=f18e81]:
+        - generic [ref=f18e83]:
+          - generic [ref=f18e84]:
+            - generic [ref=f18e85]: Selected place
+            - heading "New York State" [level=1] [ref=f18e86]
+            - generic [ref=f18e87]: Statewide
+          - form "Date range" [ref=f18e89]:
+            - generic [ref=f18e90]:
+              - generic [ref=f18e91]: From
+              - textbox "From" [ref=f18e92]
+            - generic [aria-hidden] [ref=f18e93]: –
+            - generic [ref=f18e94]:
+              - generic [ref=f18e95]: To
+              - textbox "To" [ref=f18e96]
+            - button "Search" [ref=f18e97] [cursor=pointer]
+            - generic [ref=f18e101]: Blank dates = the last 90 days of the dataset.
+        - region [ref=f18e102]:
+          - generic [ref=f18e103]:
+            - heading "Key Metrics" [level=2] [ref=f18e104]
+            - generic [ref=f18e105]: baseline
+          - generic [ref=f18e106]:
+            - generic [ref=f18e107]:
+              - group "Priority (urgency)" [ref=f18e108]:
+                - text: Priority
+                - generic [ref=f18e109]:
+                  - button "Red (most urgent)" [pressed] [ref=f18e110] [cursor=pointer]
+                  - button "Yellow" [ref=f18e112] [cursor=pointer]
+                  - button "Green" [ref=f18e114] [cursor=pointer]
+              - generic [ref=f18e116]: At least one group stays on. Pick one for a clean control chart. No time-of-day filter.
+            - generic [ref=f18e117]:
+              - generic [ref=f18e118]:
+                - generic [ref=f18e119]:
+                  - generic [ref=f18e120]: On time
+                  - generic [ref=f18e121]: —
+                  - generic [ref=f18e124]: Loading…
+                - generic [ref=f18e126]:
+                  - generic [ref=f18e127]: Median wait
+                  - generic [ref=f18e128]: —
+                  - generic [ref=f18e131]: Loading…
+                - generic [ref=f18e133]:
+                  - generic [ref=f18e134]: P95 wait
+                  - generic [ref=f18e135]: —
+                  - generic [ref=f18e138]: Loading…
+              - generic [ref=f18e140]:
+                - generic [ref=f18e141]: Summary
+                - status [ref=f18e143]:
+                  - paragraph [ref=f18e144]: Loading the summary...
+        - region [ref=f18e149]:
+          - generic [ref=f18e150]:
+            - heading "New York State Wait Time Insights" [level=2] [ref=f18e151]
+            - generic [ref=f18e152]: baseline
+          - group "Wait time charts" [ref=f18e153]:
+            - generic [ref=f18e154]:
+              - generic [ref=f18e155]: 1 / 2
+              - generic [ref=f18e156]:
+                - 'button "Show chart 1: Are calls arriving on time?" [ref=f18e157] [cursor=pointer]'
+                - 'button "Show chart 2: Are late calls being unusually frequent?" [ref=f18e158] [cursor=pointer]'
+            - 'button "Next chart: Are late calls being unusually frequent?" [ref=f18e159] [cursor=pointer]'
+            - group "1 of 2" [ref=f18e163]:
+              - region [ref=f18e164]:
+                - generic [ref=f18e165]:
+                  - generic [ref=f18e166]:
+                    - heading "Are calls arriving on time?" [level=3] [ref=f18e167]
+                    - paragraph [ref=f18e168]: Each area's on-time rate against the service goal
+                  - generic [ref=f18e169]: Geographic comparison
+                - status [ref=f18e171]:
+                  - paragraph [ref=f18e172]: Loading...
+    - generic [ref=f18e178]:
+      - region [ref=f18e179]:
+        - heading "Investigation list" [level=2] [ref=f18e181]
+        - paragraph [ref=f18e182]: "Every flagged area in the current map view with its evidence, then every ZIP area in the state with a confirmed signal. A starting point for a review: the tool does not choose or rank interventions."
+        - status [ref=f18e183]:
+          - paragraph [ref=f18e184]: Loading...
+        - status [ref=f18e190]:
+          - paragraph [ref=f18e191]: Loading...
+      - contentinfo [ref=f18e197]:
+        - text: Every number on this page is computed by the API (
+        - code [ref=f18e198]: /api/*
+        - text: ", read-only); the page only draws and formats it. Source: synthetic incidents replayed from the server. The response clock start ("
+        - code [ref=f18e199]: t_received
+        - text: ") is provisional: it may be the 911 answer or the CAD record, and that is not yet confirmed. Targets are NFPA 1720-based placeholders, configurable and not certified standards: red 8 minutes in urban areas, 10 suburban, 14 rural and remote; yellow 15; green 30; 90% on time. The tool reviews the response process, not individual dispatchers or crews."
