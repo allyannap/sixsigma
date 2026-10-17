@@ -53,6 +53,21 @@ def test_exact_evidence_and_credential_go_only_to_ollama(monkeypatch, evidence):
     assert 'test-ollama-key' not in json.dumps(result)
 
 
+def test_accepts_valid_json_wrapped_in_ollama_markdown_fence(monkeypatch, evidence):
+    content = json.dumps({
+        'finding': 'ZIP 11368 has a confirmed gap. Only **70% of 300 calls** met the target.',
+        'next_step': "Review ZIP 11368's flagged periods and call records.",
+        'full_briefing': 'The area is below its target and has a confirmed recent signal. Review the flagged periods and supporting calls.',
+    })
+    monkeypatch.setattr(ai.httpx, 'post', lambda url, **kw: httpx.Response(
+        200, json={'done': True, 'done_reason': 'stop', 'message': {'content': f'```json\n{content}\n```'}},
+        request=httpx.Request('POST', url)))
+    result = ai.generate_summary(evidence)
+    assert result['status'] == 'ok'
+    assert result['finding'].startswith('ZIP 11368')
+    assert result['next_step'] == "Review ZIP 11368's flagged periods and call records."
+
+
 @pytest.mark.parametrize(('field', 'value'), [('from', '2026-09-02'), ('to', '2026-10-14'),
     ('id', '11369'), ('level', 'county'), ('urgency', ['yellow']), ('dataset', 'baseline'), ('baseline_days', 120)])
 def test_changed_selection_does_not_reuse_old_summary(monkeypatch, evidence, field, value):

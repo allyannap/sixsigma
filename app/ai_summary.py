@@ -137,6 +137,14 @@ def generate_summary(evidence: dict) -> dict:
         raw = body["message"]["content"].strip()
         if not body.get("done") or body.get("done_reason") == "length" or not raw or len(raw) > 1600:
             raise ValueError("empty or incomplete output")
+        # Ollama models sometimes wrap otherwise-valid JSON in a Markdown fence,
+        # despite being asked to return JSON only. Accept exactly one fenced JSON
+        # object; all schema and content checks below still apply.
+        if raw.startswith("```"):
+            fenced = re.fullmatch(r"```(?:json)?\s*(.*?)\s*```", raw, flags=re.IGNORECASE | re.DOTALL)
+            if not fenced:
+                raise ValueError("invalid JSON fence")
+            raw = fenced.group(1).strip()
         card = json.loads(raw)
         if not isinstance(card, dict) or set(card) != {"finding", "next_step", "full_briefing"}:
             raise ValueError("invalid card structure")

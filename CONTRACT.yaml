@@ -334,6 +334,7 @@ tasks:
       changed dates/area/priority update the summary and superseded responses cannot overwrite it.
       Run the full frontend suite and report pre-existing failures separately.
     result: "Integrated Ollama Cloud using backend .env key alias, aggregate EMS evidence and current visible dates/area/single priority/dataset. Python 211 passed (29 AI integration); new frontend summary checks pass; build passed. Live browser verified initial defaults, Aug/Sep-Oct ZIP 11368 briefings, priority changes and delayed-response suppression with zero page errors. Full frontend suite: 100 passed, 7 pre-existing chart/text assertion failures. Ready for human review; no commit made."
+    provider_format_follow_up: "Diagnosed 503 with a live Ollama response: HTTP 200, generation complete, but Gemma wrapped valid JSON in a Markdown ```json fence. Backend now unwraps exactly one well-formed fence before the existing schema/content checks. Added regression test; AI tests 43 passed, git diff --check passed, live Ollama generation returned status ok with 18 finding words and 8 next-step words. Credential remained private; no commit made."
 
   - id: H-17
     title: Double the synthetic call volume (0.04 per person per year) and store data as .csv.xz
