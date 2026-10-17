@@ -80,7 +80,7 @@ export function makeTip(summary, parent) {
     }
     const byU = p.calls_by_urgency
     // calls in each urgency group, marked by number (not by the status colours)
-    const urgency = byU ? URGENCY_KEYS.map((k) => ({ key: k, num: URGENCY[k].num, label: `Urgency ${URGENCY[k].num}`, count: fmtInt(byU[k] || 0) })) : []
+    const urgency = byU ? URGENCY_KEYS.map((k) => ({ key: k, num: URGENCY[k].num, label: URGENCY[k].label, count: fmtInt(byU[k] || 0) })) : []
     const text = [
       `${title}${sub ? `, ${sub}` : ''}: ${status.label}`,
       ...rows.map((r) => `${r.label} ${r.value}${r.note ? ` (${r.note})` : ''}`),

@@ -354,7 +354,7 @@ describe('OnScene page (H-14)', () => {
       { label: 'Late urgency-1 calls', value: '1 in 6', note: 'goal 1 in 10' },
       { label: 'Typical wait', value: '6:55', note: `county ${mmssOf(summary.totals.median_min)}` },
     ])
-    expect(zip.urgency.map((u) => `${u.label} ${u.count}`)).toEqual(['Urgency 1 142', 'Urgency 2 210', 'Urgency 3 96'])
+    expect(zip.urgency.map((u) => `${u.label} ${u.count}`)).toEqual(['Most urgent 142', 'Urgent 210', 'Less urgent 96'])
     expect(zip.text).toContain('ZIP 14612, Monroe County: Act now')
     const county = makeTip(summary, STATE)(p, p.name)
     expect([county.title, county.sub]).toEqual([`${p.name} County`, ''])
