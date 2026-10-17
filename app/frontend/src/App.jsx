@@ -12,6 +12,7 @@ import ReplayBar from './components/ReplayBar.jsx'
 import TopBar from './components/TopBar.jsx'
 import InvestigateRail from './components/InvestigateRail.jsx'
 import HowItWorks, { markGuideSeen, seenGuide } from './components/HowItWorks.jsx'
+import Documentation from './components/Documentation.jsx'
 import { LoadingBar } from './components/common.jsx'
 
 const STATE = { level: 'state', id: undefined, name: 'New York State' }
@@ -77,6 +78,8 @@ export default function App() {
   const [guideOpen, setGuideOpen] = useState(false)
   useEffect(() => { if (!seenGuide()) setGuideOpen(true) }, [])
   const closeGuide = useCallback(() => { setGuideOpen(false); markGuideSeen() }, [])
+  const [documentationOpen, setDocumentationOpen] = useState(false)
+  const closeDocumentation = useCallback(() => setDocumentationOpen(false), [])
   const closeRail = useCallback(() => setRailOpen(false), [])
 
   const pick = (place, drill) => {
@@ -118,8 +121,10 @@ export default function App() {
   return (
     <div className="shell">
       <TopBar dataset={dataset} datasets={meta.data && meta.data.datasets} onDataset={(d) => { setDataset(d); resetScope() }}
-        replay={replay} fixtures={fixtures} replayHandlers={replayHandlers} onHelp={() => setGuideOpen(true)} />
+        replay={replay} fixtures={fixtures} replayHandlers={replayHandlers} onHelp={() => setGuideOpen(true)}
+        onDocumentation={() => setDocumentationOpen(true)} />
       <HowItWorks open={guideOpen} onClose={closeGuide} targets={meta.data && meta.data.targets} />
+      <Documentation open={documentationOpen} onClose={closeDocumentation} />
       <LoadingBar active={[meta, summary, pchart, imr].some((x) => x.loading)} />
       <div className="app">
         <main className={`workspace${railOpen ? ' has-rail' : ''}`}>

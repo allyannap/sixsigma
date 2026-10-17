@@ -2,7 +2,8 @@
 
 **All incident data here is SYNTHETIC.** No real call, patient or agency is in it. A fixed-seed
 generator invents it from the parameters in `params.json`. Population and geography are real
-(2020 Census); the calls are not. The dashboard labels it "Synthetic - simulated replay" everywhere.
+(2020 Census); the calls are not. The replay controls identify the stream as synthetic, and the “How it works” guide
+explains that it contains invented calls.
 No real public EMS extract has been checked against the tool yet (planned, see "Real-data compatibility" below).
 
 ## Files

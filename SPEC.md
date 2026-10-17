@@ -45,97 +45,185 @@ Lookups the tool ships with (the user supplies nothing): `data/lookup/zcta_count
 is the original 911 call receipt or the EMS CAD incident creation is **not yet confirmed**; it must be validated against the
 source (and kept consistent across test data and any real extract) before real use. It is not silently redefined here.
 
-## 4. The statistics, and why (rubric: valid QC analysis 25)
-Every formula is one function in `app/qc.py`; the known answers below are tests in `tests/test_qc.py` (tolerance 5e-4 unless stated).
+## 4. Statistical specification (rubric: valid QC analysis 25)
 
-- **Valid call and late call.** A valid completed call is not CANCELLED, has `t_onscene`, `valid_time = Y`, and times in order;
-  cancelled, invalid, missing and out-of-order rows count in volume only. Rows with a repeated `incident_id`, an unreadable
-  `t_received`, an unknown ZCTA or an unknown urgency code are dropped on loading and counted by reason (`/api/health`).
-  `late = total_s > target_s(urgency_code, area type)`; `very_late = total_s > 2 x target_s`.
-  Per place: `n_valid`, `n_on_time`, on-time rate, late rate, median, P90, P95 (with 95% intervals for the median and P95),
-  cancelled, invalid, cancel %, calls per day (period and baseline).
-- **A. Specification ("Are calls meeting the service goal?").** On-time rate with a **95% Wilson score interval**,
-  compared with the goal g: **Meets goal** if the lower bound ≥ g; **Below goal** if the upper bound < g; otherwise
-  **Inconclusive** (the interval includes g), and also Inconclusive with "insufficient data" under 30 valid calls. The rate,
-  interval, goal and n are always shown. Inconclusive is never labelled as meeting the goal.
-- **Multiplicity of the Below label (`chance_below`).** With many places, some read Below by chance. For each place with
-  n ≥ 30, if its true on-time rate were exactly g, the on-time count is X ~ Binomial(n, g) and P(Below) = P(X ≤ k_max), where
-  k_max is the largest k whose Wilson upper bound is under g. The expected number of chance Below labels is the sum over
-  places; the page shows it beside the observed count. (Places truly better than the goal have a smaller chance, so this is
-  an upper reference, not a correction.)
-- **B. Statistical control ("Has the process changed relative to its own history?").** A **p chart of the late share**
-  for the selected place and urgency group, against a fixed **baseline**: the 60 days before `from` (never overlapping the
-  selection), stretched to 120 days under 30 valid calls. Subgroup = the shortest of day, week or calendar month with
-  baseline calls per day x days x p̄ ≥ 5.
-  - **Baseline adequacy and stability (Phase I screen, `baseline_screen`).** The baseline is split into subgroups of that
-    unit. p0 = total late / total calls; a subgroup whose exact binomial tail (the smaller of P(X ≥ late) and P(X ≤ late),
-    X ~ Binomial(nᵢ, p0)) is under 0.00135 is dropped, **once**, and p̄ is recomputed from the rest. The baseline is
-    **unstable** if, after dropping, another subgroup still has a tail under 0.00135; or more than 10% of the subgroups
-    were dropped; or 8 or more in a row lie on one side of p̄; or the kept subgroups are overdispersed (Pearson chi-square
-    p < 0.01). With fewer than 4 baseline subgroups the screen is **not run** (reported as "not checked", not as stable
-    evidence); this is the usual case for a single ZIP with monthly subgroups.
-  - **Limits** from the screened baseline: CL = p̄, UCL_i = min(1, p̄ + 3 sqrt(p̄(1 - p̄)/n_i)), LCL_i = max(0, p̄ - 3 sqrt(...)).
-  - **Control rule.** Each subgroup gets the exact binomial p-value P(X ≥ late_i | n_i, p̄). A **signal** = above its UCL
-    **and** p-value < 0.00135 (the one-sided tail of a 3-sigma point), so a tiny subgroup cannot signal on the normal
-    approximation's error. **Out of control** = 2 or more signals, **or** one signal with p-value < 0.00135 / m
-    (Bonferroni over the m subgroups on the chart). Exactly one weaker signal leaves the place **In control** with
-    `watch = true` (shown as a "watch" chip). Only the upper side counts, because the question is deterioration; subgroups
-    below the LCL are listed as improvements. **Insufficient baseline** = under 30 baseline calls after the stretch, no
-    subgroup size reaching n p̄ ≥ 5, p̄ of 0 or 1, an unstable baseline, or no subgroups. The run-of-9 rule is shown for
-    information only. Being in control does not mean good service.
-  - **Replay keeps the baseline fixed:** the simulated replay holds the period's start (and so its baseline) fixed and moves
-    only the end forward one day per tick; a rolling window would let the baseline drift into the change it should detect.
-- **C. Queue label (from A and B; both badges are always shown beside it).** Below + Out → **Act now: performance gap +
-  recent signal**; Below + In → **Ongoing gap**; Meets or Inconclusive + Out → **Recent process change: investigate**;
-  Meets + In → **Meets goal; no change signal**; anything with Insufficient baseline, and Inconclusive + In →
-  **Needs more data / Inconclusive** (places confirmed Below goal sort first inside it). "Needs review" = the first three,
-  reported as recent signal (Act now + Recent change) and ongoing gap.
-- **Ranking (`excess_late`).** Inside a queue label, places rank by late calls beyond what the goal allows:
-  `n_late - (1 - g) n_valid`. A big place with a modest gap outranks a tiny place with a high late rate.
-- **Percentiles (`percentiles`).** Median, P90, P95 by linear interpolation. 95% intervals for the median and P95 are exact
-  distribution-free order-statistic intervals at every n (Hahn & Meeker 1991): with B ~ Binomial(n, q), [x_(l), x_(u)] covers
-  the q quantile with probability F(u - 1) - F(l - 1); the narrowest pair reaching 95% is used, else each side alone with a
-  2.5% tail. A bound that needs more calls than exist is `None` ("n/a"): any median interval needs 6 calls; the P95
-  upper bound needs 59 (from 2 to 58 calls only the P95 lower bound exists).
-- **Stage medians (`stage_summary`), descriptive only.** Median received → assigned, assigned → en route and en route → on
-  scene seconds, and % held, for the period beside its baseline. No excess, no ranking, no cause.
-- **Secondary (never set a status):** I chart on ln(minutes) with baseline limits (sigma = MR̄ / 1.128), only test 1 marked,
-  with skewness and lag-1 autocorrelation reported. One-sided Cpk on ln(total_s / target_s) with the Bissell bound (assumes
-  lognormal times); its sigma is MR̄ / 1.128 over calls in time order across **all** places and days of the selection, so it
-  mixes between-place and between-day variation: an **overall, Ppk-like** sigma, not a within-subgroup one; read it as a rough
-  summary. ANOM on ln(minutes) within one urgency group: decision limits around the **call-weighted average** of the places
-  (sum of all values / N, so a big place pulls the reference toward itself), Bonferroni h; descriptive only (not adjusted for
-  time of day, traffic, call mix, urban vs rural geography or resources, so no fairness claim).
-- **Assumptions and how they are checked:**
-  1. **Independence.** Calls within a subgroup are independent Bernoulli trials with a common late probability. Not tested
-     directly; the dispersion check and the baseline screen catch strong extra-binomial variation (overdispersion makes
-     3-sigma limits too narrow). The synthetic data has shared county-day effects, so this is only partly true there too.
-  2. **n·p̄ sizing holds only on average.** The subgroup unit is chosen so the baseline's average subgroup has n·p̄ ≥ 5;
-     individual subgroups (a quiet week, a short final month) can be smaller. The exact binomial p-value requirement
-     protects these from false signals; the 3-sigma limits are approximate for them.
-  3. **The baseline is normal operation.** The 60 days before the period are assumed to be in control and comparable; the
-     screen drops isolated unusual periods once and refuses unstable baselines, but a slow drift or seasonal shift inside
-     the baseline is not modelled (open limitation; the data now has winter and summer effects).
-  4. **ANOM assumes equal variance** of ln(minutes) across places (pooled sigma) and approximately normal log times.
-  5. Urgency groups are analysed separately; combining groups is allowed but the page warns that case mix is mixed.
-  6. Measured false alarms on the no-change file (`data/sensitivity.py`, re-measured Oct 17 on the H-19 files): counties,
-     red, three non-overlapping 90-day windows, 2 of 186 (1.1%); yellow 3 of 186 (1.6%); five overlapping 180-day windows,
-     red 5 of 310 (1.6%), yellow 5 of 310 (1.6%). The state's daily chart is rarely evaluable (0 of 8 red 90-day windows,
-     2 of 8 yellow), and none of the evaluable windows was out of control. The API test windows give 3 of 186 (1.6%; fails
-     above 10%). Detection (11368, drive time scaled from Sep 1): x1.6, x1.25 and x1.15 are detected (all Act now) at the
-     H-19 volume; a +2% per week drift is not.
-- **Known-answer checks** (each a test; each re-run with `app/qc.py` on Oct 17):
-  - Wilson: 85 of 100 → [0.76716, 0.90694]. 300 calls, goal 90%: 285 on time → [0.91915, 0.96947] Meets; 255 → [0.80518, 0.88597] Below; 270 → [0.86083, 0.92905] Inconclusive. 0 of 20 → Inconclusive (insufficient data), not Below; 29 of 29 → Inconclusive, not Meets.
-  - p chart: 5 days, n = 20, baseline p̄ = 0.20 (UCL 0.4683, LCL 0). Late 2, 3, 1, 4, **12**: day 5 (p = 0.60) is above the UCL with exact p-value 1.017e-4 < 0.00135 / 5 = 2.7e-4 → **Out of control** on one strong signal. Late 2, 3, 1, 4, **10**: day 5 (p = 0.50) is above the UCL but its p-value 0.002595 ≥ 0.00135 → **not a signal**, In control (no watch). Varying n with p̄ = 0.10: n = 10 → UCL 0.3846; n = 100 → 0.19 (LCL 0.01); n = 1000 → 0.12846.
-  - Baseline screen: 10 days of n = 100, late 20 x 9 and 40 → the 40 day (tail 3.8e-5) is dropped, p̄ = 0.20, stable. Late 20 x 8 and 45, 45 → 2 of 10 dropped (> 10%), unstable. 23 x 8 then 17 x 2 → 8 in a row above p̄ = 0.218, unstable. 12, 30 alternating → chi-square / df 5.425, overdispersed, unstable. 3 subgroups → not checked.
-  - Dispersion: n = 100 x 4, late 0, 20, 0, 20 → chi-square 44.44, df 3, ratio 14.81, overdispersed.
-  - `chance_below`: one place, n = 30, goal 90% → 0.025827 (Below for k ≤ 23 on time; P(X ≤ 23 | 30, 0.9)).
-  - `excess_late`: 200 valid, 30 late, goal 90% → 10 (the goal allows 20).
-  - Queue: all 9 combinations of A and B.
-  - Percentiles: 1..20 → median 10.5 with 95% CI [6, 15], P90 18.1, P95 19.05 with CI [17, n/a] (the upper bound needs 59 calls).
-  - I-MR: 1.0, 1.2, 0.9, 1.1, 1.3 → CL 1.1, UCL 1.6984, LCL 0.5016. Cpk (target 8 min) 1.6368, bound 2.8803. ANOM groups A/B/C → h 2.9333, F 26.0.
-  - Stage medians: dispatch 10, 20, 30, missing → 20; held 1 of 3 known → 33.3%.
-  - Degenerate: n = 0, n = 1, constant data, p̄ = 0 or 1, no baseline, too few baseline subgroups: each returns None or a status of Inconclusive / Insufficient baseline / not checked with a message, never inf or a pass.
+This section separates two questions that must not be conflated:
+
+| Question | Method | What it tells the supervisor |
+|---|---|---|
+| Are calls meeting the service goal? | On-time rate + 95% Wilson interval | Whether the observed service level is clearly above, below, or inconclusive against the goal |
+| Has the process changed from its own history? | Late-share p chart | Whether there is evidence of a recent increase relative to a fixed baseline |
+
+The first is a **specification** judgment; the second is a **process-control** judgment. Both badges remain visible, and neither substitutes for the other. Each statistic is implemented in a plain function in [`app/qc.py`](app/qc.py). Known answers and degenerate cases are tested in `tests/test_qc.py` (tolerance `5e-4` unless stated).
+
+### 4.1. Definitions and eligible calls
+
+| Term | Definition |
+|---|---|
+| Valid completed call | Not cancelled; has `t_onscene`; `valid_time = Y`; and timestamps are in order. |
+| Response time | `total_s = t_onscene - t_received`. The meaning of `t_received` (original 911 receipt or EMS CAD incident creation) is not confirmed; validate it against the source before real use. |
+| Late call | `total_s > target_s(urgency_code, area type)`. A call exactly at its target is on time. |
+| Very late call | `total_s > 2 × target_s`. |
+
+Cancelled, invalid, missing, and out-of-order calls count toward volume only; they do not contribute to response-time statistics. Rows with repeated `incident_id`, unreadable `t_received`, unknown ZCTA, or unknown urgency code are dropped during loading and counted by reason in `/api/health`.
+
+Place-level summaries include valid and on-time counts, on-time and late rates, median/P90/P95 response times, 95% intervals for median and P95, cancelled and invalid counts, cancellation percentage, and calls per day for the selected period and baseline.
+
+### 4.2. Service-goal judgment: “Are calls meeting the goal?”
+
+For each place, calculate the on-time proportion and its **95% Wilson score interval**. Let `g` be the goal as a proportion (for example, 90% is `0.90`):
+
+| Result | Rule |
+|---|---|
+| **Meets goal** | The interval’s lower bound is at least `g`. |
+| **Below goal** | The interval’s upper bound is below `g`. |
+| **Inconclusive** | The interval includes `g`, or there are fewer than 30 valid calls. The rate and interval are still shown when available. |
+
+Always display the on-time rate, interval, goal, and valid-call count `n` when available. An Inconclusive result is never described as meeting the goal.
+
+#### Chance Below labels
+
+With many places, some will read Below by chance. For each place with at least 30 calls, assume its true on-time rate equals `g`:
+
+```text
+X ~ Binomial(n, g)
+P(Below) = P(X ≤ k_max)
+```
+
+`k_max` is the largest on-time count whose Wilson upper bound is below `g`. Sum `P(Below)` across eligible places to estimate the expected number of chance Below labels. Show that estimate beside the observed count. It is an upper reference—not a correction—because places truly better than the goal have a lower chance of reading Below.
+
+### 4.3. Process-control judgment: “Has the process changed?”
+
+Use a **p chart of the late-call share** for the selected place and urgency group. Compare the selected period with that place’s fixed baseline; this is separate from the service-goal judgment above.
+
+#### Baseline window and subgroup size
+
+- The baseline is the 60 days before `from`; it never overlaps the selected period.
+- If the baseline has fewer than 30 valid calls, extend it to 120 days.
+- Choose the shortest subgroup—day, week, or calendar month—whose expected late count reaches 5:
+
+```text
+baseline calls per day × subgroup days × baseline late share (p̄) ≥ 5
+```
+
+If even a month does not reach this threshold, the chart has insufficient baseline for a control judgment.
+
+#### Phase I baseline screen (`baseline_screen`)
+
+Split the baseline into subgroups. Start with `p₀ = total late / total calls`. For each subgroup `i`, calculate the smaller exact binomial tail using `X ~ Binomial(nᵢ, p₀)`. Drop a subgroup when that tail is below `0.00135`, **once**, then recompute `p̄` from the retained subgroups.
+
+The baseline is unstable if any of the following holds:
+
+- A subgroup still has a tail below `0.00135` after the one-time removal.
+- More than 10% of baseline subgroups were removed.
+- Eight or more consecutive subgroups lie on one side of `p̄`.
+- The retained subgroups are overdispersed (Pearson chi-square `p < 0.01`).
+
+With fewer than four baseline subgroups, do not run the screen. Report **not checked**—not evidence that the baseline is stable. This commonly occurs for a ZIP with monthly subgroups.
+
+#### Control limits and signals
+
+For subgroup size `nᵢ`, use the screened baseline late share as the center line and calculate limits as follows:
+
+```text
+CL    = p̄
+UCLᵢ  = min(1, p̄ + 3 × √(p̄(1 − p̄) / nᵢ))
+LCLᵢ  = max(0, p̄ − 3 × √(p̄(1 − p̄) / nᵢ))
+```
+
+For each selected-period subgroup, compute the exact upper-tail probability `P(X ≥ lateᵢ | nᵢ, p̄)`. A **signal** requires both conditions:
+
+1. The late share is above that subgroup’s UCL.
+2. The exact p-value is below `0.00135` (the one-sided tail probability of a 3-sigma point).
+
+The exact-test condition prevents small subgroups from signaling solely because the normal approximation is poor.
+
+| Control result | Rule |
+|---|---|
+| **Out of control** | At least two signals, or one signal with `p < 0.00135 / m` (Bonferroni adjustment across the `m` selected-period subgroups). |
+| **In control + watch** | Exactly one signal that does not meet the stronger single-signal threshold. Set `watch = true`. |
+| **In control** | No signals, with an adequate, stable baseline. |
+| **Improvement** | A selected-period subgroup below its LCL; list it separately. The lower side does not count as deterioration. |
+
+Report **Insufficient baseline** when there are fewer than 30 baseline calls after any extension, no subgroup size reaches the expected-late threshold, `p̄` is 0 or 1, the baseline is unstable, or the selected period has no subgroups. Nine consecutive selected-period subgroups above the center line are shown as information only and do not set status. **In control does not mean good service**; the service-goal judgment answers that question.
+
+#### Replay behavior
+
+Replay fixes the selected period’s start date and its baseline, then advances only the end date by one day per tick. A rolling window could move the baseline into the change the chart is meant to detect.
+
+### 4.4. Queue labels and ranking
+
+The service-goal and control judgments are both shown next to the queue label. The mapping covers all nine combinations:
+
+| Goal judgment | Control judgment | Queue label |
+|---|---|---|
+| Below | Out of control | **Act now** — performance gap and recent signal |
+| Below | In control | **Ongoing gap** |
+| Below | Insufficient baseline | **Needs more data / Inconclusive**; confirmed Below places sort first within this label |
+| Meets | Out of control | **Recent process change: investigate** |
+| Meets | In control | **Meets goal; no change signal** |
+| Meets | Insufficient baseline | **Needs more data / Inconclusive** |
+| Inconclusive | Out of control | **Recent process change: investigate** |
+| Inconclusive | In control | **Needs more data / Inconclusive** |
+| Inconclusive | Insufficient baseline | **Needs more data / Inconclusive** |
+
+The first three labels are **Needs review**: Act now and Recent process change are reported as recent signals; Ongoing gap is reported separately.
+
+Within each label, rank places by `excess_late`, the number of late calls beyond the count allowed by the goal:
+
+```text
+excess_late = n_late − (1 − g) × n_valid
+```
+
+This prioritizes total excess volume: a large place with a modest gap can rank ahead of a small place with a high late rate.
+
+### 4.5. Distribution summaries and supporting analyses
+
+#### Response-time percentiles (`percentiles`)
+
+Calculate the median, P90, and P95 by linear interpolation. The median and P95 receive exact, distribution-free 95% order-statistic intervals for every sample size (Hahn & Meeker, 1991). For quantile `q`, let `B ~ Binomial(n, q)`; interval `[x₍ₗ₎, x₍ᵤ₎]` covers the quantile with probability `F(u − 1) − F(l − 1)`. Use the narrowest interval reaching 95%; otherwise use one-sided bounds with a 2.5% tail. If a bound requires more observations than exist, return `None` (“n/a”). A median interval needs at least 6 calls; the P95 upper bound needs 59. With 2–58 calls, only the P95 lower bound exists.
+
+#### Stage summaries (`stage_summary`)
+
+Descriptive only: report median received-to-assigned, assigned-to-en-route, and en-route-to-on-scene times, plus percent held, for the selected period beside its baseline. Do not calculate excess, rank stages, or infer a cause.
+
+#### Secondary analyses (never set a status)
+
+- **I chart:** individual values of `ln(minutes)` with baseline limits; `σ = MR̄ / 1.128`. Mark only test 1. Also report skewness and lag-1 autocorrelation.
+- **Cpk:** one-sided capability on `ln(total_s / target_s)` with the Bissell bound, assuming lognormal times. Estimate `σ = MR̄ / 1.128` from calls in time order across all places and days in the selected period. This mixes between-place and between-day variation, so it is an overall, Ppk-like rough summary—not a within-subgroup capability estimate.
+- **ANOM:** analyze `ln(minutes)` within one urgency group. Decision limits are around the call-weighted average across places (sum of all values divided by `N`; larger places pull the reference toward themselves), with Bonferroni `h`. This is descriptive, not adjusted for time of day, traffic, call mix, geography, or resources; it makes no fairness claim.
+
+### 4.6. Assumptions and measured limitations
+
+- **Independence:** calls within a subgroup are assumed to be independent Bernoulli trials with a common late probability. This is not tested directly. The dispersion check and baseline screen catch strong extra-binomial variation; overdispersion makes 3-sigma limits too narrow. Synthetic data has shared county-day effects, so independence is only partly true there.
+- **Subgroup size:** `n·p̄ ≥ 5` is met only by the baseline’s average subgroup. A quiet week or short final month may be smaller. Exact binomial p-values protect against false signals in small subgroups; 3-sigma limits remain approximate.
+- **Baseline:** the 60 days before the selected period are assumed comparable and in control. The screen removes isolated unusual periods once and rejects unstable baselines, but does not model slow drift or seasonal shifts within the baseline.
+- **ANOM:** assumes approximately normal log times and equal variance of `ln(minutes)` across places (pooled sigma).
+- **Urgency mix:** analyze urgency groups separately. Combining groups is allowed, but the dashboard warns that case mix is mixed.
+
+Measured on the no-change file with [`data/sensitivity.py`](data/sensitivity.py), using H-19 data and windows re-measured Oct 17:
+
+- Counties, three non-overlapping 90-day windows: red 2/186 (1.1%); yellow 3/186 (1.6%). Five overlapping 180-day windows: red 5/310 (1.6%); yellow 5/310 (1.6%).
+- Statewide daily charts are rarely evaluable: 0/8 red and 2/8 yellow 90-day windows; none of the evaluable windows was out of control.
+- API test windows: 3/186 (1.6%), below the 10% threshold.
+- Detection: the 11368 closure scenario detects multipliers ×1.6, ×1.25, and ×1.15 (all Act now) at H-19 volume. A +2% per week drift is not detected.
+
+### 4.7. Known-answer and degenerate-case checks
+
+Each check below is covered by a test and was re-run with `app/qc.py` on Oct 17:
+
+- **Wilson interval:** 85/100 → `[0.76716, 0.90694]`. At 300 calls and a 90% goal: 285 on time → `[0.91915, 0.96947]` Meets; 255 → `[0.80518, 0.88597]` Below; 270 → `[0.86083, 0.92905]` Inconclusive. 0/20 is Inconclusive (insufficient data), not Below; 29/29 is Inconclusive, not Meets.
+- **p chart:** five days of `n = 20`, baseline `p̄ = 0.20`: UCL 0.4683, LCL 0. With late counts 2, 3, 1, 4, **12**, day 5 has `p = 0.60` and exact p-value `1.017e-4 < 0.00135/5 = 2.7e-4`, so one strong signal gives Out of control. With final count **10**, `p = 0.50` is above UCL but p-value `0.002595 ≥ 0.00135`, so it is not a signal and is In control (no watch). With `p̄ = 0.10`, UCLs are 0.3846 (`n = 10`), 0.19 (LCL 0.01; `n = 100`), and 0.12846 (`n = 1000`).
+- **Baseline screen:** ten days with `n = 100`, late counts 20 × 9 and 40: the 40 day (tail `3.8e-5`) is dropped; `p̄ = 0.20`, stable. Counts 20 × 8 and 45, 45: 2/10 dropped (>10%), unstable. Counts 23 × 8 then 17 × 2: eight consecutive above `p̄ = 0.218`, unstable. Alternating 12 and 30: chi-square/df 5.425, overdispersed and unstable. Three subgroups: not checked.
+- **Dispersion:** four subgroups with `n = 100`, late counts 0, 20, 0, 20 → chi-square 44.44, df 3, ratio 14.81; overdispersed.
+- **`chance_below`:** one place, `n = 30`, goal 90% → 0.025827 (`Below` for at most 23 on-time calls; `P(X ≤ 23 | 30, 0.9)`).
+- **`excess_late`:** 200 valid, 30 late, goal 90% → 10 excess late calls (the goal allows 20).
+- **Queue labels:** all nine combinations of service-goal and control judgments are tested.
+- **Percentiles:** values 1…20 → median 10.5, 95% CI `[6, 15]`; P90 18.1; P95 19.05, CI `[17, n/a]` (the upper bound needs 59 calls).
+- **Secondary methods:** I chart values 1.0, 1.2, 0.9, 1.1, 1.3 → CL 1.1, UCL 1.6984, LCL 0.5016. Cpk (target 8 min) 1.6368, bound 2.8803. ANOM groups A/B/C → `h = 2.9333`, `F = 26.0`.
+- **Stage medians:** dispatch values 10, 20, 30, missing → median 20; 1 of 3 known calls held → 33.3%.
+
+Degenerate cases include `n = 0`, `n = 1`, constant data, `p̄ = 0` or `1`, no baseline, and too few baseline subgroups. Each returns `None` or an explicit Inconclusive / Insufficient baseline / not checked result with a message—never infinity or a passing status.
 
 Fixed for every team:
 - The statistic lives in **one plain, tested function** (`app/qc.py` or `app/qc.R`). The API, app or
@@ -157,6 +245,7 @@ Fixed for every team:
 
 ## 6. Outputs
 - **What the user sees** (one page; the "How it works" guide says the data is simulated; "Simulation / Replay"): filters (dataset, urgency, explicit From and To dates; blank or incomplete dates show No date selected across all sections with no analysis requests; no time-of-day), a replay bar (requires both dates and starts at the selected From date, ending at the selected To date or dataset end; fixed baseline; one simulated day every 3 s; shows that day's calls read-only), summary (places needing review split into recent signal and ongoing gap, with the number expected Below by chance; counts by queue label; on-time k of n with CI against the goal; median and P95 with intervals; very-late count; calls, cancelled, invalid, cancel %, calls per day); (1) state → county → ZCTA map with a back button, coloured by map group (Critical / Watch / Near goal / Stable, gray only under 30 valid calls; see section 10) or by late share with the Status / Late % switch, and a table ranked by label then excess late calls, with n, on-time rate + CI, Target and Control badges (plus a watch chip), queue label, excess late, P95 + CI, volume, baseline stability, and secondary Cpk; (2) the p chart with the screened baseline window, signal evidence (exact p-values), the dispersion check, the calls behind a signal, a descriptive stage-median table (period vs baseline, % held); (3) an investigation list of flagged areas with their target and control evidence, and a statewide list of flagged ZIP areas; (4) a geographic comparison histogram of area on-time rates, with selected-area median, P90, configured target, sample size and the existing Wilson target judgment; ANOM remains available through the API. The footer states the response-clock-start caveat and that the targets are NFPA 1720-based placeholders.
+- **Documentation:** a top-bar button beside **How it works** opens a separate dashboard reference with a table of contents and full-text section search. It explains the tool and audience, a step-by-step workflow, filters and replay, metric and judgment meanings, data provenance and fields, statistical methods and assumptions, limitations, and links to the API documentation and data codebook. It preserves the dashboard state when closed and is keyboard accessible.
 
 ## 7. Test datasets and codebook (rubric: demo 10, datasets 5, codebook 5)
 `data/README.md` is the codebook: every file, every column with units, source or synthetic origin, generation assumptions,

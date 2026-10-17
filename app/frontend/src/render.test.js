@@ -132,9 +132,8 @@ describe('sections render from fixtures', () => {
     expect(html).not.toMatch(/which fix|what-if|helps most|add an ambulance|POST/i)
     expect(html).not.toMatch(/What Held Up the Call|travel-time difference|Google/i)
     expect(html).not.toMatch(/<textarea/)
-    // the map search box, then From and To; no incident entry
-    // the only typed input is the place search; dates are picked from a calendar (DatePicker), never typed in
-    expect([...html.matchAll(/<input[^>]*type="([^"]+)"/g)].map((m) => m[1])).toEqual(['text'])
+    // documentation and map search are the only typed inputs; dates are picked from a calendar, never typed in
+    expect([...html.matchAll(/<input[^>]*type="([^"]+)"/g)].map((m) => m[1])).toEqual(['search', 'text'])
     expect(html).toContain('id="date-from"')
     expect(html).toContain('id="date-to"')
   })

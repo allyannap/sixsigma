@@ -99,6 +99,14 @@ Status words: **implemented** (code exists), **tested** (known-answer and degene
   flagged on the clean file, and the flagged-ZIP test allows up to 1% such ZIPs but never 11368. The +2%/week drift is
   still not detected. Generation takes about 29 minutes; one dataset loads in the API in about 29 s.
 
+- Oct 17 (user-approved H-11 follow-up): add a Documentation button beside How it works. It opens a separate in-dashboard
+  reference with a table of contents, product workflow, filter and replay guidance, metric interpretation, data provenance,
+  statistical methods, assumptions, limitations, and links to the API documentation and codebook. Closing it preserves the
+  dashboard state; keyboard navigation is supported.
+- Oct 18 (user-requested H-11 follow-up): add case-insensitive full-text search across documentation section text. Show only
+  matching sections and navigation links, announce the result count, explain when nothing matches, and let Escape clear the
+  query; leave the section content and dashboard analytics unchanged.
+
 ## Risks and open items
 
 1. **Low-volume ZIP areas** stay Inconclusive / Insufficient baseline at many windows, and their monthly subgroups give

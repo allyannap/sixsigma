@@ -31,7 +31,7 @@ export function ReplayControls({ replay, onStart, onToggle, onStep, onStop }) {
   )
 }
 
-export default function TopBar({ dataset, datasets, onDataset, replay, fixtures, replayHandlers, onHelp }) {
+export default function TopBar({ dataset, datasets, onDataset, replay, fixtures, replayHandlers, onHelp, onDocumentation }) {
   const note = DATASET_NOTES[dataset]
   const keys = datasets && datasets.length ? datasets : FALLBACK_DATASETS
   return (
@@ -55,6 +55,7 @@ export default function TopBar({ dataset, datasets, onDataset, replay, fixtures,
       <div className="topbar-meta">
         {/* Target, goal, map colours and the data caveats live in the guide (HowItWorks.jsx) */}
         {onHelp && <button type="button" className="tb-btn tb-help" aria-haspopup="dialog" onClick={onHelp}>How it works</button>}
+        {onDocumentation && <button type="button" className="tb-btn" aria-haspopup="dialog" onClick={onDocumentation}>Documentation</button>}
         {fixtures && <span className="fixture-flag" role="status">FIXTURE DATA: canned numbers, not from the API</span>}
         <div className="user">
           <img className="team-badge" src={badgeUrl} width="36" height="36" alt="Team Powerpuff Girls" />
