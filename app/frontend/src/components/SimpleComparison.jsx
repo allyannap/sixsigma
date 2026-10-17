@@ -1,3 +1,4 @@
+import { urgencyText } from '../status.js'
 import { useEffect, useRef, useState } from 'react'
 import { fmtInt, fmtMin, fmtPct, fmtCi } from '../format.js'
 import EvidenceDrawer from './EvidenceDrawer.jsx'
@@ -193,7 +194,7 @@ export default function SimpleComparison({ d, selectedArea, onPick }) {
     </section>
     <div className="comparison-actions"><span>Choose a bar to explore areas</span><button type="button" onClick={() => { setListing(false); setDetailsOpen(true) }}>Details & confidence <span aria-hidden="true">↗</span></button></div>
     <EvidenceDrawer open={detailsOpen} onClose={() => setDetailsOpen(false)}>
-      <p className="comparison-context">{d.selection.name} · {d.selection.from} – {d.selection.to} · {d.selection.urgency[0]} priority</p>
+      <p className="comparison-context">{d.selection.name} · {d.selection.from} – {d.selection.to} · {urgencyText(d.selection.urgency[0])}</p>
       <section className={`simple-card card-${selected.spec}`}>
         <input className="card-search" type="search" list="simple-area-names" placeholder="Search an area…" aria-label="Search an area by name" value={query} onChange={(e) => search(e.target.value)} />
         <datalist id="simple-area-names">{[...areas].sort((a, b) => a.name.localeCompare(b.name)).map((p) => <option key={p.id} value={p.name} />)}</datalist>

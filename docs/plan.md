@@ -77,7 +77,7 @@ Status words: **implemented** (code exists), **tested** (known-answer and degene
   counties Watch 40, Near goal 3, Stable 19, gray 0; Manhattan Near goal 32, Stable 11, gray 26.
 - Oct 17 (team, H-15): **the page takes the Open Design prototype's layout** (`design/sentinel/`) on the current schema
   and API, no API change, named **OnScene** with the siren logo. Map: Critical = Act now, Watch = Ongoing gap + Recent
-  change, Stable = Meets goal (no change signal), gray = Needs more data (gray refined by H-18 below). Priority = urgency red/yellow/green; no
+  change, Stable = Meets goal (no change signal), gray = Needs more data (gray refined by H-18 below). Priority = urgency red/yellow/green (renamed "Call urgency" with numbered, uncoloured chips in H-21); no
   "on-scene wait ≥" filter (not a SPEC input; it would bias the on-time rate). Dataset picker and replay in the top bar.
   Key Metrics: on-time % (k of n, 95% CI vs goal), median and P95 with intervals from `/api/summary` totals, and a plain
   summary from the queue label and reasons (no AI text). Under "<Place> Wait Time Insights": card 1 "Are calls arriving

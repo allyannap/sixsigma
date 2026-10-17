@@ -66,10 +66,19 @@ export const CONTROL = {
 /** One period above the limit that is not confirmed: the place stays In control, with this note beside it. */
 export const WATCH = { label: 'watch', tip: '1 period above the limit, not confirmed' }
 
+// Call urgency is a FILTER (which calls are analysed), not a verdict. It is shown as a number and words, never in
+// red / amber / green, because those colours belong to the map status (Critical / Watch / Stable). The keys stay the
+// API's red / yellow / green (urgency codes 0-2, 3-5, 6-9 in config/targets.csv).
 export const URGENCY = {
-  red: { label: 'Red (most urgent)', light: '#FBE3E0', dark: '#8F1D14', chip: '#B42318' },
-  yellow: { label: 'Yellow', light: '#FBF1C7', dark: '#8A6A00', chip: '#8A6A00' },
-  green: { label: 'Green', light: '#DCEFE2', dark: '#1E6B3A', chip: '#1E6B3A' },
+  red: { num: 1, label: 'Most urgent', codes: '0-2', light: '#FBE3E0', dark: '#8F1D14', chip: '#B42318' },
+  yellow: { num: 2, label: 'Urgent', codes: '3-5', light: '#FBF1C7', dark: '#8A6A00', chip: '#8A6A00' },
+  green: { num: 3, label: 'Less urgent', codes: '6-9', light: '#DCEFE2', dark: '#1E6B3A', chip: '#1E6B3A' },
+}
+
+/** "Call urgency 1 (most urgent)" for one API key; unknown keys are returned as they are. */
+export function urgencyText(key) {
+  const u = URGENCY[key]
+  return u ? `Call urgency ${u.num} (${u.label.toLowerCase()})` : String(key)
 }
 export const URGENCY_KEYS = ['red', 'yellow', 'green']
 

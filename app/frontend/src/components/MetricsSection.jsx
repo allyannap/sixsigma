@@ -104,11 +104,12 @@ export function MetricsSection({ summaryState, selected, parent, urgency, onTogg
       </div>
       <div className="card metrics-card">
         <div className="filterbar">
-          <div className="filter-field" role="radiogroup" aria-label="Priority (urgency)">
-            Priority
+          <div className="filter-field" role="radiogroup" aria-label="Call urgency: choose which calls to analyse" aria-describedby="urgency-hint">
+            <span className="filter-name">Call urgency</span>
             <span className="priority-chips">
               {URGENCY_KEYS.map((k) => (
-                <button key={k} type="button" role="radio" className={`pri-chip pri-${k}`} aria-checked={urgency.includes(k)}
+                <button key={k} type="button" role="radio" className="pri-chip" aria-checked={urgency.includes(k)}
+                  title={`Analyse only urgency ${URGENCY[k].num} calls: ${URGENCY[k].label.toLowerCase()} (codes ${URGENCY[k].codes})`}
                   tabIndex={urgency.includes(k) ? 0 : -1} onClick={() => onToggleUrgency(k)}
                   onKeyDown={(event) => {
                     const i = URGENCY_KEYS.indexOf(k)
@@ -120,10 +121,11 @@ export function MetricsSection({ summaryState, selected, parent, urgency, onTogg
                     onToggleUrgency(URGENCY_KEYS[next])
                     event.currentTarget.parentNode.children[next].focus()
                   }}>
-                  <i aria-hidden="true" />{URGENCY[k].label}
+                  <b className="pri-num" aria-hidden="true">{URGENCY[k].num}</b>{URGENCY[k].label}
                 </button>
               ))}
             </span>
+            <span className="filter-hint" id="urgency-hint">Click to choose which calls the map and metrics analyse</span>
           </div>
         </div>
 

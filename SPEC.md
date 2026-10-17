@@ -195,7 +195,7 @@ What we will NOT build, so nobody (human or agent) builds it by accident.
 
 ## Single-priority selection (team instruction, Oct 17)
 
-The dashboard allows exactly one priority: Red OR Yellow OR Green, default Red. Selecting another replaces the previous selection; clicking the selected priority cannot clear it. The state stores a single priority, and all analysis/replay requests contain only that group. Priority uses accessible radio semantics with arrow/Home/End navigation. API clients may still request mixed groups with the existing warning.
+The dashboard allows exactly one **call urgency**: 1 Most urgent (API `red`, codes 0-2) OR 2 Urgent (`yellow`, 3-5) OR 3 Less urgent (`green`, 6-9), default 1. It is shown as numbered chips, never in red / amber / green, because those colours belong to the map status; a hint under the chips says they choose which calls are analysed (H-21). Selecting another replaces the previous selection; clicking the selected priority cannot clear it. The state stores a single priority, and all analysis/replay requests contain only that group. Priority uses accessible radio semantics with arrow/Home/End navigation. API clients may still request mixed groups with the existing warning.
 
 ## AI investigation briefing (H-16, user approved Oct 17)
 

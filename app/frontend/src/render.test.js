@@ -327,10 +327,10 @@ describe('OnScene page (H-14)', () => {
       { ...p, queue: 'needs_data', spec: 'inconclusive', valid: 318, late: 26, goal_pct: 90, median_min: 5 }, '10025')
     expect(near.status).toEqual({ label: `Near goal · ${QUEUE.needs_data.short}`, tier: 'near' })
     expect(zip.rows).toEqual([
-      { label: 'Late red calls', value: '1 in 6', note: 'goal 1 in 10' },
+      { label: 'Late urgency-1 calls', value: '1 in 6', note: 'goal 1 in 10' },
       { label: 'Typical wait', value: '6:55', note: `county ${mmssOf(summary.totals.median_min)}` },
     ])
-    expect(zip.urgency.map((u) => `${u.label} ${u.count}`)).toEqual(['Red 142', 'Yellow 210', 'Green 96'])
+    expect(zip.urgency.map((u) => `${u.label} ${u.count}`)).toEqual(['Urgency 1 142', 'Urgency 2 210', 'Urgency 3 96'])
     expect(zip.text).toContain('ZIP 14612, Monroe County: Act now')
     const county = makeTip(summary, STATE)(p, p.name)
     expect([county.title, county.sub]).toEqual([`${p.name} County`, ''])
@@ -373,9 +373,14 @@ describe('OnScene page (H-14)', () => {
     expect(html).toContain(`95% CI ${t.p95_ci[0].toFixed(1)} to ${t.p95_ci[1].toFixed(1)} min`)
     expect(html).toContain(`P90 ${t.p90_min.toFixed(1)} min`)
   })
-  it('Priority is a single-select radio group, with no on-scene wait filter and no flag button', () => {
+  it('Call urgency is a single-select radio group of numbered chips (no status colours), with a hint that it filters', () => {
     const html = metrics({ urgency: ['red'] })
-    expect(html).toContain('Priority')
+    expect(html).toContain('Call urgency')
+    expect(html).not.toMatch(/>Priority</)
+    expect(html).toContain('Click to choose which calls the map and metrics analyse')
+    expect([...html.matchAll(/class="pri-num"[^>]*>(\d)</g)].map((m) => m[1])).toEqual(['1', '2', '3'])
+    expect(html).toContain('Most urgent')
+    expect(html).not.toMatch(/pri-(red|yellow|green)|Red \(most urgent\)/)
     expect((html.match(/class="pri-chip/g) || []).length).toBe(3)
     expect(html).toContain('role="radiogroup"')
     expect((html.match(/role="radio"/g) || []).length).toBe(3)

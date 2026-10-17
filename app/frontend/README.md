@@ -2,6 +2,7 @@
 
 Draws the read-only dashboard from the JSON in `docs/api.md` section B. It computes no statistics, has no incident-entry form and no what-if card.
 
+- **Call urgency** (Key Metrics): one choice of 1 Most urgent, 2 Urgent or 3 Less urgent (the API's `red`, `yellow`, `green`), shown as numbered chips with a hint that they filter the analysis. Never drawn in red / amber / green: those colours mean map status.
 - **Date range** (`DatePicker.jsx`): a small calendar that only offers usable dates. From runs from `earliest_from` (`/api/meta`: the first day with the 60-day baseline before it, Dec 15, 2025) to the chosen To; To runs from the chosen From to the last day of data. The month menu lists only those months, so no out-of-range years appear.
 - **Replay bar** (Simulation / Replay): requires an explicit date range; fixed start and baseline at the selected From date, stopping at To or the dataset end; the end date advances one simulated day every 3 s (`/api/replay`).
 - **Summary** (`/api/summary`): places needing review split into recent signal (Act now + Recent change) and ongoing gap, with the number expected Below target by chance; on-time k of n with CI; median and P95 with intervals; calls, cancelled, invalid, cancel %, calls per day.

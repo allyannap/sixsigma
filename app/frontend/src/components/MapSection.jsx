@@ -7,7 +7,7 @@ import { getGeo } from '../api.js'
 import { rewindForD3 } from '../geo.js'
 import GlMap, { LATE_STOPS } from './GlMap.jsx'
 import { fmtChanceBelow, fmtCi, fmtDate, fmtGoalOneIn, fmtInt, fmtNum, fmtOneIn, fmtPct, mmss } from '../format.js'
-import { CONTROL, QUEUE, SPEC, TIER_LABEL, URGENCY_KEYS, attentionSplit, legendRows, mapTier, rankPlaces } from '../status.js'
+import { CONTROL, QUEUE, SPEC, TIER_LABEL, URGENCY, URGENCY_KEYS, attentionSplit, legendRows, mapTier, rankPlaces } from '../status.js'
 import { Icon, Judgments, Messages, Spinner, StatusBadge, WatchChip } from './common.jsx'
 import { placeFor } from './PlaceHead.jsx'
 
@@ -45,8 +45,6 @@ function project(features, box) {
 /** The place's colour class: t-critical, t-watch, t-near, t-stable or t-nodata (gray: under 30 valid calls, or none). */
 const tierClass = (p) => `t-${mapTier(p)}`
 
-const URGENCY_WORD = { red: 'Red', yellow: 'Yellow', green: 'Green' }
-const URGENCY_DOT = { red: 'critical', yellow: 'watch', green: 'stable' }
 const county = (name) => (name ? `${name} County` : '')
 
 /**
@@ -57,7 +55,7 @@ const county = (name) => (name ? `${name} County` : '')
  */
 export function makeTip(summary, parent) {
   const groups = (summary && summary.selection && summary.selection.urgency) || []
-  const lateLabel = groups.length === 1 ? `Late ${groups[0]} calls` : 'Late calls'
+  const lateLabel = groups.length === 1 && URGENCY[groups[0]] ? `Late urgency-${URGENCY[groups[0]].num} calls` : 'Late calls'
   const parentMedian = summary && summary.totals ? summary.totals.median_min : null
   const parentWord = parent.level === 'state' ? 'state' : 'county'
   return (p, name) => {
@@ -82,7 +80,8 @@ export function makeTip(summary, parent) {
       rows.push({ label: 'Typical wait', value: mmss(p.median_min * 60), note: parentMedian != null ? `${parentWord} ${mmss(parentMedian * 60)}` : '' })
     }
     const byU = p.calls_by_urgency
-    const urgency = byU ? URGENCY_KEYS.map((k) => ({ key: k, dot: URGENCY_DOT[k], label: URGENCY_WORD[k], count: fmtInt(byU[k] || 0) })) : []
+    // calls in each urgency group, marked by number (not by the status colours)
+    const urgency = byU ? URGENCY_KEYS.map((k) => ({ key: k, num: URGENCY[k].num, label: `Urgency ${URGENCY[k].num}`, count: fmtInt(byU[k] || 0) })) : []
     const text = [
       `${title}${sub ? `, ${sub}` : ''}: ${status.label}`,
       ...rows.map((r) => `${r.label} ${r.value}${r.note ? ` (${r.note})` : ''}`),
@@ -116,7 +115,7 @@ function TipCard({ tip }) {
         <div className="tip-urgency">
           <span className="tip-urgency-label">Calls</span>
           {tip.urgency.map((u) => (
-            <span key={u.key} className="tip-u"><i className={`dot dot-${u.dot}`} aria-hidden="true" />{u.label} <b>{u.count}</b></span>
+            <span key={u.key} className="tip-u"><b className="tip-num" aria-hidden="true">{u.num}</b>{u.label} <b>{u.count}</b></span>
           ))}
         </div>
       )}

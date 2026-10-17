@@ -1,3 +1,4 @@
+import { urgencyText } from '../status.js'
 import { useEffect, useRef, useState } from 'react'
 import { linear, linePath } from '../charts.js'
 import { fmtDate, fmtInt, fmtNum, fmtP, fmtPct, mmss, periodBounds } from '../format.js'
@@ -158,7 +159,7 @@ export function ControlView({ p, params, selectedName, stagesState }) {
     {insufficient && <button type="button" className="trend-baseline-button" onClick={() => openDetails('method')}>View baseline checks <span aria-hidden="true">↗</span></button>}
     {!insufficient && (!point || !p.unit) && <button type="button" className="trend-baseline-button" onClick={() => openDetails('method')}>Details & evidence <span aria-hidden="true">↗</span></button>}
     <EvidenceDrawer open={detailsOpen} onClose={() => setDetailsOpen(false)} title="Response details" titleId="trend-drawer-title" className="trend-evidence-drawer">
-      <p className="comparison-context">{p.selection?.name || selectedName} · {p.selection?.from} – {p.selection?.to} · {p.selection?.urgency?.join(', ')} priority</p>
+      <p className="comparison-context">{p.selection?.name || selectedName} · {p.selection?.from} – {p.selection?.to} · {(p.selection?.urgency || []).map(urgencyText).join(', ')}</p>
       <div className="control-support">
         <div className="control-tabs" role="tablist" aria-label="Control chart supporting information">
           {tabs.map((tab, index) => <button type="button" key={tab.id} id={`control-tab-${tab.id}`} role="tab" aria-selected={panel === tab.id} aria-controls="control-support-panel" tabIndex={panel === tab.id ? 0 : -1} onClick={() => setPanel(tab.id)} onKeyDown={(event) => navigateTabs(event, index)}>{tab.label}</button>)}

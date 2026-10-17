@@ -250,12 +250,6 @@ svg:not(.od-icon) { display: block; }
 .filter-field { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; font-size: var(--fs-xs); font-weight: 700; letter-spacing: 0.02em; color: var(--muted); }
 .priority-chips { display: inline-flex; flex-wrap: wrap; gap: 6px; }
 .pri-chip { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 11px; border: 1px solid var(--line-strong); border-radius: 999px; background: var(--surface); color: var(--ink-2); font-size: var(--fs-sm); font-weight: 700; transition: background var(--t-fast) var(--ease); }
-.pri-chip i { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
-.pri-red i { background: var(--critical); }
-.pri-yellow i { background: #c98a28; }
-.pri-green i { background: var(--stable); }
-.pri-chip[aria-pressed="true"] { background: var(--brand-soft); border-color: var(--brand); color: var(--brand-deep); }
-.pri-chip[aria-pressed="false"] { opacity: 0.75; }
 
 .metrics-body { display: grid; grid-template-columns: minmax(0, 1.08fr) 1px minmax(0, 0.92fr); gap: 15px; align-items: stretch; }
 .vdivider { background: var(--line); border-radius: 1px; }
@@ -705,8 +699,18 @@ table.places.narrow { min-width: 420px; }
 .legend-tip.tip-below code { font-size: 10.5px; padding: 0 3px; border-radius: 4px; background: rgba(255, 255, 255, 0.14); color: #fff; }
 
 /* Priority is exclusive: exactly one of red, yellow or green. */
-.pri-chip[aria-checked="true"] { background: var(--brand-soft); border-color: var(--brand); color: var(--brand-deep); }
-.pri-chip[aria-checked="false"] { opacity: .75; }
+/* Call urgency: a filter, shown by number (never in status colours). Chips look like buttons: border, hover, pointer. */
+.filter-name { color: var(--ink-2); }
+.filter-hint { flex-basis: 100%; font-size: 10.5px; font-weight: 600; letter-spacing: 0; color: var(--muted); }
+.pri-chip { cursor: pointer; color: var(--ink-2); transition: border-color var(--t-fast, .15s) ease, background var(--t-fast, .15s) ease; }
+.pri-chip:hover { border-color: var(--brand); background: var(--brand-soft); color: var(--brand-deep); }
+.pri-chip:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(31, 111, 184, 0.35); }
+.pri-num { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid currentColor;
+  font-size: 10.5px; font-weight: 800; line-height: 1; }
+.pri-chip[aria-checked="true"] { background: var(--brand); border-color: var(--brand); color: #fff; }
+.pri-chip[aria-checked="true"] .pri-num { background: #fff; border-color: #fff; color: var(--brand); }
+.tip-num { display: inline-grid; place-items: center; width: 15px; height: 15px; margin-right: 4px; border-radius: 50%;
+  border: 1.5px solid currentColor; font-size: 9px; font-weight: 800; line-height: 1; }
 
 /* Map legend: Status / Late % switch and the late-share ramp */
 .legend-switch { pointer-events: auto; display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 2px; gap: 2px; background: var(--surface-2, #f4f6f8); }

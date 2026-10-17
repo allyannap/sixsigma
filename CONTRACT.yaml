@@ -396,3 +396,20 @@ tasks:
       npm test passes (month menu has no out-of-range years; disabled days; linked limits); vite build succeeds;
       the meta test checks earliest_from; the calendar opens in a browser.
     result: "earliest_from in /api/meta; DatePicker with only Dec 2025 - Oct 2026; vitest 115 passed; meta API test passed; vite build ok; checked in a browser."
+
+  - id: H-21
+    title: Call urgency filter shown by number, not colour, and clearly clickable
+    points: "working tool (25) and demonstration (10) - the urgency filter no longer reads like a status"
+    status: done
+    owner: "claude + Powerpuff Girls"
+    started_at: "2026-10-17 20:00"
+    owns: ["app/frontend/src/status.js", "app/frontend/src/components/MetricsSection.jsx", "app/frontend/src/components/MapSection.jsx", "app/frontend/src/components/ChangeSection.jsx", "app/frontend/src/components/SimpleComparison.jsx", "app/frontend/src/styles.css", "app/frontend/src/render.test.js", "SPEC.md", "docs/plan.md", "app/frontend/README.md"]
+    notes: >
+      User request Oct 17. "Priority" shared red / yellow / green with the map status (Critical / Watch / Stable), so a
+      selected red chip read like a red area. It is now "Call urgency": numbered chips 1 Most urgent, 2 Urgent, 3 Less
+      urgent (API red / yellow / green, codes 0-2 / 3-5 / 6-9), uncoloured, with hover and selected states and a hint that
+      they choose which calls are analysed. The map hover card counts calls as Urgency 1 / 2 / 3 with number badges.
+    definition_of_done: >
+      npm test passes (numbered chips, the hint, no urgency colour classes or "Red (most urgent)" text); vite build
+      succeeds; the chips are checked in a browser; SPEC, plan and frontend README use "Call urgency".
+    result: "Call urgency chips 1 / 2 / 3, uncoloured, with a filter hint; hover card uses Urgency 1-3 badges; vitest 115 passed; vite build ok; checked in a browser."
