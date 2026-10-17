@@ -3,7 +3,7 @@ import '../insights.css'
 
 // The chart ids the investigation links point at, in slide order (slide 1 = section-4, slide 2 = section-2).
 export const SLIDE_IDS = ['section-4', 'section-2']
-export const SLIDE_TITLES = ['Are calls arriving on time?', 'Are late calls being unusually frequent?']
+export const SLIDE_TITLES = ['Are calls arriving on time?', 'Are more calls missing their response target?']
 
 /** Which slide a "#section-N" link points at, or -1 when it is not one of ours. */
 export function slideForHash(hash) {
@@ -16,6 +16,7 @@ export default function InsightsSlider({ children }) {
   const last = slides.length - 1
   const [index, setIndex] = useState(0)
   const root = useRef(null)
+  const labels = ['Area comparison', 'Response trends']
 
   const go = (i) => setIndex(Math.max(0, Math.min(last, i)))
 
@@ -38,41 +39,30 @@ export default function InsightsSlider({ children }) {
     return () => { window.removeEventListener('hashchange', onHash); document.removeEventListener('click', onClick) }
   }, [last])
 
-  const onKeyDown = (e) => {
-    if (e.target.closest && e.target.closest('input, select, textarea')) return
-    if (e.key === 'ArrowRight') { e.preventDefault(); go(index + 1) }
-    if (e.key === 'ArrowLeft') { e.preventDefault(); go(index - 1) }
+  const onTabKey = (event, current) => {
+    const next = event.key === 'ArrowRight' ? (current + 1) % slides.length
+      : event.key === 'ArrowLeft' ? (current + last) % slides.length
+        : event.key === 'Home' ? 0 : event.key === 'End' ? last : null
+    if (next === null) return
+    event.preventDefault()
+    go(next)
+    root.current.querySelector(`#insights-tab-${next}`)?.focus()
   }
 
   return (
-    <div className="card insights-slider" ref={root} role="group" aria-roledescription="carousel" aria-label="Wait time charts"
-      tabIndex={0} onKeyDown={onKeyDown}>
-      <div className="slider-bar">
-        <span className="slider-count" aria-live="polite">{index + 1} / {slides.length}</span>
-        <span className="slider-dots">
-          {slides.map((_, i) => (
-            <button key={i} type="button" className="slider-dot" aria-label={`Show chart ${i + 1}: ${SLIDE_TITLES[i] || ''}`}
-              aria-current={i === index ? 'true' : undefined} onClick={() => go(i)} />
-          ))}
-        </span>
+    <div className="card insights-slider" ref={root}>
+      <div className="insights-tabs" role="tablist" aria-label="Wait time insights">
+        {slides.map((_, i) => <button key={i} type="button" id={`insights-tab-${i}`} role="tab"
+          aria-selected={index === i} aria-controls={`insights-panel-${i}`} tabIndex={index === i ? 0 : -1}
+          onClick={() => go(i)} onKeyDown={(event) => onTabKey(event, i)}>
+          <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+            {i === 0 ? <><rect x="2" y="2" width="6" height="6" rx="1" /><rect x="12" y="2" width="6" height="6" rx="1" /><rect x="2" y="12" width="6" height="6" rx="1" /><rect x="12" y="12" width="6" height="6" rx="1" /></> : <><path d="M2 3v14h16" /><path d="m4 12 4-5 4 3 5-6" /></>}
+          </svg>{labels[i] || SLIDE_TITLES[i]}
+        </button>)}
       </div>
-      {index > 0 && (
-        <button type="button" className="slider-arrow slider-prev" aria-label={`Previous chart: ${SLIDE_TITLES[index - 1] || ''}`} onClick={() => go(index - 1)}>
-          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
-        </button>
-      )}
-      {index < last && (
-        <button type="button" className="slider-arrow slider-next" aria-label={`Next chart: ${SLIDE_TITLES[index + 1] || ''}`} onClick={() => go(index + 1)}>
-          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
-        </button>
-      )}
       <div className="slider-track">
-        {slides.map((s, i) => (
-          <div key={i} className={`slide${i === index ? ' is-active' : ''}`} hidden={i !== index} aria-hidden={i !== index} role="group"
-            aria-roledescription="slide" aria-label={`${i + 1} of ${slides.length}`}>
-            {s}
-          </div>
-        ))}
+        {slides.map((s, i) => <div key={i} id={`insights-panel-${i}`} className={`slide${i === index ? ' is-active' : ''}`}
+          hidden={i !== index} role="tabpanel" aria-labelledby={`insights-tab-${i}`} tabIndex={0}>{s}</div>)}
       </div>
     </div>
   )

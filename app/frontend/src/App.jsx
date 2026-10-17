@@ -1,16 +1,16 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { isFixtureMode } from './api.js'
 import { addDays } from './format.js'
-import { URGENCY_KEYS } from './status.js'
+import { attentionSplit } from './status.js'
 import { useEndpoint } from './useApi.js'
 import AnomSection from './components/AnomSection.jsx'
 import ChangeSection from './components/ChangeSection.jsx'
-import InvestigationSection, { flaggedSelection } from './components/InvestigationSection.jsx'
 import MapSection from './components/MapSection.jsx'
 import { InsightsSection, MetricsSection } from './components/MetricsSection.jsx'
 import PlaceHead from './components/PlaceHead.jsx'
 import ReplayBar from './components/ReplayBar.jsx'
 import TopBar from './components/TopBar.jsx'
+import InvestigateRail from './components/InvestigateRail.jsx'
 import { LoadingBar } from './components/common.jsx'
 
 const STATE = { level: 'state', id: undefined, name: 'New York State' }
@@ -23,8 +23,9 @@ const TICK_MS = 3000
 export default function App() {
   const fixtures = isFixtureMode()
   const [dataset, setDataset] = useState('baseline')
-  const [urgency, setUrgency] = useState(['red'])
-  const [from, setFrom] = useState('') // applied by the Search button; blank = the API's default last 90 days
+  const [priority, setPriority] = useState('red')
+  const urgency = [priority] // The API accepts a list; the dashboard permits exactly one priority.
+  const [from, setFrom] = useState('') // applied by Search; blank still means the API's default last 90 days
   const [to, setTo] = useState('')
   // parent = what the map draws children of (state -> counties, county -> its ZIP areas).
   // selected = the place the right column and the two chart cards describe.
@@ -38,6 +39,9 @@ export default function App() {
   // During replay the period runs from the fixed start to the simulated day; otherwise the date inputs.
   const winFrom = replay.on ? replay.start : from
   const winTo = replay.on ? replay.day : to
+  // The page loads that default window before the user picks dates, so show it in the boxes.
+  const shownFrom = winFrom || (meta.data && meta.data.default_from) || ''
+  const shownTo = winTo || (meta.data && meta.data.default_to) || ''
   const filters = { dataset, from: winFrom, to: winTo, urgency }
   const parentParams = { ...filters, level: parent.level, id: parent.id }
   const selParams = { ...filters, level: selected.level, id: selected.id }
@@ -45,9 +49,12 @@ export default function App() {
   const summary = useEndpoint('summary', parentParams)
   const pchart = useEndpoint('pchart', selParams)
   const imr = useEndpoint('imr', selParams)
-  // Statewide list of ZIP areas with a confirmed signal: same dates, dataset and urgency, but level and id are ignored.
-  const flagged = useEndpoint('flagged', filters)
   const stages = useEndpoint('stages', selParams)
+  // Match the dates displayed in the form, including its initial dataset default window.
+  const aiEnabled = Boolean(shownFrom && shownTo && shownFrom <= shownTo)
+  const aiSummary = useEndpoint('ai_summary', { ...selParams, from: shownFrom, to: shownTo }, {
+    delay: 600, skip: !aiEnabled || fixtures || replay.playing,
+  })
   const feed = useEndpoint('replay', { ...parentParams, day: replay.day, limit: 12 }, { skip: !replay.on })
 
   useEffect(() => {
@@ -59,22 +66,19 @@ export default function App() {
   }, [replay, lastDay])
 
   const toggleUrgency = (key) => {
-    const next = urgency.includes(key) ? urgency.filter((k) => k !== key) : [...urgency, key]
-    if (next.length) setUrgency(URGENCY_KEYS.filter((k) => next.includes(k)))
+    setPriority(key)
   }
   const resetScope = () => { setParent(STATE); setSelected({ ...STATE, place: null }) }
 
   // Map click (drill = true) opens a county's ZIP areas; table click only selects.
+  // The Investigate sidebar (closed by default; the button in the top bar opens it).
+  const [railOpen, setRailOpen] = useState(false)
+  const closeRail = useCallback(() => setRailOpen(false), [])
+
   const pick = (place, drill) => {
     const level = parent.level === 'state' ? 'county' : 'zcta'
     setSelected({ level, id: place.id, name: place.name, place })
     if (drill && level === 'county') setParent({ level: 'county', id: place.id, name: place.name })
-  }
-  // A row of the statewide flagged list: the map shows the ZIP's county, and the selected place is the ZIP.
-  const pickFlagged = (row) => {
-    const next = flaggedSelection(row)
-    setParent(next.parent)
-    setSelected(next.selected)
   }
   const drill = (place) => place && setParent({ level: 'county', id: place.id, name: place.name })
 
@@ -111,21 +115,25 @@ export default function App() {
     <div className="shell">
       <TopBar dataset={dataset} datasets={meta.data && meta.data.datasets} onDataset={(d) => { setDataset(d); resetScope() }}
         replay={replay} fixtures={fixtures} replayHandlers={replayHandlers} />
-      <LoadingBar active={[meta, summary, pchart, imr, flagged, stages].some((x) => x.loading)} />
+      <LoadingBar active={[meta, summary, pchart, imr, stages].some((x) => x.loading)} />
       <div className="app">
-        <main className="workspace">
+        <main className={`workspace${railOpen ? ' has-rail' : ''}`}>
+          <InvestigateRail open={railOpen} onClose={closeRail} summaryState={summary} parent={parent} selected={selected} onPick={pick} />
           <div className="left-col">
             <MapSection summaryState={summary} parent={parent} selected={selected} countyOptions={countyOptions}
-              onPick={pick} onReset={resetScope} onSearch={searchPick} />
+              onPick={pick} onReset={resetScope} onSearch={searchPick}
+              railOpen={railOpen} onRail={() => setRailOpen((o) => !o)} reviewCount={summary.data ? attentionSplit(summary.data).total : null} />
           </div>
-          <div className="right-col">
-            <PlaceHead summaryState={summary} selected={selected} parent={parent} from={winFrom} to={winTo} replayOn={replay.on}
+          {/* Slides out to the right while the Investigate list is open; inert then, so Tab skips it. */}
+          <div className="right-col" inert={railOpen ? '' : undefined} aria-hidden={railOpen || undefined}>
+            <PlaceHead summaryState={summary} selected={selected} parent={parent} from={shownFrom} to={shownTo} replayOn={replay.on}
               dateMin={meta.data ? meta.data.date_min : undefined} dateMax={meta.data ? meta.data.date_max : undefined}
               onApply={(a, b) => { setFrom(a); setTo(b) }} onDrill={drill} />
             <MetricsSection summaryState={summary} selected={selected} parent={parent} urgency={urgency}
-              onToggleUrgency={toggleUrgency} selection={sel} dataset={dataset} />
-            <InsightsSection placeName={selectedName} selection={sel} dataset={dataset}>
-              <AnomSection summaryState={summary} />
+              onToggleUrgency={toggleUrgency} aiState={aiSummary} aiEnabled={aiEnabled}
+              aiPaused={replay.playing} fixtures={fixtures} />
+            <InsightsSection placeName={selectedName}>
+              <AnomSection summaryState={summary} selected={selected} onPick={pick} />
               <ChangeSection pState={pchart} imrState={imr} stagesState={stages} params={selParams} selectedName={selectedName} />
             </InsightsSection>
           </div>
@@ -133,14 +141,7 @@ export default function App() {
 
         <div className="below">
           <ReplayBar replay={replay} feedState={feed} baselineDays={sel ? sel.baseline_days : null} />
-          <InvestigationSection summaryState={summary} flaggedState={flagged} onPick={pick} onPickFlagged={pickFlagged} />
 
-          <footer className="small muted">
-            Every number on this page is computed by the API (<code>/api/*</code>, read-only); the page only draws and formats it.
-            {' '}Source: synthetic incidents replayed from the server. The response clock start (<code>t_received</code>) is provisional: it may be the 911 answer or the CAD record, and that is not yet confirmed.
-            {' '}Targets are NFPA 1720-based placeholders, configurable and not certified standards: red 8 minutes in urban areas, 10 suburban, 14 rural and remote; yellow 15; green 30; 90% on time.
-            {' '}The tool reviews the response process, not individual dispatchers or crews.
-          </footer>
         </div>
       </div>
     </div>

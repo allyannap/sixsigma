@@ -296,7 +296,7 @@ def test_messy_sample_untimed_rows_are_kept_for_volume_but_never_timed(messy):
     df = data.derive(raw)
     q = df.attrs["quality"]
     assert q["missing_time"] == log["n_missing_t_assigned"] == 8       # t_assigned empty
-    assert q["out_of_order"] == log["n_out_of_order"] == 10          # swapped or arriving before the call (measured Oct 17, H-18 file:
+    assert q["out_of_order"] == log["n_out_of_order"] == 10          # swapped or arriving before the call (measured Oct 17, H-19 file:
                                                                      # none of them also has an ordinary valid_time = N, so all 10 are counted)
     assert q["invalid_time_flag"] >= log["n_valid_time_N_with_bad_times"]   # plus the file's ordinary valid_time = N
     assert q["timed"] + q["cancelled"] + q["invalid_time_flag"] + q["missing_time"] + q["out_of_order"] == len(df)

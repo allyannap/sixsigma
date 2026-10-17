@@ -1,9 +1,10 @@
 // Key Metrics card (three tiles + a plain Summary) and the "Wait Time Insights" row that holds the two chart cards.
 // Every number is read from /api/summary (totals, or the picked place's own card); this file only formats it.
-import { fmtCi, fmtInt, fmtNum, fmtPct, fmtRange } from '../format.js'
+import { fmtCi, fmtInt, fmtNum, fmtPct } from '../format.js'
 import { QUEUE, TIER_LABEL, URGENCY, URGENCY_KEYS, mapTier } from '../status.js'
 import { placeFor } from './PlaceHead.jsx'
 import InsightsSlider from './InsightsSlider.jsx'
+import AISummary from './AISummary.jsx'
 import { Spinner } from './common.jsx'
 
 
@@ -15,7 +16,7 @@ export function metricsSource(summary, selected, parent) {
   if (!summary) return null
   const isParent = selected.level === parent.level && selected.id === parent.id
   if (isParent || !selected.id) return summary.totals || null
-  return placeFor(summary, selected, parent) || summary.totals || null
+  return placeFor(summary, selected, parent) || null
 }
 
 const dash = (v, digits = 1) => (v == null || Number.isNaN(v) ? '—' : fmtNum(v, digits))
@@ -88,7 +89,8 @@ function Summary({ place, name, busy }) {
   )
 }
 
-export function MetricsSection({ summaryState, selected, parent, urgency, onToggleUrgency, selection, dataset }) {
+export function MetricsSection({ summaryState, selected, parent, urgency, onToggleUrgency,
+  aiState, aiEnabled, aiPaused, fixtures }) {
   const s = summaryState.data
   const t = metricsSource(s, selected, parent)
   const place = placeFor(s, selected, parent)
@@ -99,28 +101,37 @@ export function MetricsSection({ summaryState, selected, parent, urgency, onTogg
     <section className="metrics-section" aria-labelledby="metrics-heading">
       <div className="sec-head">
         <h2 id="metrics-heading">Key Metrics</h2>
-        <span className="section-note">{dataset}{selection ? ` · ${fmtRange(selection)}` : ''}</span>
       </div>
       <div className="card metrics-card">
         <div className="filterbar">
-          <div className="filter-field" role="group" aria-label="Priority (urgency)">
+          <div className="filter-field" role="radiogroup" aria-label="Priority (urgency)">
             Priority
             <span className="priority-chips">
               {URGENCY_KEYS.map((k) => (
-                <button key={k} type="button" className={`pri-chip pri-${k}`} aria-pressed={urgency.includes(k)} onClick={() => onToggleUrgency(k)}>
+                <button key={k} type="button" role="radio" className={`pri-chip pri-${k}`} aria-checked={urgency.includes(k)}
+                  tabIndex={urgency.includes(k) ? 0 : -1} onClick={() => onToggleUrgency(k)}
+                  onKeyDown={(event) => {
+                    const i = URGENCY_KEYS.indexOf(k)
+                    const next = ['ArrowRight', 'ArrowDown'].includes(event.key) ? (i + 1) % 3
+                      : ['ArrowLeft', 'ArrowUp'].includes(event.key) ? (i + 2) % 3
+                        : event.key === 'Home' ? 0 : event.key === 'End' ? 2 : null
+                    if (next === null) return
+                    event.preventDefault()
+                    onToggleUrgency(URGENCY_KEYS[next])
+                    event.currentTarget.parentNode.children[next].focus()
+                  }}>
                   <i aria-hidden="true" />{URGENCY[k].label}
                 </button>
               ))}
             </span>
           </div>
-          <span className="filter-spacer" />
-          <span className="filter-state">At least one group stays on. Pick one for a clean control chart. No time-of-day filter.</span>
         </div>
 
         <div className="metrics-body" aria-busy={summaryState.loading}>
           <Tiles t={t} note={note} />
           <div className="vdivider" role="presentation" />
-          <Summary place={place} name={name} busy={summaryState.loading} />
+          {aiState ? <AISummary state={aiState} enabled={aiEnabled} paused={aiPaused} fixtures={fixtures} />
+            : <Summary place={place} name={name} busy={summaryState.loading} />}
         </div>
         {summaryState.error && (
           <div className="error" role="alert">
@@ -134,12 +145,11 @@ export function MetricsSection({ summaryState, selected, parent, urgency, onTogg
 }
 
 /** "<Place> Wait Time Insights": the two chart cards go in as children and show one at a time in a slide card. */
-export function InsightsSection({ placeName, selection, dataset, children }) {
+export function InsightsSection({ placeName, children }) {
   return (
     <section className="insights" aria-labelledby="insights-title">
       <div className="sec-head">
         <h2 className="insights-title" id="insights-title">{placeName} Wait Time Insights</h2>
-        <span className="section-note">{dataset}{selection ? ` · ${fmtRange(selection)}` : ''}</span>
       </div>
       <InsightsSlider>{children}</InsightsSlider>
     </section>

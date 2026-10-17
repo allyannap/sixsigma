@@ -9,7 +9,7 @@ const a = (id, pct, spec = 'below', low_n = false) => ({ id, name: id, on_time_p
 
 it('defines the goal and shows the histogram as the main view beside one area card', () => {
   const html = render(summary)
-  expect(html).toContain('Goal: 90% of calls arrive within their configured call target of call receipt.')
+  expect(html).toContain('Goal: 90% on time</strong> · within their configured call target of call receipt.')
   const areas = comparisonAreas(summary.places)
   const selected = extremes(areas)[0] || areas[0]
   expect((html.match(/id="simple-selected"/g) || []).length).toBe(1)
@@ -75,7 +75,7 @@ it('handles empty, missing-profile and mixed-urgency selections', () => {
 it('uses each urgency group’s configured minutes in the goal definition', () => {
   for (const [urgency, minutes] of [['yellow', 15], ['green', 30]]) {
     const d = { ...summary, selection: { ...summary.selection, urgency: [urgency] }, places: summary.places.map((p) => ({ ...p, response_profile: { ...p.response_profile, target_min: minutes } })) }
-    expect(render(d)).toContain(`Goal: 90% of calls arrive within ${minutes} min of call receipt.`)
+    expect(render(d)).toContain(`Goal: 90% on time</strong> · within ${minutes} min of call receipt.`)
   }
 })
 
@@ -84,4 +84,26 @@ it('labels an area by its main type, or as mixed when no type has 60% of calls',
   expect(areaTag({ urban: 60, suburban: 40, rural: 0, remote: 0 }).kind).toBe('urban')
   expect(areaTag({ urban: 45, suburban: 35, rural: 20, remote: 0 })).toEqual({ kind: 'mixed', text: 'Mixed · 45% urban, 35% suburban' })
   expect(areaTag(null)).toBe(null)
+})
+
+it('uses the map-selected area instead of silently showing the worst area', () => {
+  const chosen = comparisonAreas(summary.places).at(-1)
+  const html = renderToString(h(SimpleComparison, { d: summary, selectedArea: { id: chosen.id } })).replace(/<!-- -->/g, '')
+  const overview = html.split('aria-label="Selected area overview"')[1].split('</section>')[0]
+  expect(overview).toContain(chosen.name)
+  expect(overview).toContain(`${chosen.on_time_pct.toFixed(1)}%`)
+  expect(overview).toContain('Slowest 1 in 10')
+})
+
+it('keeps the full profile and uncertainty evidence in a closed accessible drawer', () => {
+  const html = render(summary)
+  const card = html.split('<dialog')[0]
+  expect(card).toContain('Details &amp; confidence')
+  expect(card).not.toContain('Longest wait:')
+  expect(card).not.toContain('How certain is this?')
+  expect(html).toContain('aria-labelledby="comparison-drawer-title"')
+  expect(html).not.toMatch(/<dialog[^>]*\sopen(?:\s|=|>)/)
+  expect(html.split('<dialog')[1]).toContain('Longest wait:')
+  expect(html.split('<dialog')[1]).toContain('95% on-time uncertainty interval')
+  expect(html).toContain('role="button" tabindex="0"')
 })

@@ -173,8 +173,8 @@ def test_at5_replay_is_read_only_and_labelled_synthetic():
 def test_at5_replay_with_a_fixed_start_turns_the_closure_zip_red_as_september_arrives():
     """The page's replay keeps `from` (and so the baseline) fixed at Aug 25 and moves `to` one day per tick.
 
-    Measured Oct 17 with the H-18 data (0.09 calls per person per year): in control through Sep 3 (a watch chip on
-    Sep 3), out of control from Sep 4 to the last day, Oct 15, Act now from Sep 8 (the H-16 file: from Sep 3).
+    Measured Oct 17 with the H-19 data (0.09 calls per person per year): in control through Sep 3 (a watch chip on
+    Sep 3), out of control from Sep 4 to the last day, Oct 15, Act now from Sep 8 (the H-17 file: from Sep 3).
     """
     def at(day):
         return get(f"/api/summary?dataset=station_closure&from=2026-08-25&to={day}&level=zcta&id=11368")["places"][0]
@@ -221,7 +221,7 @@ def test_at9_closure_zip_is_act_now_from_september():
     place = get(f"/api/summary?{CLOSURE}&level=zcta&id=11368")["places"][0]
     assert place["spec"] == "below" and place["control"] == "out_of_control" and place["queue"] == "act_now"
     assert place["signals"][0]["start"] == "2026-09-01"
-    # measured Oct 17 (H-18 data): 407 valid calls, 72.2% on time (95% CI 67.7-76.4), September and October both signal
+    # measured Oct 17 (H-19 data): 407 valid calls, 72.2% on time (95% CI 67.7-76.4), September and October both signal
     assert (place["valid"], place["on_time_pct"]) == (407, 72.2) and len(place["signals"]) == 2
     assert place["watch"] is False and place["excess_late"] > 0
 
@@ -236,7 +236,7 @@ def test_at9_surge_county_is_flagged_in_july_august_only():
     assert jul["control"] == "out_of_control" and jul["queue"] == "act_now"
     sep = next(p for p in get("/api/summary?dataset=summer_surge&from=2026-09-01&to=2026-10-15")["places"]
                if p["id"] == "36055")
-    # measured Oct 17 (H-18 data): not flagged, but the 60-day baseline (Jul 3 to Aug 31) holds the surge and is
+    # measured Oct 17 (H-19 data): not flagged, but the 60-day baseline (Jul 3 to Aug 31) holds the surge and is
     # overdispersed (chi-square / df = 2.10), so there are no limits: "insufficient baseline", not "in control".
     assert sep["control"] == "insufficient_baseline" and sep["queue"] == "needs_data" and sep["spec"] == "meets"
     clean = next(p for p in get("/api/summary?dataset=baseline&from=2026-07-01&to=2026-08-31")["places"]
@@ -251,7 +251,7 @@ def test_at9_false_alarms_on_the_clean_file_are_counted_and_rare():
     for frm, to in windows:
         places = get(f"/api/summary?dataset=baseline&from={frm}&to={to}")["places"]
         alarms += sum(p["control"] == "out_of_control" for p in places)
-    # measured Oct 17 with the H-18 data (0.09 calls per person per year) and the H-13 rules: Erie 1 + Orange 1 + Greene 1
+    # measured Oct 17 with the H-19 data (0.09 calls per person per year) and the H-13 rules: Erie 1 + Orange 1 + Greene 1
     # = 3 of 186 county-windows (1.6%); fail above 10%. (data/sensitivity.py: 2 of 186 for the red 90-day windows ending
     # Oct 15, 3 of 186 for yellow.)
     assert alarms <= 0.10 * 62 * len(windows)
@@ -337,6 +337,16 @@ def test_area_mix_counts_valid_calls_by_area_type_and_is_none_when_empty():
             assert mix[t] == pytest.approx(100 * (calls.urban_rural == t).sum() / len(calls), abs=0.051)
     empty = get('/api/summary?from=2027-01-01&to=2027-01-02&level=zcta&id=11368')
     assert empty['places'][0]['area_mix'] is None
+
+
+def test_calls_by_urgency_counts_every_group_whatever_the_filter():
+    red = get(f'/api/summary?{LAST_90}&urgency=red&level=county&id=36055')
+    every = get(f'/api/summary?{LAST_90}&urgency=red,yellow,green&level=county&id=36055')
+    for r, e in zip(red['places'], every['places']):
+        assert r['calls_by_urgency'] == e['calls_by_urgency']
+        assert set(r['calls_by_urgency']) == set(data.GROUPS)
+        assert r['calls_by_urgency']['red'] == r['calls']
+        assert sum(e['calls_by_urgency'].values()) == e['calls']
 # ---------------------------------------------------------------- H-13: new fields on the place card and summary
 
 def test_place_card_counts_cancelled_invalid_and_calls_per_day():
@@ -359,7 +369,7 @@ def test_summary_chance_below_matches_qc_on_the_same_places():
     want = qc.chance_below([p["valid"] for p in body["places"]], body["totals"]["goal_pct"])
     assert cb["expected"] == pytest.approx(want["expected"], abs=0.006) and cb["n_places"] == want["n_places"]
     assert cb["observed_below"] == sum(p["spec"] == "below" for p in body["places"])
-    # measured Oct 17 (H-18 data): ~1.75 of 62 counties expected below by chance alone if every county truly met the goal
+    # measured Oct 17 (H-19 data): ~1.75 of 62 counties expected below by chance alone if every county truly met the goal
     # (39 are Below: the rural gaps are conclusive)
     assert 1.0 < cb["expected"] < 3.0
 
@@ -393,7 +403,7 @@ def test_flagged_lists_the_closure_zip_statewide_and_almost_nothing_on_the_clean
     other = get(f"/api/flagged?dataset=station_closure&{LAST_90}&level=county&id=36055")
     assert [h["id"] for h in other["flagged"]] == [h["id"] for h in body["flagged"]]
     clean = get(f"/api/flagged?dataset=baseline&{LAST_90}")
-    # measured Oct 17 (H-18 data): 807 ZIPs with 30+ red calls, ONE flagged (11212, Kings, Recent change: a false alarm,
+    # measured Oct 17 (H-19 data): 807 ZIPs with 30+ red calls, ONE flagged (11212, Kings, Recent change: a false alarm,
     # 0.12%); the closure file has that ZIP too, plus 11368. So the clean file may flag a few ZIPs by chance, never 11368.
     assert clean["n_checked"] > 300 and len(clean["flagged"]) <= 0.01 * clean["n_checked"]
     assert "11368" not in [h["id"] for h in clean["flagged"]]
@@ -403,7 +413,7 @@ def test_flagged_chance_below_is_counted_over_the_zips_checked():
     body = get(f"/api/flagged?{LAST_90}")
     cb = body["chance_below"]
     assert cb["n_places"] == body["n_checked"] and cb["expected"] > 0
-    # measured Oct 17 (H-18 data): 807 ZIPs, ~25.6 expected below by chance if every ZIP truly met the goal; 94 are
+    # measured Oct 17 (H-19 data): 807 ZIPs, ~25.6 expected below by chance if every ZIP truly met the goal; 94 are
     # Below (the rural and remote ZIPs, by design), 11.6% of the ZIPs checked
     assert cb["observed_below"] <= 0.15 * cb["n_places"]
 

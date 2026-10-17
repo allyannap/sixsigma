@@ -1,37 +1,11 @@
-/* H-14 slide card: one big card, one chart at a time. Uses the tokens in tokens.css. */
-.insights-slider { position: relative; padding: 12px 18px 16px; min-width: 0; box-shadow: var(--shadow-card); background: var(--surface); }
-.insights-slider:focus-visible { outline: 3px solid var(--brand); outline-offset: 3px; }
-.slider-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 4px; }
-.slider-count { font-size: var(--fs-xs, 12px); font-weight: 700; color: var(--muted); }
-.slider-dots { display: inline-flex; }
-.slider-dot { position: relative; width: 28px; height: 28px; border: 0; background: none; cursor: pointer; border-radius: 50%; }
-.slider-dot::after { content: ""; position: absolute; inset: 9px; border-radius: 50%; background: var(--line-strong); transition: background 0.2s; }
-.slider-dot[aria-current="true"]::after { background: var(--brand); }
-.slider-dot:focus-visible, .slider-arrow:focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; }
-
-.slider-arrow { position: absolute; top: min(50%, 190px); z-index: 2; width: 44px; height: 44px; margin-top: -22px; display: grid; place-items: center;
-  border-radius: 50%; border: 1px solid var(--line-strong); background: var(--surface); color: var(--brand-deep); cursor: pointer; box-shadow: var(--shadow-float); }
-.slider-arrow:hover { background: var(--brand-soft); }
-.slider-prev { left: 8px; }
-.slider-next { right: 8px; }
-
-.slider-track { padding-inline: 54px; min-width: 0; }
+/* One card with persistent, labeled insight tabs. */
+.insights-slider { position: relative; padding: 12px 18px 16px; min-width: 0; }
+.card.insights-slider {
+  background: var(--surface);
+  border-color: rgba(21, 26, 33, 0.16);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 1px 2px rgba(15, 22, 32, 0.04), 0 16px 34px -28px rgba(15, 22, 32, 0.34);
+}
+.slider-track { min-width: 0; }
 .slide { min-width: 0; }
-.slide:not([hidden]) { animation: slide-in 0.28s ease-out; }
-@keyframes slide-in { from { opacity: 0; transform: translateX(14px); } to { opacity: 1; transform: none; } }
-
-/* the chart cards inside become plain panels of the one big card */
 .insights-slider .chart-card { background: none; border: 0; box-shadow: none; padding: 0; min-height: 0; }
-
-@media (max-width: 720px) {
-  .insights-slider { padding: 10px 12px 14px; }
-  .slider-track { padding-inline: 0; }
-  .slider-arrow { top: 6px; margin-top: 0; }
-  .slider-prev { left: auto; right: 62px; }
-  .slider-next { right: 10px; }
-  .slider-bar { min-height: 44px; padding-right: 112px; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .slide:not([hidden]) { animation: none; }
-  .slider-dot::after { transition: none; }
-}
+@media (max-width: 720px) { .insights-slider { padding: 10px 12px 14px; } }

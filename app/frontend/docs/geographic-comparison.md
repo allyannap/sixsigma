@@ -1,6 +1,6 @@
 # Geographic comparison: investigation and implementation
 
-The existing app is FastAPI (`app/main.py`) with a React/Vite frontend (`src/main.jsx` → `App.jsx`). `app/data.py` caches the three xz-compressed CSVs (`data/incidents_*.csv.xz`; gzipped before H-16), derives elapsed times in UTC, joins the Census geography and target configuration, and filters dates, geography and urgency. The repository uses hand-drawn SVG charts and `d3-geo` for maps, not a box-plot library. The existing visual system uses IBM Plex Sans/Mono, pale gray-green panels, navy headings, 12px card corners and shared status badges.
+The existing app is FastAPI (`app/main.py`) with a React/Vite frontend (`src/main.jsx` → `App.jsx`). `app/data.py` caches the three xz-compressed CSVs (`data/incidents_*.csv.xz`; gzipped before H-17), derives elapsed times in UTC, joins the Census geography and target configuration, and filters dates, geography and urgency. The repository uses hand-drawn SVG charts and `d3-geo` for maps, not a box-plot library. The existing visual system uses IBM Plex Sans/Mono, pale gray-green panels, navy headings, 12px card corners and shared status badges.
 
 ## Data inspected (all synthetic)
 
@@ -27,12 +27,12 @@ The displayed response is **receipt to arrival**, not assignment to arrival, con
 | station_closure | 1,818,312 | 1,692,074 | 108,941 | 18,377 | 617,583 / 727,272 / 473,457 |
 | summer_surge | 1,822,235 | 1,695,742 | 109,166 | 18,413 | 618,900 / 728,840 / 474,495 |
 
-Re-measured Oct 17 on the H-18 files (call rate 0.09 per person per year, about 60% of a real US rate); each file had
-about 400,000 rows at 0.0198 and about 800,000 at 0.04 (H-16).
+Re-measured Oct 17 on the H-19 files (call rate 0.09 per person per year, about 60% of a real US rate); each file had
+about 400,000 rows at 0.0198 and about 800,000 at 0.04 (H-17).
 
-Invalid-time and cancelled counts overlap. All other source columns have zero missing values. Each file has calls in 1,803 ZIPs and all 62 counties; the lookup includes 1,826 ZIPs. The smallest observed ZIP has one call; some lookup ZIPs have zero. Observed ZIP × urgency groups have min/median/max counts 1 / 91 / 4,249, and the smallest nonempty valid group has one call. Full counts, including zeros, are in [geographic-counts.csv](geographic-counts.csv), derived from existing files without changing them; **that file still holds the pre-H-16 (0.0198-rate) counts** and has not been regenerated.
+Invalid-time and cancelled counts overlap. All other source columns have zero missing values. Each file has calls in 1,803 ZIPs and all 62 counties; the lookup includes 1,826 ZIPs. The smallest observed ZIP has one call; some lookup ZIPs have zero. Observed ZIP × urgency groups have min/median/max counts 1 / 91 / 4,249, and the smallest nonempty valid group has one call. Full counts, including zeros, are in [geographic-counts.csv](geographic-counts.csv), derived from existing files without changing them; **that file still holds the pre-H-17 (0.0198-rate) counts** and has not been regenerated.
 
-Across urgency groups, baseline completed waits in minutes have min 1.20, median 6.58, P90 12.83, P95 15.87, P99 23.88, max 120.28; skewness 2.48 (H-18 files). Station closure P90 is also 12.83 (to two decimals); surge P90 12.88, P95 15.93, P99 23.93; both maxima 120.28. These pooled figures describe the files only; the chart requires one urgency group. Long waits are retained. They are strongly right-skewed, so a typical-wait-only comparison hides the operational tail.
+Across urgency groups, baseline completed waits in minutes have min 1.20, median 6.58, P90 12.83, P95 15.87, P99 23.88, max 120.28; skewness 2.48 (H-19 files). Station closure P90 is also 12.83 (to two decimals); surge P90 12.88, P95 15.93, P99 23.93; both maxima 120.28. These pooled figures describe the files only; the chart requires one urgency group. Long waits are retained. They are strongly right-skewed, so a typical-wait-only comparison hides the operational tail.
 
 ## Before and after
 
@@ -101,16 +101,16 @@ User preference: removed the dot view and restored the original grouped histogra
 
 The team selected version 4B (the on-time histogram and area card) as the sole Section 4, replacing both the older ranked-range view and main’s ANOM view. ANOM remains available through the API. Red targets now follow main’s configured area tiers (urban 8 min, suburban 10 min, rural/remote 14 min); yellow and green remain 15/30 min. Mixed-target selections use each call’s own target. The historical design notes above describe earlier iterations. Fixtures retain main’s control evidence and include geographic profiles refreshed against the merged API.
 
-## H-16 data refresh (Oct 17)
+## H-17 data refresh (Oct 17)
 
 The synthetic call rate doubled (0.0198 to 0.04 calls per person per year) and the files became `.csv.xz`. The data
 profile above (row counts, ZIP counts, wait percentiles) was re-measured on the new files; the dated verification notes in
 the sections above (for example ZIP 11368 with n = 68) describe the half-volume files of that time. Section 4's logic is
 unchanged. On those files ZIP 11368, closure September 1-October 15, had 201 valid red calls, 69.2% on time.
 
-## H-18 data refresh (Oct 17)
+## H-19 data refresh (Oct 17)
 
 The synthetic call rate rose from 0.04 to 0.09 calls per person per year (2.25x; about 60% of a real US rate of ~0.15),
 the most the project's 25 MB file limit allows (about 22 MB per xz file). The data profile above was re-measured on the
-H-18 files. Section 4's logic is unchanged. On these files ZIP 11368, closure September 1-October 15, has 407 valid red
+H-19 files. Section 4's logic is unchanged. On these files ZIP 11368, closure September 1-October 15, has 407 valid red
 calls, 72.2% on time (95% CI 67.7-76.4%), Act now.

@@ -212,8 +212,11 @@ tasks:
     status: in_progress
     owner: "Codex - Part 2 control chart UX"
     started_at: "2026-10-17"
+    compact_card_follow_up: "User approved compact geographic insights and Investigate-style evidence sidebar. Responsive histogram and selected-area overview stay inside the card; full profile, search, confidence and area lists move to a focus-managed drawer. Map and comparison selection now agree. Long AI briefings use a three-line desktop preview with a full-text drawer. Production build passed; targeted comparison, AI and carousel tests: 21 passed. Full frontend: 103 passed, 6 existing control-chart render expectations failed. Browser assertions passed at 1440x900, 1366x768 and 1280x720 for no card overflow/clipping, matching ZIPs, sidebar search/global selection, full briefing access and carousel preservation; mobile 390x844 drawer fit, Tab focus wrapping and Escape passed; zero page errors. No statistical logic changed; human diff review/check-in pending."
+    trend_tabs_follow_up: "User approved matching compact response-trend card and labeled insight tabs. Replaced arrows/dots with Area comparison and Response trends tabs; retained chart selections, investigation hashes and keyboard navigation. Moved full period profile, flagged-period review, calls, stage times and Method into Response details drawer; lazy call loading and focus handling retained. Updated stale render tests to assert the current findings and drawer locations. npm test: 110 passed; production build passed. Browser verified no internal overflow at 1440x900 and 1366x768, live-data chart fit at 1280x720, mobile 390x844, tab/point keyboard behavior, state preservation, selected-period call review, stage/Method access, Escape and focus restoration; zero page errors. Statistics unchanged. Human diff review/check-in pending."
     owns: ["EMS_RESPONSE_MONITOR_DECISIONS.md", "SPEC.md", "README.md", "docs/plan.md", "docs/api.md", "docs/roles.md", "app/qc.py", "app/data.py", "app/main.py", "app/README.md", "app/frontend/", "tests/", "config/", "data/generate.py", "data/params.json", "data/validate.py", "data/README.md", "data/*.csv.gz"]
     follow_up: "User approved Part 2 redesign in Part 4 style: finding, selectable chart and detail card, technical disclosures; frontend 70 passed, production build passed; desktop/mobile browser checks passed (point click, arrow keys, period selection, review calls, stale-call reset, disclosures, live API; 0 page errors). Point hover and keyboard labels now state whether the rate is over the upper limit, below the lower limit, or within the limits, with observed rate, counts and limits. User requested removing the optional I/MR section; removed both charts and the frontend imr request. User requested replacing the reading guide with visible upper-limit labeling, orange crossing markers, an above-limit count and navigation, and a direct rate-versus-limit comparison. Browser checks passed for visible labels, crossing counts, next-period navigation/wraparound, hover text and mobile width; 0 page errors. Lower limit highlighted in green, labeled on-chart, included in the card; below-limit points outlined in green as possible improvements. Condensed repeated chart guidance and selected-card text; grouped baseline and supporting tables under Evidence & details, with nested method and stage disclosures. Validated: frontend 70 passed, build passed, browser checks passed for condensed desktop/mobile view and nested evidence/stage access; 0 page errors. Replaced disclosure stacks with one accessible tabbed workspace (Flagged periods, Calls, Stage times, Method), routing call review into its shared Calls panel. Validated: frontend 70 passed, production build passed; browser checks passed for all tabs, one visible panel, call-review routing, period updates, arrow/Home/End navigation and desktop/mobile; 0 page errors. Fixed flagged-day mismatch: list all upper/lower crossings plus exact-test signals; matching tab count, per-row boundary and statistical-signal labels, and call review for all highlighted points. Validated: frontend 71 passed, build passed; live May 31-Oct 15 scenario shows all 4 highlighted days (2 above, 2 below), preserves the single-signal watch status, and lets Sep 6 calls be reviewed; 0 browser page errors. User requested blank dates mean no date selected everywhere: explicit valid From/To required; analytical requests and replay disabled while blank/incomplete; previous numbers and charts hidden. Validated: frontend 72 passed, build passed; browser verifies blank/partial/cleared/reversed dates suppress all analysis, explicit dates restore results, and shortened Part 2 renders; 0 page errors. Auditing every selected-range chart point against source calls; clipping visible partial week/month ranges consistently and blocking stale responses during date changes. Validated: Python 179 passed; frontend 74 passed; build passed. Independent API checks reconcile every daily/weekly/monthly point to inclusive source calls, including single-day and year-crossing windows. Browser compared all 138 live points (counts, rate, baseline, limits, tooltip), checked Sep 6 call drilldown and single-day chart; 0 page errors. Applied approved missed-response-target wording to Part 2 title, short importance explanation, axis, legend and selected card. Human diff review/check-in pending."
+    priority_follow_up: "User reiterated Oct 17: exactly one priority, Red OR Yellow OR Green. Replaced multi-select array state with a single priority value and accessible radio controls; verified targeted Priority test passed, production build passed, and browser clicks/re-clicks/keyboard/API checks passed: exactly one priority throughout, zero page errors."
     notes: >
       User instruction Oct 16 - treat the brief as the approved requirements. Team answers the same day -
       red target flat 480 s (tiers made the on-time check circular), default window 90 days, Below target +
@@ -306,8 +309,28 @@ tasks:
       scroll at 1440 and 390 px (Playwright screenshots).
     result: ""
 
-
   - id: H-16
+    title: Integrate selected-period EMS AI summary using the configured Ollama key
+    points: "supports working tool and interpretation of existing QC evidence"
+    status: in_progress
+    owner: "Codex"
+    started_at: "2026-10-17"
+    owns: ["app/ai_summary.py", "app/main.py", "app/requirements.txt", "app/README.md", "app/frontend/", "tests/test_ai_summary.py", "SPEC.md", "docs/api.md", "docs/plan.md", "CONTRACT.yaml"]
+    notes: >
+      User explicitly requested implementation and supplied a NYC Urban Risk agent reference.
+      Previously authorized H-16 is absent in the current checkout; restore the EMS-adapted integration.
+      Ollama Cloud key is stored under OPENAI_API_KEY in root .env; accept OLLAMA_API_KEY preferentially.
+      Use existing aggregate statistics and judgments for the selected dates, area, priority and dataset.
+      Keep the single-priority UI and current investigation layout. No new statistics, patient-outcome
+      claims, causal attribution, operational commands or unrelated heat/hospital/transit tools.
+    definition_of_done: >
+      .venv/bin/python -m pytest tests/test_ai_summary.py -q passes; npm --prefix app/frontend run build
+      succeeds; targeted frontend summary tests pass; live provider call and browser checks confirm
+      changed dates/area/priority update the summary and superseded responses cannot overwrite it.
+      Run the full frontend suite and report pre-existing failures separately.
+    result: "Integrated Ollama Cloud using backend .env key alias, aggregate EMS evidence and current visible dates/area/single priority/dataset. Python 211 passed (29 AI integration); new frontend summary checks pass; build passed. Live browser verified initial defaults, Aug/Sep-Oct ZIP 11368 briefings, priority changes and delayed-response suppression with zero page errors. Full frontend suite: 100 passed, 7 pre-existing chart/text assertion failures. Ready for human review; no commit made."
+
+  - id: H-17
     title: Double the synthetic call volume (0.04 per person per year) and store data as .csv.xz
     points: "datasets (5) and valid QC analysis (25) - more calls per ZIP area, files still under 25 MB"
     status: done
@@ -324,7 +347,7 @@ tasks:
       docs matches a re-measured value; each data file is under 25 MB.
     result: "Rate 0.04 (2x) and .csv.xz files: baseline 807,788 rows, about 10 MB each. validate 71 PASS, --reproduce 75 PASS, --messy 14 PASS; pytest 181 passed; vite build ok (7 vitest failures belong to the in-progress UI rewrite, H-15). Closure +15% and +25% now detected; clean-file false alarms 2 of 186 county-windows; default-window counties 36 ongoing gap, 1 recent change (false alarm), 16 meets, 9 needs more data. Docs updated."
 
-  - id: H-17
+  - id: H-18
     title: Map colour groups - gray only for too few calls, plus a Late % hot-spot view
     points: "working tool (25) and demonstration (10) - the ZIP map shows meaningful colour, not gray"
     status: done
@@ -341,7 +364,7 @@ tasks:
       browser; README, SPEC, plan and frontend README describe the rule.
     result: "mapTier with 5 groups and a Late % view; Manhattan ZIPs 68 gray of 69 -> 30 gray; counties Watch 37, Near goal 6, Stable 18, gray 1; vitest 89 passed (7 pre-existing failures from the H-15 UI rewrite); vite build ok; checked in a browser."
 
-  - id: H-18
+  - id: H-19
     title: Raise the synthetic call rate to 0.09 per person per year (about 60% of the US rate) within the 25 MB limit
     points: "datasets (5) and valid QC analysis (25) - more calls per area, closer to real volume"
     status: done

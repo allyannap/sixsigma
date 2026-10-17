@@ -56,6 +56,16 @@ export default function TopBar({ dataset, datasets, onDataset, replay, fixtures,
           <span className="dot" aria-hidden="true" />
           <span><span className="sr-only">SYNTHETIC DATA: </span>Simulated service data</span>
         </span>
+        {/* About the data (was the page footer): same "i" button and tooltip style as the map legend */}
+        <span className="legend-info data-info">
+          <button type="button" className="legend-info-btn" aria-label="About the data and targets" aria-describedby="data-def">i</button>
+          <span className="legend-tip tip-below" id="data-def" role="tooltip">
+            Every number on this page is computed by the API (<code>/api/*</code>, read-only); the page only draws and formats it.
+            {' '}Source: synthetic incidents replayed from the server. The response clock start (<code>t_received</code>) is provisional: it may be the 911 answer or the CAD record, and that is not yet confirmed.
+            {' '}Targets are NFPA 1720-based placeholders, configurable and not certified standards: red 8 minutes in urban areas, 10 suburban, 14 rural and remote; yellow 15; green 30; 90% on time.
+            {' '}The tool reviews the response process, not individual dispatchers or crews.
+          </span>
+        </span>
         {fixtures && <span className="fixture-flag" role="status">FIXTURE DATA: canned numbers, not from the API</span>}
         <div className="user">
           <img className="team-badge" src={badgeUrl} width="36" height="36" alt="Team Powerpuff Girls" />

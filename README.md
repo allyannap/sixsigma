@@ -71,9 +71,9 @@ by the map, its legend, the New York City borough list and the metrics card:
 A **Status / Late %** switch on the legend recolours the map by the share of late calls (light 0%, dark red 30%+); areas
 with under 30 valid calls are faded rather than gray, so a delay hot spot shows before a firm verdict is possible. The queue
 labels, the Target and Control badges and the API are unchanged; hovering an area shows both its map group and its label.
-On the baseline data (default window, red calls; H-18 files, 0.09 calls per person per year) the county map reads Watch 40,
+On the baseline data (default window, red calls; H-19 files, 0.09 calls per person per year) the county map reads Watch 40,
 Near goal 3, Stable 19, Too few calls 0; Manhattan's 69 ZIP areas read Near goal 32, Stable 11, Too few calls 26 (68 were
-gray before H-17).
+gray before H-18).
 
 
 ## 4. How the statistics work
@@ -149,7 +149,7 @@ No street addresses, coordinates, ambulance IDs or dispatcher IDs are stored. Fu
 Three synthetic 12-month files (Oct 16, 2025 to Oct 15, 2026), every New York ZIP area, about 1.82 million calls each
 (xz-compressed CSV, about 22 MB each, under the project's 25 MB file limit), built by a fixed-seed generator from 2020 Census
 populations at 0.09 calls per person per year, about 60% of a typical real US rate of ~0.15 (0.0198 at first, 0.04 from
-H-16, 0.09 from H-18, Oct 17), with
+H-17, 0.09 from H-19, Oct 17), with
 day-to-day county effects, winter and summer seasonality, an hour-of-day profile and congestion. Codebook:
 [`data/README.md`](data/README.md). All numbers below are red calls, 60-day baseline, measured with the API on the current files.
 
@@ -171,7 +171,7 @@ is not used: its baseline would drift into the change.
 
 ## 7. Measured false alarms and detection power
 
-Reproduce with `PYTHONPATH=. .venv/bin/python data/sensitivity.py` (about 75 s). Measured Oct 17 on the H-18 files (0.09 calls per person per year). On the
+Reproduce with `PYTHONPATH=. .venv/bin/python data/sensitivity.py` (about 75 s). Measured Oct 17 on the H-19 files (0.09 calls per person per year). On the
 clean `baseline` file every Out of control is a false alarm; they are counted here, not hidden:
 
 | Looks (clean file) | Out of control | Notes |
@@ -194,8 +194,8 @@ first replay day from Aug 25 that is out of control):
 | ×1.60 (the planted change) | out of control, Act now | 72.2% | Sep 4, and stays |
 | drift +2% per week | in control | 88.7% | **never (not detected)** |
 
-**Why x1.15 and x1.25 are caught, and the drift is not:** before H-16 (0.0198 calls per person per year) they were missed
-too. At the H-18 rate of 0.09, 11368 has 407 valid red calls in Sep 1 to Oct 15 (201 at 0.04, 68 at 0.0198) and 875 in the
+**Why x1.15 and x1.25 are caught, and the drift is not:** before H-17 (0.0198 calls per person per year) they were missed
+too. At the H-19 rate of 0.09, 11368 has 407 valid red calls in Sep 1 to Oct 15 (201 at 0.04, 68 at 0.0198) and 875 in the
 default 90-day window (379 at 0.04), so each monthly point carries enough calls for a 15-25% longer drive to stand out at
 p < 0.00135. A slow drift of +2% per week is still invisible: each month differs little from the one before, and the fixed
 60-day baseline sits just before it. The volume is still only about 60% of a real system's, and smaller ZIPs have far
@@ -208,7 +208,7 @@ tuned to rarely cry wolf; look at the county, widen the dates, or treat a watch 
 | Part | Task | Status |
 |---|---|---|
 | Spec, plan, decisions | H-01, H-11, H-13 | done; open dependencies in SPEC section 10 |
-| Test data + codebook + validation | H-02, H-13, H-14, H-16, H-18 | implemented, tested (`validate.py` 71 PASS; `--reproduce` 75 PASS with identical rebuild; `--messy` 14 PASS). H-16 (Oct 17): call rate doubled to 0.04 per person per year, files xz-compressed; H-18 (Oct 17): call rate 0.09 (about 60% of a real US rate), files about 22 MB each |
+| Test data + codebook + validation | H-02, H-13, H-14, H-17, H-19 | implemented, tested (`validate.py` 71 PASS; `--reproduce` 75 PASS with identical rebuild; `--messy` 14 PASS). H-17 (Oct 17): call rate doubled to 0.04 per person per year, files xz-compressed; H-19 (Oct 17): call rate 0.09 (about 60% of a real US rate), files about 22 MB each |
 | Statistics (`app/qc.py`) | H-03, H-11, H-13 | implemented, tested (known answers + degenerate cases, 93 tests) |
 | API (FastAPI, read-only) | H-04, H-11, H-13 | implemented, tested (55 API tests incl. acceptance tests AT-1 to AT-10, 33 data tests) |
 | Dashboard | H-05, H-13 | H-13 page changes (watch chip, flagged ZIP list, stage medians, calls behind a signal, split headline) in progress; `demo/README.md` planned |
@@ -249,12 +249,12 @@ Only to rebuild the Census lookups: put `CENSUS_API_KEY=...` in a gitignored `.e
   60-day baseline just before the period. A baseline that drifts (or contains the start of a change, as Monroe's
   default window shows) is refused by the screen or can mislead; there is no seasonal adjustment.
 - **Small samples.** Synthetic volume is about 60% of a real system's (0.09 vs ~0.15 calls per person per year; raised in
-  H-16 and H-18, capped by the 25 MB file limit). Sparse ZIP areas are often Inconclusive / Insufficient baseline (median 26 valid red
+  H-17 and H-19, capped by the 25 MB file limit). Sparse ZIP areas are often Inconclusive / Insufficient baseline (median 26 valid red
   calls per ZIP in the default window), and only large changes are detectable in a small ZIP (section 7); a slow drift is
   not detected at all. P95 upper bounds need 59 calls and read "n/a" below that.
 - **Synthetic times are faster than benchmarks** (red median in the clean file: urban 4.65 min (279 s), rural 9.05 min (543 s), vs roughly
   7-10 min in published reports); the generator was tuned to land late shares in bands, not to match a real center. Raising
-  the volume (H-16, H-18) changed no duration.
+  the volume (H-17, H-19) changed no duration.
 - **Targets are placeholders.** The red tiers borrow NFPA 1720's demand-zone times, but NFPA 1720 is a fire-service
   standard for volunteer departments with a different clock (dispatch or notification to arrival), our area types come
   from Census density, and remote reuses the rural value. A center must set its own.

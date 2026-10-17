@@ -52,7 +52,7 @@ function bbox(features) {
 
 /**
  * props: counties / zctas (raw GeoJSON features), drillIn, parentId, byId (place cards by id), selectedId,
- * label(p, name) -> {title, queue, line}, onPick(p, drill), setTip, fitKey (bump to refit), busy, ariaLabel,
+ * label(p, name) -> the hover card (MapSection makeTip; .text is its one-line form), onPick(p, drill), setTip, fitKey (bump to refit), busy, ariaLabel,
  * metric: 'status' (colour groups) or 'late' (late share).
  */
 export default function GlMap({ counties, zctas, drillIn, parentId, byId, selectedId, label, onPick, setTip, fitKey, busy, ariaLabel, metric = 'status' }) {
@@ -226,7 +226,7 @@ export default function GlMap({ counties, zctas, drillIn, parentId, byId, select
             const t = label(p, p.name || name)
             return (
               <li key={id}>
-                <button type="button" onClick={() => onPick(p, true)}>{`${t.title}: ${t.queue}${t.line ? `, ${t.line}` : ''}`}</button>
+                <button type="button" onClick={() => onPick(p, true)}>{t.text}</button>
               </li>
             )
           })}

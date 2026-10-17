@@ -1,7 +1,7 @@
 # EMS Response Monitor: API (app/)
 
 Read-only FastAPI back end for the quality supervisor's dashboard. It reads the three **synthetic** 12-month
-call files in `data/` (`incidents_*.csv.xz`, about 1.82 million calls each since H-18, at 0.09 calls per person per year), joins `config/targets.csv` and the Census lookups, and serves the JSON shapes fixed in
+call files in `data/` (`incidents_*.csv.xz`, about 1.82 million calls each since H-19, at 0.09 calls per person per year), joins `config/targets.csv` and the Census lookups, and serves the JSON shapes fixed in
 [`docs/api.md`](../docs/api.md). Every statistic comes from `app/qc.py`; this folder only loads, filters and forwards.
 There is no route that accepts or edits incidents.
 
@@ -23,7 +23,7 @@ bash app/testme.sh                             # http://localhost:8000 (page), h
 ```
 
 The first start reads and derives the three files in a background thread: about 29 s per file, about 88 s for all three
-after H-18 (measured Oct 17 on the development machine; 27.6 s for all three at the H-16 rate of 0.04, 17.6 s at 0.0198
+after H-19 (measured Oct 17 on the development machine; 27.6 s for all three at the H-17 rate of 0.04, 17.6 s at 0.0198
 with gzip). Once loaded, measured with FastAPI's TestClient on the same machine: state summary about 1.1 s (1.9 s on the
 very first call), a county summary about 0.2 s, `/api/flagged` about 2.7 s, `/api/pchart`, `/api/stages` and `/api/anom`
 under 0.1 s, `/api/imr` about 0.1 s. If `app/qc.py` is missing, the statistics routes answer HTTP 503.
@@ -66,3 +66,13 @@ curl "localhost:8000/api/flagged?dataset=station_closure"
 curl "localhost:8000/api/stages?dataset=summer_surge&level=county&id=36055&from=2026-07-01&to=2026-08-31"
 curl "localhost:8000/api/replay?dataset=station_closure&day=2026-09-02&limit=5"
 ```
+
+## AI summary with Ollama Cloud
+
+The backend loads the gitignored root `.env`. Configure `OLLAMA_API_KEY`; the existing `OPENAI_API_KEY` is accepted as an alias for your Ollama key and is sent only to Ollama. The default model is `gemma4:31b`; `OLLAMA_MODEL` overrides it. Restart the backend after changing credentials. No local Ollama installation or OpenAI account is required.
+
+The Key Metrics AI summary uses the exact area, inclusive displayed dates, one priority and dataset. It explains existing target/control judgments, tail delays, ranked child areas and descriptive stage comparisons. The reference agent's heat/hospital/transit thresholds do not apply to this EMS app; model output cannot create statistical judgments, infer causes or patient outcomes, or issue dispatch orders. Only aggregate evidence leaves the backend; the key stays off the browser.
+
+Loading and failed generation have explicit states, obsolete requests cannot overwrite current prose, and paused replay uses its current dates. No valid calls returns an explicit no-data message without a model request. Identical evidence is cached for ten minutes, up to 128 entries; uncached requests use your Ollama quota. Fixture mode disables generation.
+
+Check with `.venv/bin/python -m pytest tests/test_ai_summary.py -q`, `npm --prefix app/frontend test -- --run src/aiSummary.test.js`, and `npm --prefix app/frontend run build`.

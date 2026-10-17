@@ -59,4 +59,10 @@ describe('fmtOneIn (borough list)', () => {
     expect(fmtOneIn(3, 20)).toBe('too few calls')
     expect(fmtOneIn(null, 0)).toBe('no calls')
   })
+  it('fmtGoalOneIn turns the goal into the late share it allows', async () => {
+    const { fmtGoalOneIn } = await import('./format.js')
+    expect(fmtGoalOneIn(90)).toBe('1 in 10')
+    expect(fmtGoalOneIn(100)).toBe('')
+    expect(fmtGoalOneIn(null)).toBe('')
+  })
 })

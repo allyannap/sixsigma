@@ -1,4 +1,4 @@
-// The slide card under "<Place> Wait Time Insights": one chart at a time, arrow to the next.
+// Labeled insight tabs keep both charts mounted and preserve investigation links.
 import { createElement as h } from 'react'
 import { renderToString } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
@@ -21,19 +21,23 @@ describe('Insights slide card', () => {
     expect(html).toContain('insights-slider')
     expect(html).not.toContain('chart-grid')
   })
-  it('shows "Are calls arriving on time?" first and the next arrow with its label', () => {
-    expect(html).toContain('aria-label="Next chart: Are late calls being unusually frequent?"')
-    expect(html).not.toContain('slider-prev')
-    expect(html).toContain('1 / 2')
+  it('replaces arrows and dots with two labeled tabs linked to their panels', () => {
+    expect(html).toContain('role="tablist" aria-label="Wait time insights"')
+    expect(html).toContain('Area comparison')
+    expect(html).toContain('Response trends')
+    expect(html).toContain('aria-selected="true" aria-controls="insights-panel-0" tabindex="0"')
+    expect(html).toContain('aria-selected="false" aria-controls="insights-panel-1" tabindex="-1"')
+    expect(html).not.toMatch(/slider-arrow|slider-dot|slider-count|aria-roledescription="carousel"/)
   })
   it('keeps slide 2 in the DOM but hidden, and slide 1 visible', () => {
-    const slides = html.split(/<div class="slide[ "]/).slice(1)
+    const slides = html.split(/<div id="insights-panel-\d+" class="slide[ "]/).slice(1)
     expect(slides).toHaveLength(2)
     expect(slides[0]).toContain('is-active')
     expect(slides[0]).not.toMatch(/^[^>]*\shidden=""/)
     expect(slides[1]).toMatch(/^[^>]*\shidden=""/)
-    expect(slides[1]).toContain('Are late calls being unusually frequent?')
-    expect(slides[1]).toContain('Stand-in')
+    expect(slides[1]).toContain('Are more calls missing their response target?')
+    expect(slides[1]).toContain('control-chart')
+    expect(slides[1]).toContain('role="tabpanel" aria-labelledby="insights-tab-1"')
   })
   it('maps the investigation links to slides', () => {
     expect(slideForHash('#section-4')).toBe(0)
