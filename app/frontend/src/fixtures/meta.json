@@ -1,0 +1,399 @@
+{
+ "source": "Synthetic - simulated replay",
+ "datasets": [
+  "baseline",
+  "station_closure",
+  "summer_surge"
+ ],
+ "date_min": "2025-10-16",
+ "date_max": "2026-10-15",
+ "default_from": "2026-07-18",
+ "default_to": "2026-10-15",
+ "counties": [
+  {
+   "county_fips": "36001",
+   "county_name": "Albany"
+  },
+  {
+   "county_fips": "36003",
+   "county_name": "Allegany"
+  },
+  {
+   "county_fips": "36005",
+   "county_name": "Bronx"
+  },
+  {
+   "county_fips": "36007",
+   "county_name": "Broome"
+  },
+  {
+   "county_fips": "36009",
+   "county_name": "Cattaraugus"
+  }
+ ],
+ "targets": [
+  {
+   "urgency_code": 0,
+   "urban_rural": "urban",
+   "urgency_group": "red",
+   "target_s": 480,
+   "goal_on_time_pct": 90,
+   "reference_p90_s": 430.0,
+   "n_reference": 37242.0
+  },
+  {
+   "urgency_code": 0,
+   "urban_rural": "suburban",
+   "urgency_group": "red",
+   "target_s": 480,
+   "goal_on_time_pct": 90,
+   "reference_p90_s": 453.0,
+   "n_reference": 11627.0
+  },
+  {
+   "urgency_code": 0,
+   "urban_rural": "rural",
+   "urgency_group": "red",
+   "target_s": 480,
+   "goal_on_time_pct": 90,
+   "reference_p90_s": 906.0,
+   "n_reference": 9018.0
+  },
+  {
+   "urgency_code": 0,
+   "urban_rural": "remote",
+   "urgency_group": "red",
+   "target_s": 480,
+   "goal_on_time_pct": 90,
+   "reference_p90_s": 1273.0,
+   "n_reference": 1572.0
+  },
+  {
+   "urgency_code": 1,
+   "urban_rural": "urban",
+   "urgency_group": "red",
+   "target_s": 480,
+   "goal_on_time_pct": 90,
+   "reference_p90_s": 430.0,
+   "n_reference": 37242.0
+  },
+  {
+   "urgency_code": 1,
+   "urban_rural": "suburban",
+   "urgency_group": "red",
+   "target_s": 480,
+   "goal_on_time_pct": 90,
+   "reference_p90_s": 453.0,
+   "n_reference": 11627.0
+  },
+  {
+   "urgency_code": 1,
+   "urban_rural": "rural",
+   "urgency_group": "red",
+   "target_s": 480,
+   "goal_on_time_pct": 90,
+   "reference_p90_s": 906.0,
+   "n_reference": 9018.0
+  },
+  {
+   "urgency_code": 1,
+   "urban_rural": "remote",
+   "urgency_group": "red",
+   "target_s": 480,
+   "goal_on_time_pct": 90,
+   "reference_p90_s": 1273.0,
+   "n_reference": 1572.0
+  },
+  {
+   "urgency_code": 2,
+   "urban_rural": "urban",
+   "urgency_group": "red",
+   "target_s": 480,
+   "goal_on_time_pct": 90,
+   "reference_p90_s": 430.0,
+   "n_reference": 37242.0
+  },
+  {
+   "urgency_code": 2,
+   "urban_rural": "suburban",
+   "urgency_group": "red",
+   "target_s": 480,
+   "goal_on_time_pct": 90,
+   "reference_p90_s": 453.0,
+   "n_reference": 11627.0
+  },
+  {
+   "urgency_code": 2,
+   "urban_rural": "rural",
+   "urgency_group": "red",
+   "target_s": 480,
+   "goal_on_time_pct": 90,
+   "reference_p90_s": 906.0,
+   "n_reference": 9018.0
+  },
+  {
+   "urgency_code": 2,
+   "urban_rural": "remote",
+   "urgency_group": "red",
+   "target_s": 480,
+   "goal_on_time_pct": 90,
+   "reference_p90_s": 1273.0,
+   "n_reference": 1572.0
+  },
+  {
+   "urgency_code": 3,
+   "urban_rural": "urban",
+   "urgency_group": "yellow",
+   "target_s": 900,
+   "goal_on_time_pct": 90,
+   "reference_p90_s": null,
+   "n_reference": null
+  },
+  {
+   "urgency_code": 3,
+   "urban_rural": "suburban",
+   "urgency_group": "yellow",
+   "target_s": 900,
+   "goal_on_time_pct": 90,
+   "reference_p90_s": null,
+   "n_reference": null
+  },
+  {
+   "urgency_code": 3,
+   "urban_rural": "rural",
+   "urgency_group": "yellow",
+   "target_s": 900,
+   "goal_on_time_pct": 90,
+   "reference_p90_s": null,
+   "n_reference": null
+  },
+  {
+   "urgency_code": 3,
+   "urban_rural": "remote",
+   "urgency_group": "yellow",
+   "target_s": 900,
+   "goal_on_time_pct": 90,
+   "reference_p90_s": null,
+   "n_reference": null
+  },
+  {
+   "urgency_code": 4,
+   "urban_rural": "urban",
+   "urgency_group": "yellow",
+   "target_s": 900,
+   "goal_on_time_pct": 90,
+   "reference_p90_s": null,
+   "n_reference": null
+  },
+  {
+   "urgency_code": 4,
+   "urban_rural": "suburban",
+   "urgency_group": "yellow",
+   "target_s": 900,
+   "goal_on_time_pct": 90,
+   "reference_p90_s": null,
+   "n_reference": null
+  },
+  {
+   "urgency_code": 4,
+   "urban_rural": "rural",
+   "urgency_group": "yellow",
+   "target_s": 900,
+   "goal_on_time_pct": 90,
+   "reference_p90_s": null,
+   "n_reference": null
+  },
+  {
+   "urgency_code": 4,
+   "urban_rural": "remote",
+   "urgency_group": "yellow",
+   "target_s": 900,
+   "goal_on_time_pct": 90,
+   "reference_p90_s": null,
+   "n_reference": null
+  },
+  {
+   "urgency_code": 5,
+   "urban_rural": "urban",
+   "urgency_group": "yellow",
+   "target_s": 900,
+   "goal_on_time_pct": 90,
+   "reference_p90_s": null,
+   "n_reference": null
+  },
+  {
+   "urgency_code": 5,
+   "urban_rural": "suburban",
+   "urgency_group": "yellow",
+   "target_s": 900,
+   "goal_on_time_pct": 90,
+   "reference_p90_s": null,
+   "n_reference": null
+  },
+  {
+   "urgency_code": 5,
+   "urban_rural": "rural",
+   "urgency_group": "yellow",
+   "target_s": 900,
+   "goal_on_time_pct": 90,
+   "reference_p90_s": null,
+   "n_reference": null
+  },
+  {
+   "urgency_code": 5,
+   "urban_rural": "remote",
+   "urgency_group": "yellow",
+   "target_s": 900,
+   "goal_on_time_pct": 90,
+   "reference_p90_s": null,
+   "n_reference": null
+  },
+  {
+   "urgency_code": 6,
+   "urban_rural": "urban",
+   "urgency_group": "green",
+   "target_s": 1800,
+   "goal_on_time_pct": 90,
+   "reference_p90_s": null,
+   "n_reference": null
+  },
+  {
+   "urgency_code": 6,
+   "urban_rural": "suburban",
+   "urgency_group": "green",
+   "target_s": 1800,
+   "goal_on_time_pct": 90,
+   "reference_p90_s": null,
+   "n_reference": null
+  },
+  {
+   "urgency_code": 6,
+   "urban_rural": "rural",
+   "urgency_group": "green",
+   "target_s": 1800,
+   "goal_on_time_pct": 90,
+   "reference_p90_s": null,
+   "n_reference": null
+  },
+  {
+   "urgency_code": 6,
+   "urban_rural": "remote",
+   "urgency_group": "green",
+   "target_s": 1800,
+   "goal_on_time_pct": 90,
+   "reference_p90_s": null,
+   "n_reference": null
+  },
+  {
+   "urgency_code": 7,
+   "urban_rural": "urban",
+   "urgency_group": "green",
+   "target_s": 1800,
+   "goal_on_time_pct": 90,
+   "reference_p90_s": null,
+   "n_reference": null
+  },
+  {
+   "urgency_code": 7,
+   "urban_rural": "suburban",
+   "urgency_group": "green",
+   "target_s": 1800,
+   "goal_on_time_pct": 90,
+   "reference_p90_s": null,
+   "n_reference": null
+  },
+  {
+   "urgency_code": 7,
+   "urban_rural": "rural",
+   "urgency_group": "green",
+   "target_s": 1800,
+   "goal_on_time_pct": 90,
+   "reference_p90_s": null,
+   "n_reference": null
+  },
+  {
+   "urgency_code": 7,
+   "urban_rural": "remote",
+   "urgency_group": "green",
+   "target_s": 1800,
+   "goal_on_time_pct": 90,
+   "reference_p90_s": null,
+   "n_reference": null
+  },
+  {
+   "urgency_code": 8,
+   "urban_rural": "urban",
+   "urgency_group": "green",
+   "target_s": 1800,
+   "goal_on_time_pct": 90,
+   "reference_p90_s": null,
+   "n_reference": null
+  },
+  {
+   "urgency_code": 8,
+   "urban_rural": "suburban",
+   "urgency_group": "green",
+   "target_s": 1800,
+   "goal_on_time_pct": 90,
+   "reference_p90_s": null,
+   "n_reference": null
+  },
+  {
+   "urgency_code": 8,
+   "urban_rural": "rural",
+   "urgency_group": "green",
+   "target_s": 1800,
+   "goal_on_time_pct": 90,
+   "reference_p90_s": null,
+   "n_reference": null
+  },
+  {
+   "urgency_code": 8,
+   "urban_rural": "remote",
+   "urgency_group": "green",
+   "target_s": 1800,
+   "goal_on_time_pct": 90,
+   "reference_p90_s": null,
+   "n_reference": null
+  },
+  {
+   "urgency_code": 9,
+   "urban_rural": "urban",
+   "urgency_group": "green",
+   "target_s": 1800,
+   "goal_on_time_pct": 90,
+   "reference_p90_s": null,
+   "n_reference": null
+  },
+  {
+   "urgency_code": 9,
+   "urban_rural": "suburban",
+   "urgency_group": "green",
+   "target_s": 1800,
+   "goal_on_time_pct": 90,
+   "reference_p90_s": null,
+   "n_reference": null
+  },
+  {
+   "urgency_code": 9,
+   "urban_rural": "rural",
+   "urgency_group": "green",
+   "target_s": 1800,
+   "goal_on_time_pct": 90,
+   "reference_p90_s": null,
+   "n_reference": null
+  },
+  {
+   "urgency_code": 9,
+   "urban_rural": "remote",
+   "urgency_group": "green",
+   "target_s": 1800,
+   "goal_on_time_pct": 90,
+   "reference_p90_s": null,
+   "n_reference": null
+  }
+ ],
+ "messages": [
+  "FIXTURE DATA: a saved, trimmed API reply for building and testing the page. Not live."
+ ]
+}

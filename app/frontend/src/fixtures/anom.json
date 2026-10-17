@@ -1,92 +1,161 @@
 {
  "selection": {
-  "dataset": "station_closure",
+  "dataset": "summer_surge",
+  "source": "Synthetic - simulated replay",
   "level": "state",
   "id": null,
   "name": "New York State (fixture)",
-  "from": "2026-09-16",
-  "to": "2026-10-15",
+  "from": "2026-07-01",
+  "to": "2026-08-31",
   "urgency": [
    "red"
   ],
-  "baseline_from": "2026-07-18",
-  "baseline_to": "2026-09-15"
+  "baseline_from": "2026-05-02",
+  "baseline_to": "2026-06-30",
+  "baseline_days": 60
  },
- "messages": [
-  "FIXTURE DATA: invented numbers for building the page. Not real."
- ],
- "grand_mean_min": 6.6,
- "h": 2.39,
- "k": 5,
- "N": 9177,
- "F": 41.2,
- "df1": 4,
- "df2": 9172,
+ "grand_mean_min": 5.37,
+ "h": 3.3419,
+ "k": 60,
+ "N": 24545,
+ "F": 143.072,
+ "df1": 59,
+ "df2": 24485,
  "places": [
   {
-   "id": "36901",
-   "name": "Fixture County A",
-   "n": 2705,
-   "mean_min": 8.9,
+   "id": "36001",
+   "name": "Albany",
+   "n": 340,
+   "mean_min": 5.35,
    "ci_min": [
-    8.73,
-    9.07
+    5.14,
+    5.58
    ],
-   "lower_min": 6.31,
-   "upper_min": 6.89,
-   "verdict": "slower"
-  },
-  {
-   "id": "36903",
-   "name": "Fixture County C",
-   "n": 1450,
-   "mean_min": 8.1,
-   "ci_min": [
-    7.87,
-    8.33
-   ],
-   "lower_min": 6.19,
-   "upper_min": 7.01,
-   "verdict": "slower"
-  },
-  {
-   "id": "36902",
-   "name": "Fixture County B",
-   "n": 1900,
-   "mean_min": 6.8,
-   "ci_min": [
-    6.6,
-    7.0
-   ],
-   "lower_min": 6.25,
-   "upper_min": 6.95,
+   "lower_min": 5.01,
+   "upper_min": 5.76,
    "verdict": "inside"
   },
   {
-   "id": "36905",
-   "name": "Fixture County E",
-   "n": 22,
-   "mean_min": 6.5,
+   "id": "36003",
+   "name": "Allegany",
+   "n": 44,
+   "mean_min": 8.54,
    "ci_min": [
-    4.62,
-    8.38
+    7.62,
+    9.58
    ],
-   "lower_min": 3.31,
-   "upper_min": 9.89,
-   "verdict": "inside"
+   "lower_min": 4.42,
+   "upper_min": 6.53,
+   "verdict": "slower"
   },
   {
-   "id": "36904",
-   "name": "Fixture County D",
-   "n": 3100,
-   "mean_min": 5.2,
+   "id": "36005",
+   "name": "Bronx",
+   "n": 1826,
+   "mean_min": 4.58,
    "ci_min": [
-    5.04,
-    5.36
+    4.5,
+    4.67
    ],
-   "lower_min": 6.32,
-   "upper_min": 6.88,
+   "lower_min": 5.21,
+   "upper_min": 5.53,
    "verdict": "faster"
+  },
+  {
+   "id": "36007",
+   "name": "Broome",
+   "n": 247,
+   "mean_min": 6.16,
+   "ci_min": [
+    5.87,
+    6.46
+   ],
+   "lower_min": 4.95,
+   "upper_min": 5.83,
+   "verdict": "slower"
+  },
+  {
+   "id": "36009",
+   "name": "Cattaraugus",
+   "n": 99,
+   "mean_min": 9.88,
+   "ci_min": [
+    9.15,
+    10.66
+   ],
+   "lower_min": 4.71,
+   "upper_min": 6.11,
+   "verdict": "slower"
+  },
+  {
+   "id": "36011",
+   "name": "Cayuga",
+   "n": 81,
+   "mean_min": 8.27,
+   "ci_min": [
+    7.6,
+    9.0
+   ],
+   "lower_min": 4.65,
+   "upper_min": 6.2,
+   "verdict": "slower"
+  },
+  {
+   "id": "36013",
+   "name": "Chautauqua",
+   "n": 149,
+   "mean_min": 8.82,
+   "ci_min": [
+    8.28,
+    9.38
+   ],
+   "lower_min": 4.83,
+   "upper_min": 5.97,
+   "verdict": "slower"
+  },
+  {
+   "id": "36015",
+   "name": "Chemung",
+   "n": 88,
+   "mean_min": 7.59,
+   "ci_min": [
+    7.0,
+    8.24
+   ],
+   "lower_min": 4.68,
+   "upper_min": 6.16,
+   "verdict": "slower"
+  },
+  {
+   "id": "36017",
+   "name": "Chenango",
+   "n": 56,
+   "mean_min": 12.15,
+   "ci_min": [
+    10.98,
+    13.45
+   ],
+   "lower_min": 4.52,
+   "upper_min": 6.38,
+   "verdict": "slower"
+  },
+  {
+   "id": "36019",
+   "name": "Clinton",
+   "n": 89,
+   "mean_min": 8.82,
+   "ci_min": [
+    8.14,
+    9.56
+   ],
+   "lower_min": 4.68,
+   "upper_min": 6.16,
+   "verdict": "slower"
   }
+ ],
+ "messages": [
+  "FIXTURE DATA: a saved, trimmed API reply for building and testing the page. Not live.",
+  "descriptive comparison within one urgency group; not adjusted for time of day, traffic, call mix or resources, so it is not evidence of unfair service",
+  "2 place(s) with under 30 valid calls left out of ANOM"
  ]
 }

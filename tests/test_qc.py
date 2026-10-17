@@ -224,15 +224,26 @@ def test_capability_bad_goal():
     assert r["cpk"] is None and r["messages"]
 
 
+def test_cpk_bound_equal_to_bar_is_not_too_slow():
+    # capability(): upper exactly equal to the bar must not be called too slow. Use a stub value through the rule.
+    assert qc.is_too_slow(0.4272, 0.4272) is False
+    assert qc.is_too_slow(0.4271, 0.4272) is True
+    assert qc.is_too_slow(None, 0.4272) is False
+
+
+
 # ---------------------------------------------------------------- 4. P95
 
 def test_p95_known_answer():
     r = qc.p95_boot(list(range(1, 21)))
     assert r["p95"] == approx(19.05)
+    assert r["p90"] == approx(18.1)                          # 1 + 0.9 x 19
     assert r["median"] == approx(10.5)
     assert r["spread"] == approx(8.55)
     lo, hi = r["ci"]
     assert 1 <= lo <= r["p95"] <= hi <= 20
+    mlo, mhi = r["median_ci"]
+    assert 1 <= mlo <= 10.5 <= mhi <= 20
 
 
 def test_p95_is_reproducible_with_fixed_seed():
@@ -243,12 +254,12 @@ def test_p95_is_reproducible_with_fixed_seed():
 def test_p95_constant_and_single_value_give_point_interval():
     assert qc.p95_boot([7.0] * 50)["ci"] == [7.0, 7.0]
     r = qc.p95_boot([4.0])
-    assert r["ci"] == [4.0, 4.0] and r["p95"] == 4.0 and r["spread"] == 0.0
+    assert r["ci"] == [4.0, 4.0] and r["p95"] == 4.0 and r["spread"] == 0.0 and r["median_ci"] == [4.0, 4.0]
 
 
 def test_p95_empty():
     r = qc.p95_boot([])
-    assert r["p95"] is None and r["ci"] == [None, None] and r["messages"]
+    assert r["p95"] is None and r["ci"] == [None, None] and r["median_ci"] == [None, None] and r["messages"]
 
 
 def test_p95_ignores_missing_values():
@@ -262,6 +273,7 @@ def test_p95_large_n_uses_order_statistic_interval():
     true = float(np.percentile(x, 95))
     assert r["ci"][0] <= true <= r["ci"][1]
     assert r["ci"][1] - r["ci"][0] < 0.5                      # tight at n = 20,000
+    assert r["median_ci"][0] <= float(np.median(x)) <= r["median_ci"][1]
     assert any("order statistics" in m for m in r["messages"])
 
 
@@ -301,208 +313,208 @@ def test_anom_empty_groups_are_dropped():
     assert r["k"] == 3
 
 
-# ---------------------------------------------------------------- 6. changed recently
+# ---------------------------------------------------------------- 6. A. specification: on-time rate and Wilson interval
 
-BASE_X = [1.0, 1.2] * 15
-SEL_X = [1.2, 1.4] * 15
-
-
-def test_changed_recently_known_answer_location():
-    r = qc.changed_recently(SEL_X, BASE_X, 3, 30, 3, 30)
-    assert r["z_loc"] == approx(4.369)
-    assert r["changed"] is True and r["reasons"]
+# Wilson by hand, z = 1.959964, z^2 = 3.841459.
+# 85 / 100: centre (0.85 + 0.019207) / 1.038415 = 0.837053; half 1.959964 sqrt(0.001275 + 0.000096) / 1.038415 = 0.069888.
+def test_wilson_known_answer():
+    lo, hi = qc.wilson_ci(85, 100)
+    assert lo == approx(0.76716) and hi == approx(0.90694)
 
 
-def test_changed_recently_known_answer_proportion_alone_is_not_enough():
-    r = qc.changed_recently(BASE_X, BASE_X, 12, 30, 3, 30)      # same ln-minutes: no shift in location
-    assert r["z_p"] == approx(2.683)
-    assert r["z_loc"] == approx(0.0)
-    assert r["changed"] is False
+def test_wilson_stays_inside_zero_one_and_is_not_a_point_at_the_ends():
+    lo, hi = qc.wilson_ci(20, 20)
+    assert lo == approx(0.83887) and hi == 1.0
+    lo0, hi0 = qc.wilson_ci(0, 20)
+    assert lo0 == 0.0 and 0 < hi0 < 0.2
+    assert qc.wilson_ci(0, 0) == [None, None]
+    with pytest.raises(ValueError):
+        qc.wilson_ci(5, 3)
 
 
-def test_changed_recently_proportion_alone_can_flag():
-    r = qc.changed_recently(BASE_X, BASE_X, 20, 30, 3, 30)
-    assert r["z_p"] > 3 and r["changed"] is True
-
-
-def test_changed_recently_z_exactly_three_is_not_changed():
-    # n = 200 each, 85 and 115 late: p_pool 0.5, Z_p = 0.15 / 0.05 = 3 exactly
-    r = qc.changed_recently(BASE_X, BASE_X, 115, 200, 85, 200)
-    assert r["z_p"] == pytest.approx(3.0)
-    assert r["changed"] is False
-    r2 = qc.changed_recently(BASE_X, BASE_X, 116, 200, 85, 200)
-    assert r2["changed"] is True
-
-
-def test_changed_recently_only_upward_shifts_count():
-    r = qc.changed_recently(BASE_X, SEL_X, 3, 30, 3, 30)         # selection FASTER than baseline
-    assert r["z_loc"] < -3 and r["changed"] is False
-
-
-def test_changed_recently_needs_30_each():
-    r = qc.changed_recently(SEL_X[:29], BASE_X, 12, 29, 3, 30)
-    assert r["changed"] is False and r["z_loc"] is None and r["messages"]
-    r2 = qc.changed_recently(SEL_X, BASE_X[:29], 3, 30, 3, 29)
-    assert r2["changed"] is False and r2["messages"]
-
-
-def test_changed_recently_constant_baseline_gives_no_z_loc():
-    r = qc.changed_recently(SEL_X, [1.0] * 30, 3, 30, 3, 30)
-    assert r["z_loc"] is None and r["messages"]
-    no_bad_numbers(r)
-
-
-def test_changed_recently_z_p_needs_five_expected_each_way():
-    r = qc.changed_recently(BASE_X, BASE_X, 4, 30, 0, 30)        # p_pool 0.067: n p_pool = 2 < 5
-    assert r["z_p"] is None
-
-
-def test_changed_recently_all_zero_late_does_not_divide_by_zero():
-    r = qc.changed_recently(BASE_X, BASE_X, 0, 30, 0, 30)
-    assert r["z_p"] is None and r["changed"] is False
-    no_bad_numbers(r)
-
-
-# ---------------------------------------------------------------- 6b. status
-
-@pytest.mark.parametrize("too_slow,changed,expected", [
-    (True, True, "act_now"),
-    (False, True, "recent_change"),
-    (True, False, "ongoing_gap"),
-    (False, False, "on_track"),
+# 300 calls, goal 90%. 285 on time: [0.91915, 0.96947] (lower >= 0.90: meets).
+# 255 on time: [0.80518, 0.88597] (upper < 0.90: below). 270 on time: [0.86083, 0.92905] (includes 0.90).
+@pytest.mark.parametrize("k,status,lo,hi", [
+    (285, "meets", 0.91915, 0.96947),
+    (255, "below", 0.80518, 0.88597),
+    (270, "inconclusive", 0.86083, 0.92905),
 ])
-def test_status_truth_table(too_slow, changed, expected):
-    assert qc.status(too_slow, changed, 100, 100) == expected
-
-
-def test_status_boundaries():
-    assert qc.status(True, True, 30, 30) == "act_now"            # 30 is enough
-    assert qc.status(True, True, 29, 100) == "not_enough"
-    assert qc.status(True, True, 100, 29) == "not_enough"
-    assert qc.status(False, False, 0, 0) == "not_enough"
-
-
-def test_status_bound_equal_to_bar_is_not_too_slow():
-    # capability(): upper exactly equal to the bar must not be called too slow. Use a stub value through the rule.
-    assert qc.is_too_slow(0.4272, 0.4272) is False
-    assert qc.is_too_slow(0.4271, 0.4272) is True
-    assert qc.is_too_slow(None, 0.4272) is False
-
-
-# ---------------------------------------------------------------- 7. fault tree
-
-def around(median, sd_ln):
-    """Three values whose median is `median` and whose sample sd of ln is exactly `sd_ln`."""
-    return [median * math.exp(sd_ln), median, median * math.exp(-sd_ln)]
-
-
-def baseline_calls():
-    d, t, e, r = around(60, 0.5), around(70, 0.35), around(300, 0.45), around(0.88, 0.15)
-    return [{"dispatch_s": d[i], "turnout_s": t[i], "eta_google_s": e[i], "drive_s": e[i] * r[i], "held": "N"}
-            for i in range(3)]
-
-
-LATE = {"dispatch_s": 120, "turnout_s": 75, "eta_google_s": 450, "drive_s": 396, "held": "N"}
-
-
-def test_fault_tree_known_answer_names_the_911_center():
-    r = qc.fault_tree([LATE], baseline_calls())
-    z = r["z"][0]
-    assert z[0] == approx(1.386) and z[1] == approx(0.197) and z[2] == approx(0.901) and z[3] == approx(0.0)
-    assert r["per_call"] == ["dispatch"]
-    assert r["counts"] == {"held": 0, "dispatch": 1, "turnout": 0, "long_trip": 0, "slow_drive": 0, "typical_late": 0}
-    assert r["base"]["dispatch_s"]["median"] == approx(60) and r["base"]["dispatch_s"]["sd_ln"] == approx(0.5)
+def test_on_time_hand_worked_classification(k, status, lo, hi):
+    r = qc.on_time(300, k, 90)
+    assert r["status"] == status
+    assert r["ci"][0] == approx(lo) and r["ci"][1] == approx(hi)
+    assert r["on_time_rate"] == approx(k / 300) and r["late_rate"] == approx(1 - k / 300)
+    assert r["n_late"] == 300 - k and r["goal"] == 0.9
     no_bad_numbers(r)
 
 
-def test_fault_tree_held_is_always_no_ambulance_free():
-    r = qc.fault_tree([{**LATE, "held": "Y"}], baseline_calls())
-    assert r["per_call"] == ["held"] and r["counts"]["held"] == 1
+def test_spec_interval_boundaries():
+    assert qc.spec_from_interval(0.9, 0.95, 0.9) == "meets"          # lower bound exactly the goal meets
+    assert qc.spec_from_interval(0.85, 0.9, 0.9) == "inconclusive"   # upper bound exactly the goal is not below
+    assert qc.spec_from_interval(0.85, 0.8999, 0.9) == "below"
+    assert qc.spec_from_interval(None, None, 0.9) == "inconclusive"
 
 
-def test_fault_tree_typical_late_when_every_z_is_not_positive():
-    easy = {"dispatch_s": 50, "turnout_s": 60, "eta_google_s": 250, "drive_s": 200, "held": "N"}
-    r = qc.fault_tree([easy], baseline_calls())
-    assert r["per_call"] == ["typical_late"] and r["counts"]["typical_late"] == 1
+def test_inconclusive_is_never_success_small_samples_and_bad_inputs():
+    small = qc.on_time(20, 0, 90)                  # 0 of 20 on time would be "below" by the interval alone
+    assert small["status"] == "inconclusive" and "insufficient data" in small["reason"]
+    assert small["on_time_rate"] == 0.0 and small["ci"][1] < 0.2   # the numbers are still shown
+    perfect = qc.on_time(29, 29, 90)               # 29 of 29 on time is still not "meets"
+    assert perfect["status"] == "inconclusive"
+    empty = qc.on_time(0, 0, 90)
+    assert empty["status"] == "inconclusive" and empty["on_time_rate"] is None and empty["ci"] == [None, None]
+    bad_goal = qc.on_time(300, 290, 100)
+    assert bad_goal["status"] == "inconclusive" and bad_goal["messages"]
+    for r in (small, perfect, empty, bad_goal):
+        assert r["status"] != "meets"
+        no_bad_numbers(r)
 
 
-def test_fault_tree_long_trip_and_slow_drive():
-    trip = {"dispatch_s": 60, "turnout_s": 70, "eta_google_s": 900, "drive_s": 792, "held": "N"}   # ratio 0.88
-    slow = {"dispatch_s": 60, "turnout_s": 70, "eta_google_s": 300, "drive_s": 600, "held": "N"}   # ratio 2.0
-    r = qc.fault_tree([trip, slow], baseline_calls())
-    assert r["per_call"] == ["long_trip", "slow_drive"]
+# ---------------------------------------------------------------- 7. B. control status from the p chart
+
+def dated(points):
+    return [{"start": f"2026-08-0{i + 1}", **p} for i, p in enumerate(points)]
 
 
-def test_fault_tree_without_google_columns_still_names_a_step():
-    base = [{k: v for k, v in c.items() if k not in ("eta_google_s", "drive_s")} for c in baseline_calls()]
-    late = {"dispatch_s": 120, "turnout_s": 75, "held": "N"}
-    r = qc.fault_tree([late], base)
-    assert r["per_call"] == ["dispatch"]
+def test_p_chart_limits_follow_subgroup_size():
+    # p-bar 0.10: sigma_i = sqrt(0.09 / n_i). n = 10: UCL 0.3846; n = 100: 0.19, LCL 0.01; n = 1000: 0.12846, LCL 0.07154.
+    pts = qc.p_chart([10, 100, 1000], [1, 10, 100], 1000, 100)["points"]
+    assert [p["ucl"] for p in pts] == [approx(0.3846), approx(0.19), approx(0.12846)]
+    assert [p["lcl"] for p in pts] == [0.0, approx(0.01), approx(0.07154)]
 
 
-def test_fault_tree_empty_inputs():
-    r = qc.fault_tree([], baseline_calls())
-    assert sum(r["counts"].values()) == 0 and r["per_call"] == []
-    r2 = qc.fault_tree([LATE], [])
-    assert r2["messages"] and r2["per_call"] == ["typical_late"]
-    no_bad_numbers(r2)
+def test_control_status_known_answer_out_of_control_with_evidence():
+    r = qc.p_chart([20] * 5, [2, 3, 1, 4, 10], 100, 20)               # SPEC known answer: day 5 above its UCL
+    c = qc.control_status(dated(r["points"]), r["p_bar"], True, "day")
+    assert c["status"] == "out_of_control"
+    assert c["signals"] == [{"start": "2026-08-05", "n": 20, "late": 10, "p": approx(0.5),
+                             "ucl": approx(0.4683), "lcl": 0.0}]
+    assert "1 day(s) above" in c["reason"]
 
 
-def test_fault_tree_baseline_with_no_spread_skips_that_step():
-    flat = [{"dispatch_s": 60, "turnout_s": 70, "eta_google_s": 300, "drive_s": 264, "held": "N"}] * 5
-    r = qc.fault_tree([LATE], flat)
-    assert r["messages"] and r["per_call"] == ["typical_late"]
+def test_control_status_in_control_and_improvement_is_not_a_signal():
+    r = qc.p_chart([100, 100], [50, 20], 1000, 500)                    # p-bar 0.5, LCL 0.35: 0.20 is below it
+    c = qc.control_status(dated(r["points"]), r["p_bar"], True, "week")
+    assert c["status"] == "in_control" and c["signals"] == []
+    assert [i["start"] for i in c["improvements"]] == ["2026-08-02"]
 
 
-# ---------------------------------------------------------------- 8. what-if
+@pytest.mark.parametrize("p_bar,enough,unit,points", [
+    (0.2, False, "day", [{"n": 20, "late": 2, "p": 0.1, "ucl": 0.5, "lcl": 0.0, "signal": False}]),   # short baseline
+    (0.2, True, None, [{"n": 20, "late": 2, "p": 0.1, "ucl": 0.5, "lcl": 0.0, "signal": False}]),    # low volume
+    (0.0, True, "day", [{"n": 20, "late": 2, "p": 0.1, "ucl": 0.0, "lcl": 0.0, "signal": False}]),   # p-bar 0
+    (None, True, "day", []),                                                                         # no baseline
+    (0.2, True, "day", []),                                                                          # no subgroups
+])
+def test_control_status_insufficient_baseline(p_bar, enough, unit, points):
+    c = qc.control_status(points, p_bar, enough, unit)
+    assert c["status"] == "insufficient_baseline" and c["reason"]
 
-def wi_calls():
-    return [{"total_s": t, "turnout_s": 100, "dispatch_s": 60, "drive_s": t - 160, "held": "N", "target_s": 480}
-            for t in (400, 500, 520, 300)]
 
-
-def test_whatif_known_answer_crew_faster():
-    r = qc.whatif(wi_calls(), "crew_faster", 20, 60)
-    assert r["now"]["late"] == 2 and r["with_fix"]["late"] == 1 and r["avoided"] == 1
-    assert r["now"]["pct_late"] == 50.0 and r["with_fix"]["pct_late"] == 25.0
-    assert r["with_fix"]["p95_min"] < r["now"]["p95_min"]
+def test_dispersion_check_known_answer_and_degenerate():
+    # p = 0.1, n = 100 each: every term (10)^2 / (100 x 0.1 x 0.9) = 11.111; chi-square 44.44, df 3, ratio 14.81.
+    r = qc.dispersion_check([100] * 4, [0, 20, 0, 20])
+    assert r["chi2"] == approx(44.4444) and r["df"] == 3 and r["ratio"] == approx(14.8148)
+    assert r["overdispersed"] is True and r["messages"]
+    flat = qc.dispersion_check([100] * 4, [10] * 4)
+    assert flat["chi2"] == 0.0 and flat["overdispersed"] is False
+    assert qc.dispersion_check([100], [10])["ratio"] is None
+    assert qc.dispersion_check([100, 100], [0, 0])["ratio"] is None
     no_bad_numbers(r)
 
 
-def test_whatif_closer_and_center_faster():
-    c = qc.whatif(wi_calls(), "closer", 50, 60)
-    assert c["with_fix"]["late"] == 0                           # drives 340, 360 ... halved
-    d = qc.whatif(wi_calls(), "center_faster", 100, 60)         # dispatch 60 s -> 0: 340, 440, 460, 240
-    assert d["with_fix"]["late"] == 0 and d["avoided"] == 2
+# ---------------------------------------------------------------- 8. C. queue label
+
+@pytest.mark.parametrize("spec,control,expected", [
+    ("below", "out_of_control", "act_now"),
+    ("below", "in_control", "ongoing_gap"),
+    ("meets", "out_of_control", "recent_change"),
+    ("inconclusive", "out_of_control", "recent_change"),
+    ("meets", "in_control", "meets_stable"),
+    ("inconclusive", "in_control", "needs_data"),
+    ("below", "insufficient_baseline", "needs_data"),
+    ("meets", "insufficient_baseline", "needs_data"),
+    ("inconclusive", "insufficient_baseline", "needs_data"),
+])
+def test_queue_label_truth_table(spec, control, expected):
+    assert qc.queue_label(spec, control) == expected
 
 
-def test_whatif_add_ambulance_only_changes_held_calls():
-    calls = wi_calls()
-    calls[1].update(held="Y", dispatch_s=200)                   # 500 s call, dispatch cut from 200 to the median 60
-    r = qc.whatif(calls, "add_ambulance", 0, 60)
-    assert r["now"]["late"] == 2 and r["with_fix"]["late"] == 1   # 500 -> 360; 520 stays late
-    none_held = qc.whatif(wi_calls(), "add_ambulance", 0, 60)
-    assert none_held["avoided"] == 0
-
-
-def test_whatif_add_ambulance_never_makes_a_call_slower():
-    calls = [{"total_s": 500, "turnout_s": 0, "dispatch_s": 30, "drive_s": 470, "held": "Y", "target_s": 480}]
-    r = qc.whatif(calls, "add_ambulance", 0, 60)                # median 60 > this call's 30: left alone
-    assert r["with_fix"]["late"] == 1
-
-
-def test_whatif_unknown_fix_raises():
+def test_queue_label_never_calls_inconclusive_a_success():
+    for control in qc.CONTROL_STATUSES:
+        assert qc.queue_label("inconclusive", control) != "meets_stable"
     with pytest.raises(ValueError):
-        qc.whatif(wi_calls(), "magic", 20, 60)
+        qc.queue_label("on_track", "in_control")
 
 
-def test_whatif_empty_and_bad_pct():
-    r = qc.whatif([], "closer", 20, 60)
-    assert r["now"]["late"] == 0 and r["now"]["p95_min"] is None and r["messages"]
-    with pytest.raises(ValueError):
-        qc.whatif(wi_calls(), "closer", 150, 60)
+# ---------------------------------------------------------------- 9. What Held Up the Call
+
+STAGE_BASE = [{"dispatch_s": d, "turnout_s": t, "drive_s": v, "held": "N"}
+              for d, t, v in [(50, 60, 250), (60, 70, 300), (70, 80, 350)]]   # medians 60, 70, 300
+STAGE_LATE = [{"dispatch_s": 120, "turnout_s": 75, "drive_s": 330, "held": "Y"},   # excess 60, 5, 30 -> dispatch
+              {"dispatch_s": 55, "turnout_s": 65, "drive_s": 500, "held": "N"},    # excess -5, -5, 200 -> drive
+              {"dispatch_s": 50, "turnout_s": 60, "drive_s": 290, "held": "N"}]    # all <= 0 -> none
 
 
-def test_whatif_add_ambulance_without_median_says_so():
-    r = qc.whatif(wi_calls(), "add_ambulance", 0, None)
-    assert r["avoided"] == 0 and r["messages"]
+def test_stage_excess_known_answer():
+    r = qc.stage_excess(STAGE_LATE, STAGE_BASE)
+    assert r["base_median"] == {"dispatch_s": 60, "turnout_s": 70, "drive_s": 300}
+    assert r["per_call"] == ["dispatch_s", "drive_s", "none"]
+    assert r["counts"] == {"dispatch_s": 1, "turnout_s": 0, "drive_s": 1, "none": 1}
+    # means of late calls: 225 / 3 = 75, 200 / 3 = 66.667, 1120 / 3 = 373.333; excess 15, -3.333, 73.333
+    assert r["late_mean"]["dispatch_s"] == approx(75) and r["late_mean"]["drive_s"] == approx(373.333)
+    assert r["mean_excess"] == {"dispatch_s": approx(15), "turnout_s": approx(-3.3333), "drive_s": approx(73.3333)}
+    assert r["top_stage"] == "drive_s" and r["held"] == 1
+    no_bad_numbers(r)
+
+
+def test_stage_excess_arithmetic_adds_up():
+    # mean total 515 - sum of medians 430 = 85 = 15 - 3.333 + 73.333
+    r = qc.stage_excess(STAGE_LATE, STAGE_BASE)
+    assert r["total"] == {"late_mean": approx(515), "base_median_sum": approx(430), "excess": approx(85)}
+    assert sum(r["mean_excess"].values()) == approx(r["total"]["excess"])
+
+
+def test_stage_excess_held_only_when_recorded_and_degenerate_inputs():
+    no_held = [{k: v for k, v in c.items() if k != "held"} for c in STAGE_LATE]
+    assert qc.stage_excess(no_held, STAGE_BASE)["held"] is None
+    empty = qc.stage_excess([], STAGE_BASE)
+    assert empty["top_stage"] is None and empty["messages"] and sum(empty["counts"].values()) == 0
+    nobase = qc.stage_excess(STAGE_LATE, [])
+    assert nobase["per_call"] == [] and nobase["mean_excess"]["dispatch_s"] is None and nobase["messages"]
+    assert nobase["late_mean"]["dispatch_s"] == approx(75)
+    gap = qc.stage_excess([{"dispatch_s": 60, "turnout_s": None, "drive_s": 300}], STAGE_BASE)
+    assert gap["messages"] and gap["per_call"] == []
+    for r in (empty, nobase, gap):
+        no_bad_numbers(r)
+
+
+# ---------------------------------------------------------------- 10. travel time against the estimate
+
+def test_travel_vs_estimate_known_answer_faster_and_slower():
+    # baseline differences -50 .. 49 s: P95 = -50 + 0.95 x 99 = 44.05 s.
+    r = qc.travel_vs_estimate([-30, 10, 45, 60, -5], list(range(-50, 50)))
+    assert r["threshold_s"] == approx(44.05)
+    assert r["median_s"] == 10.0 and r["pct_slower"] == 60.0 and r["pct_faster"] == 40.0
+    assert r["n_unusual"] == 2 and r["pct_unusual"] == 40.0
+    no_bad_numbers(r)
+
+
+def test_travel_vs_estimate_degenerate():
+    short = qc.travel_vs_estimate([10, 20], [1, 2, 3])
+    assert short["threshold_s"] is None and short["n_unusual"] is None and short["messages"]
+    empty = qc.travel_vs_estimate([], list(range(100)))
+    assert empty["median_s"] is None and empty["threshold_s"] is not None and empty["messages"]
+    nan = qc.travel_vs_estimate([float("nan"), None, 5], list(range(100)))
+    assert nan["n"] == 1
+
+
+# ---------------------------------------------------------------- 11. I-chart assumption checks
+
+def test_assumption_checks_known_answer_and_degenerate():
+    # alternating 1, 2: deviations +-0.5, sum of neighbour products 39 x -0.25 = -9.75, sum of squares 10: lag-1 -0.975
+    r = qc.assumption_checks([1, 2] * 20)
+    assert r["lag1"] == approx(-0.975) and r["skew"] == approx(0.0) and r["messages"]
+    flat = qc.assumption_checks([3.0] * 40)
+    assert flat["lag1"] is None and flat["messages"]
+    assert qc.assumption_checks([1.0, 2.0])["skew"] is None

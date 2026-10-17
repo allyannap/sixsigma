@@ -1,17 +1,25 @@
 """Build config/targets.csv: one row per (urgency code, area type) = 10 codes x 4 area types.
 
-Run from the repo root:   python config/build_targets.py
+Run from the repo root:   python config/build_targets.py                 (the default: flat placeholders)
+                          python config/build_targets.py --from-history  (alternative: red target = area P90)
 
-Method (SPEC section 4):
+Default (team decision Oct 16, approved decisions brief): red 480 s, yellow 900 s, green 1800 s in every
+area type, goal 90%. These are configurable PLACEHOLDERS, not certified standards. A history-based red
+target is circular for the specification check (each area's target is its own P90, so its on-time rate
+sits at about 90% by construction and nearly every place reads "inconclusive"), so it is opt-in only.
+The reference columns are written in both modes, for context.
+
+Reference columns (and the --from-history red target):
   1. Read data/incidents_baseline.csv.gz.
   2. Keep timed RED calls (urgency codes 0-2): not CANCELLED, t_onscene present, valid_time = Y,
      times in order, received 2025-10-16 to 2026-04-15 inclusive (America/New_York dates).
   3. Join each call's ZCTA to its area type (data/lookup/zcta_county.csv, column urban_rural).
   4. Per area type: reference_p90_s = 90th percentile of total_s (numpy linear interpolation);
-     target_s = reference_p90_s rounded UP to a multiple of 10 s.
+     with --from-history, target_s = reference_p90_s rounded UP to a multiple of 10 s.
   5. Yellow (codes 3-5) are 900 s and green (6-9) 1800 s in every area type; every goal is 90%.
 The output is deterministic: running it again gives the same file, byte for byte.
 """
+import argparse
 import math
 from pathlib import Path
 
@@ -23,7 +31,7 @@ ROOT = HERE.parent
 REF_FROM, REF_TO = "2025-10-16", "2026-04-15"
 AREA_TYPES = ["urban", "suburban", "rural", "remote"]
 RED_CODES, YELLOW_CODES, GREEN_CODES = [0, 1, 2], [3, 4, 5], [6, 7, 8, 9]
-YELLOW_S, GREEN_S, GOAL_PCT = 900, 1800, 90
+RED_S, YELLOW_S, GREEN_S, GOAL_PCT = 480, 900, 1800, 90
 
 
 def round_up_10(x):
@@ -49,7 +57,7 @@ def reference_calls():
     return df.merge(area[["zcta", "urban_rural"]], on="zcta", how="left")
 
 
-def build():
+def build(from_history=False):
     calls = reference_calls()
     red = {}
     for area in AREA_TYPES:
@@ -62,7 +70,8 @@ def build():
     for code in range(10):
         for area in AREA_TYPES:
             if code in RED_CODES:
-                group, target, p90, n = "red", red[area][0], red[area][1], red[area][2]
+                group, p90, n = "red", red[area][1], red[area][2]
+                target = red[area][0] if from_history else RED_S
             else:
                 group = "yellow" if code in YELLOW_CODES else "green"
                 target, p90, n = (YELLOW_S if group == "yellow" else GREEN_S), "", ""
@@ -73,11 +82,16 @@ def build():
 
 
 def main():
-    out, red = build()
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--from-history", action="store_true", help="red target = area type P90 (not the default)")
+    args = ap.parse_args()
+    out, red = build(args.from_history)
     out.to_csv(HERE / "targets.csv", index=False, lineterminator="\n")
-    print(f"wrote {len(out)} rows to config/targets.csv (reference period {REF_FROM} to {REF_TO})")
+    mode = "history-based red targets" if args.from_history else f"flat red target {RED_S} s"
+    print(f"wrote {len(out)} rows to config/targets.csv ({mode}; reference period {REF_FROM} to {REF_TO})")
     for area in AREA_TYPES:
         t, p90, n = red[area]
+        t = t if args.from_history else RED_S
         print(f"  {area:9s} red target {t} s ({t / 60:.2f} min), reference P90 {p90} s, n = {n:,}")
 
 

@@ -89,6 +89,9 @@ def make_zcta(zcta, pop, kind, county, daily_factor, params, groups, surge, clos
     z_ratio = rng.standard_normal(n)
     u_disp = rng.random(n)
     u_valid = rng.random(n)
+    # Drawn last so every earlier draw (and so every file built before this was added) is unchanged.
+    u_slow = rng.random(n)
+    z_slow = rng.standard_normal(n)
 
     names = ["red", "yellow", "green"]
     disp_med = np.array([p["dispatch_median_s"][g] for g in names])[grp]
@@ -108,7 +111,11 @@ def make_zcta(zcta, pop, kind, county, daily_factor, params, groups, surge, clos
         from_ts = days_arr["closure_start"]
         eta = np.where(t_recv >= from_ts, eta * p["station_closure"]["eta_multiplier"], eta)
     eta_s = whole_seconds(eta)
-    drive = whole_seconds(eta_s * ratio_med * np.exp(p["drive_ratio_sigma"] * z_ratio))
+    # Ambulances are usually a little faster than the estimate, but not always: the lognormal ratio lets
+    # them be slower too, and a small share of slow outliers (detours, wrong address, road closures) is added.
+    slow = np.where(u_slow < p["drive_slow_outlier_probability"],
+                    p["drive_slow_outlier_median"] * np.exp(p["drive_slow_outlier_sigma"] * z_slow), 1.0)
+    drive = whole_seconds(eta_s * ratio_med * np.exp(p["drive_ratio_sigma"] * z_ratio) * slow)
     dispatch_s = whole_seconds(dispatch)
     turnout_s = whole_seconds(turnout)
 

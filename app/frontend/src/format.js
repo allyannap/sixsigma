@@ -39,18 +39,21 @@ export function fmtDate(iso) {
   return `${MONTHS[Number(m) - 1]} ${Number(d)}`
 }
 
-/** Z score: 7.4 -> "7.4"; missing -> "n/a". */
-export function fmtZ(z) {
-  return fmtNum(z, 1)
-}
-
-/** goal_pct = the on-time goal (90 means 90% on time), so the late goal is 100 - goal_pct; missing -> null. */
-export function lateGoalPct(goalPct) {
-  return missing(goalPct) ? null : 100 - goalPct
+/** [80.6, 90.6] -> "80.6 to 90.6"; unit "%" -> "80.6% to 90.6%"; missing -> "n/a". */
+export function fmtCi(ci, unit = '', digits = 1) {
+  if (!ci || missing(ci[0]) || missing(ci[1])) return 'n/a'
+  return `${fmtNum(ci[0], digits)}${unit} to ${fmtNum(ci[1], digits)}${unit}`
 }
 
 /** selection{from,to} -> "Sep 16 to Oct 15, 2026". */
 export function fmtRange(sel) {
   if (!sel || !sel.from || !sel.to) return ''
   return `${fmtDate(sel.from)} to ${fmtDate(sel.to)}, ${String(sel.to).slice(0, 4)}`
+}
+
+/** "2026-09-01", 3 -> "2026-09-04" (calendar arithmetic in UTC, so no daylight-saving surprises). */
+export function addDays(iso, n) {
+  const d = new Date(`${String(iso).slice(0, 10)}T00:00:00Z`)
+  d.setUTCDate(d.getUTCDate() + n)
+  return d.toISOString().slice(0, 10)
 }

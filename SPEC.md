@@ -8,10 +8,11 @@ Most of this page is already decided by the event and the [rubric](docs/criteria
 (prompts are secret until then, see [`docs/prompts.md`](docs/prompts.md)) and on your team.
 The examples after each `FILL IN` show the shape of an answer. They are not hints about the prompts.
 
-The team's design sources: the data schema ("EMS Response Monitor: Data Schema", Oct 16, 2026) is the
-source of truth for files, columns, filters and statistical rules; the mockup ("EMS Statistical Analysis
-Card") sets the look and the plain-language wording. Where they differ, the schema wins, except that the
-mockup's ANOM section is in the core (team decision, Oct 16).
+The team's design sources, in priority order: **[`EMS_RESPONSE_MONITOR_DECISIONS.md`](EMS_RESPONSE_MONITOR_DECISIONS.md)
+(the approved decisions brief, Oct 16, 2026) is the requirement and overrides everything below it**; then the data schema
+(`ref/EMS Response Monitor Data Schema.md`) for files and columns; then the mockup ("EMS Statistical Analysis Card") for
+look and wording. Where the schema or mockup still describe Cpk status, a fault tree, what-if or `POST /calls`, they are
+superseded. Two choices the brief left open were decided by the team on Oct 16 (section 10).
 
 ## 1. Team and prompt
 - **Team name:** Powerpuff Girls
@@ -21,9 +22,10 @@ mockup's ANOM section is in the core (team decision, Oct 16).
 - **Our public repo:** https://github.com/allyannap/sixsigma
 
 ## 2. User and use case (rubric: scope 5, user and use case 5)
-- **User:** the 911 / EMS dispatch center's quality supervisor (not dispatchers mid-call, not the public).
-- **Decision the tool helps them make, and when:** at the start of each day, for New York State, a county or one ZIP code area: which places need attention, whether a delay is a real recent change or a long-running gap, which step of the response the extra minutes come from (911 center, crew, or the drive), and which fix to fund (post an ambulance closer, add an ambulance, speed up the 911 center or the crew).
-- **Why this matches the prompt:** it replaces the monthly average with per-place control charts, tail percentiles and every individual call, so the outliers the average hides are flagged by place ("where") and traced to a step ("why").
+- **User:** a New York State EMS dispatch center's quality supervisor (not the dispatcher assigning an ambulance, not the public).
+- **Decision the tool helps them make, and when:** at the start of a review, for New York State, a county or one ZIP code area (ZCTA): which areas need review; whether each is **below the service goal**, shows a **new statistical change** from its own history, or both; and which **recorded response stage** (received → assigned, assigned → en route, en route → on scene) deserves investigation.
+- **Read-only.** The tool reads preloaded synthetic incidents from the back end and can replay them as a simulated stream. No user-entered incidents, no logging forms, no ambulance assignment, no ranking of people, no what-if or intervention ranking.
+- **Why this matches the prompt:** it replaces the monthly average with an on-time rate and its uncertainty per place, a control chart against each place's own baseline, tail percentiles, and a stage-by-stage breakdown of late calls, so the places and the recorded stages behind the failures are visible.
 
 ## 3. Inputs (rubric: minimal inputs 5)
 Only what this user can actually measure or already knows. Fewer is better; every input a user
@@ -31,38 +33,68 @@ cannot measure costs points.
 
 | Input | Type and units | Where the user gets it |
 |---|---|---|
-| `incidents.csv`, one row per 911 EMS call. Required: `incident_id`, `zcta`, `urgency_code`, `t_received`, `t_assigned`, `t_enroute`, `t_onscene` (empty if cancelled), `disposition`, `valid_time` | text IDs; 5-digit ZIP area; integer 0-9; ISO 8601 datetimes with the New York offset; Y/N | the 911 center's computer-aided dispatch (CAD) export; columns follow NYC's public EMS Incident Dispatch Data |
-| Optional columns: `eta_google_s` (Google drive estimate with traffic at assignment), `held` (call waited because no ambulance was free) | integer seconds; Y/N | `held` is in CAD today; `eta_google_s` needs a Google Routes API call at assignment time. Without them, cards 7 and parts of 8 are hidden |
-| `config/targets.csv`: per urgency code and area type (urban, suburban, rural, remote), `urgency_group` (red/yellow/green), `target_s`, `goal_on_time_pct` | seconds; percent | red: built by `config/build_targets.py` from the center's own history (each area type's 90th-percentile wait in a fixed reference period); yellow 900 s and green 1800 s everywhere; goal 90% |
-| Filters on every request: `from`, `to`, `urgency`, `level` (state/county/zcta), `id`, `baseline_days` | dates; red/yellow/green; FIPS or ZCTA; days (default 60 before `from`) | picked on screen |
+| `incidents.csv`, one row per EMS call. Required: `incident_id`, `zcta`, `urgency_code`, `t_received`, `t_assigned`, `t_enroute`, `t_onscene` (empty if cancelled), `disposition`, `valid_time` | text IDs; 5-digit ZIP area; integer 0-9; ISO 8601 datetimes with the New York offset; Y/N | the dispatch center's computer-aided dispatch (CAD) export; columns follow NYC's public EMS Incident Dispatch Data. In this project the three files are **synthetic** |
+| Optional: `eta_google_s` (travel estimate at assignment), `held` (call waited because no unit was free) | integer seconds; Y/N | `held` is in CAD today; `eta_google_s` needs a routing API call at assignment and is not in public data (here it is generated) |
+| `config/targets.csv`: per urgency code and area type, `urgency_group`, `target_s`, `goal_on_time_pct` | seconds; percent | **placeholders: red 480 s, yellow 900 s, green 1800 s, 90% on time**, configurable per center; not certified statewide standards |
+| Filters: `from`, `to`, `urgency`, `level` (state/county/zcta), `id`, `baseline_days` | dates; red/yellow/green; FIPS or ZCTA; days | picked on screen (no time-of-day filter) |
 
 Lookups the tool ships with (the user supplies nothing): `data/lookup/zcta_county.csv`, `data/lookup/counties.csv`
 (2020 Census) and the map shapes in `geo/`.
 
+**Response-time definition (provisional, open dependency):** `total_wait_s = t_onscene - t_received`. Whether `t_received`
+is the original 911 call receipt or the EMS CAD incident creation is **not yet confirmed**; it must be validated against the
+source (and kept consistent across test data and any real extract) before real use. It is not silently redefined here.
+
 ## 4. The statistics, and why (rubric: valid QC analysis 25)
-Say the method in words before any code exists. Load the `stats-first-steering` skill first.
-- **Method:** the headline measure is `total_s = t_onscene - t_received` (the patient's whole wait, so delays at the 911 center before an ambulance is assigned count too); the prompt's own measure, `dispatch_to_scene_s = t_onscene - t_assigned`, is reported beside it (P95 of both). Each call's `target_s` and goal come from `config/targets.csv` by its urgency code and its ZCTA's **area type**, set by population density (people per square mile of land, 2020 Census): urban >= 3,000, suburban 500 to 3,000, rural 50 to 500, remote < 50. **Red targets come from history and density:** for each area type, the 90th percentile of red-call `total_s` over a fixed **reference period**, Oct 16, 2025 to Apr 15, 2026 (rounded up to 10 s; goal 90% on time), computed once by `config/build_targets.py` and frozen, so every place is judged against what places of its own density achieved before. The reference period never overlaps an analysis window (the demo windows start in Jul 2026), so targets are not graded against themselves. Published standards for context: NFPA 1710 sets 480 s of ALS travel time (en route to scene) for 90% of calls; NFPA 1720 sets 9 / 10 / 14 minutes for urban / suburban / rural demand zones; our clock starts at call received, which is stricter. A call is **late** when `total_s > target_s` and **very late** when `total_s > 2 x target_s` (the "fatal outlier" count). Untimed calls (cancelled, no `t_onscene`, `valid_time = N`, or times out of order) count in volume only. Per place (state, county or ZCTA), within one urgency group, compared with the **baseline** (the 60 days before the selected range; 120 if under 30 timed calls). All logs are natural logs (never mix seconds and minutes).
-  1. **p chart** of the fraction late (display: "bad days"). Subgroup = the shortest of day, week or calendar month for which the baseline's expected late calls per subgroup, mean n x p-bar, is at least 5; if none reaches 5 the chart is shown as "low volume, no signals". CL = p-bar from the baseline (total late / total calls); limits p-bar +/- 3 sqrt(p-bar (1 - p-bar) / n_i), LCL floored at 0, UCL capped at 1. Marks: a point above its UCL; a run of 9 above the CL. These marks do not set the status.
-  2. **I-MR chart on ln(minutes)** of every call in order received (display: "bad calls"). CL = baseline mean, sigma = MR-bar / 1.128 (d2 for n = 2), I limits CL +/- 3 sigma, MR UCL = 3.267 MR-bar. All 8 Nelson tests are computed and shown; tests 1, 2 and 5 are marked as alerts, the other 5 are information only; red dots are calls beyond 3 sigma. These marks do not set the status.
-  3. **One-sided Cpk on each call's log ratio to its own target**, x = ln(total_s / target_s), so a county that mixes area types is judged call by call against each call's own target: USL = 0, Cpk = (0 - mean) / (3 sigma), sigma = MR-bar / 1.128 (the course's within, short-term sigma). Upper 95% bound, Bissell (1990) with a correction for MR-bar's lower efficiency (variance ratio 1.64 vs s): Cpk + 1.645 sqrt(1/(9n) + 1.64 Cpk^2 / (2(n - 1))). Bar = z(goal) / 3, goal = the call-weighted mean on-time goal of the selected calls (0.4272 for 90%). With one target this equals Cpk on ln(minutes) against ln(target minutes), so the known answer below is unchanged. The observed % late is always shown beside Cpk, since the bar equals the goal exactly only if ln(minutes) is normal.
-  4. **P95 of total wait and of dispatch-to-scene** (linear interpolation) with a 95% interval: percentile bootstrap, 2,000 resamples, fixed seed, for n up to 5,000; above that, the order-statistic interval (ranks n p +/- 1.96 sqrt(n p (1 - p)), p = 0.95). **Spread** = P95 - median (minutes), so "times vary wildly" is a number per place.
-  5. **ANOM** on ln(minutes) across the places at the current level with at least 30 timed calls: decision limits grand mean +/- h sigma-p sqrt((N - n_i) / (N n_i)), pooled within-place sigma-p, h = t(1 - 0.05 / (2k), N - k) (Bonferroni with t; conservative against the exact ANOM value). One-way ANOVA F shown alongside. Means are shown back in minutes as exp(mean ln), the geometric mean.
-  6. **Fault tree** (series OR) for each late call: "no ambulance free" if `held = Y`; otherwise the basic event with the largest **standardized** excess, z = (ln(step) - ln(baseline median)) / baseline sd of ln(step), over 911 center (`dispatch_s`), crew (`turnout_s`), long trip (`eta_google_s`) and drive slower than Google (ratio `drive_s / eta_google_s`). Scale-free, so a slow 911 center can be named next to a long drive. The drive is split, not double counted: drive = Google estimate x ratio. Calls where every z <= 0 go to "typical call is already late". The baseline medians and sds use non-held calls only (held calls would inflate the 911 center's spread; all calls if every baseline call is held).
-  7. **What-if replay** on the selected calls, one change at a time, everything else held fixed (no queueing effects): `closer` = drive shortened by pct; `add_ambulance` = each held call's `dispatch_s` set to the place's baseline median `dispatch_s` of non-held calls, only where that is lower (a fix never lengthens a call); `center_faster` / `crew_faster` = `dispatch_s` / `turnout_s` shortened by pct. Reports % late, P95 and late calls avoided.
-- **Status per place:** Act now = too slow overall AND changed recently; Recent change = changed only; Ongoing gap = too slow only; On track = neither; Not enough calls = under 30 timed calls in the selection or the baseline. "Too slow overall" = the Cpk upper bound is below z(goal)/3. "Changed recently" = an upward shift of the selection against its baseline, with n >= 30 in each: Z_loc = (mean_sel - mean_base) / (sigma_base sqrt(1/n_sel + 1/n_base)) > 3 on ln(minutes), sigma_base = baseline MR-bar / 1.128; or Z_p = (p_sel - p_base) / sqrt(p_pool (1 - p_pool) (1/n_sel + 1/n_base)) > 3 on the fraction late, used only when n_sel p_pool >= 5 and n_sel (1 - p_pool) >= 5. About 0.27% false-alarm chance per place. (The stats review measured the Nelson-test rule flagging 64% of counties on clean data; this rule flags 0 of 39 and detects both planted stories: closure ZIP 11368 Z_loc 7.4 over Sep 1 to Oct 15 and 5.7 over the default last 30 days, surge Monroe Z_loc 14.5 over Jul to Aug.) "Needs attention" = Act now, Recent change or Ongoing gap.
-- **Why it fits the use case:** the failures the prompt cares about live in the right tail, so the tool counts late and very late calls and shows every single call instead of the mean, compares each place with its own recent history, and splits each late call into the step that caused it.
-- **Assumptions and how the tool checks them:** (1) late/not late is binomial within a stable subgroup; subgroups are sized so n p-bar >= 5. (2) Response times are right-skewed, so I-MR, Cpk, ANOM and Z_loc use ln(minutes); the remaining skew (+0.2 to +0.4) is why tail tests are display-only and status uses means of many calls. (3) Calls are independent; on the synthetic data MR sigma 0.337 vs s 0.341. (4) The baseline is in control (the p chart and I chart show it). (5) Untimed rows are excluded and counted. (6) The tool manages the **dispatch step** (911 center time), not individual dispatchers: no dispatcher IDs, by design. "Real-time logging" is `POST /api/calls` plus replay of a file in time order, not a live CAD feed.
-- **Known-answer check** (each is a test in `tests/test_qc.py`; tolerance 5e-4 unless stated):
-  - p chart: 5 days, n = 20 each, late = 2, 3, 1, 4, 10, all baseline. p-bar = 0.20, sigma = sqrt(0.2 x 0.8 / 20) = 0.08944, UCL = 0.4683, LCL = 0. Only day 5 (p = 0.50) is marked. Subgroup rule: 14 calls a day at p-bar 0.08 gives week (1.12 a day < 5, 7.84 a week >= 5); 70 a day gives day; 2 a day at 0.07 gives none (low volume).
-  - I-MR: ln-minutes 1.0, 1.2, 0.9, 1.1, 1.3. MR = 0.2, 0.3, 0.2, 0.2, MR-bar = 0.225, sigma = 0.19947, CL = 1.1, UCL = 1.6984, LCL = 0.5016, MR UCL = 0.7351. No marks.
-  - Cpk, same data, target 8 min: ln 8 = 2.0794, Cpk = 0.9794 / 0.5984 = 1.6368; se = sqrt(1/45 + 1.64 x 1.6368^2 / 8) = sqrt(0.57143) = 0.7559; upper bound = 1.6368 + 1.645 x 0.7559 = 2.8803.
-  - ANOM: groups A = 1, 2, 3, 2; B = 2, 3, 4, 3; C = 5, 6, 7, 6. Grand mean 3.6667, sigma-p = sqrt(6 / 9) = 0.8165, h = t(1 - 0.05/6, 9) = 2.9333, half-width = 2.9333 x 0.8165 x sqrt(8/48) = 0.9778, limits 2.6889 to 4.6444: A (2.0) faster, B (3.0) inside, C (6.0) slower. ANOVA F(2, 9) = 26.0. (Applied to these tiny groups only in the test; the app requires 30 calls per place.)
-  - Changed recently: baseline 30 values alternating 1.0, 1.2 (mean 1.1, MR-bar 0.2, sigma 0.17730) and selection 30 values alternating 1.2, 1.4 (mean 1.3): Z_loc = 0.2 / (0.17730 x sqrt(2/30)) = 4.369 > 3, changed. With 3 of 30 late in the baseline and 12 of 30 in the selection: p_pool = 0.25, Z_p = 0.3 / sqrt(0.25 x 0.75 x 2/30) = 2.683, not by itself.
-  - Fault tree: baseline medians dispatch 60 s, turnout 70 s, Google estimate 300 s, ratio 0.88; baseline sd of ln 0.5, 0.35, 0.45, 0.15. A late call with dispatch 120, turnout 75, estimate 450, drive 396: z = ln 2 / 0.5 = 1.386 (911 center), ln(75/70) / 0.35 = 0.197, ln 1.5 / 0.45 = 0.901 (long trip), ln((396/450)/0.88) / 0.15 = 0, so the 911 center is named (raw seconds would wrongly say long trip: +150 s vs +60 s). Held = Y is always "no ambulance free".
-  - What-if: totals 400, 500, 520, 300 s at target 480, turnout 100 s each, crew 20% faster: 380, 480, 500, 280, so 2 late become 1 (480 is not late), 1 avoided.
-  - P95 of 1, 2, ..., 20 = 19.05; spread = 19.05 - 10.5 = 8.55.
-  - Status truth table: each of the 5 statuses, plus the boundaries (bound exactly equal to the bar is not too slow; Z exactly 3 is not changed; 29 calls is not enough).
-  - Degenerate: constant data (MR-bar = 0) returns Cpk None with "no variation: Cpk undefined", never inf; Cpk with n < 2 returns None, "too few calls"; p-bar = 0 and p-bar = 1 return no marks with a message; k = 1 ANOM returns a message; empty selection or all calls cancelled returns "Not enough calls" with no log or division; bootstrap of n = 1 or constant data returns [c, c]; baseline MR-bar = 0 with a non-constant selection returns Z_loc None with a message.
+Every formula is one function in `app/qc.py`; the known answers below are tests in `tests/test_qc.py` (tolerance 5e-4).
+
+- **Valid call and late call.** A valid completed call is not CANCELLED, has `t_onscene`, `valid_time = Y`, and times in order;
+  cancelled, invalid, missing and out-of-order rows count in volume only. `late = total_s > target_s(urgency_code, area type)`.
+  Per place: `n_valid`, `n_on_time`, on-time rate, late rate, median, P90, P95 (with 95% intervals for the median and P95).
+- **A. Specification ("Are calls meeting the service goal?").** On-time rate with a **95% Wilson score interval**,
+  compared with the goal g: **Meets target** if the lower bound ≥ g; **Below target** if the upper bound < g; otherwise
+  **Inconclusive** (the interval includes g), and also Inconclusive with "insufficient data" under 30 valid calls. The rate,
+  interval, goal and n are always shown. Inconclusive is never labelled as meeting the goal.
+- **B. Statistical control ("Has the process changed relative to its own history?").** A **p chart of the late share**
+  for the selected place and urgency group, with a fixed **baseline**: the 60 days before `from` (never overlapping the
+  selection), stretched to 120 days under 30 valid calls. Subgroup = the shortest of day, week or calendar month with
+  baseline calls x days x p̄ ≥ 5. CL = p̄ (baseline), UCL_i = min(1, p̄ + 3 sqrt(p̄(1 - p̄)/n_i)), LCL_i = max(0, p̄ - 3 sqrt(...)).
+  **Out of control** = at least one subgroup above its UCL (Shewhart rule 1, upper side, because the question is
+  deterioration; subgroups below the LCL are listed as improvements). **In control** = adequate baseline and no such
+  subgroup. **Insufficient baseline** = under 30 baseline calls after the stretch, no subgroup size reaching n p̄ ≥ 5,
+  p̄ of 0 or 1, or no subgroups. The run-of-9 rule is shown for information only. Being in control does not mean good service.
+  **Replay keeps the baseline fixed:** the simulated replay holds the period's start (and so its baseline) fixed and moves
+  only the end forward one day per tick; a rolling window would let the baseline drift into the change it should detect.
+- **C. Queue label (from A and B; both badges are always shown beside it).** Below + Out → **Act now: performance gap +
+  recent signal**; Below + In → **Ongoing gap**; Meets or Inconclusive + Out → **Recent process change: investigate**;
+  Meets + In → **Meets goal; statistically stable**; anything with Insufficient baseline, and Inconclusive + In →
+  **Needs more data / Inconclusive** (places confirmed Below target sort first inside it). "Needs review" = the first three.
+- **What Held Up the Call.** For late calls, each stage's recorded time minus the baseline median for that stage
+  (received → assigned, assigned → en route, en route → on scene). The stage with the largest positive excess is reported
+  per call and on average; `held` is shown only where present. Arithmetic: mean total − Σ stage medians = Σ mean stage excess.
+  Wording: possible contributors to review, not causes.
+- **Unusual travel-time difference** (optional, only where `eta_google_s` exists): `drive_s − eta_google_s`; "unusual" =
+  above the baseline's 95th percentile of the difference (about 5% when nothing changed). Faster and slower are both shown;
+  slower is a clue, not a failure. Provenance is stated (synthetic here).
+- **Secondary (never set a status):** I chart on ln(minutes) with baseline limits (sigma = MR̄ / 1.128), only test 1 marked,
+  with skewness and lag-1 autocorrelation reported; one-sided Cpk on ln(total_s / target_s) with the Bissell bound (assumes
+  lognormal times); ANOM on ln(minutes) within one urgency group, descriptive only (not adjusted for time of day, traffic,
+  call mix or resources, so no fairness claim).
+- **Assumptions and how they are checked:** (1) late counts are binomial within a subgroup: subgroups sized so n p̄ ≥ 5, and
+  a Pearson chi-square dispersion check on the baseline subgroups is reported (overdispersion warns that limits are too
+  narrow). (2) The baseline is adequate and stable: n ≥ 30, it never overlaps the period, and it is the 60 days just before
+  the period so seasonal drift inside it is small; seasonality across the year is not modelled (open limitation).
+  (3) Urgency groups are analysed separately; combining groups is allowed but the page warns that case mix is mixed.
+  (4) Measured false alarms of the control rule on the no-change file: 5 of 186 county-windows (2.7%), red, 90-day windows.
+- **Known-answer checks** (each a test):
+  - Wilson: 85 of 100 → [0.76716, 0.90694]. 300 calls, goal 90%: 285 on time → [0.91915, 0.96947] Meets; 255 → [0.80518, 0.88597] Below; 270 → [0.86083, 0.92905] Inconclusive. 0 of 20 → Inconclusive (insufficient data), not Below; 29 of 29 → Inconclusive, not Meets.
+  - p chart: 5 days, n = 20, late 2, 3, 1, 4, 10, p̄ = 0.20: UCL 0.4683, LCL 0; only day 5 (p = 0.50) is above → Out of control with that day as evidence. Varying n with p̄ = 0.10: n = 10 → UCL 0.3846; n = 100 → 0.19 (LCL 0.01); n = 1000 → 0.12846.
+  - Dispersion: n = 100 x 4, late 0, 20, 0, 20 → chi-square 44.44, df 3, ratio 14.81, overdispersed.
+  - Queue: all 9 combinations of A and B.
+  - Stage excess: baseline medians 60, 70, 300 s; late calls (120, 75, 330), (55, 65, 500), (50, 60, 290) → largest excess dispatch, drive, none; mean excess +15, −3.33, +73.33 s; total 515 − 430 = 85 s.
+  - Travel: baseline differences −50..49 s → threshold 44.05 s; now −30, 10, 45, 60, −5 → 60% slower, 40% faster, 2 unusual.
+  - Percentiles: 1..20 → median 10.5, P90 18.1, P95 19.05. I-MR: 1.0, 1.2, 0.9, 1.1, 1.3 → CL 1.1, UCL 1.6984, LCL 0.5016. Cpk (target 8 min) 1.6368, bound 2.8803. ANOM groups A/B/C → h 2.9333, F 26.0.
+  - Degenerate: n = 0, n = 1, constant data, p̄ = 0 or 1, no baseline, missing stage times, too few baseline estimates: each returns None or a status of Inconclusive / Insufficient baseline with a message, never inf or a pass.
 
 Fixed for every team:
 - The statistic lives in **one plain, tested function** (`app/qc.py` or `app/qc.R`). The API, app or
@@ -71,7 +103,7 @@ Fixed for every team:
 - You can explain every number the tool prints. If you cannot, it is not done.
 
 ## 5. Delivery (rubric: working tool 25)
-- **Stack:** dashboard: FastAPI (Python) back end serving `GET /summary`, `/pchart`, `/imr`, `/anom`, `/google`, `/delays`, `/whatif` and `POST /calls`, with a React front end. Every statistic is in `app/qc.py`.
+- **Stack:** dashboard: FastAPI (Python) back end, read-only `GET` routes `/api/summary`, `/pchart`, `/delays`, `/google`, `/replay`, `/imr`, `/anom`, `/meta`, `/health` (docs/api.md), with a React front end. Every statistic is in `app/qc.py`.
 - **Starting demo:** `demos/fastapi/`, plus `demos/reactfront/` as `app/frontend/`.
 
 Fixed for every team:
@@ -83,13 +115,12 @@ Fixed for every team:
 - A small tool that runs beats a large tool that does not.
 
 ## 6. Outputs
-- **What the user sees:** one page read top to bottom, as in the mockup: (1) a map of New York's counties, drilling down to ZIP areas, filled in the selected urgency's color (darker = more late), with a flag or outline per status, gray for "Not enough calls (<30 calls)"; a summary card (places needing attention, % late, median wait, median dispatch-to-scene, P95). (2) ANOM: which places are consistently slower than the rest. (3) For the selected place: the p chart and the I-MR chart with test results, read as "a real change, or a few bad days?". (4) Where the extra minutes come from: step medians, ambulance vs Google, and the fault-tree count of what held up each late call. (5) Which fix helps most: the what-if replay. How to read it: "a flag means this place is slower than its own recent history explains; the cards below say which step to look at first."
+- **What the user sees** (one page, labelled "SYNTHETIC DATA" and "Simulation / Replay"): filters (dataset, urgency, dates; no time-of-day), a replay bar (starts at the From date or a week before the dataset's planted change: Aug 25, or Jun 25 for the surge; fixed baseline; one simulated day every 3 s; shows that day's calls read-only), summary (areas needing review, counts by queue label, on-time k of n with CI against the goal, median and P95 with intervals, very-late count); (1) state → county → ZCTA map with a back button, filled by late share (gray under 30 valid calls), flagged by queue label, and a ranked table with n, on-time rate + CI, Target and Control badges, queue label, P95 + CI, and secondary Cpk; (2) the p chart with baseline window, signal evidence and the dispersion check, plus an optional I chart; (3) "What Held Up the Call" and the unusual travel-time difference; (4) an investigation list of flagged areas with evidence and topics to investigate; (5) a secondary, descriptive geographic comparison (ANOM).
 
 ## 7. Test datasets and codebook (rubric: demo 10, datasets 5, codebook 5)
-2-3 small CSVs in `data/`, invented but shaped like real field data, each showing one behavior.
-`data/README.md` is the codebook: every file, every column with units, and what it would take to
-collect this data for real.
-- **Datasets:** three synthetic 12-month files (Oct 16, 2025 to Oct 15, 2026) covering every New York ZCTA, about 400,000 calls each, gzipped (`data/incidents_<name>.csv.gz`), built by a fixed-seed generator from a parameters file, with volume = 2020 population x base rate x month factor (summer peak) x day-of-week factor: `incidents_baseline.csv.gz` (yearly pattern only; rural and remote ZIPs have long trips but are judged against their own area type's history, so few are flagged), `incidents_station_closure.csv.gz` (from Sep 1, 2026 Google estimates in ZIP 11368, the most populous urban ZCTA, rise 60%; +25% was too small for the tool's rules to flag: Act now in early September, long trip, "post an ambulance closer" helps most), `incidents_summer_surge.csv.gz` (Jul 1 to Aug 31, 2026 one county's volume +30%, `held = Y` common, `dispatch_s` grows: flagged in July and August only, "add an ambulance" helps most).
+`data/README.md` is the codebook: every file, every column with units, source or synthetic origin, generation assumptions,
+the rebuild command, expected signals, and what it would take to collect this data for real.
+- **Datasets:** three synthetic 12-month files (Oct 16, 2025 to Oct 15, 2026) covering every New York ZCTA, about 400,000 calls each, gzipped, built by a fixed-seed generator: `incidents_baseline.csv.gz` (seasonal pattern; persistent rural long-trip gaps; no planted change, so control signals are counted false alarms), `incidents_station_closure.csv.gz` (from Sep 1, 2026, travel estimates **and actual drives** in ZIP 11368 rise 60%), `incidents_summer_surge.csv.gz` (Jul 1 to Aug 31, 2026, Monroe County volume +30%, held calls common, received-to-assigned time up). Drives vary both faster and slower than the estimate, with slow outliers. `data/validate.py` checks schema, time order, lookups, interval arithmetic, baseline history, the stories, and (`--reproduce`) identical rebuilds from the seed.
 
 ## 8. Documentation and reproducibility (rubric: docs 10, public repo 5)
 - `README.md` says what the tool does, for whom, every input and parameter, how to run it in one
@@ -100,4 +131,10 @@ collect this data for real.
 ## 9. Out of scope
 What we will NOT build, so nobody (human or agent) builds it by accident.
 - Default: logins, databases, real customer data, a second statistic before the first one is tested.
-- Route optimization; correlation with traffic, accidents or population density as a model; ranking individual ambulances or dispatchers (no `unit_id` or dispatcher IDs, by design); time-of-day (shift) filters; patient outcomes (we flag extreme waits, never claim deaths); a live CAD connection (`POST /calls` and replay mode stand in for real-time logging).
+- Actual ambulance assignment or unit recommendation; ranking individual ambulances, crews or dispatchers (no `unit_id` or dispatcher IDs, by design); route optimization; patient outcomes; a what-if or intervention optimizer (deferred, consider later); user-entered incident logging; a live CAD or FDNY connection; time-of-day filters or time-of-day-adjusted analysis.
+- No causal attribution (stage times are evidence to review, not blame) and no fairness claim (urgency stratification does not control for traffic, shift, season, call complexity or resources).
+
+## 10. Decisions and open items (Oct 16, 2026)
+- **Replay design (Oct 16, after testing):** fixed start + fixed baseline, growing end date. A rolling 90-day window was tried first and hid both planted stories (11368 never flagged; Monroe's surge absorbed into its own baseline). Tested: from Aug 25, 11368 is in control through Sep 10 and Act now by Sep 20.
+- **Decided by the team after the brief:** red target flat 480 s (the brief's placeholder) instead of the history-based tiers of H-10, because tiers made the on-time check circular (60 of 62 counties Inconclusive on the baseline file); default window 90 days (counties under 30 red calls drop from 23 to 2); a place confirmed Below target but with Insufficient baseline is queued "Needs more data" and sorted first, as the brief's table says.
+- **Open dependencies (documented, not assumed):** the meaning of `t_received` (911 receipt vs CAD creation); authoritative service targets; the provenance of any real travel estimate (no origin coordinates in public data); the overall 24-hour scope (brief issue 12); a real-data compatibility check; seasonality and case-mix change checks beyond the dispersion test.

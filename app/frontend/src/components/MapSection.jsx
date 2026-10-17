@@ -2,11 +2,11 @@ import { useEffect, useMemo, useState } from 'react'
 import { geoMercator, geoPath } from 'd3-geo'
 import { getGeo } from '../api.js'
 import { rewindForD3 } from '../geo.js'
-import { fmtInt, fmtMin, fmtNum, fmtPct, fmtZ, lateGoalPct } from '../format.js'
-import { STATUS, URGENCY, attentionCount, fillFor, rankPlaces } from '../status.js'
-import { Async, Messages, Section, StatusBadge, StatusIcon, StatusLegend } from './common.jsx'
+import { fmtCi, fmtDate, fmtInt, fmtMin, fmtNum, fmtPct } from '../format.js'
+import { QUEUE, SPEC, CONTROL, STAGES, URGENCY, attentionCount, fillFor, latePct, rankPlaces } from '../status.js'
+import { Async, Judgments, Messages, Section, StatusBadge, StatusIcon, StatusLegend } from './common.jsx'
 
-const BAR_MAX = 25 // the table's % late bar runs 0 to 25%
+const MIN_N = 30 // under this many valid calls a place is drawn gray (insufficient data)
 const W = 640
 const H = 440
 
@@ -45,7 +45,7 @@ function PlaceMap({ parent, places, urgency, selected, onPick, onBack }) {
   }, [geo.data, drillIn, parent.id])
 
   const byId = useMemo(() => Object.fromEntries((places || []).map((p) => [p.id, p])), [places])
-  const maxPct = Math.max(1, ...(places || []).filter((p) => p.status !== 'not_enough').map((p) => p.pct_late || 0))
+  const maxLate = Math.max(1, ...(places || []).filter((p) => p.valid >= MIN_N).map((p) => latePct(p) || 0))
   const mainUrgency = urgency[0] || 'red'
 
   const shapes = useMemo(() => {
@@ -78,16 +78,15 @@ function PlaceMap({ parent, places, urgency, selected, onPick, onBack }) {
           <rect x="0" y="0" width={W} height={H} rx="10" fill="#F6F7F5" />
           {shapes.map((s) => {
             const p = byId[s.id]
-            const status = p ? p.status : null
-            const fill = !p || status === 'not_enough' ? '#C9CEC7' : fillFor(mainUrgency, (p.pct_late || 0) / maxPct)
-            const outline = status === 'act_now' ? { stroke: '#17201C', strokeWidth: 3 }
-              : status === 'ongoing_gap' ? { stroke: '#17201C', strokeWidth: 2.5, strokeDasharray: '2 4', strokeLinecap: 'round' }
+            const q = p ? p.queue : null
+            const sparse = !p || p.valid < MIN_N
+            const fill = sparse ? '#C9CEC7' : fillFor(mainUrgency, (latePct(p) || 0) / maxLate)
+            const outline = q === 'act_now' ? { stroke: '#17201C', strokeWidth: 3 }
+              : q === 'ongoing_gap' ? { stroke: '#17201C', strokeWidth: 2.5, strokeDasharray: '2 4', strokeLinecap: 'round' }
               : { stroke: '#FFFFFF', strokeWidth: 1 }
             const tip = p
-              ? status === 'not_enough'
-                ? `${p.name}: Not enough calls (<30 calls)`
-                : `${p.name}: ${fmtPct(p.pct_late)} late, ${STATUS[status]?.label || status}`
-              : `${s.name}: no data in this selection`
+              ? `${p.name}: ${fmtPct(p.on_time_pct)} on time (${fmtInt(p.on_time)} of ${fmtInt(p.valid)}), ${SPEC[p.spec]?.label}, ${CONTROL[p.control]?.label}: ${QUEUE[q]?.short || q}`
+              : `${s.name}: no calls in this selection`
             return (
               <path key={s.id} d={s.d} fill={fill} {...outline} className="shape" tabIndex={p ? 0 : -1}
                 role="button" aria-label={tip}
@@ -102,13 +101,13 @@ function PlaceMap({ parent, places, urgency, selected, onPick, onBack }) {
           )}
           {shapes.map((s) => {
             const p = byId[s.id]
-            if (!p || (p.status !== 'act_now' && p.status !== 'recent_change')) return null
+            if (!p || (p.queue !== 'act_now' && p.queue !== 'recent_change')) return null
             const [cx, cy] = s.c
             if (Number.isNaN(cx)) return null
             return (
               <g key={`flag-${s.id}`} transform={`translate(${cx - 8} ${cy - 8}) scale(1.1)`} style={{ pointerEvents: 'none' }}>
                 <rect x="-2" y="-2" width="20" height="20" rx="4" fill="#FFFFFF" fillOpacity="0.85" />
-                <StatusIcon status={p.status} size={16} />
+                <StatusIcon status={p.queue} size={16} />
               </g>
             )
           })}
@@ -116,75 +115,73 @@ function PlaceMap({ parent, places, urgency, selected, onPick, onBack }) {
       )}
       <div className="legend-row" aria-label="Map legend">
         <span className="swatch-ramp" aria-hidden="true">
-          <span>fewer late</span>
+          <span>smaller late share</span>
           <span className="ramp" style={{ background: `linear-gradient(90deg, ${URGENCY[mainUrgency].light}, ${URGENCY[mainUrgency].dark})` }} />
-          <span>more late</span>
+          <span>larger</span>
         </span>
         <span><StatusIcon status="act_now" size={14} /> Act now: filled flag, thick outline</span>
         <span><StatusIcon status="recent_change" size={14} /> Recent change: hollow flag</span>
         <span><StatusIcon status="ongoing_gap" size={14} /> Ongoing gap: dotted outline</span>
-        <span><span className="gray-swatch" /> Not enough calls (&lt;30 calls)</span>
+        <span><span className="gray-swatch" /> Under {MIN_N} valid calls: insufficient data</span>
       </div>
     </figure>
   )
 }
 
 function SelectedPanel({ summary, selected, parent, onDrill }) {
-  const p = selected.place
-  const totals = summary.totals
+  const p = selected.place || summary.place
   const isParent = selected.level === parent.level && selected.id === parent.id
   const name = selected.name || summary.selection?.name || 'New York State'
-  const calls = p ? p.timed : totals?.timed
-  const late = p ? p.late : totals?.late
-  const pct = p ? p.pct_late : totals?.pct_late
-  const p95 = p ? p.p95_min : totals?.p95_min
-  const ci = p ? p.p95_ci : totals?.p95_ci
-  const status = p ? p.status : null
-  const veryLate = p ? p.very_late : totals?.very_late
-  const spread = p ? p.spread_min : totals?.spread_min
-  const zLoc = p ? p.z_loc : null
-  const zP = p ? p.z_p : null
+  if (!p) return null
+  const q = QUEUE[p.queue]
   return (
     <aside className="selected" aria-label="Selected place">
       <div className="eyebrow">Selected place</div>
       <div className="selected-title">
         <h3>{name}</h3>
-        {status && <StatusBadge status={status} />}
+        <StatusBadge status={p.queue} short />
       </div>
-      {status && <p>{STATUS[status]?.help}</p>}
-      {p && p.reasons && p.reasons.length > 0 && (
-        <ul className="reasons">{p.reasons.map((r) => <li key={r}>{r}</li>)}</ul>
-      )}
+      <Judgments p={p} />
+      <p>{q?.help}</p>
       <div className="mini-grid">
-        <div className="mini"><div className="mini-label">Late calls</div><div className="mini-sub">{fmtInt(late)} of {fmtInt(calls)}</div><div className="mini-value">{fmtPct(pct)}</div></div>
-        <div className="mini"><div className="mini-label">Longest waits (P95)</div><div className="mini-value">{fmtMin(p95)}</div><div className="mini-sub">{ci ? `95% CI ${fmtNum(ci[0])} to ${fmtNum(ci[1])}` : '1 in 20 waited longer'}</div></div>
-        <div className="mini"><div className="mini-label">Very late (over 2x goal time)</div><div className="mini-value">{fmtInt(veryLate)}</div></div>
-        <div className="mini"><div className="mini-label">Spread (P95 - median)</div><div className="mini-value">{fmtMin(spread)}</div></div>
+        <div className="mini">
+          <div className="mini-label">On time (the service goal)</div>
+          <div className="mini-value">{fmtPct(p.on_time_pct)}</div>
+          <div className="mini-sub">{fmtInt(p.on_time)} of {fmtInt(p.valid)} valid calls &middot; 95% CI {fmtCi(p.on_time_ci, '%')} &middot; goal {fmtPct(p.goal_pct, 0)}</div>
+        </div>
+        <div className="mini">
+          <div className="mini-label">Longest waits (P95)</div>
+          <div className="mini-value">{fmtMin(p.p95_min)}</div>
+          <div className="mini-sub">95% CI {fmtCi(p.p95_ci)} min &middot; median {fmtMin(p.median_min)}</div>
+        </div>
       </div>
-      {p && (
-        <p className="small" data-testid="change-z">
-          <strong>Change vs before (z):</strong> time {fmtZ(zLoc)}, share late {fmtZ(zP)}. <strong>&gt; 3 = real change.</strong>
-        </p>
-      )}
-      {status && <p><strong>Next step:</strong> {STATUS[status]?.next}</p>}
+      <ul className="reasons">
+        <li><strong>Target:</strong> {p.spec_reason || 'n/a'}.</li>
+        <li><strong>Control:</strong> {p.control_reason || 'n/a'}{p.unit ? ` (${p.unit}ly subgroups)` : ''}.
+          {p.signals && p.signals.length > 0 && <> Signals: {p.signals.slice(0, 4).map((s) => `${p.unit} of ${fmtDate(s.start)} (${fmtPct(100 * s.p)} late, limit ${fmtPct(100 * s.ucl)})`).join('; ')}{p.signals.length > 4 ? '; ...' : ''}.</>}
+        </li>
+        {p.baseline && <li><strong>Baseline:</strong> {fmtDate(p.baseline.from)} to {fmtDate(p.baseline.to)} ({p.baseline.days} days, {fmtInt(p.baseline.valid)} valid calls{p.baseline.stretched ? ', stretched from 60 days' : ''}).</li>}
+        {p.top_stage && <li><strong>Stage with the most extra time in late calls:</strong> {STAGES[p.top_stage].label} ({STAGES[p.top_stage].who}).</li>}
+      </ul>
+      <p><strong>Next step:</strong> {q?.next}</p>
       {!isParent && selected.level === 'county' && (
-        <button type="button" className="btn" onClick={() => onDrill(p)}>Show this county's ZIP areas</button>
+        <button type="button" className="btn" onClick={() => onDrill(selected.place)}>Show this county's ZIP areas</button>
       )}
-      <p className="small"><a href="#section-3">Sections 3 to 5 below look at {name}.</a></p>
+      <p className="small"><a href="#section-2">Sections 2 to 4 below look at {name}.</a></p>
     </aside>
   )
 }
 
-function PlaceTable({ places, selected, onPick, goalPct }) {
-  const lateGoal = lateGoalPct(goalPct)
+function PlaceTable({ places, selected, onPick }) {
   const ranked = rankPlaces(places)
   return (
     <div className="table-scroll" tabIndex={0} role="region" aria-label="Ranked places (scrolls sideways on small screens)">
       <table className="places">
         <thead>
           <tr>
-            <th scope="col">#</th><th scope="col">Place</th><th scope="col">Calls</th><th scope="col">Late</th>
-            <th scope="col">Very late</th><th scope="col">% late</th><th scope="col">P95 [95% CI]</th><th scope="col">Spread (P95 - median)</th><th scope="col">Cpk [upper]</th><th scope="col">Change vs before (z)</th><th scope="col">Status</th>
+            <th scope="col">#</th><th scope="col">Place</th><th scope="col">Valid calls</th><th scope="col">On time</th>
+            <th scope="col">On-time rate [95% CI]</th><th scope="col">Target</th><th scope="col">Control</th>
+            <th scope="col">Queue</th><th scope="col">P95 min [95% CI]</th><th scope="col" title="Secondary; assumes lognormal times; never sets the queue">Cpk [upper] (secondary)</th>
           </tr>
         </thead>
         <tbody>
@@ -193,26 +190,18 @@ function PlaceTable({ places, selected, onPick, goalPct }) {
               <td className="mono">{i + 1}</td>
               <th scope="row">
                 <button type="button" className="link-btn" onClick={() => onPick(p, false)} aria-pressed={selected.id === p.id}>{p.name}</button>
-                {p.reasons && p.reasons[0] && <div className="small muted">{p.reasons[0]}</div>}
+                {p.signals && p.signals[0] && <div className="small muted">signal: {p.unit} of {fmtDate(p.signals[0].start)}</div>}
               </th>
-              <td className="mono">{fmtInt(p.calls)}</td>
-              <td className="mono">{fmtInt(p.late)}</td>
-              <td className="mono">{fmtInt(p.very_late)}</td>
-              <td>
-                <div className="pct-cell">
-                  <div className="pct-bar" aria-hidden="true"><div style={{ width: `${Math.min(100, ((p.pct_late || 0) / BAR_MAX) * 100)}%` }} />{lateGoal != null && <i style={{ left: `${(lateGoal / BAR_MAX) * 100}%` }} />}</div>
-                  <span className="mono">{fmtPct(p.pct_late)}</span>
-                </div>
+              <td className="mono">{fmtInt(p.valid)}</td>
+              <td className="mono">{fmtInt(p.on_time)}</td>
+              <td className="mono">{fmtPct(p.on_time_pct)} <span className="muted">[{fmtCi(p.on_time_ci)}]</span> <span className="muted">vs {fmtNum(p.goal_pct, 0)}</span></td>
+              <td><span className="chip" style={{ background: SPEC[p.spec]?.bg, color: SPEC[p.spec]?.fg }}>{SPEC[p.spec]?.label}</span></td>
+              <td><span className="chip" style={{ background: CONTROL[p.control]?.bg, color: CONTROL[p.control]?.fg }}>{CONTROL[p.control]?.label}</span></td>
+              <td><StatusBadge status={p.queue} short /></td>
+              <td className="mono">{p.p95_min == null ? 'n/a' : fmtNum(p.p95_min)}{p.p95_ci && p.p95_min != null && <span className="muted"> [{fmtCi(p.p95_ci)}]</span>}</td>
+              <td className="mono muted" title={p.cpk == null ? 'Cpk undefined (under 30 calls or no spread)' : ''}>
+                {p.cpk == null ? 'n/a' : fmtNum(p.cpk, 2)}{p.cpk_upper != null && <> [{fmtNum(p.cpk_upper, 2)}]</>}
               </td>
-              <td className="mono">{p.p95_min == null ? 'n/a' : fmtNum(p.p95_min)}{p.p95_ci && <span className="muted"> [{fmtNum(p.p95_ci[0])}, {fmtNum(p.p95_ci[1])}]</span>}</td>
-              <td className="mono">{fmtNum(p.spread_min)}</td>
-              <td className="mono" title={p.cpk == null ? 'Cpk undefined (not enough calls or no spread)' : ''}>
-                {p.cpk == null ? 'n/a' : fmtNum(p.cpk, 2)}{p.cpk_upper != null && <span className="muted"> [{fmtNum(p.cpk_upper, 2)}]</span>}
-              </td>
-              <td className="mono" title="Time z / share-late z. Above 3 = real change.">
-                {fmtZ(p.z_loc)}<span className="muted"> / {fmtZ(p.z_p)}</span>
-              </td>
-              <td><StatusBadge status={p.status} /></td>
             </tr>
           ))}
         </tbody>
@@ -223,7 +212,7 @@ function PlaceTable({ places, selected, onPick, goalPct }) {
 
 export default function MapSection({ summaryState, parent, urgency, selected, onPick, onBack, onDrill }) {
   return (
-    <Section num={1} title="Which places need attention?" id="section-1">
+    <Section num={1} title="Which areas need review?" id="section-1">
       <Async state={summaryState}>
         {(s) => {
           const total = (s.places || []).length
@@ -231,19 +220,20 @@ export default function MapSection({ summaryState, parent, urgency, selected, on
           return (
             <>
               <p className="headline" role="status">
-                {n} of {total} {parent.level === 'state' ? 'counties' : 'ZIP areas'} need attention{n > 0 ? '. Start with the top of the table.' : '.'}
+                {n} of {total} {parent.level === 'state' ? 'counties' : 'ZIP areas'} need review{n > 0 ? '. Start at the top of the table.' : '.'}
               </p>
               <div className="split">
                 <PlaceMap parent={parent} places={s.places} urgency={urgency} selected={selected} onPick={onPick} onBack={onBack} />
                 <SelectedPanel summary={s} selected={selected} parent={parent} onDrill={onDrill} />
               </div>
               <StatusLegend />
-              <PlaceTable places={s.places} selected={selected} onPick={onPick} goalPct={s.totals?.goal_pct} />
+              <PlaceTable places={s.places} selected={selected} onPick={onPick} />
               <p className="small muted">
-                Fill color is the urgency you picked; darker means more late. Status is shown by the flag and outline, not by a second color.
-                Table bar: 0 to 25% late{s.totals?.goal_pct != null ? `, tick at ${fmtNum(lateGoalPct(s.totals.goal_pct), 0)}% (the center's goal of ${fmtNum(s.totals.goal_pct, 0)}% on time)` : ''}.
-                "Change vs before (z)" compares the selected range with the 60 days before it (time z / share-late z); above 3 = a real change, and it is what sets Recent change and Act now.
-                "Too slow overall" means Cpk (on log minutes) is confidently below the bar for the center's goal.
+                Two separate questions. <strong>Target</strong>: is the on-time rate confidently at or above the goal? Meets = the lower end
+                of its 95% interval is at or above the goal; Below = the upper end is below it; anything else, or under 30 valid calls, is Inconclusive.
+                {' '}<strong>Control</strong>: did the late share rise above its p-chart upper limit, set from the baseline before the period?
+                Being in control does not mean the service is good, and no alert does not mean the target is met.
+                Fill color is the late share for the urgency you picked; gray means under 30 valid calls.
               </p>
               <Messages messages={s.messages} />
             </>

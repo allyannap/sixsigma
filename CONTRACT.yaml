@@ -200,5 +200,25 @@ tasks:
       reproduces it exactly; python data/validate.py prints 0 FAIL; pytest tests passes; and on the
       live API the clean baseline file flags 0 counties changed while ZIP 11368 (closure) and
       Monroe (summer surge, Jul-Aug) are still flagged changed.
+    notes_after: "Oct 16 - the history-based red targets are no longer the default (H-11): config/targets.csv is flat 480 s; build_targets.py --from-history rebuilds the tiers."
     result: "4 area types by 2020 density; red targets = tier P90 Oct 2025-Apr 2026 (urban 430 s, suburban 460, rural 910, remote 1280), 40 rows, rebuild identical; validate 43 PASS 0 FAIL; pytest 110 passed; clean file 0 counties changed, 11368 and Monroe act_now; hand-computed Cpk for 11368 matches the API."
 
+
+  - id: H-11
+    title: Apply the approved decisions brief (EMS_RESPONSE_MONITOR_DECISIONS.md)
+    points: "protects valid QC analysis (25), working tool (25) and documentation (10) - the approved requirements"
+    status: done
+    owner: "claude + Powerpuff Girls"
+    started_at: "2026-10-16 22:00"
+    owns: ["EMS_RESPONSE_MONITOR_DECISIONS.md", "SPEC.md", "README.md", "docs/plan.md", "docs/api.md", "docs/roles.md", "app/qc.py", "app/data.py", "app/main.py", "app/README.md", "app/frontend/", "tests/", "config/", "data/generate.py", "data/params.json", "data/validate.py", "data/README.md", "data/*.csv.gz"]
+    notes: >
+      User instruction Oct 16 - treat the brief as the approved requirements. Team answers the same day -
+      red target flat 480 s (tiers made the on-time check circular), default window 90 days, Below target +
+      insufficient baseline -> Needs more data sorted first. Separate spec (Wilson) and control (p chart);
+      remove what-if, /whatif and POST /calls; read-only replay; What Held Up the Call on stage excess.
+      Overlaps H-05 (app/frontend/) and H-10 (config/, data/) by instruction.
+    definition_of_done: >
+      .venv/bin/python -m pytest tests -q passes (incl. the brief's acceptance tests AT-1 to AT-10);
+      cd app/frontend && npm test passes; .venv/bin/python data/validate.py --reproduce prints 0 FAIL;
+      git grep finds no /whatif or POST /api/calls in app/; a teammate reads the diff.
+    result: "Brief applied - Wilson spec + p-chart control + queue label; what-if, /whatif, POST /calls removed; read-only replay (fixed baseline); What Held Up the Call; flat 480 s red target, 90-day default; pytest 130 passed, npm test 28 passed, validate --reproduce 55 PASS 0 FAIL; commit approved by the team Oct 16."

@@ -1,138 +1,504 @@
 {
  "selection": {
-  "dataset": "station_closure",
+  "dataset": "summer_surge",
+  "source": "Synthetic - simulated replay",
   "level": "county",
-  "id": "36901",
-  "name": "Fixture County A",
-  "from": "2026-09-16",
-  "to": "2026-10-15",
+  "id": "36055",
+  "name": "Monroe (fixture)",
+  "from": "2026-07-01",
+  "to": "2026-08-31",
   "urgency": [
    "red"
   ],
-  "baseline_from": "2026-07-18",
-  "baseline_to": "2026-09-15"
+  "baseline_from": "2026-05-02",
+  "baseline_to": "2026-06-30",
+  "baseline_days": 60
  },
- "messages": [
-  "FIXTURE DATA: invented numbers for building the page. Not real."
- ],
  "totals": {
-  "calls": 2520,
-  "timed": 2440,
-  "late": 404,
-  "pct_late": 16.6,
-  "median_min": 7.6,
-  "median_dispatch_to_scene_min": 6.0,
-  "p95_min": 19.8,
+  "calls": 1269,
+  "valid": 1161,
+  "on_time": 805,
+  "late": 356,
+  "on_time_pct": 69.3,
+  "on_time_ci": [
+   66.6,
+   71.9
+  ],
+  "goal_pct": 90.0,
+  "spec": "below",
+  "spec_reason": "upper 95% bound is below the goal",
+  "very_late": 47,
+  "median_min": 6.18,
+  "median_ci": [
+   6.0,
+   6.38
+  ],
+  "p90_min": 12.15,
+  "p95_min": 15.07,
   "p95_ci": [
-   18.2,
-   21.5
+   14.2,
+   16.25
   ],
-  "very_late": 31,
-  "p95_dispatch_to_scene_min": 17.7,
+  "spread_min": 8.88,
+  "median_dispatch_to_scene_min": 4.18,
+  "p95_dispatch_to_scene_min": 9.65,
   "p95_dispatch_to_scene_ci": [
-   16.1,
-   19.4
-  ],
-  "spread_min": 12.2,
-  "goal_pct": 90
+   9.23,
+   10.62
+  ]
  },
- "needs_attention": 2,
+ "place": {
+  "calls": 1269,
+  "valid": 1161,
+  "on_time": 805,
+  "late": 356,
+  "on_time_pct": 69.3,
+  "on_time_ci": [
+   66.6,
+   71.9
+  ],
+  "goal_pct": 90.0,
+  "spec": "below",
+  "spec_reason": "upper 95% bound is below the goal",
+  "very_late": 47,
+  "control": "out_of_control",
+  "control_reason": "8 week(s) above the upper control limit",
+  "unit": "week",
+  "signals": [
+   {
+    "start": "2026-07-06",
+    "n": 155,
+    "late": 56,
+    "p": 0.36129032258064514,
+    "ucl": 0.20545315088294422,
+    "lcl": 0.04574302136585959
+   },
+   {
+    "start": "2026-07-13",
+    "n": 138,
+    "late": 40,
+    "p": 0.2898550724637681,
+    "ucl": 0.21022894963058072,
+    "lcl": 0.04096722261822308
+   },
+   {
+    "start": "2026-07-20",
+    "n": 163,
+    "late": 49,
+    "p": 0.3006134969325153,
+    "ucl": 0.20346886401274855,
+    "lcl": 0.04772730823605527
+   },
+   {
+    "start": "2026-07-27",
+    "n": 127,
+    "late": 36,
+    "p": 0.28346456692913385,
+    "ucl": 0.213817964523194,
+    "lcl": 0.03737820772560982
+   },
+   {
+    "start": "2026-08-03",
+    "n": 116,
+    "late": 38,
+    "p": 0.3275862068965517,
+    "ucl": 0.21790608172349635,
+    "lcl": 0.03329009052530746
+   },
+   {
+    "start": "2026-08-10",
+    "n": 124,
+    "late": 37,
+    "p": 0.29838709677419356,
+    "ucl": 0.21487876269827613,
+    "lcl": 0.036317409550527674
+   },
+   {
+    "start": "2026-08-17",
+    "n": 110,
+    "late": 37,
+    "p": 0.33636363636363636,
+    "ucl": 0.22039014860264008,
+    "lcl": 0.03080602364616372
+   },
+   {
+    "start": "2026-08-24",
+    "n": 118,
+    "late": 41,
+    "p": 0.3474576271186441,
+    "ucl": 0.21712046747419694,
+    "lcl": 0.03407570477460685
+   }
+  ],
+  "baseline": {
+   "from": "2026-05-02",
+   "to": "2026-06-30",
+   "days": 60,
+   "valid": 836,
+   "stretched": false,
+   "enough": true
+  },
+  "queue": "act_now",
+  "median_min": 6.18,
+  "p95_min": 15.07,
+  "p95_ci": [
+   14.2,
+   16.25
+  ],
+  "cpk": 0.146,
+  "cpk_upper": 0.164,
+  "top_stage": "dispatch_s"
+ },
+ "queue_counts": {
+  "act_now": 0,
+  "ongoing_gap": 1,
+  "recent_change": 0,
+  "meets_stable": 0,
+  "needs_data": 43
+ },
+ "needs_attention": 1,
  "places": [
   {
-   "id": "99901",
-   "name": "ZIP 99901 (fixture)",
-   "calls": 1100,
-   "timed": 1067,
-   "late": 260,
-   "pct_late": 24.4,
-   "p95_min": 21.4,
-   "cpk": 0.12,
-   "cpk_upper": 0.3,
-   "too_slow": true,
-   "changed": true,
-   "reasons": [
-    "Slower than the 60 days before: Z = 8.0 (above 3 = real change)"
+   "id": "14420",
+   "name": "14420",
+   "calls": 30,
+   "valid": 28,
+   "on_time": 6,
+   "late": 22,
+   "on_time_pct": 21.4,
+   "on_time_ci": [
+    10.2,
+    39.5
    ],
-   "status": "act_now",
-   "very_late": 30,
+   "goal_pct": 90.0,
+   "spec": "inconclusive",
+   "spec_reason": "insufficient data: 28 valid calls (under 30)",
+   "very_late": 5,
+   "control": "in_control",
+   "control_reason": "no month above the upper control limit",
+   "unit": "month",
+   "signals": [],
+   "baseline": {
+    "from": "2026-03-03",
+    "to": "2026-06-30",
+    "days": 120,
+    "valid": 42,
+    "stretched": true,
+    "enough": true
+   },
+   "queue": "needs_data",
+   "median_min": 10.62,
+   "p95_min": 22.27,
    "p95_ci": [
-    19.6,
-    23.4
+    15.73,
+    24.72
    ],
-   "spread_min": 12.6,
-   "z_loc": 8.0,
-   "z_p": 5.2
-  },
-  {
-   "id": "99902",
-   "name": "ZIP 99902 (fixture)",
-   "calls": 800,
-   "timed": 776,
-   "late": 70,
-   "pct_late": 9.0,
-   "p95_min": 11.0,
-   "cpk": 0.7,
-   "cpk_upper": 0.9,
-   "too_slow": false,
-   "changed": false,
-   "reasons": [],
-   "status": "on_track",
-   "very_late": 2,
-   "p95_ci": [
-    10.1,
-    12.0
-   ],
-   "spread_min": 4.4,
-   "z_loc": 0.2,
-   "z_p": -0.1
-  },
-  {
-   "id": "99903",
-   "name": "ZIP 99903 (fixture)",
-   "calls": 600,
-   "timed": 582,
-   "late": 72,
-   "pct_late": 12.4,
-   "p95_min": 12.9,
-   "cpk": 0.5,
-   "cpk_upper": 0.7,
-   "too_slow": false,
-   "changed": true,
-   "reasons": [
-    "Slower than the 60 days before: Z = 3.3 (above 3 = real change)"
-   ],
-   "status": "recent_change",
-   "very_late": 6,
-   "p95_ci": [
-    11.5,
-    14.4
-   ],
-   "spread_min": 5.0,
-   "z_loc": 3.3,
-   "z_p": 2.1
-  },
-  {
-   "id": "99904",
-   "name": "ZIP 99904 (fixture)",
-   "calls": 20,
-   "timed": 19,
-   "late": 2,
-   "pct_late": 10.5,
-   "p95_min": null,
    "cpk": null,
    "cpk_upper": null,
-   "too_slow": false,
-   "changed": false,
-   "reasons": [
-    "Fewer than 30 timed calls"
+   "top_stage": "drive_s"
+  },
+  {
+   "id": "14468",
+   "name": "14468",
+   "calls": 37,
+   "valid": 35,
+   "on_time": 6,
+   "late": 29,
+   "on_time_pct": 17.1,
+   "on_time_ci": [
+    8.1,
+    32.7
    ],
-   "status": "not_enough",
+   "goal_pct": 90.0,
+   "spec": "below",
+   "spec_reason": "upper 95% bound is below the goal",
+   "very_late": 7,
+   "control": "in_control",
+   "control_reason": "no month above the upper control limit",
+   "unit": "month",
+   "signals": [],
+   "baseline": {
+    "from": "2026-03-03",
+    "to": "2026-06-30",
+    "days": 120,
+    "valid": 46,
+    "stretched": true,
+    "enough": true
+   },
+   "queue": "ongoing_gap",
+   "median_min": 10.67,
+   "p95_min": 22.81,
+   "p95_ci": [
+    16.81,
+    24.17
+   ],
+   "cpk": -0.317,
+   "cpk_upper": -0.194,
+   "top_stage": "dispatch_s"
+  },
+  {
+   "id": "14428",
+   "name": "14428",
+   "calls": 9,
+   "valid": 9,
+   "on_time": 3,
+   "late": 6,
+   "on_time_pct": 33.3,
+   "on_time_ci": [
+    12.1,
+    64.6
+   ],
+   "goal_pct": 90.0,
+   "spec": "inconclusive",
+   "spec_reason": "insufficient data: 9 valid calls (under 30)",
+   "very_late": 2,
+   "control": "insufficient_baseline",
+   "control_reason": "fewer than 30 baseline calls, even after stretching to 120 days",
+   "unit": null,
+   "signals": [],
+   "baseline": {
+    "from": "2026-03-03",
+    "to": "2026-06-30",
+    "days": 120,
+    "valid": 24,
+    "stretched": true,
+    "enough": false
+   },
+   "queue": "needs_data",
+   "median_min": 11.75,
+   "p95_min": 23.43,
+   "p95_ci": [
+    12.03,
+    26.1
+   ],
+   "cpk": null,
+   "cpk_upper": null,
+   "top_stage": "dispatch_s"
+  },
+  {
+   "id": "14445",
+   "name": "14445",
+   "calls": 18,
+   "valid": 15,
+   "on_time": 10,
+   "late": 5,
+   "on_time_pct": 66.7,
+   "on_time_ci": [
+    41.7,
+    84.8
+   ],
+   "goal_pct": 90.0,
+   "spec": "inconclusive",
+   "spec_reason": "insufficient data: 15 valid calls (under 30)",
    "very_late": 0,
-   "p95_ci": null,
-   "spread_min": null,
-   "z_loc": null,
-   "z_p": null
+   "control": "insufficient_baseline",
+   "control_reason": "fewer than 30 baseline calls, even after stretching to 120 days",
+   "unit": null,
+   "signals": [],
+   "baseline": {
+    "from": "2026-03-03",
+    "to": "2026-06-30",
+    "days": 120,
+    "valid": 20,
+    "stretched": true,
+    "enough": false
+   },
+   "queue": "needs_data",
+   "median_min": 5.75,
+   "p95_min": 10.69,
+   "p95_ci": [
+    8.29,
+    12.15
+   ],
+   "cpk": null,
+   "cpk_upper": null,
+   "top_stage": "dispatch_s"
+  },
+  {
+   "id": "14450",
+   "name": "14450",
+   "calls": 71,
+   "valid": 66,
+   "on_time": 53,
+   "late": 13,
+   "on_time_pct": 80.3,
+   "on_time_ci": [
+    69.2,
+    88.1
+   ],
+   "goal_pct": 90.0,
+   "spec": "below",
+   "spec_reason": "upper 95% bound is below the goal",
+   "very_late": 0,
+   "control": "insufficient_baseline",
+   "control_reason": "low volume: no subgroup size gives 5 expected late calls",
+   "unit": null,
+   "signals": [],
+   "baseline": {
+    "from": "2026-05-02",
+    "to": "2026-06-30",
+    "days": 60,
+    "valid": 38,
+    "stretched": false,
+    "enough": true
+   },
+   "queue": "needs_data",
+   "median_min": 5.92,
+   "p95_min": 11.65,
+   "p95_ci": [
+    8.95,
+    13.52
+   ],
+   "cpk": 0.308,
+   "cpk_upper": 0.396,
+   "top_stage": "dispatch_s"
+  },
+  {
+   "id": "14464",
+   "name": "14464",
+   "calls": 16,
+   "valid": 14,
+   "on_time": 4,
+   "late": 10,
+   "on_time_pct": 28.6,
+   "on_time_ci": [
+    11.7,
+    54.6
+   ],
+   "goal_pct": 90.0,
+   "spec": "inconclusive",
+   "spec_reason": "insufficient data: 14 valid calls (under 30)",
+   "very_late": 3,
+   "control": "insufficient_baseline",
+   "control_reason": "fewer than 30 baseline calls, even after stretching to 120 days",
+   "unit": null,
+   "signals": [],
+   "baseline": {
+    "from": "2026-03-03",
+    "to": "2026-06-30",
+    "days": 120,
+    "valid": 11,
+    "stretched": true,
+    "enough": false
+   },
+   "queue": "needs_data",
+   "median_min": 11.59,
+   "p95_min": 17.95,
+   "p95_ci": [
+    13.93,
+    19.07
+   ],
+   "cpk": null,
+   "cpk_upper": null,
+   "top_stage": "dispatch_s"
+  },
+  {
+   "id": "14467",
+   "name": "14467",
+   "calls": 16,
+   "valid": 15,
+   "on_time": 13,
+   "late": 2,
+   "on_time_pct": 86.7,
+   "on_time_ci": [
+    62.1,
+    96.3
+   ],
+   "goal_pct": 90.0,
+   "spec": "inconclusive",
+   "spec_reason": "insufficient data: 15 valid calls (under 30)",
+   "very_late": 0,
+   "control": "insufficient_baseline",
+   "control_reason": "fewer than 30 baseline calls, even after stretching to 120 days",
+   "unit": null,
+   "signals": [],
+   "baseline": {
+    "from": "2026-03-03",
+    "to": "2026-06-30",
+    "days": 120,
+    "valid": 28,
+    "stretched": true,
+    "enough": false
+   },
+   "queue": "needs_data",
+   "median_min": 5.85,
+   "p95_min": 8.61,
+   "p95_ci": [
+    6.5,
+    8.62
+   ],
+   "cpk": null,
+   "cpk_upper": null,
+   "top_stage": "dispatch_s"
+  },
+  {
+   "id": "14472",
+   "name": "14472",
+   "calls": 13,
+   "valid": 12,
+   "on_time": 5,
+   "late": 7,
+   "on_time_pct": 41.7,
+   "on_time_ci": [
+    19.3,
+    68.0
+   ],
+   "goal_pct": 90.0,
+   "spec": "inconclusive",
+   "spec_reason": "insufficient data: 12 valid calls (under 30)",
+   "very_late": 1,
+   "control": "insufficient_baseline",
+   "control_reason": "fewer than 30 baseline calls, even after stretching to 120 days",
+   "unit": null,
+   "signals": [],
+   "baseline": {
+    "from": "2026-03-03",
+    "to": "2026-06-30",
+    "days": 120,
+    "valid": 18,
+    "stretched": true,
+    "enough": false
+   },
+   "queue": "needs_data",
+   "median_min": 9.3,
+   "p95_min": 14.24,
+   "p95_ci": [
+    10.16,
+    17.0
+   ],
+   "cpk": null,
+   "cpk_upper": null,
+   "top_stage": "dispatch_s"
   }
  ],
- "urgent_by_county": []
+ "calls_by_county": [
+  {
+   "county_fips": "36001",
+   "name": "Albany",
+   "calls": 368
+  },
+  {
+   "county_fips": "36003",
+   "name": "Allegany",
+   "calls": 50
+  },
+  {
+   "county_fips": "36005",
+   "name": "Bronx",
+   "calls": 1956
+  },
+  {
+   "county_fips": "36007",
+   "name": "Broome",
+   "calls": 260
+  },
+  {
+   "county_fips": "36009",
+   "name": "Cattaraugus",
+   "calls": 106
+  }
+ ],
+ "messages": [
+  "FIXTURE DATA: a saved, trimmed API reply for building and testing the page. Not live."
+ ]
 }

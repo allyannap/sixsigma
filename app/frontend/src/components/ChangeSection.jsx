@@ -1,6 +1,6 @@
 import { dotsPath, linear, linePath, logScale, logTicks } from '../charts.js'
-import { fmtDate, fmtInt, fmtMin } from '../format.js'
-import { Async, Messages, Section } from './common.jsx'
+import { fmtDate, fmtInt, fmtMin, fmtNum, fmtPct } from '../format.js'
+import { Async, JudgmentBadge, Messages, Section } from './common.jsx'
 
 const L = 56
 const R = 704
@@ -47,7 +47,7 @@ function ImrCharts({ d, sel }) {
   const hi = Math.max(d.ucl_min, ...mins) * 1.1
   const H = 280
   const y = logScale(lo, hi, H - 36, 14)
-  const flagged = (p) => (p.tests && p.tests.length > 0)
+  const flagged = (p) => p.beyond_3_sigma
   const normal = []
   const bad = []
   pts.forEach((p, i) => (flagged(p) ? bad : normal).push([x(i), y(p.minutes)]))
@@ -66,7 +66,7 @@ function ImrCharts({ d, sel }) {
   return (
     <>
       <svg viewBox={`0 0 720 ${H}`} className="chart" role="img"
-        aria-label={`Dot plot of every call, log scale. ${bad.length} calls fall outside the normal range.${worst ? ` The longest wait was ${fmtMin(worst.minutes)}.` : ''}`}>
+          aria-label={`Dot plot of every call, log scale. ${bad.length} calls are beyond 3 sigma.${worst ? ` The longest wait was ${fmtMin(worst.minutes)}.` : ''}`}>
         <rect x={L} y={y(d.ucl_min)} width={R - L} height={Math.max(0, y(d.lcl_min) - y(d.ucl_min))} fill="#DDEFE2" />
         <line x1={L} x2={R} y1={H - 36} y2={H - 36} stroke="#9AA39D" />
         {logTicks(lo, hi).map((t) => (
@@ -93,7 +93,7 @@ function ImrCharts({ d, sel }) {
         Log scale because response times are right-skewed.
       </p>
       <details className="math">
-        <summary>Show the moving range (MR) chart and the special-cause tests</summary>
+        <summary>Show the moving range (MR) chart and the assumption checks</summary>
         <div className="split">
           <div className="grow">
             <strong>Moving range chart: call-to-call jumps in log minutes</strong>
@@ -107,19 +107,13 @@ function ImrCharts({ d, sel }) {
             </svg>
           </div>
           <div className="grow">
-            <strong>Special-cause tests (I chart)</strong>
-            <div className="small muted">All 8 run. They are shown for your review and do not set the status.</div>
+            <strong>Assumption checks on the baseline (log minutes)</strong>
             <ul className="tests">
-              {(d.tests || []).map((t) => (
-                <li key={t.id}>
-                  <span className="mono muted">{t.id}</span>
-                  <span className="grow">{t.rule}</span>
-                  <span className={`chip ${t.fired ? (t.alert ? 'chip-bad' : 'chip-warn') : 'chip-ok'}`}>
-                    {t.fired ? 'Fired' : 'Clear'}
-                  </span>
-                </li>
-              ))}
+              <li><span className="grow">Calls in the baseline</span><span className="mono">{fmtInt(d.assumptions?.n)}</span></li>
+              <li><span className="grow">Skewness (0 = symmetric; the I chart assumes about 0)</span><span className="mono">{fmtNum(d.assumptions?.skew, 2)}</span></li>
+              <li><span className="grow">Lag-1 autocorrelation (0 = independent calls)</span><span className="mono">{fmtNum(d.assumptions?.lag1, 2)}</span></li>
             </ul>
+            <div className="small muted">Only test 1 (a call beyond 3 sigma) is marked. Other Nelson run rules are not used: their false-alarm rate on this data was not validated.</div>
           </div>
         </div>
       </details>
@@ -127,61 +121,86 @@ function ImrCharts({ d, sel }) {
   )
 }
 
+function SignalList({ p }) {
+  const sig = p.signals || []
+  if (!sig.length) return null
+  return (
+    <table className="places compact">
+      <caption className="small muted">Evidence: each {p.unit} above its upper control limit</caption>
+      <thead><tr><th scope="col">{p.unit} starting</th><th scope="col">Late</th><th scope="col">Late share</th><th scope="col">Upper limit</th></tr></thead>
+      <tbody>
+        {sig.map((s) => (
+          <tr key={s.start}><td className="mono">{fmtDate(s.start)}</td><td className="mono">{fmtInt(s.late)} of {fmtInt(s.n)}</td>
+            <td className="mono">{fmtPct(100 * s.p)}</td><td className="mono">{fmtPct(100 * s.ucl)}</td></tr>
+        ))}
+      </tbody>
+    </table>
+  )
+}
+
 export default function ChangeSection({ pState, imrState, selectedName }) {
   return (
-    <Section num={3} id="section-3" title={`${selectedName}: a real change, or just a few bad days?`}>
+    <Section num={2} id="section-2" title={`${selectedName}: has the process changed from its own history?`}
+      intro="Statistical control compares the late share in each period with a fixed baseline: the days just before the selected range. It answers 'did something change?', not 'is the service good enough?' (that is the target check in Section 1).">
       <Async state={pState}>
         {(p) => {
-          const signals = (p.points || []).filter((q) => q.signal).length
+          const b = p.baseline || {}
           return (
             <>
-              {p.unit == null ? (
-                <p className="callout green" role="status">
-                  <strong>Low volume: too few late calls per period for a p chart.</strong> Use the call-by-call chart below.
-                </p>
-              ) : (
-              <>
-              <p className={`callout ${signals || p.run_signal ? 'orange' : 'green'}`} role="status">
-                {signals || p.run_signal
-                  ? <><strong>Some bad {p.unit}s to look at.</strong> {signals} {p.unit}{signals === 1 ? '' : 's'} above the upper limit{p.run_signal ? ', and a run of 9 in a row above the center line' : ''}.</>
-                  : <><strong>No bad {p.unit}s.</strong> No {p.unit} is above its limit and there is no long run above the center line.</>}
+              <p className={`callout ${p.control === 'out_of_control' ? 'orange' : p.control === 'in_control' ? 'green' : 'gray'}`} role="status">
+                <JudgmentBadge kind="control" value={p.control} /> {p.control_reason}.
+                {p.control === 'insufficient_baseline' && ' The chart cannot judge change here; widen the date range or look at a larger area.'}
               </p>
-              <figure className="figure">
-                <figcaption>
-                  <strong>Share of urgent calls that were late, by {p.unit}</strong> <code className="analyst">p chart, varying limits</code>
-                  <span className="caption">
-                    The solid line is the baseline average ({(p.p_bar * 100).toFixed(1)}% late, from {fmtInt(p.base_n)} calls). Dashed lines are the limits;
-                    they move with the number of calls in each {p.unit}. <strong className="red">Red squares</strong> are {p.unit}s above the upper limit.
-                  </span>
-                </figcaption>
-                <PChart d={p} />
-                <p className="small muted">Red squares are bad {p.unit}s to look at. They do not set the place's status; the change test in Section 1 does.</p>
-              </figure>
-              </>
+              <p className="small">
+                <strong>Baseline:</strong> {fmtDate(b.from)} to {fmtDate(b.to)} ({b.days} days{b.stretched ? ', stretched from 60 because of low volume' : ''}),
+                {' '}{fmtInt(p.base_late)} late of {fmtInt(p.base_n)} valid calls = {p.p_bar == null ? 'n/a' : fmtPct(100 * p.p_bar)} late.
+                It never overlaps the selected range, so a recent problem cannot hide inside its own limits.
+              </p>
+              {p.unit != null && p.points && p.points.length > 0 && (
+                <figure className="figure">
+                  <figcaption>
+                    <strong>Share of calls that were late, by {p.unit}</strong> <code className="analyst">p chart, limits vary with n</code>
+                    <span className="caption">
+                      Solid line: the baseline late share. Dashed lines: 3-sigma limits, wider when a {p.unit} has fewer calls.
+                      {' '}<strong className="red">Red squares</strong>: {p.unit}s above the upper limit (the rule that sets the control status).
+                    </span>
+                  </figcaption>
+                  <PChart d={p} />
+                </figure>
+              )}
+              <SignalList p={p} />
+              {p.dispersion && (
+                <p className="small muted">
+                  Assumption check (baseline {p.unit}s): spread of late counts vs binomial, chi-square / df = {fmtNum(p.dispersion.ratio, 2)}
+                  {' '}(p = {fmtNum(p.dispersion.p_value, 3)}){p.dispersion.overdispersed ? ': more variable than binomial, so treat signals with caution.' : ': consistent with binomial.'}
+                  {p.run_signal ? ' A run of 9 periods above the center line is also present (information only).' : ''}
+                </p>
               )}
               <Messages messages={p.messages} />
             </>
           )
         }}
       </Async>
-      <Async state={imrState}>
-        {(d) => (
-          <>
-            <figure className="figure">
-              <figcaption>
-                <strong>Every urgent call, one dot each</strong> <code className="analyst">individuals (I) chart, log scale</code>
-                <span className="caption">
-                  Higher dot = longer wait. The <strong className="green">green band</strong> is the normal range from the baseline; the dark line is the typical wait.
-                  <strong className="red"> Red dots</strong> are calls where a special-cause test fired; each deserves a look.
-                </span>
-              </figcaption>
-              <ImrCharts d={d} sel={d.selection} />
-              <p className="small muted">Red dots are bad calls to look at. They do not set the place's status; the change test in Section 1 does.</p>
-            </figure>
-            <Messages messages={d.messages} />
-          </>
-        )}
-      </Async>
+      <details className="math">
+        <summary>Optional, secondary: every call on a log scale (I chart)</summary>
+        <Async state={imrState}>
+          {(d) => (
+            <>
+              <figure className="figure">
+                <figcaption>
+                  <strong>Every call, one dot each</strong> <code className="analyst">individuals (I) chart, ln(minutes)</code>
+                  <span className="caption">
+                    The <strong className="green">green band</strong> is the baseline's 3-sigma range on the log scale. <strong className="red">Red dots</strong> are
+                    single calls beyond it: worth a look one by one. This chart does not set any status.
+                  </span>
+                </figcaption>
+                <ImrCharts d={d} sel={d.selection} />
+              </figure>
+              <Messages messages={d.messages} />
+            </>
+          )}
+        </Async>
+      </details>
     </Section>
   )
 }

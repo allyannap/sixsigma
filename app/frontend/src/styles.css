@@ -165,3 +165,19 @@ table.places tbody th { font-weight: 600; }
   .filters { flex-direction: column; align-items: stretch; }
   .g-grid { grid-template-columns: 90px 1fr 44px; }
 }
+
+/* Decisions brief (Oct 16): synthetic disclosure, two judgment badges, queue counts, replay, compact tables */
+.synthetic-flag { padding: 6px 12px; border-radius: 6px; background: #E6EDF6; color: #122640; font-weight: 700; font-size: 13px; border: 2px solid #1F3A5F; max-width: 360px; }
+.callout.gray { background: #EEF0EC; color: #26302B; }
+.judgments { display: inline-flex; flex-wrap: wrap; gap: 6px; margin: 4px 0; }
+.badge-judgment { border-style: dashed; }
+.badge-kind { font-weight: 500; opacity: 0.85; }
+.queue-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; }
+.queue-counts { display: inline-flex; flex-wrap: wrap; gap: 10px; margin-left: auto; }
+.replay { margin-top: 14px; padding: 12px 14px; border: 2px dashed #1F3A5F; border-radius: 10px; background: #F6F8FB; display: grid; gap: 10px; }
+.replay-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.replay-tag { padding: 4px 10px; border-radius: 6px; background: #1F3A5F; color: #fff; font-weight: 700; font-size: 13px; letter-spacing: 0.02em; }
+table.places.compact { min-width: 560px; font-size: 13px; }
+table.places.compact th, table.places.compact td { padding: 6px 10px; }
+table.places caption { caption-side: top; text-align: left; padding: 4px 0 6px; }
+@media (max-width: 640px) { .queue-counts { margin-left: 0; } .synthetic-flag { max-width: none; } }

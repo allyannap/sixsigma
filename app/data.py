@@ -1,6 +1,7 @@
 """Data layer for the EMS Response Monitor (task H-04, role 3).
 
 This file only HANDLES data. There are no statistics here (those live in app/qc.py).
+It is read-only: the three synthetic files are the only incident source (no user logging).
 It does five jobs:
 
 1. load  : read data/incidents_<dataset>.csv.gz once, cache it.
@@ -28,7 +29,6 @@ ZCTA_CSV = DATA_DIR / "lookup" / "zcta_county.csv"
 COUNTIES_CSV = DATA_DIR / "lookup" / "counties.csv"
 
 DATASETS = ("baseline", "station_closure", "summer_surge")
-LIVE = "live"
 LEVELS = ("state", "county", "zcta")
 GROUPS = ("red", "yellow", "green")
 TZ = "America/New_York"
@@ -172,8 +172,6 @@ _lock = threading.Lock()
 
 def load(dataset: str) -> pd.DataFrame:
     """The derived table for one dataset. Read and derived once, then cached."""
-    if dataset == LIVE:
-        return live_frame()
     if dataset not in DATASETS:
         raise ValueError(f"unknown dataset '{dataset}'; use one of {list(DATASETS)}")
     with _lock:
@@ -192,42 +190,13 @@ def date_range(df: pd.DataFrame) -> tuple[date, date]:
            (EPOCH_DAY + pd.Timedelta(days=int(df["day"].iloc[-1]))).date()
 
 
+DEFAULT_DAYS = 90       # default selection length (team decision Oct 16: fewer "insufficient data" places)
+
+
 def default_range(df: pd.DataFrame) -> tuple[date, date]:
-    """Default selection: the dataset's last 30 days (Sep 16 to Oct 15, 2026)."""
+    """Default selection: the dataset's last 90 days (Jul 18 to Oct 15, 2026)."""
     last = date_range(df)[1]
-    return last - timedelta(days=29), last
-
-
-# ---------------------------------------------------------------- live calls (POST /api/calls)
-
-_live_rows: list[dict] = []
-_live_cache: dict = {}
-
-
-def add_live(row: dict) -> int:
-    """Validate one incidents.csv row (as a dict) and append it to the in-memory live set."""
-    one = pd.DataFrame([row])
-    derive(one)  # raises ValueError on a bad time, unknown urgency code, missing column
-    lk = lookups()
-    if str(row["zcta"]).zfill(5) not in lk["zcta_to_county"]:
-        raise ValueError(f"zcta {row['zcta']} is not a New York ZCTA in data/lookup/zcta_county.csv")
-    with _lock:
-        _live_rows.append(dict(row))
-        _live_cache.clear()
-        return len(_live_rows)
-
-
-def live_count() -> int:
-    return len(_live_rows)
-
-
-def live_frame() -> pd.DataFrame:
-    if not _live_rows:
-        raise ValueError("the live dataset is empty; POST /api/calls first")
-    with _lock:
-        if "df" not in _live_cache:
-            _live_cache["df"] = derive(pd.DataFrame(_live_rows))
-        return _live_cache["df"]
+    return last - timedelta(days=DEFAULT_DAYS - 1), last
 
 
 # ---------------------------------------------------------------- places
@@ -408,17 +377,19 @@ def subgroups(timed: pd.DataFrame, unit: str) -> dict:
     return {"start": starts, "n": [int(v) for v in g["n"]], "late": [int(v) for v in g["late"]]}
 
 
-def step_medians(timed: pd.DataFrame) -> dict:
-    """Medians the fault tree compares against (docs/api.md, qc.fault_tree base_medians)."""
-    def med(col):
-        v = timed[col].median() if len(timed) else np.nan
-        return None if pd.isna(v) else float(v)
-    return {"dispatch_s": med("dispatch_s"), "turnout_s": med("turnout_s"),
-            "eta_google_s": med("eta_google_s"), "vs_google_s": med("vs_google_s")}
-
-
 def weighted_goal(timed: pd.DataFrame) -> float | None:
     """Call-weighted goal %: the mean of goal_on_time_pct over the timed calls (None if none)."""
     if len(timed) == 0:
         return None
     return float(timed["goal_on_time_pct"].mean())
+
+
+# ---------------------------------------------------------------- replay (read-only simulated stream)
+
+def day_events(df: pd.DataFrame, level: str, id: str | None, urgency, day) -> pd.DataFrame:
+    """Every call received on one New York calendar day in the place and urgency groups, in time order.
+
+    The replay feed plays the synthetic file back one simulated day at a time; nothing is written.
+    """
+    d = parse_date(day)
+    return select(df, level, id, urgency, d, d)

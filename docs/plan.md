@@ -1,52 +1,59 @@
 # Plan: EMS Response Monitor (Powerpuff Girls)
 
-User: the 911 / EMS center's quality supervisor. Question: which NY county or ZIP needs attention, is it a
-real change, which step (911 center, crew, drive) costs the minutes, and which fix helps most.
-Deadline: Sat Oct 17, 1 PM ET. Formulas and known answers: SPEC.md section 4. Statistics before any page.
-Roles and file ownership: docs/roles.md. Function signatures and endpoint JSON: docs/api.md.
+User: a New York State EMS dispatch center's quality supervisor. Question: which state / county / ZIP areas need
+review, are they below the service goal, showing a new statistical change, or both, and which recorded response stage
+deserves investigation. Read-only, synthetic data, simulated replay. Deadline: Sat Oct 17, 1 PM ET.
+Requirements: [`EMS_RESPONSE_MONITOR_DECISIONS.md`](../EMS_RESPONSE_MONITOR_DECISIONS.md). Formulas and known
+answers: SPEC.md section 4. Function signatures and endpoint JSON: docs/api.md. Roles: docs/roles.md.
 
-## Tasks, in order
-1. **H-01 SPEC** (`SPEC.md`). Left: the prompt number from Devpost. 5 min.
-2. **H-09a targets** (`config/targets.csv`). 10 rows, codes 0-2 red 480 s, 3-5 yellow 900 s, 6-9 green
-   1800 s, goal 90%. Test: 10 rows, codes 0-9. Degenerate: an unknown code makes the loader fail loudly. 10 min.
-3. **H-02 data** (`data/`). `build_lookups.py` (2020 Census; key from `.env`), `params.json`, `generate.py`
-   (fixed seed, lognormal steps), 3 `.csv.gz` files, `validate.py`, `README.md` codebook.
-   Test: every schema check PASS; planted stories visible in raw numbers (closure ZIP % late up from Sep 1;
-   surge county volume up about 30% in Jul-Aug, `held` rate up). Degenerate: validate rejects a file with
-   out-of-order times. 1.5 h.
-4. **H-03 statistics** (`app/qc.py`, `tests/test_qc.py`), one function each, test first. Rules, formulas and every
-   known answer are in SPEC.md section 4 (revised Oct 16 after the stats review; arithmetic shown there):
-   - p chart (display only) with the n x p-bar >= 5 subgroup rule; I-MR (display only) with all 8 Nelson tests.
-   - Cpk on ln(minutes), MR sigma, Bissell bound x 1.64 correction: known answer 1.6368, bound 2.8803.
-   - P95 + spread (bootstrap, order-statistic CI above n = 5,000); ANOM with t-based h = 2.9333.
-   - changed_recently: Z_loc / Z_p > 3 (known answer Z_loc 4.369, Z_p 2.683); status truth table.
-   - fault tree on standardized excess (known answer names the 911 center); what-if incl. add_ambulance.
-   - Degenerate cases: the full list in SPEC section 4. About 4 h. Then **stats-reviewer** gives PASS/FAIL per statistic.
-   - Then Data wires the new keys (very_late, spread, P95 of dispatch-to-scene) into `/api/summary` (docs/api.md).
-5. **H-08 first half** (`.gitignore`): point `origin` at github.com/allyannap/sixsigma and push. 10 min.
-6. **H-04 API** (`app/`): `demos/fastapi` copied; `/summary /pchart /imr /anom /google /delays /whatif`,
-   `POST /calls`. Test: `/pchart` on a 5-day fixture returns the H-03 numbers. Under 2 s per request. 2 h.
-7. **H-06 deploy** (`.github/workflows/`, `app/manifest.json`): as soon as H-04 runs. 1 h.
-8. **H-09b map shapes** (`geo/`): mapshaper-simplified counties (62) and ZCTAs. 1 h, in parallel with 4-6.
-9. **H-05 page and demo** (`app/frontend/`, `demo/`): the mockup's 5 sections; walk each dataset. 3 h.
-10. **H-07 README**, then **H-08** fresh-clone test and the Devpost entry. 1 h.
+## Build order (decisions brief section 6.3) and status
 
-## Decisions (Oct 16)
-- Schema is the source of truth; the mockup sets look and wording; ANOM is core; no shift filter.
-- Geography: New York State, 62 counties, then ZIP areas (Census ZCTAs) assigned to the county holding most residents.
-- Data: about 400k calls per file, gzipped; synthetic, fixed seed; volume 0.0198 calls per person per year, about one-eighth of a typical real rate (~0.15), stated in the README.
-- Census: 2020 counts through a free API key kept in the gitignored `.env` (`CENSUS_API_KEY`).
-- Lookups in `data/lookup/`; new task H-09 owns `config/` and `geo/`.
-- Baseline: the 60 days before the range (120 if under 30 calls); headline measure `total_s`; late = `total_s > target_s`.
-- Stack: FastAPI + React; every statistic in `app/qc.py`.
-- Stats review (Oct 16): Z-test "changed recently", standardized fault tree, course Cpk with corrected bound;
-  add very-late count, spread (P95 - median), P95 of dispatch-to-scene; honest wording on dispatchers and real time.
-- Station closure effect +60% (not +25%): at +25% the tool's rules miss it (Oct 16, after checking the real data).
+Status words: **implemented** (code exists), **tested** (known-answer and degenerate tests pass), **planned**, **deferred**.
 
-## Risks
-1. **Too much for 18 hours.** Cut line at 6 AM: cards 1-6 and ANOM must work; Google (7), fault tree (8)
-   and what-if (9) ship only if their tests pass.
-2. **Slow requests on 400k rows.** Load each file once at start-up, filter with pandas, cache the baseline.
-3. **Rules that cry wolf.** Fixed before H-03 (stats review, Oct 16): status now uses Z_loc / Z_p against the
-   baseline (clean file: 0 of 39 counties flagged), not the Nelson tests (64% flagged). Re-measure on all 3 files after H-03.
-4. **Deploy breaks late.** Deploy the bare API by midnight; keep the bundle small (gzipped data, simplified shapes).
+| # | Step | Where | Status (Oct 16, evening) |
+|---|---|---|---|
+| a | Data validation, timestamp definitions | `app/data.py`, `data/validate.py`, `tests/test_data.py` | implemented, tested (55 PASS); `t_received` meaning still provisional |
+| b | On-time metrics, Wilson intervals | `qc.on_time`, `qc.wilson_ci` | implemented, tested |
+| c | p chart, control status, queue label | `qc.p_chart`, `qc.control_status`, `qc.dispersion_check`, `qc.queue_label` | implemented, tested; false alarms measured 2.7% |
+| d | Map drill-down and filters | `/api/summary`, `MapSection.jsx` | implemented, tested (API + render tests), checked in a browser |
+| e | What Held Up the Call | `qc.stage_excess`, `/api/delays`, `DelaySection.jsx` | implemented, tested |
+| f | Read-only replay (fixed start and baseline, growing end) | `/api/replay`, `ReplayBar.jsx` | implemented, tested, checked in a browser |
+| g | Secondary: ANOM, I-MR, travel comparison | `qc.anom`, `qc.imr`, `qc.travel_vs_estimate` | implemented, tested; ANOM single urgency only; I-MR test 1 only |
+| – | Investigation list | `InvestigationSection.jsx` | implemented, render-tested |
+| – | Deploy to Posit Connect (H-06) | `.github/workflows/` | planned (needs the publisher key) |
+| – | Demo walkthrough (`demo/README.md`, H-05) | `demo/` | planned; README section 6 has the walkthrough for now |
+| – | Fresh-clone check and Devpost (H-08) | – | planned |
+| – | Real public EMS extract compatibility check | – | planned (optional) |
+| – | What-if / intervention ranking | – | **deferred** (removed from the MVP) |
+| – | Time-of-day filter or adjustment | – | **deferred** (out of scope) |
+
+## Tests (one command each)
+
+- `.venv/bin/python -m pytest tests -q`: 130 tests (stats known answers and degenerates; data rules; API acceptance tests AT-1 to AT-10).
+- `cd app/frontend && npm test`: 28 tests (formatting, status rules, every section renders with the brief's wording).
+- `.venv/bin/python data/validate.py --reproduce`: 55 data checks including identical rebuilds from the seed.
+
+## Decisions
+
+- Oct 16 (earlier): New York State, 62 counties, ZCTAs; FastAPI + React; synthetic data about 400k calls per file at
+  about one-eighth of a real call rate; Census 2020 lookups; baseline 60 days before the range, 120 if under 30 calls.
+- Oct 16 (decisions brief, approved): see the brief. Spec (Wilson) and control (p chart) are separate; Cpk, ANOM and I-MR
+  are secondary; what-if, `/whatif` and `POST /calls` removed; replay is read-only; "What Held Up the Call" uses stage
+  excess with noncausal wording; Google comparison is "unusual travel-time difference"; urgency filters, no time of day.
+- Oct 16 (team, after the brief): **red target flat 480 s** (history-based tiers from H-10 made the on-time check
+  circular: 60 of 62 counties Inconclusive); `build_targets.py --from-history` keeps the tiers as an option.
+  **Default window 90 days** (counties under 30 red calls: 23 → 2). **Below target + insufficient baseline → Needs more
+  data**, sorted first. Synthetic drives get 1% slow outliers (drawn last, so other draws are unchanged).
+- Oct 16 (after browser testing): **replay keeps the period start and baseline fixed** and grows the end date; a rolling
+  window hid both planted stories. Default replay start: From date, else Aug 25 (Jun 25 for summer_surge). Tested (AT-5).
+- The superseded Z-test "changed recently", Cpk-based status, fault tree and what-if were removed from `app/qc.py`.
+
+## Risks and open items
+
+1. **Low-volume ZIP areas** stay Inconclusive / Insufficient baseline at most windows (median ZCTA: 8 red calls in 90 days).
+   That is honest; the page says to widen the dates or view the county. ZIP 11368 needs the Sep 1 window to be judged.
+2. **False alarms** of the control rule are about 2.7% per county per 90-day window; more with daily subgroups at the
+   state level. Measured, tested (fails above 10%), and stated on the page as "signals to check".
+3. **Seasonality and case mix** are not modelled; the 60-day baseline right before the period limits drift. Dispersion is checked.
+4. **Open dependencies:** `t_received` semantics, authoritative targets, travel-estimate provenance, scope (brief issue 12).
+5. **Deploy** not done yet; keep the bundle small (gzipped data, simplified shapes).

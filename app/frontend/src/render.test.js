@@ -1,4 +1,5 @@
-// Smoke test: every section renders from the fixture JSON without throwing, and shows the right words.
+// Smoke test: every section renders from the fixture JSON without throwing, and shows the right words
+// (the wording rules of EMS_RESPONSE_MONITOR_DECISIONS.md).
 import { createElement as h } from 'react'
 import { renderToString } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
@@ -8,69 +9,95 @@ import pchart from './fixtures/pchart.json'
 import imr from './fixtures/imr.json'
 import delays from './fixtures/delays.json'
 import google from './fixtures/google.json'
-import whatif from './fixtures/whatif.json'
+import replay from './fixtures/replay.json'
+import App from './App.jsx'
 import AnomSection from './components/AnomSection.jsx'
 import ChangeSection from './components/ChangeSection.jsx'
-import FixSection from './components/FixSection.jsx'
+import DelaySection from './components/DelaySection.jsx'
+import InvestigationSection, { investigationRows } from './components/InvestigationSection.jsx'
 import MapSection from './components/MapSection.jsx'
-import MinutesSection from './components/MinutesSection.jsx'
+import ReplayBar from './components/ReplayBar.jsx'
 
 // React puts <!-- --> between text pieces; drop them so words can be searched.
 const plain = (html) => html.replace(/<!-- -->/g, '')
 const ok = (data) => ({ data, loading: false, error: null, reload() {} })
+const map = (extra = {}) => plain(renderToString(h(MapSection, {
+  summaryState: ok(summary), parent: { level: 'state', name: 'New York State' }, urgency: ['red'],
+  selected: { level: 'state', place: null }, onPick() {}, onBack() {}, onDrill() {}, ...extra,
+})))
 
 describe('sections render from fixtures', () => {
-  it('section 1 table and legend', () => {
-    const html = renderToString(h(MapSection, {
-      summaryState: ok(summary), parent: { level: 'state', name: 'New York State' }, urgency: ['red'],
-      selected: { level: 'state', place: null }, onPick() {}, onBack() {}, onDrill() {},
-    }))
-    expect(html).toContain('Which places need attention?')
-    expect(html).toContain('Not enough calls (&lt;30 calls)')
-    expect(html).toContain('Fixture County A')
+  it('section 1 shows n, on-time rate, CI, P95 and both badges for every place', () => {
+    const html = map()
+    expect(html).toContain('Which areas need review?')
+    expect(html).toContain('On-time rate [95% CI]')
+    expect(html).toContain('Target:')
+    expect(html).toContain('Control:')
+    for (const p of summary.places) expect(html).toContain(p.name)
+    expect(html).toContain('no alert does not mean the target is met')
   })
-  it('sections 2 to 5', () => {
-    expect(renderToString(h(AnomSection, { anomState: ok(anom) }))).toContain('consistently slower')
-    expect(renderToString(h(ChangeSection, { pState: ok(pchart), imrState: ok(imr), selectedName: 'X' }))).toContain('p chart')
-    expect(renderToString(h(MinutesSection, { delaysState: ok(delays), googleState: ok(google), selectedName: 'X' }))).toContain('Ambulance vs Google')
-    expect(renderToString(h(FixSection, { whatifState: ok(whatif), fix: 'closer', pct: 25, onFix() {}, onPct() {}, selectedName: 'X' }))).toContain('Late calls avoided')
+  it('a selected place shows the evidence: interval, goal, signals, baseline', () => {
+    const p = summary.places.find((x) => x.queue === 'act_now')
+    const html = map({ selected: { level: 'county', id: p.id, name: p.name, place: p } })
+    expect(html).toContain('Act now')
+    expect(html).toContain('95% CI')
+    expect(html).toContain('Signals:')
+    expect(html).toContain('Baseline:')
   })
-  it('wording: status is the shift test, red points are only bad days and calls', () => {
-    const html = plain(renderToString(h(MapSection, {
-      summaryState: ok(summary), parent: { level: 'state', name: 'New York State' }, urgency: ['red'],
-      selected: { level: 'state', place: null }, onPick() {}, onBack() {}, onDrill() {},
-    })))
-    expect(html).toContain('Change vs before (z)')
-    expect(html).toContain('Spread (P95 - median)')
-    expect(html).toContain('tick at 10%')
-    expect(html).toContain('Z &gt; 3')
-    const sel = plain(renderToString(h(MapSection, {
-      summaryState: ok(summary), parent: { level: 'state', name: 'New York State' }, urgency: ['red'],
-      selected: { level: 'county', id: summary.places[0].id, name: 'A', place: summary.places[0] }, onPick() {}, onBack() {}, onDrill() {},
-    })))
-    expect(sel).toContain('&gt; 3 = real change')
-    const change = plain(renderToString(h(ChangeSection, { pState: ok(pchart), imrState: ok(imr), selectedName: 'X' })))
-    expect(change).toContain('do not set the place&#x27;s status')
-    expect(change).toContain('%')
+  it('section 2: control status, baseline explanation, signal evidence; I chart is optional', () => {
+    const html = plain(renderToString(h(ChangeSection, { pState: ok(pchart), imrState: ok(imr), selectedName: 'X' })))
+    expect(html).toContain('Out of control')
+    expect(html).toContain('never overlaps the selected range')
+    expect(html).toContain('above its upper control limit')
+    expect(html).toContain('Optional, secondary')
+    expect(html).toContain('does not set any status')
   })
-  it('p chart with unit null shows the low-volume note, not a chart', () => {
-    const html = plain(renderToString(h(ChangeSection, { pState: ok({ ...pchart, unit: null, points: [] }), imrState: ok(imr), selectedName: 'X' })))
-    expect(html).toContain('Low volume: too few late calls per period for a p chart')
+  it('insufficient baseline is said plainly, with no chart', () => {
+    const p = { ...pchart, unit: null, points: [], signals: [], control: 'insufficient_baseline', control_reason: 'low volume', dispersion: null }
+    const html = plain(renderToString(h(ChangeSection, { pState: ok(p), imrState: ok(imr), selectedName: 'X' })))
+    expect(html).toContain('Insufficient baseline')
+    expect(html).not.toContain('p chart, limits vary with n')
   })
-  it('p chart shows fractions as percents (p_bar 0.12 = 12.0%)', () => {
-    const html = plain(renderToString(h(ChangeSection, { pState: ok({ ...pchart, unit: 'month' }), imrState: ok(imr), selectedName: 'X' })))
-    expect(html).toContain('12.0% late')
-    expect(html).toContain('by month')
+  it('section 3 keeps the exact title and uses noncausal wording', () => {
+    const html = plain(renderToString(h(DelaySection, { delaysState: ok(delays), googleState: ok(google), selectedName: 'Monroe' })))
+    expect(html).toContain('What Held Up the Call')
+    expect(html).toContain('Possible contributors to review')
+    expect(html).toContain('not proven causes')
+    expect(html).toContain('Unusual travel-time difference')
+    expect(html).toContain('Interpret cautiously')
+    expect(html).not.toMatch(/beat Google|root cause|caused by/i)
   })
-  it('fault tree shows the typical-late cause and the plain rule', () => {
-    const html = plain(renderToString(h(MinutesSection, { delaysState: ok({ ...delays, causes: { ...delays.causes, typical_late: 7 } }), googleState: ok(google), selectedName: 'X' })))
-    expect(html).toContain('Typical call is already late (long distance)')
-    expect(html).toContain('most unusual for this place')
+  it('Google part says "Comparison unavailable" when there is no estimate', () => {
+    const html = plain(renderToString(h(DelaySection, { delaysState: ok(delays), googleState: ok({ ...google, available: false, diff: null, messages: [] }), selectedName: 'X' })))
+    expect(html).toContain('Comparison unavailable')
+    expect(html).not.toContain('Every drive compared')
   })
-  it('hides the Google part when it is not available, and shows API errors', () => {
-    const html = renderToString(h(MinutesSection, { delaysState: ok(delays), googleState: ok({ ...google, available: false, messages: [] }), selectedName: 'X' }))
-    expect(html).not.toContain('Ambulance vs Google')
+  it('section 4 lists flagged areas with topics, never a chosen fix', () => {
+    const html = plain(renderToString(h(InvestigationSection, { summaryState: ok(summary), onPick() {} })))
+    expect(html).toContain('Topics to investigate')
+    expect(html).toContain('not a chosen fix')
+    expect(investigationRows(summary.places).every((p) => ['act_now', 'ongoing_gap', 'recent_change'].includes(p.queue) || p.spec === 'below')).toBe(true)
+  })
+  it('section 5 ANOM is secondary and descriptive', () => {
+    const html = plain(renderToString(h(AnomSection, { anomState: ok(anom) })))
+    expect(html).toContain('Secondary, descriptive')
+    expect(html).toContain('not evidence of unfair service')
     const err = renderToString(h(AnomSection, { anomState: { data: null, loading: false, error: 'statistics module not ready (HTTP 503)', reload() {} } }))
     expect(err).toContain('statistics module not ready')
+  })
+  it('replay is labelled Simulation / Replay and synthetic, with no entry form', () => {
+    const html = plain(renderToString(h(ReplayBar, { replay: { on: true, playing: false, start: '2026-08-25', day: '2026-09-02' }, feedState: ok(replay), onStart() {}, onToggle() {}, onStep() {}, onStop() {} })))
+    expect(html).toContain('Simulation / Replay')
+    expect(html).toContain('Not live CAD')
+    expect(html).toContain('baseline fixed')
+    expect(html).toContain(replay.events[0].incident_id)
+    expect(html).not.toMatch(/<input|<textarea/)
+  })
+  it('the whole page has no what-if card, no incident entry and says the data is synthetic', () => {
+    const html = plain(renderToString(h(App)))
+    expect(html).toContain('SYNTHETIC DATA')
+    expect(html).not.toMatch(/which fix|what-if|helps most|add an ambulance|POST/i)
+    expect(html).not.toMatch(/<textarea/)
+    expect([...html.matchAll(/<input[^>]*type="([^"]+)"/g)].map((m) => m[1])).toEqual(['date', 'date'])
   })
 })

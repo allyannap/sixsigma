@@ -6,7 +6,7 @@ signatures (Stats ↔ Data) and the JSON each endpoint returns (Data ↔ UI). Ch
 
 | Role | Owns (files) | CONTRACT tasks | Done means |
 |---|---|---|---|
-| **1. UI**: the page people see | `app/frontend/`, `geo/`, `demo/` | H-05 (page + demo walkthrough), H-09 (map shapes) | the mockup's 5 sections render from the live API for all 3 datasets; `demo/README.md` walks each one |
+| **1. UI**: the page people see | `app/frontend/`, `geo/`, `demo/` | H-05 (page + demo walkthrough), H-09 (map shapes) | the 5 sections (decisions brief) render from the live API for all 3 datasets; `demo/README.md` walks each one |
 | **2. Stats**: the numbers are right | `app/qc.py`, `tests/test_qc.py` | H-03 (every statistic, tested), runs the stats review before any check-in | `pytest tests/test_qc.py` passes every known answer and degenerate case in SPEC §4; stats-reviewer PASS table |
 | **3. Data in the website**: data → API → live URL | `app/main.py`, `app/data.py`, `app/requirements.txt`, `app/*.sh`, `app/README.md`, `tests/test_data.py`, `tests/test_api.py`, `docs/api.md`, `data/`, `.github/`, `.gitignore`, `README.md` | H-04 (API), H-06 (deploy), H-07 (README, with a section from each role), H-08 (public repo, Devpost) | `bash app/testme.sh` serves the API and the built page on one URL; deployed on Posit Connect |
 
@@ -15,7 +15,7 @@ signatures (Stats ↔ Data) and the JSON each endpoint returns (Data ↔ UI). Ch
 ```mermaid
 flowchart LR
   d["data/*.csv.gz<br>config/targets.csv<br>data/lookup/"] --> dl["app/data.py (Data)<br>load · derive · filter · baseline"]
-  dl --> qc["app/qc.py (Stats)<br>p chart · I-MR · Cpk · P95 · ANOM<br>fault tree · what-if · status"]
+  dl --> qc["app/qc.py (Stats)<br>on-time + Wilson CI · p chart + control<br>queue label · P95 · stage excess<br>secondary: I-MR · Cpk · ANOM"]
   qc --> api["app/main.py (Data)<br>/api/* endpoints"]
   api --> ui["app/frontend (UI)<br>React page, built to dist/"]
   geo["geo/*.geojson (UI)"] --> ui

@@ -3,9 +3,9 @@ import { fmtInt, fmtMin } from '../format.js'
 import { Async, Messages, Section } from './common.jsx'
 
 const VERDICT = {
-  slower: { text: 'consistently slower', color: '#B42318', shape: 'square' },
-  faster: { text: 'consistently faster', color: '#1E6B3A', shape: 'triangle' },
-  inside: { text: 'in line with the rest', color: '#3F6591', shape: 'circle' },
+  slower: { text: 'slower than the rest', color: '#B42318', shape: 'square' },
+  faster: { text: 'faster than the rest', color: '#1E6B3A', shape: 'triangle' },
+  inside: { text: 'within chance range', color: '#3F6591', shape: 'circle' },
 }
 const ORDER = { slower: 0, faster: 1, inside: 2 }
 const MAX_ROWS = 20
@@ -31,7 +31,7 @@ function AnomChart({ d }) {
   const axisY = top + rows.length * rowH + 4
   return (
     <svg viewBox={`0 0 720 ${H}`} className="chart" role="img"
-      aria-label={`Typical wait by place against the overall mean of ${fmtMin(d.grand_mean_min)}. ${all.filter((r) => r.verdict === 'slower').length} places are consistently slower and ${all.filter((r) => r.verdict === 'faster').length} consistently faster.`}>
+      aria-label={`Typical wait by place against the overall mean of ${fmtMin(d.grand_mean_min)}. ${all.filter((r) => r.verdict === 'slower').length} places are slower than the chance range and ${all.filter((r) => r.verdict === 'faster').length} faster.`}>
       {rows.map((r, i) => {
         const y = top + i * rowH + 14
         const v = VERDICT[r.verdict] || VERDICT.inside
@@ -59,26 +59,27 @@ function AnomChart({ d }) {
 
 export default function AnomSection({ anomState }) {
   return (
-    <Section num={2} title="Which places are consistently slower?" tag="For planners"
-      intro="A place can meet the goal and still be slower than the rest, month after month. That gap matters when deciding where the next ambulance or station goes.">
+    <Section num={5} id="section-5" title="Geographic comparison within one urgency group" tag="Secondary, descriptive"
+      intro="Which places have typically longer waits than the others, for the same urgency group. This is descriptive: it is not adjusted for time of day, traffic, distance, call mix or resources, so a slower place is not evidence of unfair service. The on-time rate in Section 1 is the main measure.">
       <Async state={anomState}>
         {(d) => {
           const ps = d.places || []
           const slower = ps.filter((p) => p.verdict === 'slower')
           const faster = ps.filter((p) => p.verdict === 'faster')
+          if (!ps.length) return <Messages messages={d.messages} />
           return (
             <>
               <p className="callout blue" role="status">
-                {slower.length} of {ps.length} places are consistently slower than the overall typical wait of {fmtMin(d.grand_mean_min)}
-                {slower.length ? ` (${slower.slice(0, 4).map((p) => p.name).join(', ')}${slower.length > 4 ? ', ...' : ''})` : ''}; {faster.length} are consistently faster.
+                Of {ps.length} places with 30 or more valid calls, {slower.length} have typical waits above the chance range around the overall {fmtMin(d.grand_mean_min)}
+                {slower.length ? ` (${slower.slice(0, 4).map((p) => p.name).join(', ')}${slower.length > 4 ? ', ...' : ''})` : ''} and {faster.length} below it.
               </p>
               <figure className="figure">
                 <figcaption>
-                  <strong>Typical wait in each place</strong> <code className="analyst">analysis of means (ANOM), log scale</code>
+                  <strong>Typical wait in each place</strong> <code className="analyst">analysis of means (ANOM) on ln(minutes)</code>
                   <span className="caption">
-                    Each mark is a place's typical wait; the line through it shows how sure we are. The dashed line is the overall typical wait.
-                    The gray band is how far a place can drift from it by chance. A mark <strong className="red">right of its band</strong> (square) is
-                    consistently slower; <strong className="green">left of it</strong> (triangle), consistently faster.
+                    Each mark is a place's typical (geometric mean) wait with its 95% interval. The gray band is the range a place can drift from the
+                    overall mean by chance alone. A mark <strong className="red">right of its band</strong> (square) is slower than the rest;
+                    {' '}<strong className="green">left of it</strong> (triangle), faster.
                     {ps.length > MAX_ROWS ? ` Showing the first ${MAX_ROWS} of ${ps.length} places, slower ones first.` : ''}
                   </span>
                 </figcaption>
@@ -87,9 +88,8 @@ export default function AnomSection({ anomState }) {
               <details className="math">
                 <summary>Show the math</summary>
                 <p>
-                  Analysis of means on ln(minutes) within the chosen urgency, so places with more severe calls are not penalized.
-                  Decision limits use h = {d.h} for k = {d.k} places and N = {fmtInt(d.N)} calls. One-way ANOVA asks whether any place differs:
-                  F({d.df1}, {d.df2}) = {d.F}. ANOM then shows which ones, and in which direction.
+                  Analysis of means on ln(minutes) within the selected urgency group. Decision limits use h = {d.h} for k = {d.k} places and
+                  N = {fmtInt(d.N)} calls (Bonferroni t). One-way ANOVA: F({d.df1}, {d.df2}) = {d.F}.
                 </p>
               </details>
               <Messages messages={d.messages} />

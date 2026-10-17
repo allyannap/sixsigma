@@ -1,804 +1,579 @@
 {
  "selection": {
   "dataset": "station_closure",
-  "level": "county",
-  "id": "36901",
-  "name": "Fixture County A",
-  "from": "2026-09-16",
+  "source": "Synthetic - simulated replay",
+  "level": "zcta",
+  "id": "11368",
+  "name": "11368 (fixture)",
+  "from": "2026-09-01",
   "to": "2026-10-15",
   "urgency": [
    "red"
   ],
-  "baseline_from": "2026-07-18",
-  "baseline_to": "2026-09-15"
+  "baseline_from": "2026-07-03",
+  "baseline_to": "2026-08-31",
+  "baseline_days": 60
  },
- "messages": [
-  "FIXTURE DATA: invented numbers for building the page. Not real."
- ],
- "cl_min": 6.2,
- "ucl_min": 11.8,
- "lcl_min": 3.2,
- "mr_ucl": 0.85,
+ "cl_min": 4.73,
+ "ucl_min": 12.83,
+ "lcl_min": 1.74,
+ "mr_ucl": 1.2273388397608094,
  "points": [
   {
-   "incident_id": "FX-1000",
-   "t_received": "2026-09-17T10:00:00-04:00",
-   "minutes": 5.02,
-   "ln_min": 1.613,
+   "incident_id": "NY26-0350925",
+   "t_received": "2026-09-01T02:37:03-04:00",
+   "minutes": 8.17,
+   "ln_min": 2.1001,
    "mr": null,
-   "tests": []
+   "beyond_3_sigma": false
   },
   {
-   "incident_id": "FX-1001",
-   "t_received": "2026-09-18T10:00:00-04:00",
-   "minutes": 14.81,
-   "ln_min": 2.695,
-   "mr": 1.082,
-   "tests": [
-    1
-   ]
+   "incident_id": "NY26-0351274",
+   "t_received": "2026-09-01T10:54:36-04:00",
+   "minutes": 10.37,
+   "ln_min": 2.3386,
+   "mr": 0.2385347016345074,
+   "beyond_3_sigma": false
   },
   {
-   "incident_id": "FX-1002",
-   "t_received": "2026-09-19T10:00:00-04:00",
+   "incident_id": "NY26-0351634",
+   "t_received": "2026-09-01T19:42:50-04:00",
+   "minutes": 5.2,
+   "ln_min": 1.6487,
+   "mr": 0.6899369049296973,
+   "beyond_3_sigma": false
+  },
+  {
+   "incident_id": "NY26-0351674",
+   "t_received": "2026-09-01T20:28:05-04:00",
    "minutes": 7.93,
-   "ln_min": 2.07,
-   "mr": 0.625,
-   "tests": []
+   "ln_min": 2.0711,
+   "mr": 0.4224146664219379,
+   "beyond_3_sigma": false
   },
   {
-   "incident_id": "FX-1003",
-   "t_received": "2026-09-20T10:00:00-04:00",
-   "minutes": 7.76,
-   "ln_min": 2.05,
-   "mr": 0.021,
-   "tests": []
+   "incident_id": "NY26-0352409",
+   "t_received": "2026-09-02T12:31:43-04:00",
+   "minutes": 9.87,
+   "ln_min": 2.2892,
+   "mr": 0.21808878065258552,
+   "beyond_3_sigma": false
   },
   {
-   "incident_id": "FX-1004",
-   "t_received": "2026-09-21T10:00:00-04:00",
-   "minutes": 6.25,
-   "ln_min": 1.833,
-   "mr": 0.217,
-   "tests": []
+   "incident_id": "NY26-0352777",
+   "t_received": "2026-09-02T20:50:19-04:00",
+   "minutes": 8.43,
+   "ln_min": 2.1322,
+   "mr": 0.1569699655965402,
+   "beyond_3_sigma": false
   },
   {
-   "incident_id": "FX-1005",
-   "t_received": "2026-09-22T10:00:00-04:00",
-   "minutes": 5.16,
-   "ln_min": 1.641,
-   "mr": 0.192,
-   "tests": []
+   "incident_id": "NY26-0353421",
+   "t_received": "2026-09-03T11:32:13-04:00",
+   "minutes": 6.8,
+   "ln_min": 1.9169,
+   "mr": 0.21526949488330382,
+   "beyond_3_sigma": false
   },
   {
-   "incident_id": "FX-1006",
-   "t_received": "2026-09-23T10:00:00-04:00",
-   "minutes": 5.66,
-   "ln_min": 1.734,
-   "mr": 0.093,
-   "tests": []
+   "incident_id": "NY26-0353807",
+   "t_received": "2026-09-03T20:20:37-04:00",
+   "minutes": 7.33,
+   "ln_min": 1.9924,
+   "mr": 0.075507552508145,
+   "beyond_3_sigma": false
   },
   {
-   "incident_id": "FX-1007",
-   "t_received": "2026-09-24T10:00:00-04:00",
-   "minutes": 6.24,
-   "ln_min": 1.831,
-   "mr": 0.097,
-   "tests": []
+   "incident_id": "NY26-0353928",
+   "t_received": "2026-09-03T23:09:27-04:00",
+   "minutes": 5.5,
+   "ln_min": 1.7047,
+   "mr": 0.2876820724517808,
+   "beyond_3_sigma": false
   },
   {
-   "incident_id": "FX-1008",
-   "t_received": "2026-09-25T10:00:00-04:00",
-   "minutes": 4.74,
-   "ln_min": 1.557,
-   "mr": 0.274,
-   "tests": []
+   "incident_id": "NY26-0354082",
+   "t_received": "2026-09-04T02:16:43-04:00",
+   "minutes": 5.03,
+   "ln_min": 1.6161,
+   "mr": 0.08866563708565645,
+   "beyond_3_sigma": false
   },
   {
-   "incident_id": "FX-1009",
-   "t_received": "2026-09-26T10:00:00-04:00",
-   "minutes": 3.86,
-   "ln_min": 1.351,
-   "mr": 0.206,
-   "tests": []
+   "incident_id": "NY26-0355637",
+   "t_received": "2026-09-05T11:32:57-04:00",
+   "minutes": 5.35,
+   "ln_min": 1.6771,
+   "mr": 0.06101410575514632,
+   "beyond_3_sigma": false
   },
   {
-   "incident_id": "FX-1010",
-   "t_received": "2026-09-27T10:00:00-04:00",
-   "minutes": 3.45,
-   "ln_min": 1.239,
-   "mr": 0.112,
-   "tests": []
+   "incident_id": "NY26-0355670",
+   "t_received": "2026-09-05T12:25:42-04:00",
+   "minutes": 4.77,
+   "ln_min": 1.5616,
+   "mr": 0.1154493123101632,
+   "beyond_3_sigma": false
   },
   {
-   "incident_id": "FX-1011",
-   "t_received": "2026-09-28T10:00:00-04:00",
-   "minutes": 4.64,
-   "ln_min": 1.535,
-   "mr": 0.296,
-   "tests": []
+   "incident_id": "NY26-0355799",
+   "t_received": "2026-09-05T15:04:08-04:00",
+   "minutes": 6.17,
+   "ln_min": 1.8192,
+   "mr": 0.25751119481841744,
+   "beyond_3_sigma": false
   },
   {
-   "incident_id": "FX-1012",
-   "t_received": "2026-09-29T10:00:00-04:00",
-   "minutes": 5.12,
-   "ln_min": 1.632,
-   "mr": 0.097,
-   "tests": []
+   "incident_id": "NY26-0358885",
+   "t_received": "2026-09-08T09:59:28-04:00",
+   "minutes": 7.57,
+   "ln_min": 2.0238,
+   "mr": 0.20459419240307808,
+   "beyond_3_sigma": false
   },
   {
-   "incident_id": "FX-1013",
-   "t_received": "2026-09-30T10:00:00-04:00",
-   "minutes": 9.77,
-   "ln_min": 2.279,
-   "mr": 0.647,
-   "tests": []
+   "incident_id": "NY26-0359982",
+   "t_received": "2026-09-09T11:26:10-04:00",
+   "minutes": 5.97,
+   "ln_min": 1.7862,
+   "mr": 0.23756421164064778,
+   "beyond_3_sigma": false
   },
   {
-   "incident_id": "FX-1014",
-   "t_received": "2026-09-01T10:00:00-04:00",
-   "minutes": 4.37,
-   "ln_min": 1.475,
-   "mr": 0.804,
-   "tests": []
+   "incident_id": "NY26-0360946",
+   "t_received": "2026-09-10T09:54:44-04:00",
+   "minutes": 6.43,
+   "ln_min": 1.8615,
+   "mr": 0.07530438306413045,
+   "beyond_3_sigma": false
   },
   {
-   "incident_id": "FX-1015",
-   "t_received": "2026-10-02T10:00:00-04:00",
-   "minutes": 4.9,
-   "ln_min": 1.589,
-   "mr": 0.114,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1016",
-   "t_received": "2026-10-03T10:00:00-04:00",
-   "minutes": 3.44,
-   "ln_min": 1.235,
-   "mr": 0.354,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1017",
-   "t_received": "2026-10-04T10:00:00-04:00",
-   "minutes": 7.32,
-   "ln_min": 1.991,
-   "mr": 0.756,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1018",
-   "t_received": "2026-10-05T10:00:00-04:00",
-   "minutes": 8.72,
-   "ln_min": 2.166,
-   "mr": 0.175,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1019",
-   "t_received": "2026-10-06T10:00:00-04:00",
-   "minutes": 5.48,
-   "ln_min": 1.701,
-   "mr": 0.465,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1020",
-   "t_received": "2026-10-07T10:00:00-04:00",
-   "minutes": 5.85,
-   "ln_min": 1.766,
-   "mr": 0.065,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1021",
-   "t_received": "2026-10-08T10:00:00-04:00",
-   "minutes": 5.63,
-   "ln_min": 1.727,
-   "mr": 0.039,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1022",
-   "t_received": "2026-10-09T10:00:00-04:00",
-   "minutes": 5.4,
-   "ln_min": 1.686,
-   "mr": 0.041,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1023",
-   "t_received": "2026-10-10T10:00:00-04:00",
-   "minutes": 3.99,
-   "ln_min": 1.384,
-   "mr": 0.302,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1024",
-   "t_received": "2026-10-11T10:00:00-04:00",
-   "minutes": 11.23,
-   "ln_min": 2.418,
-   "mr": 1.034,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1025",
-   "t_received": "2026-10-12T10:00:00-04:00",
-   "minutes": 6.04,
-   "ln_min": 1.799,
-   "mr": 0.62,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1026",
-   "t_received": "2026-10-13T10:00:00-04:00",
-   "minutes": 5.79,
-   "ln_min": 1.756,
-   "mr": 0.042,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1027",
-   "t_received": "2026-10-14T10:00:00-04:00",
-   "minutes": 8.44,
-   "ln_min": 2.133,
-   "mr": 0.377,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1028",
-   "t_received": "2026-10-15T10:00:00-04:00",
-   "minutes": 6.0,
-   "ln_min": 1.791,
-   "mr": 0.342,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1029",
-   "t_received": "2026-10-16T10:00:00-04:00",
-   "minutes": 5.84,
-   "ln_min": 1.765,
-   "mr": 0.026,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1030",
-   "t_received": "2026-10-17T10:00:00-04:00",
-   "minutes": 5.13,
-   "ln_min": 1.636,
-   "mr": 0.129,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1031",
-   "t_received": "2026-10-18T10:00:00-04:00",
-   "minutes": 6.49,
-   "ln_min": 1.871,
-   "mr": 0.235,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1032",
-   "t_received": "2026-10-19T10:00:00-04:00",
-   "minutes": 6.73,
-   "ln_min": 1.907,
-   "mr": 0.036,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1033",
-   "t_received": "2026-10-20T10:00:00-04:00",
-   "minutes": 6.68,
-   "ln_min": 1.899,
-   "mr": 0.008,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1034",
-   "t_received": "2026-10-21T10:00:00-04:00",
-   "minutes": 6.32,
-   "ln_min": 1.844,
-   "mr": 0.056,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1035",
-   "t_received": "2026-10-22T10:00:00-04:00",
-   "minutes": 5.24,
-   "ln_min": 1.657,
-   "mr": 0.187,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1036",
-   "t_received": "2026-10-23T10:00:00-04:00",
-   "minutes": 6.23,
-   "ln_min": 1.829,
-   "mr": 0.172,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1037",
-   "t_received": "2026-10-24T10:00:00-04:00",
-   "minutes": 8.53,
-   "ln_min": 2.143,
-   "mr": 0.314,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1038",
-   "t_received": "2026-10-25T10:00:00-04:00",
-   "minutes": 6.79,
-   "ln_min": 1.915,
-   "mr": 0.228,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1039",
-   "t_received": "2026-10-26T10:00:00-04:00",
-   "minutes": 5.64,
-   "ln_min": 1.73,
-   "mr": 0.185,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1040",
-   "t_received": "2026-10-27T10:00:00-04:00",
-   "minutes": 4.22,
-   "ln_min": 1.441,
-   "mr": 0.289,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1041",
-   "t_received": "2026-10-28T10:00:00-04:00",
-   "minutes": 7.04,
-   "ln_min": 1.951,
-   "mr": 0.51,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1042",
-   "t_received": "2026-10-29T10:00:00-04:00",
-   "minutes": 9.63,
-   "ln_min": 2.265,
-   "mr": 0.313,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1043",
-   "t_received": "2026-10-30T10:00:00-04:00",
-   "minutes": 4.17,
-   "ln_min": 1.429,
-   "mr": 0.836,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1044",
-   "t_received": "2026-10-01T10:00:00-04:00",
-   "minutes": 7.35,
-   "ln_min": 1.994,
-   "mr": 0.566,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1045",
-   "t_received": "2026-10-02T10:00:00-04:00",
-   "minutes": 5.1,
-   "ln_min": 1.63,
-   "mr": 0.365,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1046",
-   "t_received": "2026-10-03T10:00:00-04:00",
-   "minutes": 4.78,
-   "ln_min": 1.565,
-   "mr": 0.065,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1047",
-   "t_received": "2026-10-04T10:00:00-04:00",
-   "minutes": 7.23,
-   "ln_min": 1.978,
-   "mr": 0.413,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1048",
-   "t_received": "2026-10-05T10:00:00-04:00",
-   "minutes": 11.31,
-   "ln_min": 2.426,
-   "mr": 0.448,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1049",
-   "t_received": "2026-10-06T10:00:00-04:00",
-   "minutes": 3.63,
-   "ln_min": 1.289,
-   "mr": 1.136,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1050",
-   "t_received": "2026-10-07T10:00:00-04:00",
-   "minutes": 9.43,
-   "ln_min": 2.244,
-   "mr": 0.955,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1051",
-   "t_received": "2026-10-08T10:00:00-04:00",
-   "minutes": 9.88,
-   "ln_min": 2.29,
-   "mr": 0.046,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1052",
-   "t_received": "2026-10-09T10:00:00-04:00",
-   "minutes": 8.62,
-   "ln_min": 2.155,
-   "mr": 0.135,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1053",
-   "t_received": "2026-10-10T10:00:00-04:00",
-   "minutes": 10.59,
-   "ln_min": 2.36,
-   "mr": 0.205,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1054",
-   "t_received": "2026-10-11T10:00:00-04:00",
-   "minutes": 5.49,
-   "ln_min": 1.703,
-   "mr": 0.657,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1055",
-   "t_received": "2026-10-12T10:00:00-04:00",
-   "minutes": 8.75,
-   "ln_min": 2.168,
-   "mr": 0.465,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1056",
-   "t_received": "2026-10-13T10:00:00-04:00",
-   "minutes": 8.38,
-   "ln_min": 2.126,
-   "mr": 0.043,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1057",
-   "t_received": "2026-10-14T10:00:00-04:00",
-   "minutes": 8.65,
-   "ln_min": 2.157,
-   "mr": 0.031,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1058",
-   "t_received": "2026-10-15T10:00:00-04:00",
-   "minutes": 6.42,
-   "ln_min": 1.86,
-   "mr": 0.297,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1059",
-   "t_received": "2026-10-16T10:00:00-04:00",
-   "minutes": 9.76,
-   "ln_min": 2.278,
-   "mr": 0.418,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1060",
-   "t_received": "2026-10-17T10:00:00-04:00",
-   "minutes": 4.07,
-   "ln_min": 1.404,
-   "mr": 0.874,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1061",
-   "t_received": "2026-10-18T10:00:00-04:00",
-   "minutes": 6.1,
-   "ln_min": 1.808,
-   "mr": 0.403,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1062",
-   "t_received": "2026-10-19T10:00:00-04:00",
-   "minutes": 7.3,
-   "ln_min": 1.988,
-   "mr": 0.18,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1063",
-   "t_received": "2026-10-20T10:00:00-04:00",
-   "minutes": 5.87,
-   "ln_min": 1.77,
-   "mr": 0.218,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1064",
-   "t_received": "2026-10-21T10:00:00-04:00",
-   "minutes": 5.89,
-   "ln_min": 1.773,
-   "mr": 0.003,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1065",
-   "t_received": "2026-10-22T10:00:00-04:00",
-   "minutes": 6.08,
-   "ln_min": 1.805,
-   "mr": 0.032,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1066",
-   "t_received": "2026-10-23T10:00:00-04:00",
-   "minutes": 16.04,
-   "ln_min": 2.775,
-   "mr": 0.971,
-   "tests": [
-    1
-   ]
-  },
-  {
-   "incident_id": "FX-1067",
-   "t_received": "2026-10-24T10:00:00-04:00",
-   "minutes": 10.55,
-   "ln_min": 2.357,
-   "mr": 0.419,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1068",
-   "t_received": "2026-10-25T10:00:00-04:00",
-   "minutes": 9.49,
-   "ln_min": 2.25,
-   "mr": 0.106,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1069",
-   "t_received": "2026-10-26T10:00:00-04:00",
-   "minutes": 4.43,
-   "ln_min": 1.488,
-   "mr": 0.762,
-   "tests": []
-  },
-  {
-   "incident_id": "FX-1070",
-   "t_received": "2026-10-27T10:00:00-04:00",
+   "incident_id": "NY26-0363046",
+   "t_received": "2026-09-12T08:04:02-04:00",
    "minutes": 9.23,
-   "ln_min": 2.223,
-   "mr": 0.735,
-   "tests": []
+   "ln_min": 2.2228,
+   "mr": 0.36132731728245293,
+   "beyond_3_sigma": false
   },
   {
-   "incident_id": "FX-1071",
-   "t_received": "2026-10-28T10:00:00-04:00",
-   "minutes": 15.23,
-   "ln_min": 2.723,
-   "mr": 0.5,
-   "tests": [
-    1
-   ]
+   "incident_id": "NY26-0364249",
+   "t_received": "2026-09-13T08:33:11-04:00",
+   "minutes": 6.62,
+   "ln_min": 1.8896,
+   "mr": 0.3332284060600934,
+   "beyond_3_sigma": false
   },
   {
-   "incident_id": "FX-1072",
-   "t_received": "2026-10-29T10:00:00-04:00",
-   "minutes": 7.45,
-   "ln_min": 2.008,
-   "mr": 0.715,
-   "tests": []
+   "incident_id": "NY26-0364797",
+   "t_received": "2026-09-13T20:25:32-04:00",
+   "minutes": 4.43,
+   "ln_min": 1.4892,
+   "mr": 0.4004399719054912,
+   "beyond_3_sigma": false
   },
   {
-   "incident_id": "FX-1073",
-   "t_received": "2026-10-30T10:00:00-04:00",
-   "minutes": 9.18,
-   "ln_min": 2.217,
-   "mr": 0.209,
-   "tests": []
+   "incident_id": "NY26-0366275",
+   "t_received": "2026-09-15T05:49:22-04:00",
+   "minutes": 3.23,
+   "ln_min": 1.1735,
+   "mr": 0.3156381497183711,
+   "beyond_3_sigma": false
   },
   {
-   "incident_id": "FX-1074",
-   "t_received": "2026-10-01T10:00:00-04:00",
-   "minutes": 7.78,
-   "ln_min": 2.052,
-   "mr": 0.165,
-   "tests": []
+   "incident_id": "NY26-0366380",
+   "t_received": "2026-09-15T08:25:58-04:00",
+   "minutes": 15.65,
+   "ln_min": 2.7505,
+   "mr": 1.5769573201449347,
+   "beyond_3_sigma": true
   },
   {
-   "incident_id": "FX-1075",
-   "t_received": "2026-10-02T10:00:00-04:00",
-   "minutes": 7.71,
-   "ln_min": 2.043,
-   "mr": 0.009,
-   "tests": []
+   "incident_id": "NY26-0366534",
+   "t_received": "2026-09-15T11:34:01-04:00",
+   "minutes": 5.35,
+   "ln_min": 1.6771,
+   "mr": 1.073374356078247,
+   "beyond_3_sigma": false
   },
   {
-   "incident_id": "FX-1076",
-   "t_received": "2026-10-03T10:00:00-04:00",
-   "minutes": 10.26,
-   "ln_min": 2.328,
-   "mr": 0.285,
-   "tests": []
+   "incident_id": "NY26-0366786",
+   "t_received": "2026-09-15T16:33:19-04:00",
+   "minutes": 5.83,
+   "ln_min": 1.7636,
+   "mr": 0.08649203135344341,
+   "beyond_3_sigma": false
   },
   {
-   "incident_id": "FX-1077",
-   "t_received": "2026-10-04T10:00:00-04:00",
-   "minutes": 9.19,
-   "ln_min": 2.218,
-   "mr": 0.11,
-   "tests": []
+   "incident_id": "NY26-0367247",
+   "t_received": "2026-09-16T03:41:55-04:00",
+   "minutes": 8.58,
+   "ln_min": 2.1498,
+   "mr": 0.38623374618027695,
+   "beyond_3_sigma": false
   },
   {
-   "incident_id": "FX-1078",
-   "t_received": "2026-10-05T10:00:00-04:00",
-   "minutes": 9.79,
-   "ln_min": 2.281,
-   "mr": 0.063,
-   "tests": []
+   "incident_id": "NY26-0368660",
+   "t_received": "2026-09-17T11:09:47-04:00",
+   "minutes": 6.4,
+   "ln_min": 1.8563,
+   "mr": 0.29352434807600924,
+   "beyond_3_sigma": false
   },
   {
-   "incident_id": "FX-1079",
-   "t_received": "2026-10-06T10:00:00-04:00",
-   "minutes": 10.77,
-   "ln_min": 2.377,
-   "mr": 0.096,
-   "tests": []
+   "incident_id": "NY26-0370483",
+   "t_received": "2026-09-19T03:30:07-04:00",
+   "minutes": 10.08,
+   "ln_min": 2.3109,
+   "mr": 0.4545859054431147,
+   "beyond_3_sigma": false
   },
   {
-   "incident_id": "FX-1080",
-   "t_received": "2026-10-07T10:00:00-04:00",
-   "minutes": 8.46,
-   "ln_min": 2.135,
-   "mr": 0.242,
-   "tests": []
+   "incident_id": "NY26-0370781",
+   "t_received": "2026-09-19T09:30:53-04:00",
+   "minutes": 5.13,
+   "ln_min": 1.6358,
+   "mr": 0.6751286750572671,
+   "beyond_3_sigma": false
   },
   {
-   "incident_id": "FX-1081",
-   "t_received": "2026-10-08T10:00:00-04:00",
-   "minutes": 8.42,
-   "ln_min": 2.13,
-   "mr": 0.004,
-   "tests": []
+   "incident_id": "NY26-0370795",
+   "t_received": "2026-09-19T09:52:21-04:00",
+   "minutes": 6.77,
+   "ln_min": 1.912,
+   "mr": 0.2762533766281581,
+   "beyond_3_sigma": false
   },
   {
-   "incident_id": "FX-1082",
-   "t_received": "2026-10-09T10:00:00-04:00",
-   "minutes": 9.15,
-   "ln_min": 2.214,
-   "mr": 0.084,
-   "tests": []
+   "incident_id": "NY26-0371123",
+   "t_received": "2026-09-19T16:38:49-04:00",
+   "minutes": 13.85,
+   "ln_min": 2.6283,
+   "mr": 0.7162766352537158,
+   "beyond_3_sigma": true
   },
   {
-   "incident_id": "FX-1083",
-   "t_received": "2026-10-10T10:00:00-04:00",
-   "minutes": 23.31,
-   "ln_min": 3.149,
-   "mr": 0.934,
-   "tests": [
-    1
-   ]
+   "incident_id": "NY26-0371931",
+   "t_received": "2026-09-20T09:50:17-04:00",
+   "minutes": 6.92,
+   "ln_min": 1.9339,
+   "mr": 0.69435127462475,
+   "beyond_3_sigma": false
   },
   {
-   "incident_id": "FX-1084",
-   "t_received": "2026-10-11T10:00:00-04:00",
-   "minutes": 8.01,
-   "ln_min": 2.081,
-   "mr": 1.068,
-   "tests": []
+   "incident_id": "NY26-0373895",
+   "t_received": "2026-09-22T05:39:03-04:00",
+   "minutes": 7.22,
+   "ln_min": 1.9764,
+   "mr": 0.042459207771791574,
+   "beyond_3_sigma": false
   },
   {
-   "incident_id": "FX-1085",
-   "t_received": "2026-10-12T10:00:00-04:00",
-   "minutes": 8.87,
-   "ln_min": 2.183,
-   "mr": 0.103,
-   "tests": []
+   "incident_id": "NY26-0374685",
+   "t_received": "2026-09-22T23:14:54-04:00",
+   "minutes": 14.2,
+   "ln_min": 2.6532,
+   "mr": 0.6768487988268257,
+   "beyond_3_sigma": true
   },
   {
-   "incident_id": "FX-1086",
-   "t_received": "2026-10-13T10:00:00-04:00",
-   "minutes": 11.46,
-   "ln_min": 2.439,
-   "mr": 0.256,
-   "tests": []
+   "incident_id": "NY26-0374755",
+   "t_received": "2026-09-23T00:43:19-04:00",
+   "minutes": 4.68,
+   "ln_min": 1.544,
+   "mr": 1.1092318574955697,
+   "beyond_3_sigma": false
   },
   {
-   "incident_id": "FX-1087",
-   "t_received": "2026-10-14T10:00:00-04:00",
-   "minutes": 6.14,
-   "ln_min": 1.815,
-   "mr": 0.624,
-   "tests": []
+   "incident_id": "NY26-0375518",
+   "t_received": "2026-09-23T17:24:00-04:00",
+   "minutes": 6.78,
+   "ln_min": 1.9145,
+   "mr": 0.37045851610884917,
+   "beyond_3_sigma": false
   },
   {
-   "incident_id": "FX-1088",
-   "t_received": "2026-10-15T10:00:00-04:00",
-   "minutes": 9.71,
-   "ln_min": 2.273,
-   "mr": 0.459,
-   "tests": []
+   "incident_id": "NY26-0375723",
+   "t_received": "2026-09-23T22:14:07-04:00",
+   "minutes": 7.9,
+   "ln_min": 2.0669,
+   "mr": 0.15239413625248166,
+   "beyond_3_sigma": false
   },
   {
-   "incident_id": "FX-1089",
-   "t_received": "2026-10-16T10:00:00-04:00",
-   "minutes": 10.22,
-   "ln_min": 2.324,
-   "mr": 0.051,
-   "tests": []
+   "incident_id": "NY26-0375945",
+   "t_received": "2026-09-24T03:34:25-04:00",
+   "minutes": 8.47,
+   "ln_min": 2.1361,
+   "mr": 0.06927412588340509,
+   "beyond_3_sigma": false
+  },
+  {
+   "incident_id": "NY26-0376681",
+   "t_received": "2026-09-24T19:38:56-04:00",
+   "minutes": 6.78,
+   "ln_min": 1.9145,
+   "mr": 0.22166826213588675,
+   "beyond_3_sigma": false
+  },
+  {
+   "incident_id": "NY26-0376846",
+   "t_received": "2026-09-24T22:50:58-04:00",
+   "minutes": 5.13,
+   "ln_min": 1.6358,
+   "mr": 0.27871340246902054,
+   "beyond_3_sigma": false
+  },
+  {
+   "incident_id": "NY26-0377250",
+   "t_received": "2026-09-25T07:31:17-04:00",
+   "minutes": 5.13,
+   "ln_min": 1.6358,
+   "mr": 0.0,
+   "beyond_3_sigma": false
+  },
+  {
+   "incident_id": "NY26-0377470",
+   "t_received": "2026-09-25T12:52:36-04:00",
+   "minutes": 4.62,
+   "ln_min": 1.5297,
+   "mr": 0.10608227678623616,
+   "beyond_3_sigma": false
+  },
+  {
+   "incident_id": "NY26-0377726",
+   "t_received": "2026-09-25T18:39:29-04:00",
+   "minutes": 4.58,
+   "ln_min": 1.5224,
+   "mr": 0.007246408520767078,
+   "beyond_3_sigma": false
+  },
+  {
+   "incident_id": "NY26-0379757",
+   "t_received": "2026-09-27T13:37:14-04:00",
+   "minutes": 3.93,
+   "ln_min": 1.3695,
+   "mr": 0.15293929264096118,
+   "beyond_3_sigma": false
+  },
+  {
+   "incident_id": "NY26-0379804",
+   "t_received": "2026-09-27T14:34:35-04:00",
+   "minutes": 7.23,
+   "ln_min": 1.9787,
+   "mr": 0.6092127290747948,
+   "beyond_3_sigma": false
+  },
+  {
+   "incident_id": "NY26-0379877",
+   "t_received": "2026-09-27T16:03:37-04:00",
+   "minutes": 5.23,
+   "ln_min": 1.655,
+   "mr": 0.3236515481921516,
+   "beyond_3_sigma": false
+  },
+  {
+   "incident_id": "NY26-0380154",
+   "t_received": "2026-09-27T22:02:07-04:00",
+   "minutes": 5.93,
+   "ln_min": 1.7806,
+   "mr": 0.12553774494377712,
+   "beyond_3_sigma": false
+  },
+  {
+   "incident_id": "NY26-0380323",
+   "t_received": "2026-09-28T01:40:26-04:00",
+   "minutes": 6.9,
+   "ln_min": 1.9315,
+   "mr": 0.15093524297328398,
+   "beyond_3_sigma": false
+  },
+  {
+   "incident_id": "NY26-0380487",
+   "t_received": "2026-09-28T05:11:47-04:00",
+   "minutes": 6.92,
+   "ln_min": 1.9339,
+   "mr": 0.0024125464053839085,
+   "beyond_3_sigma": false
+  },
+  {
+   "incident_id": "NY26-0381142",
+   "t_received": "2026-09-28T19:22:20-04:00",
+   "minutes": 5.12,
+   "ln_min": 1.6325,
+   "mr": 0.30143077264350127,
+   "beyond_3_sigma": false
+  },
+  {
+   "incident_id": "NY26-0384054",
+   "t_received": "2026-10-01T14:18:47-04:00",
+   "minutes": 9.13,
+   "ln_min": 2.2119,
+   "mr": 0.5794275393608186,
+   "beyond_3_sigma": false
+  },
+  {
+   "incident_id": "NY26-0384384",
+   "t_received": "2026-10-01T21:25:57-04:00",
+   "minutes": 7.48,
+   "ln_min": 2.0127,
+   "mr": 0.19925239920576132,
+   "beyond_3_sigma": false
+  },
+  {
+   "incident_id": "NY26-0384510",
+   "t_received": "2026-10-02T00:29:48-04:00",
+   "minutes": 6.43,
+   "ln_min": 1.8615,
+   "mr": 0.15118551827742355,
+   "beyond_3_sigma": false
+  },
+  {
+   "incident_id": "NY26-0384890",
+   "t_received": "2026-10-02T08:33:35-04:00",
+   "minutes": 14.47,
+   "ln_min": 2.6718,
+   "mr": 0.8103543451955195,
+   "beyond_3_sigma": true
+  },
+  {
+   "incident_id": "NY26-0386059",
+   "t_received": "2026-10-03T10:32:04-04:00",
+   "minutes": 3.72,
+   "ln_min": 1.3128,
+   "mr": 1.3590199432002315,
+   "beyond_3_sigma": false
+  },
+  {
+   "incident_id": "NY26-0386508",
+   "t_received": "2026-10-03T19:59:49-04:00",
+   "minutes": 6.82,
+   "ln_min": 1.9194,
+   "mr": 0.6065433845826829,
+   "beyond_3_sigma": false
+  },
+  {
+   "incident_id": "NY26-0387420",
+   "t_received": "2026-10-04T17:18:11-04:00",
+   "minutes": 5.33,
+   "ln_min": 1.674,
+   "mr": 0.2453941602490295,
+   "beyond_3_sigma": false
+  },
+  {
+   "incident_id": "NY26-0387617",
+   "t_received": "2026-10-04T21:48:22-04:00",
+   "minutes": 6.0,
+   "ln_min": 1.7918,
+   "mr": 0.11778303565638337,
+   "beyond_3_sigma": false
+  },
+  {
+   "incident_id": "NY26-0387726",
+   "t_received": "2026-10-05T00:17:21-04:00",
+   "minutes": 4.85,
+   "ln_min": 1.579,
+   "mr": 0.21278076427866321,
+   "beyond_3_sigma": false
+  },
+  {
+   "incident_id": "NY26-0388362",
+   "t_received": "2026-10-05T15:00:17-04:00",
+   "minutes": 4.05,
+   "ln_min": 1.3987,
+   "mr": 0.1802618238309439,
+   "beyond_3_sigma": false
+  },
+  {
+   "incident_id": "NY26-0389323",
+   "t_received": "2026-10-06T12:06:43-04:00",
+   "minutes": 6.68,
+   "ln_min": 1.8996,
+   "mr": 0.5008999839660206,
+   "beyond_3_sigma": false
+  },
+  {
+   "incident_id": "NY26-0390398",
+   "t_received": "2026-10-07T12:58:02-04:00",
+   "minutes": 10.32,
+   "ln_min": 2.3338,
+   "mr": 0.43414384537802686,
+   "beyond_3_sigma": false
+  },
+  {
+   "incident_id": "NY26-0390967",
+   "t_received": "2026-10-08T01:48:30-04:00",
+   "minutes": 7.67,
+   "ln_min": 2.0369,
+   "mr": 0.2968787832014552,
+   "beyond_3_sigma": false
+  },
+  {
+   "incident_id": "NY26-0391120",
+   "t_received": "2026-10-08T05:15:23-04:00",
+   "minutes": 11.07,
+   "ln_min": 2.4039,
+   "mr": 0.36705565999329304,
+   "beyond_3_sigma": false
+  },
+  {
+   "incident_id": "NY26-0391505",
+   "t_received": "2026-10-08T13:20:16-04:00",
+   "minutes": 8.1,
+   "ln_min": 2.0919,
+   "mr": 0.3120735255759399,
+   "beyond_3_sigma": false
+  },
+  {
+   "incident_id": "NY26-0396401",
+   "t_received": "2026-10-13T02:40:12-04:00",
+   "minutes": 11.72,
+   "ln_min": 2.461,
+   "mr": 0.36914826791017097,
+   "beyond_3_sigma": false
+  },
+  {
+   "incident_id": "NY26-0396621",
+   "t_received": "2026-10-13T08:10:04-04:00",
+   "minutes": 4.57,
+   "ln_min": 1.5188,
+   "mr": 0.9422287854225948,
+   "beyond_3_sigma": false
+  },
+  {
+   "incident_id": "NY26-0397483",
+   "t_received": "2026-10-14T04:33:20-04:00",
+   "minutes": 5.3,
+   "ln_min": 1.6677,
+   "mr": 0.14892327639210667,
+   "beyond_3_sigma": false
+  },
+  {
+   "incident_id": "NY26-0397700",
+   "t_received": "2026-10-14T09:09:26-04:00",
+   "minutes": 5.63,
+   "ln_min": 1.7287,
+   "mr": 0.060994512702842174,
+   "beyond_3_sigma": false
+  },
+  {
+   "incident_id": "NY26-0398503",
+   "t_received": "2026-10-15T02:41:32-04:00",
+   "minutes": 12.75,
+   "ln_min": 2.5455,
+   "mr": 0.8168299383435167,
+   "beyond_3_sigma": false
   }
  ],
- "tests": [
-  {
-   "id": 1,
-   "rule": "One call beyond 3 sigma",
-   "alert": true,
-   "fired": true
-  },
-  {
-   "id": 2,
-   "rule": "9 calls in a row on one side of the center line",
-   "alert": true,
-   "fired": true
-  },
-  {
-   "id": 3,
-   "rule": "6 calls in a row going up or down",
-   "alert": false,
-   "fired": false
-  },
-  {
-   "id": 4,
-   "rule": "14 calls in a row alternating up and down",
-   "alert": false,
-   "fired": false
-  },
-  {
-   "id": 5,
-   "rule": "2 of 3 calls beyond 2 sigma",
-   "alert": true,
-   "fired": true
-  },
-  {
-   "id": 6,
-   "rule": "4 of 5 calls beyond 1 sigma",
-   "alert": false,
-   "fired": true
-  },
-  {
-   "id": 7,
-   "rule": "15 calls in a row within 1 sigma",
-   "alert": false,
-   "fired": false
-  },
-  {
-   "id": 8,
-   "rule": "8 calls in a row beyond 1 sigma",
-   "alert": false,
-   "fired": false
-  }
- ],
- "before_median_min": 6.2,
- "after_median_min": 8.4
+ "n_beyond": 4,
+ "assumptions": {
+  "n": 161,
+  "skew": 0.645,
+  "lag1": 0.043
+ },
+ "before_median_min": 4.55,
+ "after_median_min": 6.72,
+ "messages": [
+  "FIXTURE DATA: a saved, trimmed API reply for building and testing the page. Not live.",
+  "secondary chart: only test 1 (a call beyond 3 sigma on the log scale) is marked; other Nelson rules are not used because their false-alarm rate was not validated"
+ ]
 }

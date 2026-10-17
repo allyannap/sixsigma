@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { fmtDate, fmtZ, lateGoalPct, fmtInt, fmtNum, fmtPct, fmtRange, mmss } from './format.js'
+import { addDays, fmtCi, fmtDate, fmtInt, fmtNum, fmtPct, fmtRange, mmss } from './format.js'
 
 describe('formatters', () => {
   it('turns seconds into m:ss', () => {
@@ -19,10 +19,15 @@ describe('formatters', () => {
     expect(fmtDate('2026-09-16')).toBe('Sep 16')
     expect(fmtRange({ from: '2026-09-16', to: '2026-10-15' })).toBe('Sep 16 to Oct 15, 2026')
   })
-  it('z scores and the late goal', () => {
-    expect(fmtZ(7.41)).toBe('7.4')
-    expect(fmtZ(null)).toBe('n/a')
-    expect(lateGoalPct(90)).toBe(10)
-    expect(lateGoalPct(undefined)).toBe(null)
+  it('adds calendar days across months and DST', () => {
+    expect(addDays('2026-10-15', -89)).toBe('2026-07-18')
+    expect(addDays('2026-08-31', 1)).toBe('2026-09-01')
+    expect(addDays('2026-03-07', 2)).toBe('2026-03-09')
+  })
+  it('confidence intervals', () => {
+    expect(fmtCi([80.64, 90.6], '%')).toBe('80.6% to 90.6%')
+    expect(fmtCi([1, 2.25])).toBe('1.0 to 2.3')
+    expect(fmtCi([null, 3])).toBe('n/a')
+    expect(fmtCi(null)).toBe('n/a')
   })
 })

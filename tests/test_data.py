@@ -34,8 +34,8 @@ def test_step_durations_known_answer(three):
 
 
 def test_late_flag_uses_the_urgency_target(three):
-    a = three.loc["T-001"]                # red in urban ZIP 10001: urban red target 430 s, took 1476 s
-    assert a["urgency_group"] == "red" and a["target_s"] == 430 and a["late"]
+    a = three.loc["T-001"]                # red in urban ZIP 10001: red target 480 s (flat placeholder), took 1476 s
+    assert a["urgency_group"] == "red" and a["target_s"] == 480 and a["late"]
     b = three.loc["T-002"]                # green, target 1800 s, took 600 s
     assert b["urgency_group"] == "green" and b["target_s"] == 1800 and not b["late"]
     assert b["held"]
@@ -167,8 +167,10 @@ def test_real_file_row_count_and_speed():
 
 # ---------------------------------------------------------------- H-10: area types and targets
 
-def test_remote_zcta_call_gets_the_remote_red_target():
+def test_targets_are_looked_up_by_code_and_area_type():
     # Find one real remote ZCTA and one urban ZCTA in the lookup; same red call in each.
+    # The default targets are flat (red 480 s everywhere, team decision Oct 16), but the lookup still
+    # goes through (urgency_code, area type), so a center can set tiered targets in config/targets.csv.
     lk = data.lookups()["zcta_county"]
     remote = lk.loc[lk["urban_rural"] == "remote", "zcta"].iloc[0]
     urban = lk.loc[lk["urban_rural"] == "urban", "zcta"].iloc[0]
@@ -179,7 +181,15 @@ def test_remote_zcta_call_gets_the_remote_red_target():
     t = data.lookups()["targets"].set_index(["urgency_code", "urban_rural"])["target_s"]
     assert got.loc["R-1", "target_s"] == t[(0, "remote")]
     assert got.loc["U-1", "target_s"] == t[(0, "urban")]
-    assert t[(0, "remote")] > t[(0, "rural")] > t[(0, "suburban")] > t[(0, "urban")]
+    assert all(t[(code, area)] == 480 for code in (0, 1, 2) for area in ("urban", "suburban", "rural", "remote"))
+
+
+def test_flat_targets_match_the_brief_and_rebuild_exactly(tmp_path):
+    t = data.lookups()["targets"]
+    assert len(t) == 40
+    assert set(t.loc[t["urgency_group"] == "yellow", "target_s"]) == {900}
+    assert set(t.loc[t["urgency_group"] == "green", "target_s"]) == {1800}
+    assert set(t["goal_on_time_pct"]) == {90}
 
 
 def test_area_type_boundaries():
@@ -212,3 +222,43 @@ def test_weighted_goal_is_the_mean_goal_of_timed_calls():
     df = load_fixture("three_calls.csv")
     assert data.weighted_goal(df[df["timed"]]) == 90.0
     assert data.weighted_goal(df.iloc[:0]) is None
+
+
+# ---------------------------------------------------------------- decisions brief: invalid records and baseline isolation
+
+def test_invalid_records_never_enter_completed_statistics():
+    """Cancelled, valid_time = N, missing t_onscene and out-of-order rows are counted as calls but never timed."""
+    base = {"zcta": "10001", "urgency_code": 0, "t_received": "2026-08-01T10:00:00-04:00",
+            "t_assigned": "2026-08-01T10:01:00-04:00", "t_enroute": "2026-08-01T10:02:00-04:00",
+            "t_onscene": "2026-08-01T10:09:00-04:00", "disposition": "TRANSPORTED", "valid_time": "Y",
+            "eta_google_s": 400, "held": "N"}
+    rows = [
+        {**base, "incident_id": "OK"},
+        {**base, "incident_id": "CANCELLED", "disposition": "CANCELLED", "t_onscene": None},
+        {**base, "incident_id": "INVALID", "valid_time": "N"},
+        {**base, "incident_id": "NO_ONSCENE", "t_onscene": None},
+        {**base, "incident_id": "ENROUTE_BEFORE_ASSIGNED", "t_enroute": "2026-08-01T10:00:30-04:00"},
+        {**base, "incident_id": "ONSCENE_BEFORE_ENROUTE", "t_onscene": "2026-08-01T10:01:30-04:00"},
+    ]
+    df = data.derive(pd.DataFrame(rows)).set_index("incident_id")
+    assert df["timed"].to_dict() == {"OK": True, "CANCELLED": False, "INVALID": False, "NO_ONSCENE": False,
+                                     "ENROUTE_BEFORE_ASSIGNED": False, "ONSCENE_BEFORE_ENROUTE": False}
+    assert int(df["late"].sum()) == 1                    # only the valid 9-minute call (540 s > 480 s)
+    assert df["minutes"].notna().sum() == 1
+
+
+def test_stage_times_add_up_to_the_total_for_every_timed_call():
+    df = data.load("baseline")
+    t = df[df["timed"]]
+    assert ((t["dispatch_s"] + t["turnout_s"] + t["drive_s"]) == t["total_s"]).all()
+
+
+def test_baseline_is_not_contaminated_by_the_monitoring_period():
+    # 40 on-time calls before the period; 40 very late calls inside it. The baseline must see only the first 40.
+    early = make_calls({"2026-08-01": 20, "2026-08-02": 20})
+    late_rows = make_calls({"2026-09-20": 20, "2026-09-21": 20}).copy()
+    late_rows["total_s"] = 5000.0
+    late_rows["late"] = True
+    df = pd.concat([early, late_rows]).sort_values("t_received", kind="stable").reset_index(drop=True)
+    rows, info = data.baseline(df, "zcta", "10001", "red", "2026-09-16", 60)
+    assert info["to"] < date(2026, 9, 16) and len(rows) == 40 and int(rows["late"].sum()) == 0

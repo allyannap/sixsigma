@@ -1,11 +1,16 @@
 """Check the three synthetic incident files. One PASS/FAIL line per check; exit 1 on any FAIL.
 
 Run from the repo root:   python data/validate.py
-Optional (for testing): --dir DIR --lookup DIR
+Optional: --dir DIR --lookup DIR (testing), --reproduce (rebuild into a temp folder with the fixed seed
+and check the content is identical, about 1 minute).
 It also runs a self-test first: the time-order check must FAIL on a tiny bad table.
 """
 import argparse
+import hashlib
+import subprocess
 import sys
+import tempfile
+from datetime import date, timedelta
 from pathlib import Path
 
 import pandas as pd
@@ -13,6 +18,8 @@ import pandas as pd
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 NAMES = ["baseline", "station_closure", "summer_surge"]
+# The demo windows in README.md; each needs 120 days of history before it (the longest baseline).
+DEMO_WINDOWS = [("2026-07-18", "2026-10-15"), ("2026-09-01", "2026-10-15"), ("2026-07-01", "2026-08-31")]
 TIME_COLS = ["t_received", "t_assigned", "t_enroute", "t_onscene"]
 RED_REF_S = 480  # the bands below judge every red call against 480 s (NFPA-style), not the tier target
 RESULTS = []  # (ok, text)
@@ -73,6 +80,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dir", default=str(HERE))
     ap.add_argument("--lookup", default=str(HERE / "lookup"))
+    ap.add_argument("--reproduce", action="store_true", help="rebuild from the seed and compare (slow)")
     args = ap.parse_args()
     d, ld = Path(args.dir), Path(args.lookup)
 
@@ -114,6 +122,21 @@ def main():
         month = t["t_received"].dt.tz_convert("America/New_York").dt.month
         peak = int(month.value_counts().idxmax())
         report(peak in (6, 7, 8), f"{n}: monthly volume peaks in Jun-Aug (peak month {peak})")
+        ok_on = on & (df["valid_time"] == "Y")
+        tot = (t.loc[ok_on, "t_onscene"] - t.loc[ok_on, "t_received"]).dt.total_seconds()
+        parts = ((t.loc[ok_on, "t_assigned"] - t.loc[ok_on, "t_received"]).dt.total_seconds()
+                 + (t.loc[ok_on, "t_enroute"] - t.loc[ok_on, "t_assigned"]).dt.total_seconds()
+                 + (t.loc[ok_on, "t_onscene"] - t.loc[ok_on, "t_enroute"]).dt.total_seconds())
+        report(bool((tot == parts).all()), f"{n}: stage intervals add up to total_s for every completed call")
+        drive = (t.loc[on, "t_onscene"] - t.loc[on, "t_enroute"]).dt.total_seconds()
+        ratio = drive / df.loc[on, "eta_google_s"]
+        slower, faster, outliers = (ratio > 1).mean(), (ratio < 1).mean(), int((ratio > 1.5).sum())
+        report(slower > 0.05 and faster > 0.05 and outliers > 0,
+               f"{n}: drive vs estimate goes both ways (slower {100 * slower:.1f}%, faster {100 * faster:.1f}%, "
+               f"{outliers:,} slow outliers over 1.5x)")
+        first = t["t_received"].dt.tz_convert("America/New_York").dt.date.min()
+        need = min(date.fromisoformat(a) for a, _ in DEMO_WINDOWS) - timedelta(days=120)
+        report(first <= need, f"{n}: data starts {first}, at least 120 baseline days before every demo window ({need})")
         cty = df.merge(lookup[["zcta", "county_fips"]], on="zcta")["county_fips"]
         report(cty.nunique() == 62 and set(cty) == set(counties["county_fips"]),
                f"{n}: 62 counties and every county has calls ({cty.nunique()} with calls)")
@@ -162,6 +185,15 @@ def main():
         h2 = (s2["held"] == "Y").mean()
         report(h1 > 0.15, f"summer_surge Monroe held rate Jul-Aug = {h1:.3f} (need > 0.15)")
         report(h2 < 0.05, f"summer_surge Monroe held rate Sep 1-Oct 15 = {h2:.3f} (need < 0.05)")
+
+    if args.reproduce:
+        with tempfile.TemporaryDirectory() as tmp:
+            subprocess.run([sys.executable, str(HERE / "generate.py"), "--out", tmp], check=True,
+                           stdout=subprocess.DEVNULL)
+            for n in NAMES:
+                a = hashlib.sha256(pd.read_csv(d / f"incidents_{n}.csv.gz", dtype=str).to_csv().encode()).hexdigest()
+                b = hashlib.sha256(pd.read_csv(Path(tmp) / f"incidents_{n}.csv.gz", dtype=str).to_csv().encode()).hexdigest()
+                report(a == b, f"{n}: rebuilt from the fixed seed, content identical (sha256 {a[:12]})")
 
     fails = RESULTS.count(False)
     print(f"\n{len(RESULTS) - fails} PASS, {fails} FAIL")

@@ -1,0 +1,172 @@
+{
+ "selection": {
+  "dataset": "station_closure",
+  "source": "Synthetic - simulated replay",
+  "level": "state",
+  "id": null,
+  "name": "New York State (fixture)",
+  "from": "2026-07-18",
+  "to": "2026-10-15",
+  "urgency": [
+   "red"
+  ],
+  "baseline_from": "2026-05-19",
+  "baseline_to": "2026-07-17",
+  "baseline_days": 60
+ },
+ "source": "Synthetic - simulated replay",
+ "day": "2026-09-02",
+ "received": 374,
+ "valid": 347,
+ "late": 70,
+ "cancelled": 25,
+ "events": [
+  {
+   "incident_id": "NY26-0352906",
+   "t_received": "2026-09-02T23:56:49-04:00",
+   "zcta": "12078",
+   "county": "Fulton",
+   "urgency_group": "red",
+   "disposition": "TREATED",
+   "valid": true,
+   "total_s": 940.0,
+   "late": true,
+   "held": false
+  },
+  {
+   "incident_id": "NY26-0352897",
+   "t_received": "2026-09-02T23:42:53-04:00",
+   "zcta": "11354",
+   "county": "Queens",
+   "urgency_group": "red",
+   "disposition": "TRANSPORTED",
+   "valid": true,
+   "total_s": 240.0,
+   "late": false,
+   "held": false
+  },
+  {
+   "incident_id": "NY26-0352894",
+   "t_received": "2026-09-02T23:38:46-04:00",
+   "zcta": "13660",
+   "county": "St. Lawrence",
+   "urgency_group": "red",
+   "disposition": "TRANSPORTED",
+   "valid": true,
+   "total_s": 541.0,
+   "late": true,
+   "held": false
+  },
+  {
+   "incident_id": "NY26-0352890",
+   "t_received": "2026-09-02T23:34:46-04:00",
+   "zcta": "12010",
+   "county": "Montgomery",
+   "urgency_group": "red",
+   "disposition": "TRANSPORTED",
+   "valid": true,
+   "total_s": 503.0,
+   "late": true,
+   "held": false
+  },
+  {
+   "incident_id": "NY26-0352887",
+   "t_received": "2026-09-02T23:30:57-04:00",
+   "zcta": "10028",
+   "county": "New York",
+   "urgency_group": "red",
+   "disposition": "TREATED",
+   "valid": true,
+   "total_s": 216.0,
+   "late": false,
+   "held": false
+  },
+  {
+   "incident_id": "NY26-0352884",
+   "t_received": "2026-09-02T23:28:46-04:00",
+   "zcta": "10550",
+   "county": "Westchester",
+   "urgency_group": "red",
+   "disposition": "TREATED",
+   "valid": true,
+   "total_s": 406.0,
+   "late": false,
+   "held": false
+  },
+  {
+   "incident_id": "NY26-0352883",
+   "t_received": "2026-09-02T23:27:13-04:00",
+   "zcta": "10025",
+   "county": "New York",
+   "urgency_group": "red",
+   "disposition": "TRANSPORTED",
+   "valid": true,
+   "total_s": 274.0,
+   "late": false,
+   "held": false
+  },
+  {
+   "incident_id": "NY26-0352882",
+   "t_received": "2026-09-02T23:25:07-04:00",
+   "zcta": "10304",
+   "county": "Richmond",
+   "urgency_group": "red",
+   "disposition": "TRANSPORTED",
+   "valid": true,
+   "total_s": 153.0,
+   "late": false,
+   "held": false
+  },
+  {
+   "incident_id": "NY26-0352878",
+   "t_received": "2026-09-02T23:21:17-04:00",
+   "zcta": "11238",
+   "county": "Kings",
+   "urgency_group": "red",
+   "disposition": "TRANSPORTED",
+   "valid": true,
+   "total_s": 186.0,
+   "late": false,
+   "held": false
+  },
+  {
+   "incident_id": "NY26-0352874",
+   "t_received": "2026-09-02T23:15:29-04:00",
+   "zcta": "14222",
+   "county": "Erie",
+   "urgency_group": "red",
+   "disposition": "TRANSPORTED",
+   "valid": true,
+   "total_s": 391.0,
+   "late": false,
+   "held": false
+  },
+  {
+   "incident_id": "NY26-0352873",
+   "t_received": "2026-09-02T23:15:14-04:00",
+   "zcta": "10011",
+   "county": "New York",
+   "urgency_group": "red",
+   "disposition": "TRANSPORTED",
+   "valid": true,
+   "total_s": 522.0,
+   "late": true,
+   "held": true
+  },
+  {
+   "incident_id": "NY26-0352871",
+   "t_received": "2026-09-02T23:12:23-04:00",
+   "zcta": "11355",
+   "county": "Queens",
+   "urgency_group": "red",
+   "disposition": "TRANSPORTED",
+   "valid": true,
+   "total_s": 212.0,
+   "late": false,
+   "held": false
+  }
+ ],
+ "messages": [
+  "FIXTURE DATA: a saved, trimmed API reply for building and testing the page. Not live."
+ ]
+}
