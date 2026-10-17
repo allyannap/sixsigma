@@ -39,6 +39,14 @@ export function fmtDate(iso) {
   return `${MONTHS[Number(m) - 1]} ${Number(d)}`
 }
 
+/** "2026-10-12" -> "Oct 12, 2026". */
+export function fmtDateYear(iso) {
+  if (!iso) return ''
+  const [year, month, day] = String(iso).slice(0, 10).split('-')
+  if (!year || !month || !day) return String(iso)
+  return `${MONTHS[Number(month) - 1]} ${Number(day)}, ${year}`
+}
+
 /**
  * [80.6, 90.6] -> "80.6 to 90.6"; unit "%" -> "80.6% to 90.6%".
  * One bound missing -> "n/a" in its place (a P95 upper bound needs 59 or more calls); both missing -> "n/a".
@@ -86,7 +94,7 @@ export function periodBounds(start, unit, selection = {}) {
 
 /**
  * chance_below{expected, n_places, observed_below} -> one plain sentence, or '' when it could not be computed.
- * It says how many places would read Below target purely by chance if every place were exactly at the goal.
+ * It says how many places would read Below goal purely by chance if every place were exactly at the goal.
  */
 export function fmtChanceBelow(cb, noun = 'places') {
   if (!cb || missing(cb.expected)) return ''

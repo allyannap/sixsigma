@@ -11,6 +11,7 @@ import PlaceHead from './components/PlaceHead.jsx'
 import ReplayBar from './components/ReplayBar.jsx'
 import TopBar from './components/TopBar.jsx'
 import InvestigateRail from './components/InvestigateRail.jsx'
+import HowItWorks, { markGuideSeen, seenGuide } from './components/HowItWorks.jsx'
 import { LoadingBar } from './components/common.jsx'
 
 const STATE = { level: 'state', id: undefined, name: 'New York State' }
@@ -73,6 +74,10 @@ export default function App() {
   // Map click (drill = true) opens a county's ZIP areas; table click only selects.
   // The Investigate sidebar (closed by default; the button in the top bar opens it).
   const [railOpen, setRailOpen] = useState(false)
+  // The guide opens by itself on the first visit only (remembered in this browser); "How it works" reopens it.
+  const [guideOpen, setGuideOpen] = useState(false)
+  useEffect(() => { if (!seenGuide()) setGuideOpen(true) }, [])
+  const closeGuide = useCallback(() => { setGuideOpen(false); markGuideSeen() }, [])
   const closeRail = useCallback(() => setRailOpen(false), [])
 
   const pick = (place, drill) => {
@@ -114,7 +119,8 @@ export default function App() {
   return (
     <div className="shell">
       <TopBar dataset={dataset} datasets={meta.data && meta.data.datasets} onDataset={(d) => { setDataset(d); resetScope() }}
-        replay={replay} fixtures={fixtures} replayHandlers={replayHandlers} />
+        replay={replay} fixtures={fixtures} replayHandlers={replayHandlers} onHelp={() => setGuideOpen(true)} />
+      <HowItWorks open={guideOpen} onClose={closeGuide} targets={meta.data && meta.data.targets} />
       <LoadingBar active={[meta, summary, pchart, imr, stages].some((x) => x.loading)} />
       <div className="app">
         <main className={`workspace${railOpen ? ' has-rail' : ''}`}>

@@ -66,14 +66,18 @@ describe('sections render from fixtures', () => {
     const html = await railHtml()
     expect(html).not.toContain('rail-card')
     expect(html).not.toContain('rail-layout')
-    for (const col of ['Valid calls', 'On time [95% CI]', 'Target', 'Control', 'Label', 'Late beyond goal', 'Cancelled / invalid', 'Calls per day: now (baseline)', 'P95 min [95% CI]', 'Cpk [upper]']) {
+    for (const col of ['Valid calls', 'On time (95% CI)', 'Goal (90%)', 'Control', 'Label', 'Late beyond goal', 'Cancelled / invalid', 'Calls per day: now (baseline)', 'P95 min (95% CI)', 'Cpk [upper]']) {
       expect(html).toContain(`>${col}</th>`)
     }
+    // the goal is named once, in the heading, not as "vs 90" on every row
+    expect(html).not.toMatch(/vs 90/)
+    const p = summary.places.find((x) => x.queue === 'act_now')
+    expect(rowOf(html, p.name)).toContain(`${p.on_time_ci[0].toFixed(1)}–${p.on_time_ci[1].toFixed(1)}`)
   })
   it('a place row shows its queue label and both judgments; the place header no longer repeats them', async () => {
     const p = summary.places.find((x) => x.queue === 'act_now')
     const row = rowOf(await railHtml(), p.name)
-    expect(row).toMatch(/Below target|Inconclusive|Meets target/)
+    expect(row).toMatch(/Below goal|Inconclusive|Meets goal/)
     expect(row).toContain('Act now')
     expect(row).toContain(`${p.valid.toLocaleString('en-US')}</td>`)
     const top = head({ selected: { level: 'county', id: p.id, name: p.name, place: p } })
@@ -100,7 +104,7 @@ describe('sections render from fixtures', () => {
   })
   it('section 3 lists flagged areas with their evidence, never a chosen fix', () => {
     const html = plain(renderToString(h(InvestigationSection, { summaryState: ok(summary), onPick() {} })))
-    expect(html).toContain('Target evidence')
+    expect(html).toContain('Goal evidence')
     expect(html).toContain('Control evidence')
     expect(html).toContain('does not choose or rank interventions')
     expect(investigationRows(summary.places).every((p) => ['act_now', 'ongoing_gap', 'recent_change'].includes(p.queue) || p.spec === 'below')).toBe(true)
@@ -134,15 +138,16 @@ describe('sections render from fixtures', () => {
     expect(html).toContain('id="date-to"')
   })
 
-  it('the top-bar "i" (next to Simulated service data) says t_received is provisional and the targets are NFPA 1720-based placeholders; no footer', () => {
+  it('the "How it works" guide says the clock start is not yet confirmed and the targets are NFPA 1720-based placeholders; no footer', async () => {
     const html = plain(renderToString(h(App)))
     expect(html).not.toContain('<footer')
-    expect(html).toContain('aria-label="About the data and targets"')
-    expect(html).toContain('Every number on this page is computed by the API')
-    expect(html).toContain('provisional')
-    expect(html).toContain('911 answer')
-    expect(html).toContain('NFPA 1720')
-    expect(html).toContain('red 8 minutes in urban areas, 10 suburban, 14 rural and remote; yellow 15; green 30')
+    expect(html).toContain('>How it works</button>')
+    expect(html).not.toContain('About the data and targets')
+    const { default: HowItWorks } = await import('./components/HowItWorks.jsx')
+    const guide = (i) => plain(renderToString(h(HowItWorks, { open: true, onClose() {}, targets: [], initialPage: i })))
+    expect(guide(0)).toContain('placeholders based on NFPA 1720')
+    expect(guide(2)).toContain('911 answer or the CAD record: not yet confirmed')
+    expect(guide(2)).toContain('Every number comes from the read-only API')
   })
   it('the replay bar takes the baseline length from the API (60, or 120 when stretched)', () => {
     const bar = (days) => plain(renderToString(h(ReplayBar, { replay: { on: true, playing: false, start: '2026-08-25', day: '2026-09-02' }, feedState: ok(replay), baselineDays: days, onStart() {}, onToggle() {}, onStep() {}, onStop() {} })))
@@ -170,7 +175,7 @@ describe('H-13 supervisor data', () => {
   it('section 2 says one signal is unconfirmed and retains its watch evidence in Method', () => {
     const p = { ...pchart, control: 'in_control', watch: true, control_reason: '1 period above the limit, not confirmed (needs 2, or a stronger single signal)' }
     const html = plain(renderToString(h(ChangeSection, { pState: ok(p), imrState: ok(imr), selectedName: 'X' })))
-    expect(html).toContain('Watching one signal')
+    expect(html).not.toContain('Watching one signal')
     expect(html).toContain('Change not confirmed')
     expect(plain(renderToString(h(ControlMethod, { p })))).toContain('chip-watch')
   })
@@ -307,10 +312,10 @@ describe('OnScene page (H-14)', () => {
     expect(plain(renderToString(h(SirenLogo)))).toContain('icon-siren')
     expect(html).not.toMatch(/Sentinel/)
   })
-  it('the top bar has the simulated-data pill, the dataset picker from /api/meta, the user chip and no clock', () => {
+  it('the top bar says the data is simulated in the brand subtitle (no pill), the dataset picker from /api/meta, the user chip and no clock', () => {
     const html = topbar()
-    expect(html).toContain('SYNTHETIC DATA: ')
-    expect(html).toContain('Simulated service data')
+    expect(html).not.toContain('sample-pill')
+    expect(html).toMatch(/class="brand-sub">[\s\S]*SYNTHETIC DATA: <\/span>Simulated data/)
     for (const d of ['baseline', 'station_closure', 'summer_surge']) expect(html).toContain(`<option value="${d}"`)
     expect(html).toContain('Team Powerpuff Girls')
     expect(html).not.toMatch(/FIXTURE DATA/)
@@ -439,7 +444,7 @@ describe('OnScene page (H-14)', () => {
     const html = plain(renderToString(h(InsightsSection, { placeName: 'Monroe', selection: summary.selection, dataset: 'baseline' },
       h(AnomSection, { summaryState: ok(summary) }),
       h(ChangeSection, { pState: ok(pchart), imrState: ok(imr), selectedName: 'Monroe' }))))
-    expect(html).toContain('Monroe Wait Time Insights')
+    expect(html).toContain('<span class="insights-place-name">Monroe</span><span>Wait Time Insights</span>')
     expect(html).toContain('Are calls arriving on time?')
     expect(html).toContain('Are more calls missing their response target?')
     expect(html).toContain('Response trends')
@@ -550,5 +555,18 @@ describe('call urgency help', () => {
     expect(html).toContain('aria-label="How call urgency is defined"')
     expect(html).toContain('0 is the most')
     expect(html).toContain('Source: code field modeled on NYC Open Data')
+  })
+})
+
+describe('Investigate table goal heading', () => {
+  it('names the shared goal once; a place with a different goal shows its own in its row', async () => {
+    const { sharedGoal } = await import('./components/InvestigateRail.jsx')
+    expect(sharedGoal([{ goal_pct: 90 }, { goal_pct: 90 }, { goal_pct: 85 }])).toBe(90)
+    expect(sharedGoal([])).toBe(null)
+    expect(sharedGoal([{ goal_pct: null }])).toBe(null)
+    const odd = { ...summary.places[0], goal_pct: 85 }
+    const html = await railHtml({ summaryState: ok({ ...summary, places: [odd, ...summary.places.slice(1)] }), initialView: 'review' })
+      + await railHtml({ summaryState: ok({ ...summary, places: [odd, ...summary.places.slice(1)] }), initialView: 'others' })
+    expect(rowOf(html, odd.name)).toContain('· goal 85%')
   })
 })

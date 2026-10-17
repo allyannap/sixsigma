@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { addDays, fmtChanceBelow, fmtCi, fmtDate, fmtInt, fmtNum, fmtPct, fmtRange, fmtVolume, mmss, periodEnd } from './format.js'
+import { addDays, fmtChanceBelow, fmtCi, fmtDate, fmtDateYear, fmtInt, fmtNum, fmtPct, fmtRange, fmtVolume, mmss, periodEnd } from './format.js'
 
 describe('formatters', () => {
   it('turns seconds into m:ss', () => {
@@ -17,6 +17,7 @@ describe('formatters', () => {
     expect(fmtInt(12345)).toBe('12,345')
     expect(fmtPct(12.34)).toBe('12.3%')
     expect(fmtDate('2026-09-16')).toBe('Sep 16')
+    expect(fmtDateYear('2026-10-12')).toBe('Oct 12, 2026')
     expect(fmtRange({ from: '2026-09-16', to: '2026-10-15' })).toBe('Sep 16 to Oct 15, 2026')
   })
   it('adds calendar days across months and DST', () => {

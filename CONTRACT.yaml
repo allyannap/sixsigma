@@ -218,6 +218,7 @@ tasks:
     follow_up: "User approved Part 2 redesign in Part 4 style: finding, selectable chart and detail card, technical disclosures; frontend 70 passed, production build passed; desktop/mobile browser checks passed (point click, arrow keys, period selection, review calls, stale-call reset, disclosures, live API; 0 page errors). Point hover and keyboard labels now state whether the rate is over the upper limit, below the lower limit, or within the limits, with observed rate, counts and limits. User requested removing the optional I/MR section; removed both charts and the frontend imr request. User requested replacing the reading guide with visible upper-limit labeling, orange crossing markers, an above-limit count and navigation, and a direct rate-versus-limit comparison. Browser checks passed for visible labels, crossing counts, next-period navigation/wraparound, hover text and mobile width; 0 page errors. Lower limit highlighted in green, labeled on-chart, included in the card; below-limit points outlined in green as possible improvements. Condensed repeated chart guidance and selected-card text; grouped baseline and supporting tables under Evidence & details, with nested method and stage disclosures. Validated: frontend 70 passed, build passed, browser checks passed for condensed desktop/mobile view and nested evidence/stage access; 0 page errors. Replaced disclosure stacks with one accessible tabbed workspace (Flagged periods, Calls, Stage times, Method), routing call review into its shared Calls panel. Validated: frontend 70 passed, production build passed; browser checks passed for all tabs, one visible panel, call-review routing, period updates, arrow/Home/End navigation and desktop/mobile; 0 page errors. Fixed flagged-day mismatch: list all upper/lower crossings plus exact-test signals; matching tab count, per-row boundary and statistical-signal labels, and call review for all highlighted points. Validated: frontend 71 passed, build passed; live May 31-Oct 15 scenario shows all 4 highlighted days (2 above, 2 below), preserves the single-signal watch status, and lets Sep 6 calls be reviewed; 0 browser page errors. User requested blank dates mean no date selected everywhere: explicit valid From/To required; analytical requests and replay disabled while blank/incomplete; previous numbers and charts hidden. Validated: frontend 72 passed, build passed; browser verifies blank/partial/cleared/reversed dates suppress all analysis, explicit dates restore results, and shortened Part 2 renders; 0 page errors. Auditing every selected-range chart point against source calls; clipping visible partial week/month ranges consistently and blocking stale responses during date changes. Validated: Python 179 passed; frontend 74 passed; build passed. Independent API checks reconcile every daily/weekly/monthly point to inclusive source calls, including single-day and year-crossing windows. Browser compared all 138 live points (counts, rate, baseline, limits, tooltip), checked Sep 6 call drilldown and single-day chart; 0 page errors. Applied approved missed-response-target wording to Part 2 title, short importance explanation, axis, legend and selected card. Human diff review/check-in pending."
     priority_follow_up: "User reiterated Oct 17: exactly one priority, Red OR Yellow OR Green. Replaced multi-select array state with a single priority value and accessible radio controls; verified targeted Priority test passed, production build passed, and browser clicks/re-clicks/keyboard/API checks passed: exactly one priority throughout, zero page errors."
     sparse_zip_trend_follow_up: "User approved descriptive ZIP trends when the control baseline is insufficient: observed late-call rate, count and pointwise 95% Wilson interval per period, labeled Descriptive—limited baseline; county retains control chart signals and the Method panel says county results do not establish change in an individual ZIP. Validated: tests/test_api.py 57 passed (including Wilson known calculation and county preservation); frontend 112 passed; production build passed; git diff --check passed."
+    sparse_zip_ui_follow_up: "User requested a shorter sparse-ZIP view with axis labels and a statistic for the chosen date range. Removed the warning banner, week selector, repeated Wilson wording and duplicate baseline button; added selected-range late rate/count, labeled Date and Calls over target (%) axes, and retained uncertainty whiskers. Clarified late means receipt-to-scene arrival exceeded the configured target; this does not mean non-arrival. The ZIP code is explicit, the heading says observed trend, and the card has no internal scrolling so its Evidence button stays visible. Selected-range totals reconcile to plotted groups. Latest UI refinement removes the empty No confirmed increase banner, preserves above-limit navigation, and balances the selected rate/upper limit card. The descriptive-ZIP evidence drawer now matches Area details width and keeps only Period and Calls tabs; stage times and measurement notes are expandable under Period. Verified: tests/test_api.py 57 passed; frontend 112 passed; production build passed; git diff --check passed."
     notes: >
       User instruction Oct 16 - treat the brief as the approved requirements. Team answers the same day -
       red target flat 480 s (tiers made the on-time check circular), default window 90 days, Below target +
@@ -509,3 +510,62 @@ tasks:
       npm test passes; vite build succeeds; in a browser the map and the right side (and the open panel) have the same
       width.
     result: "Map 710 px, right side 710 px, open panel 710 px with the 14 px gap kept (1490 px window); vitest 112 passed; vite build ok."
+
+  - id: H-27
+    title: Target vs goal - one meaning each, and a "How it works" guide instead of the top-bar tooltip
+    points: "working tool (25) and demonstration (10) - users can tell the minutes from the 90%"
+    status: done
+    owner: "claude + Powerpuff Girls"
+    started_at: "2026-10-17 23:50"
+    owns: ["app/frontend/src/components/HowItWorks.jsx", "app/frontend/src/components/TopBar.jsx", "app/frontend/src/App.jsx",
+           "app/frontend/src/status.js", "app/frontend/src/format.js", "app/frontend/src/components/common.jsx",
+           "app/frontend/src/components/MapSection.jsx", "app/frontend/src/components/MetricsSection.jsx",
+           "app/frontend/src/components/InvestigateRail.jsx", "app/frontend/src/components/InvestigationSection.jsx",
+           "app/frontend/src/styles.css", "app/frontend/src/guide.test.js", "app/frontend/src/render.test.js",
+           "app/frontend/src/status.test.js", "app/main.py", "app/qc.py", "app/ai_summary.py",
+           "SPEC.md", "README.md", "app/frontend/README.md", "data/README.md"]
+    notes: >
+      User request Oct 17. "Target" meant both the minutes for one call and the 90% on-time goal. Now target = the minutes
+      (late = missed it) and goal = 90% on time; the place judgment reads Meets goal / Below goal / Inconclusive across the
+      page, legend, table, section 3, docstrings, AI-summary prompt and docs. API codes and every number unchanged. The
+      unread "i" tooltip is replaced by a "How it works" button and a three-page guide (also shown on the first visit):
+      target vs goal with the target table from /api/meta (urgency as 1 / 2 / 3, remote reuses rural, NFPA 1720-based
+      placeholders), the five map colours, and how to use the page with the data caveats. No extra text on the page.
+    definition_of_done: >
+      npm test passes (target table known answer = config/targets.csv; empty and mixed-target degenerate cases; labels say
+      goal); pytest tests/test_ai_summary.py passes; vite build succeeds; in a browser the guide opens on the first visit
+      only, steps Next / Back / Start, closes on Escape and reopens from "How it works".
+    result: "Target table 8/10/14/14, 15, 30 min and goal 90% match config/targets.csv (40 of 40 rows); labels say goal everywhere; vitest 118 passed; pytest test_ai_summary 42 passed; vite build ok; guide checked in a browser (first visit only, Next/Back/Start, Escape, reopen)."
+
+  - id: H-28
+    title: Remove the "Simulated service data" pill; say "Simulated data" in the brand subtitle
+    points: "demonstration (10) - less clutter in the top bar, the synthetic-data notice kept"
+    status: done
+    owner: "claude + Powerpuff Girls"
+    started_at: "2026-10-17 23:55"
+    owns: ["app/frontend/src/components/TopBar.jsx", "app/frontend/src/styles.css", "app/frontend/src/render.test.js"]
+    notes: >
+      User request Oct 17. The amber pill read as noise and was removed. The page must still say the data is synthetic
+      (CLAUDE.md hard rule; SPEC section 6), so the brand subtitle ends with "Simulated data" (tooltip and screen-reader
+      text "SYNTHETIC DATA"), and it stays visible when narrow screens hide the rest of the subtitle. The Investigate edge
+      tab was already red (teammate commit e139616).
+    definition_of_done: >
+      npm test passes (no pill; subtitle says SYNTHETIC DATA / Simulated data); vite build succeeds; checked in a browser.
+    result: "Pill removed; subtitle reads 'New York State · EMS response quality · Simulated data'; vitest 118 passed; vite build ok; checked in a browser."
+
+  - id: H-29
+    title: Investigate table - goal named once in the Goal (90%) heading, shorter intervals
+    points: "demonstration (10) - less repetition in the table"
+    status: done
+    owner: "claude + Powerpuff Girls"
+    started_at: "2026-10-18 00:00"
+    owns: ["app/frontend/src/components/InvestigateRail.jsx", "app/frontend/src/rail.css", "app/frontend/src/render.test.js"]
+    notes: >
+      User request Oct 17. Every row repeated "vs 90" and wrote intervals as "[74.4 to 80.0]". The goal most places share
+      is now named once in the next column's heading, "Goal (90%)"; a place with a different goal adds "· goal X%" in its
+      row. Intervals read "74.4–80.0" in the On time and P95 columns. A visual interval bar was offered and declined (the
+      user wants the exact numbers). No statistic changed.
+    definition_of_done: >
+      npm test passes (heading Goal (90%), no "vs 90", interval text, different-goal row); vite build succeeds; checked in
+      a browser.
+    result: "Headings 'On time (95% CI)' and 'Goal (90%)'; rows read '77.3% 74.4–80.0'; vitest 119 passed; vite build ok; checked in a browser."

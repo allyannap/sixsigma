@@ -34,24 +34,29 @@ hides the late calls, cannot say **where** they happen, and cannot separate a lo
 |---|---|---|---|
 | – | **Filters** | dataset, urgency (red / yellow / green), date range (choose From and To; blank dates show no analysis) | none |
 | – | **Simulation / Replay** | plays the synthetic file forward one simulated day per tick (3 s); the period start and its baseline stay fixed while the end date advances; the day's calls are listed | read-only feed |
-| – | **Summary** | places needing review, split into **recent signal** (Act now + Recent change) and **ongoing gap**, with how many places would read "Below target" **by chance alone** if every place sat exactly at the goal; on-time k of n with 95% CI vs the goal; median and P95 with intervals; calls, cancelled, invalid, cancel %, calls per day | Wilson interval, exact order-statistic intervals, binomial expected count |
-| 1 | **Map** state → county → ZIP area, with a back button, and the **Investigate** list beside it | Where? The list has two tabs that never overlap, **Needs review** (default; the map's Critical + Watch places) and **Not flagged** (the rest), each a table ranked by label, then by **late calls beyond what the goal allows**. Every row has the place's queue label, **Target** and **Control** (with a **watch** chip for one unconfirmed signal), n, on-time rate + CI, excess late calls, cancelled / invalid, calls per day, P95 + CI and Cpk. The old table under the map was removed (H-24) | on-time rate, p chart, P95 |
+| – | **Summary** | places needing review, split into **recent signal** (Act now + Recent change) and **ongoing gap**, with how many places would read "Below goal" **by chance alone** if every place sat exactly at the goal; on-time k of n with 95% CI vs the goal; median and P95 with intervals; calls, cancelled, invalid, cancel %, calls per day | Wilson interval, exact order-statistic intervals, binomial expected count |
+| 1 | **Map** state → county → ZIP area, with a back button, and the **Investigate** list beside it | Where? The list has two tabs that never overlap, **Needs review** (default; the map's Critical + Watch places) and **Not flagged** (the rest), each a table ranked by label, then by **late calls beyond what the goal allows**. Every row has the place's queue label, **Goal** and **Control** (with a **watch** chip for one unconfirmed signal), n, on-time rate + CI, excess late calls, cancelled / invalid, calls per day, P95 + CI and Cpk. The old table under the map was removed (H-24) | on-time rate, p chart, P95 |
 | 2 | **Has the process changed?** | late share by day / week / month against the screened baseline; the evidence for each signal (exact p-value); the **calls behind a signal**; a **stage-median table** (received → assigned → en route → on scene, period vs baseline, % held), descriptive only | p chart with exact binomial signals; baseline screen; dispersion check |
 | 3 | **Investigation list** | the flagged places of the current view, plus a **statewide list of flagged ZIP areas** (Act now or Recent change, 30+ valid calls) so a bad ZIP inside a county that looks fine still shows | none new |
 | 4 | **Geographic comparison** | histogram of area on-time rates, with selected-area waits, target and sample size | existing Wilson judgment; median and P90; [data profile and design](app/frontend/docs/geographic-comparison.md) |
 
-The footer states the response-clock caveat (`t_received` meaning is provisional) and that the red targets are
-NFPA 1720-based placeholders.
+A **How it works** guide (top bar; it also opens on the first visit) explains the page in three short pages: target and
+goal with the target table (read from `/api/meta`), the map colours, and how to use the page, with the caveats: the data is
+simulated, the response-clock start (`t_received`) is provisional, and the targets are NFPA 1720-based placeholders.
 
-**Two badges, one queue label.** The **Target** badge (Meets / Below / Inconclusive) and the **Control** badge
+**Target vs goal.** The **target** is the time limit for one call (urgency 1: 8 min urban, 10 suburban, 14 rural and
+remote; urgency 2: 15 min; urgency 3: 30 min); a call that misses it is **late**. The **goal** is the share of calls that
+should be on time (90%); a place is judged **Meets goal / Below goal / Inconclusive** against it.
+
+**Two badges, one queue label.** The **Goal** badge (Meets / Below / Inconclusive) and the **Control** badge
 (In control / Out of control / Insufficient baseline) are always shown. The queue label combines them:
 
-| Target | Control | Queue label |
+| Goal | Control | Queue label |
 |---|---|---|
-| Below target | Out of control | **Act now: performance gap + recent signal** |
-| Below target | In control | **Ongoing gap** |
-| Meets target or Inconclusive | Out of control | **Recent process change: investigate** |
-| Meets target | In control | **Meets goal; no change signal** |
+| Below goal | Out of control | **Act now: performance gap + recent signal** |
+| Below goal | In control | **Ongoing gap** |
+| Meets goal or Inconclusive | Out of control | **Recent process change: investigate** |
+| Meets goal | In control | **Meets goal; no change signal** |
 | anything | Insufficient baseline (or Inconclusive + In control) | **Needs more data / Inconclusive** (confirmed Below-target places sort first) |
 
 "No alert" never means "meets the target", "In control" never means good service, and "Inconclusive" is never shown as a pass.
@@ -62,15 +67,15 @@ by the map, its legend, the New York City borough list and the metrics card:
 
 | Map group | Means | Queue labels it covers |
 |---|---|---|
-| **Critical** | below target and a recent signal | Act now |
-| **Watch** | a gap or a change to look at | Ongoing gap, Recent change, and confirmed Below target when change cannot be judged yet |
+| **Critical** | below the goal and a recent signal | Act now |
+| **Watch** | a gap or a change to look at | Ongoing gap, Recent change, and confirmed Below goal when change cannot be judged yet |
 | **Near goal** | 30 or more valid calls, but the on-time interval includes the goal, and no change signal | Needs more data / Inconclusive |
-| **Stable** | meets the goal | Meets goal; no change signal, and Meets target when too few late calls exist to chart |
+| **Stable** | meets the goal | Meets goal; no change signal, and Meets goal when too few late calls exist to chart |
 | **Too few calls** (gray) | under 30 valid calls in the period | Needs more data / Inconclusive |
 
 A **Status / Late %** switch on the legend recolours the map by the share of late calls (light 0%, dark red 30%+); areas
 with under 30 valid calls are faded rather than gray, so a delay hot spot shows before a firm verdict is possible. The queue
-labels, the Target and Control badges and the API are unchanged; hovering an area shows both its map group and its label.
+labels, the Goal and Control badges and the API are unchanged; hovering an area shows both its map group and its label.
 On the baseline data (default window, red calls; H-19 files, 0.09 calls per person per year) the county map reads Watch 40,
 Near goal 3, Stable 19, Too few calls 0; Manhattan's 69 ZIP areas read Near goal 32, Stable 11, Too few calls 26 (68 were
 gray before H-18).
@@ -85,7 +90,7 @@ in volume only. Each call's **total wait** is `t_onscene − t_received` (provis
 (NFPA gives no remote value, so rural is reused, flagged). Yellow 15:00 and green 30:00 everywhere; goal 90% on time.
 **These are configurable placeholders, not certified standards** (`config/build_targets.py --flat` restores a flat 8:00 red target).
 
-- **Target (specification):** on-time rate with a 95% **Wilson** interval. Meets if the lower bound ≥ goal; Below if the
+- **Goal (specification):** on-time rate with a 95% **Wilson** interval. Meets if the lower bound ≥ goal; Below if the
   upper bound < goal; otherwise Inconclusive, and Inconclusive under 30 valid calls. Beside the count of Below places,
   the page shows **how many would read Below by chance** if every place were exactly at the goal (`qc.chance_below`).
 - **Control (p chart):** the **baseline** is the 60 days before the selected range, never overlapping it (120 days if
@@ -155,12 +160,12 @@ day-to-day county effects, winter and summer seasonality, an hour-of-day profile
 
 | Dataset | Planted scenario | Try this | What the tool shows |
 |---|---|---|---|
-| `baseline` | none (seasonal pattern; rural long trips) | default (Jul 18 to Oct 15), state view | 62 counties: Act now 0, Ongoing gap 35, Recent change 1, Meets goal 10, Needs more data 16 (36 need attention). 39 of 62 counties read Below target where chance alone would give about 1.7. The one Recent change, Erie (one strong weekly signal, week of Aug 10, p = 5.1e-5), is a **false alarm** on a file with no planted change; Oneida, Ulster and Wayne carry watch chips. Statewide flagged ZIP list: one entry, 11212 (Kings, Recent change, 93.1% of 696), also a **false alarm** (807 ZIPs with 30+ valid calls checked; 94 read Below target where chance alone would give about 25.6). The state as a whole: 150,495 valid calls, 91.8% on time, median 5.05 min, P95 12.67 min, Meets target but Insufficient baseline (its daily baseline is overdispersed, chi-square / df 2.15); the state's daily chart is the least reliable view (section 7) |
+| `baseline` | none (seasonal pattern; rural long trips) | default (Jul 18 to Oct 15), state view | 62 counties: Act now 0, Ongoing gap 35, Recent change 1, Meets goal 10, Needs more data 16 (36 need attention). 39 of 62 counties read Below goal where chance alone would give about 1.7. The one Recent change, Erie (one strong weekly signal, week of Aug 10, p = 5.1e-5), is a **false alarm** on a file with no planted change; Oneida, Ulster and Wayne carry watch chips. Statewide flagged ZIP list: one entry, 11212 (Kings, Recent change, 93.1% of 696), also a **false alarm** (807 ZIPs with 30+ valid calls checked; 94 read Below goal where chance alone would give about 25.6). The state as a whole: 150,495 valid calls, 91.8% on time, median 5.05 min, P95 12.67 min, Meets goal but Insufficient baseline (its daily baseline is overdispersed, chi-square / df 2.15); the state's daily chart is the least reliable view (section 7) |
 | `station_closure` | from Sep 1, 2026, drive times in ZIP 11368 (Corona, Queens) +60% (set through the generator's travel model) | Queens → ZIP 11368, dates 2026-09-01 to 2026-10-15 | **Act now**: 72.2% on time of 407 valid calls (95% CI 67.7-76.4%), out of control in both months (exact p = 3.1e-27 for Sep, 8.5e-18 for Oct), 72.3 late calls beyond the goal. Stage medians: en route → on scene 272 s vs 180 s in the baseline; received → assigned (41 vs 46 s) and turnout (51 vs 50 s) unchanged. The same dates on the clean file: 91.4% (CI 88.3-93.8%), in control, Needs more data |
 | `station_closure` | same | default 90 days | 11368 reads **Act now** (83.9% of 875 calls, CI 81.3-86.2%; Sep and Oct above the limit) and heads the statewide flagged ZIP list; the list's only other entry is 11212, the same false alarm as on the clean file. Queens county as a whole reads 92.9% on time, Needs more data |
 | `summer_surge` | Jul-Aug 2026, Monroe County volume +30%, held calls common | Monroe, dates 2026-07-01 to 2026-08-31 | **Act now**: 80.2% of 5,285 calls (CI 79.1-81.2%), 10 weekly signals, 518.5 late calls beyond the goal. Stage medians: received → assigned 83 s vs 42 s in the baseline, held 26.5% vs 1.7%; turnout (51 vs 50 s) and drive (194 vs 195 s) unchanged. Clean file, same dates: 94.2%, Meets goal, in control |
-| `summer_surge` | same | Monroe, 2026-09-01 to 2026-10-15 | Meets target (94.7% of 2,532) but **Needs more data**: the 60-day baseline (Jul 3 to Aug 31) is the surge itself, overdispersed (chi-square / df 2.10) with a run of 8 on one side, so the screen refuses it. The clean file over the same dates: Meets goal, in control |
-| `summer_surge` | same | Jul 18–Oct 15, 2026 | Monroe reads Below target (85.8% of 6,405) but **Needs more data**: its baseline (May 19 to Jul 17) contains the start of the surge; the screen drops 8 of 60 days, finds the rest overdispersed (chi-square / df 2.67) and refuses to set limits |
+| `summer_surge` | same | Monroe, 2026-09-01 to 2026-10-15 | Meets goal (94.7% of 2,532) but **Needs more data**: the 60-day baseline (Jul 3 to Aug 31) is the surge itself, overdispersed (chi-square / df 2.10) with a run of 8 on one side, so the screen refuses it. The clean file over the same dates: Meets goal, in control |
+| `summer_surge` | same | Jul 18–Oct 15, 2026 | Monroe reads Below goal (85.8% of 6,405) but **Needs more data**: its baseline (May 19 to Jul 17) contains the start of the surge; the screen drops 8 of 60 days, finds the rest overdispersed (chi-square / df 2.67) and refuses to set limits |
 
 **Replay:** choose `station_closure`, click Queens, then ZIP 11368, and press **Start replay**. The period starts Aug 25
 and its baseline (Jun 26 to Aug 24) stays fixed while the simulated day advances. 11368 reads *Needs more data* (in

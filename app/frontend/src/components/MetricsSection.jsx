@@ -76,7 +76,7 @@ function Summary({ place, name, busy }) {
         <>
           <p className="summary-text">
             <strong>{name}: {q ? q.label : place.queue}.</strong>
-            {' '}Target: {place.spec_reason || 'n/a'}.
+            {' '}Goal: {place.spec_reason || 'n/a'}.
             {' '}Control: {place.control_reason || 'n/a'}.
           </p>
           <p className="summary-foot">{q ? `Next: ${q.next}` : ''}</p>
@@ -169,7 +169,7 @@ export function InsightsSection({ placeName, children }) {
   return (
     <section className="insights" aria-labelledby="insights-title">
       <div className="sec-head">
-        <h2 className="insights-title" id="insights-title">{placeName} Wait Time Insights</h2>
+        <h2 className="insights-title" id="insights-title"><span className="insights-place-name">{placeName}</span><span>Wait Time Insights</span></h2>
       </div>
       <InsightsSlider>{children}</InsightsSlider>
     </section>

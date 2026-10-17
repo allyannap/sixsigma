@@ -664,7 +664,7 @@ def assumption_checks(x):
 # ================================================================ 10. places that read "below" by chance
 
 def chance_below(ns, goal_pct):
-    """How many places would be called "Below target" purely by chance if every place truly met the goal.
+    """How many places would be called "Below goal" purely by chance if every place truly met the goal.
 
     For a place with n calls and true on-time rate exactly g = goal_pct / 100, the observed count of on-time
     calls is X ~ Binomial(n, g). The place reads "below" when the Wilson upper bound of X / n is under g.

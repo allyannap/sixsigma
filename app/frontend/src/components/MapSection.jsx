@@ -376,8 +376,8 @@ function MapCard({ summaryState, parent, selected, countyOptions = [], onPick, o
           <span className="legend-info">
             <button type="button" className="legend-info-btn" aria-label="What the map colours mean" aria-describedby="legend-def">i</button>
             <span className="legend-tip" id="legend-def" role="tooltip">
-              <span className="tip-line"><strong>Critical</strong> = act now: below target and a recent signal</span>
-              <span className="tip-line"><strong>Watch</strong> = ongoing gap, recent change, or confirmed below target</span>
+              <span className="tip-line"><strong>Critical</strong> = act now: below the goal and a recent signal</span>
+              <span className="tip-line"><strong>Watch</strong> = ongoing gap, recent change, or confirmed below the goal</span>
               <span className="tip-line"><strong>Near goal</strong> = enough calls, but the on-time interval includes the goal</span>
               <span className="tip-line"><strong>Stable</strong> = meets the goal</span>
               <span className="tip-line"><strong>Too few calls</strong> = under 30 valid calls</span>
