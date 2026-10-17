@@ -6,7 +6,7 @@
 .insights-tabs button:focus-visible { outline: 2px solid var(--brand); outline-offset: 1px; }
 .slide:focus-visible { outline: 2px solid var(--brand); outline-offset: -2px; border-radius: 5px; }
 .insights-slider #section-2 { padding: 0; background: none; border: 0; box-shadow: none; gap: 7px; min-height: 0; }
-.insights-slider #section-2 .section-head { flex: none; }
+.insights-slider #section-2 .section-head { flex: none; padding-left: 8px; }
 .insights-slider #section-2 .section-head h2 { font-size: 13px; line-height: 1.3; font-weight: 800; }
 .insights-slider #section-2 > .intro, .insights-slider #section-2 .section-head .tag { display: none; }
 .insights-slider .slider-track { min-height: 0; overflow: hidden !important; }
