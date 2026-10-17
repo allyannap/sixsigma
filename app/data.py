@@ -31,6 +31,7 @@ COUNTIES_CSV = DATA_DIR / "lookup" / "counties.csv"
 DATASETS = ("baseline", "station_closure", "summer_surge")
 LEVELS = ("state", "county", "zcta")
 GROUPS = ("red", "yellow", "green")
+AREA_TYPES = ("urban", "suburban", "rural", "remote")
 TZ = "America/New_York"
 
 MIN_CALLS = 30          # fewer timed calls than this: the place is "not enough"
@@ -143,6 +144,7 @@ def derive(raw: pd.DataFrame, targets: pd.DataFrame | None = None,
     # Place (zcta -> county, area type) and targets (per urgency code AND area type).
     df["county_fips"] = pd.Categorical(df["zcta"].map(zcta_to_county))
     area = df["zcta"].map(zcta_to_area)
+    df["urban_rural"] = pd.Categorical(area, categories=list(AREA_TYPES))
     t = targets.set_index(["urgency_code", "urban_rural"])
     keys = pd.MultiIndex.from_arrays([df["urgency_code"], area])
     missing_keys = sorted({k for k in keys[t.index.get_indexer(keys) < 0] if not pd.isna(k[1])})

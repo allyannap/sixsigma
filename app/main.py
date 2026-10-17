@@ -205,6 +205,14 @@ def baseline_card(info: dict) -> dict:
             "valid": info["timed"], "stretched": info["stretched"], "enough": info["enough"]}
 
 
+def area_mix(timed: pd.DataFrame) -> dict | None:
+    """Share of valid calls (percent) from urban, suburban, rural and remote ZIP areas; None with no valid calls."""
+    if not len(timed):
+        return None
+    counts = timed["urban_rural"].value_counts()
+    return {t: num(100 * int(counts.get(t, 0)) / len(timed), 1) for t in data.AREA_TYPES}
+
+
 def place_card(qc, sel_timed, n_calls, base_timed, base_info) -> dict:
     """Every number of one place's row: A, B, the queue label, percentiles, Cpk (secondary)."""
     card = {"calls": n_calls, **spec_card(qc, sel_timed), "very_late": very_late_count(sel_timed)}
@@ -216,6 +224,7 @@ def place_card(qc, sel_timed, n_calls, base_timed, base_info) -> dict:
     card.update(median_min=num(boot["median"]), p95_min=num(boot["p95"]), p95_ci=minutes_list(boot["ci"]))
     profile = qc.response_profile(sel_timed["minutes"].tolist(), (sel_timed["target_s"] / 60).tolist())
     card["response_profile"] = profile
+    card["area_mix"] = area_mix(sel_timed)
     card.update(cpk=None, cpk_upper=None)
     if len(sel_timed) >= data.MIN_CALLS:
         # Secondary and assumption-dependent (lognormal times): Cpk never sets the queue label.

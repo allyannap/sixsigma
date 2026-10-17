@@ -1,47 +1,60 @@
 import { createElement as h } from 'react'
 import { renderToString } from 'react-dom/server'
 import { expect, it } from 'vitest'
-import SimpleComparison, { AreaChoices, comparisonAreas, goalGap } from './components/SimpleComparison.jsx'
+import SimpleComparison, { areaTag, comparisonAreas, extremes, goalGap, histogram, median, ordinal } from './components/SimpleComparison.jsx'
 import summary from './fixtures/summary_state.json'
 
 const render = (d) => renderToString(h(SimpleComparison, { d })).replace(/<!-- -->/g, '')
+const a = (id, pct, spec = 'below', low_n = false) => ({ id, name: id, on_time_pct: pct, spec, response_profile: { n: low_n ? 5 : 100, low_n } })
 
-it('defines the goal, shows three labeled choices and one selected result', () => {
+it('defines the goal and draws one histogram beside one area card with name search', () => {
   const html = render(summary)
   expect(html).toContain('Goal: 90% of calls arrive within 8 min of call receipt.')
-  expect(html).toContain('Lowest on-time rates')
-  expect((html.match(/class="area-choice /g) || []).length).toBe(3)
-  expect(html).not.toContain('goal-bar')
+  const areas = comparisonAreas(summary.places)
+  const selected = extremes(areas)[0] || areas[0]
   expect((html.match(/id="simple-selected"/g) || []).length).toBe(1)
-  const areas = comparisonAreas(summary.places, '')
-  for (const p of areas) expect(html).toContain(p.name)
-  for (const p of summary.places) expect(html).toContain(`value="${p.id}"`)
-  const selected = areas[0]
-  expect(html).toContain(`${goalGap(selected)}`)
-  expect(html).toContain(`${selected.response_profile.n} calls`)
+  expect((html.match(/class="hist"/g) || []).length).toBe(1)
+  expect(html).toContain(goalGap(selected))
+  expect(html).toContain(`${ordinal(areas.indexOf(selected) + 1)} worst of ${areas.length}`)
+  expect(html).toContain(`${areas.filter((p) => p.on_time_pct < selected.goal_pct).length} of ${areas.length} areas`)
+  for (const p of areas) expect(html).toContain(`<option value="${p.name}">`)
+  expect(html).toContain('Search an area')
   expect(html).toContain('95% on-time uncertainty interval')
-  expect(html).toContain('slowest 1 in 10')
-  expect(html).toContain('Longest wait:')
-  expect(html).toContain('not an average of area percentages')
-  expect(html).toContain('aria-controls="simple-selected"')
+  expect(html).toContain('Slowest 1 in 10')
+  expect((html.match(/id="simple-selected"/g) || []).length).toBe(1)
+  expect(html).toContain('busy areas count more')
+  expect(html).not.toContain('simple-result-rate')
 })
 
-it('adds a fourth comparison area without duplicating a top-three area or including empty areas', () => {
-  const base = comparisonAreas(summary.places, '')
-  expect(comparisonAreas(summary.places, base[0].id)).toEqual(base)
-  const extra = summary.places.find((p) => p.response_profile.n > 0 && !base.some((b) => b.id === p.id))
-  expect(comparisonAreas(summary.places, extra.id)).toEqual([...base, extra])
-  const empty = { id: 'empty', name: 'Empty', response_profile: { n: 0 } }
-  expect(comparisonAreas([...summary.places, empty], 'empty')).toEqual(base)
+it('ranks valid areas worst first, ties by name, and drops empty areas', () => {
+  const areas = comparisonAreas([...summary.places, { id: 'empty', name: 'Empty', on_time_pct: 0, response_profile: { n: 0 } }])
+  expect(areas.some((p) => p.id === 'empty')).toBe(false)
+  for (let i = 1; i < areas.length; i++) expect(areas[i - 1].on_time_pct).toBeLessThanOrEqual(areas[i].on_time_pct)
+  expect(comparisonAreas([a('B', 80), a('A', 80)]).map((p) => p.id)).toEqual(['A', 'B'])
 })
 
-it('keeps tied values distinct by name and exposes uncertainty without relying on color', () => {
-  const areas = comparisonAreas(summary.places, '').map((p, i) => ({ ...p, on_time_pct: 95, spec: i === 0 ? 'inconclusive' : i === 1 ? 'below' : 'meets' }))
-  const html = renderToString(h(AreaChoices, { areas, selectedId: areas[0].id, onSelect() {}, goal: 90 }))
-  for (const p of areas) expect(html).toContain(p.name)
-  for (const label of ['Uncertain', 'Below goal', 'Meets goal']) expect(html).toContain(label)
-  expect(html).toContain('Uncertain')
-  expect((html.match(/aria-pressed="true"/g) || []).length).toBe(1)
+it('picks the three lowest rates as extremes, skipping areas under 30 calls', () => {
+  const areas = comparisonAreas([a('A', 95), a('B', 60), a('tiny', 10, 'below', true), a('C', 70), a('D', 65), a('E', 99)])
+  expect(extremes(areas).map((p) => p.id)).toEqual(['B', 'D', 'C'])
+  expect(extremes([a('tiny', 10, 'below', true)])).toEqual([])
+})
+
+it('bins areas in 10-point bands from the lowest band to 100%, counting every area once by status', () => {
+  const areas = [a('A', 14), a('B', 19.9), a('C', 20), a('D', 88, 'inconclusive'), a('E', 94, 'meets'), a('F', 100, 'meets')]
+  const bins = histogram(areas, 90)
+  expect(bins.map((b) => b.from)).toEqual([10, 20, 30, 40, 50, 60, 70, 80, 90])
+  expect(bins.map((b) => b.areas.length)).toEqual([2, 1, 0, 0, 0, 0, 0, 1, 2])
+  expect(bins[7]).toMatchObject({ inconclusive: 1, below: 0 })
+  expect(bins[8]).toMatchObject({ meets: 2 })
+  expect(bins.reduce((s, b) => s + b.areas.length, 0)).toBe(areas.length)
+  expect(histogram([a('X', 96, 'meets')], 90).map((b) => b.from)).toEqual([90])
+  expect(histogram([a('X', 100, 'meets')], 100).map((b) => b.from)).toEqual([90])
+})
+
+it('computes the median area and English ordinals', () => {
+  expect(median([40, 10, 30])).toBe(30)
+  expect(median([10, 20, 30, 40])).toBe(25)
+  expect([1, 2, 3, 4, 11, 12, 13, 21, 22, 62].map(ordinal)).toEqual(['1st', '2nd', '3rd', '4th', '11th', '12th', '13th', '21st', '22nd', '62nd'])
 })
 
 it('expresses the direct goal gap in percentage points, including above, equal and missing rates', () => {
@@ -57,10 +70,16 @@ it('handles empty, missing-profile and mixed-urgency selections', () => {
   expect(render({ ...summary, selection: { urgency: ['red', 'yellow'] } })).toContain('Choose one urgency group')
 })
 
-
 it('uses each urgency group’s configured minutes in the goal definition', () => {
   for (const [urgency, minutes] of [['yellow', 15], ['green', 30]]) {
     const d = { ...summary, selection: { ...summary.selection, urgency: [urgency] }, places: summary.places.map((p) => ({ ...p, response_profile: { ...p.response_profile, target_min: minutes } })) }
     expect(render(d)).toContain(`Goal: 90% of calls arrive within ${minutes} min of call receipt.`)
   }
+})
+
+it('labels an area by its main type, or as mixed when no type has 60% of calls', () => {
+  expect(areaTag({ urban: 5, suburban: 10, rural: 78, remote: 7 })).toEqual({ kind: 'rural', text: 'Mostly rural · 78% of calls' })
+  expect(areaTag({ urban: 60, suburban: 40, rural: 0, remote: 0 }).kind).toBe('urban')
+  expect(areaTag({ urban: 45, suburban: 35, rural: 20, remote: 0 })).toEqual({ kind: 'mixed', text: 'Mixed · 45% urban, 35% suburban' })
+  expect(areaTag(null)).toBe(null)
 })
