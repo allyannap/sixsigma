@@ -143,7 +143,7 @@ export default function Documentation({ open, onClose }) {
             <section id="documentation-methods" aria-labelledby="documentation-methods-title" hidden={Boolean(visibleSectionIds && !visibleSectionIds.has('documentation-methods'))}>
               <h3 id="documentation-methods-title">Methods and assumptions</h3>
               <ul>
-                <li>Response time is calculated as <code>t_onscene - t_received</code>. The meaning of <code>t_received</code> (original 911 receipt or EMS CAD incident creation) remains provisional.</li>
+                <li>Response time is calculated as <code>t_onscene - t_received</code>. OnScene defines <code>t_received</code> as EMS CAD incident creation, not the 911 answer time.</li>
                 <li>The p chart compares late-call shares with the 60 days before the selected period; the baseline can extend to 120 days when call volume is low. It never overlaps the selected period.</li>
                 <li>Control limits vary with the number of calls in each subgroup. Exact binomial tests identify signals. Two signals, or one sufficiently strong signal after a multiple-testing adjustment, are required to call an increase out of control.</li>
                 <li>When a ZIP has insufficient baseline history, its chart is descriptive and does not claim a statistical change. County results describe the county aggregate, not each ZIP inside it.</li>
@@ -157,7 +157,7 @@ export default function Documentation({ open, onClose }) {
               <ul>
                 <li>All call records are synthetic; no real EMS extract has been validated against the tool.</li>
                 <li>Response targets are configurable, illustrative placeholders adapted from NFPA 1720 demand zones. They are not certified EMS standards, and NFPA 1720 uses a different response-clock definition.</li>
-                <li>The response-clock start is provisional until the source system's definition of <code>t_received</code> is confirmed.</li>
+                <li>Before using real data, confirm that the mapped <code>t_received</code> field means EMS CAD incident creation. A 911-answer-time clock needs matching targets.</li>
                 <li>Low-volume ZIP areas may not have enough history for a control chart. Wide intervals and inconclusive judgments are meaningful uncertainty, not proof of good or bad performance.</li>
                 <li>Signals can be false alarms. Seasonality and baseline drift are present in the simulation but are not modelled by the control chart.</li>
               </ul>

@@ -177,7 +177,7 @@ export default function SimpleComparison({ d, selectedArea, onPick }) {
     if (hit) { pick(hit.id); setOpenBin(null) }
   }
   return <div className="simple-comparison">
-    <p className="simple-goal"><strong>Goal: {fmtPct(goal, 0)} on time</strong> · within {overallDeadline} of call receipt.</p>
+    <p className="simple-goal"><strong>Goal: {fmtPct(goal, 0)} on time</strong> · within {overallDeadline} of EMS CAD creation.</p>
     <p className="simple-overview" role="status"><strong>{below} of {areas.length} areas</strong> are confirmed below goal.</p>
     <div className="comparison-plot">
       <div className="simple-chart">

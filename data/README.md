@@ -45,7 +45,7 @@ against a real extract.
 | `incident_id` | text | Unique call ID within a file, ordered by received time | `incident_id` |
 | `zcta` | five-digit text | Census ZIP Code Tabulation Area where the call occurs | `zipcode` |
 | `urgency_code` | integer 0–9 | Initial severity: 0–2 red, 3–5 yellow, 6–9 green | `initial_severity_level_code` |
-| `t_received` | datetime | Start of OnScene's response clock; whether this would mean original 911 receipt or EMS CAD creation in real data is **unconfirmed** | `incident_datetime` |
+| `t_received` | datetime | EMS CAD incident-creation time; start of OnScene's response clock. Validate the source mapping for a real extract. | `incident_datetime` |
 | `t_assigned` | datetime | First ambulance assigned | `first_assignment_datetime` |
 | `t_enroute` | datetime | Crew starts driving | `first_activation_datetime` |
 | `t_onscene` | datetime, empty if cancelled | First ambulance arrives | `first_on_scene_datetime` |
@@ -53,12 +53,15 @@ against a real extract.
 | `valid_time` | `Y` / `N` | Whether the timestamps are trusted for response-time analysis | `valid_incident_rspns_time_indc` |
 | `held` | `Y` / `N` | Call waited because no unit was free; used descriptively | `held_indicator` |
 
-The CSV header must contain all ten fields even though the core
-statistics chiefly need ZCTA, urgency, received/on-scene times, and
-the eligibility flags. The intermediate timestamps support ordering
-checks and descriptive stage times; `held` supports the held-call
-percentage. No unit, dispatcher, address, patient, or travel-estimate
-field is required.
+The generated files contain all ten fields. The loader requires eight
+columns: `incident_id`, `zcta`, `urgency_code`, `t_received`,
+`t_assigned`, `t_enroute`, `cancelled`, and `valid_time`.
+`t_onscene` is needed for a completed call to enter timing statistics;
+its value is empty for cancelled calls, and the loader can accept a file
+without that column as untimed input. `held` is optional and supports
+the held-call percentage. The intermediate timestamps are required
+for the chronological validity check as well as descriptive stage times.
+No unit, dispatcher, address, patient, or travel-estimate field is required.
 
 For a completed, valid call, times must satisfy
 `t_received ≤ t_assigned ≤ t_enroute ≤ t_onscene`. OnScene derives:
@@ -251,9 +254,10 @@ do not need a key.
 ## Using a real extract
 
 Real-data compatibility has **not** been tested. Before replacing
-the synthetic files, map local CAD fields to this schema; confirm
-whether `t_received` is the original 911 receipt or EMS CAD
-creation; check timestamp order and missingness; verify ZCTA,
+the synthetic files, map local CAD fields to this schema and confirm
+that `t_received` means EMS CAD incident creation. If using the 911
+answer time instead, label that different clock and set matching targets.
+Check timestamp order and missingness; verify ZCTA,
 urgency, area type, targets, and goal with the center; and assess
 whether the baseline and binomial assumptions fit the observed
 process. The same codebook format can then document the real

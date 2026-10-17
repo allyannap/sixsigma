@@ -2,8 +2,8 @@
 
 Two seams: **A** = `app/qc.py` functions (Stats writes, Data calls) and **B** = `/api/*` JSON (Data serves, UI reads).
 Change a seam only with both roles agreeing; then update this file in the same commit.
-Requirements: [`EMS_RESPONSE_MONITOR_DECISIONS.md`](../EMS_RESPONSE_MONITOR_DECISIONS.md) (approved Oct 16, 2026), with the
-team's later decisions in SPEC.md section 10 (H-12, H-13).
+Current product rules: [`SPEC.md`](../SPEC.md). The original
+[`EMS_RESPONSE_MONITOR_DECISIONS.md`](../EMS_RESPONSE_MONITOR_DECISIONS.md) is a historical decisions brief.
 
 **Read-only.** Every route is a `GET` over the three synthetic files. There is no incident-entry route
 (`POST /api/calls` was removed), no what-if route (`/api/whatif` was removed), and no live CAD feed. The stage-excess
@@ -15,7 +15,9 @@ breakdown (`/api/delays`, "What Held Up the Call") and the travel comparison (`/
 - **Loading (never raises for bad values).** Rows are dropped and counted, under the first reason that applies:
   `duplicate_id` (a repeated `incident_id`; the first row is kept), `missing_t_received` (empty or unreadable),
   `unknown_zcta` (not in `data/lookup/zcta_county.csv`), `unknown_urgency_code` (not in `config/targets.csv`).
-  A missing required column is still an error.
+  A missing required column is still an error. The required columns are `incident_id`, `zcta`, `urgency_code`,
+  `t_received`, `t_assigned`, `t_enroute`, `cancelled`, and `valid_time`. `t_onscene` and `held` are optional
+  columns; a completed call without an on-scene time cannot enter timing statistics.
 - Per call: `dispatch_s = t_assigned − t_received` (received → assigned), `turnout_s = t_enroute − t_assigned`
   (assigned → en route), `drive_s = t_onscene − t_enroute` (en route → on scene), `total_s = t_onscene − t_received`
   (= the sum of the three), `dispatch_to_scene_s = t_onscene − t_assigned`,
@@ -23,8 +25,8 @@ breakdown (`/api/delays`, "What Held Up the Call") and the travel comparison (`/
   (`urban_rural`: urban / suburban / rural / remote) from `data/lookup/zcta_county.csv`;
   `urgency_group`, `target_s`, `goal_on_time_pct` from `config/targets.csv` by **(urgency_code, area type)**
   (red 480 / 600 / 840 / 840 s by area type, yellow 900, green 1800, goal 90%: illustrative placeholders);
-  `late = total_s > target_s` (elapsed call receipt → on-scene arrival exceeded the configured target; this means a late arrival, not that an ambulance failed to reach its designated area); `very_late = total_s > 2 × target_s`; `date` = `t_received` in America/New_York.
-  **`t_received` semantics are provisional** (911 call receipt vs EMS CAD incident creation is not yet confirmed; SPEC §3).
+  `late = total_s > target_s` (elapsed EMS CAD incident creation → on-scene arrival exceeded the configured target; this means a late arrival, not that an ambulance failed to reach its designated area); `very_late = total_s > 2 × target_s`; `date` = `t_received` in America/New_York.
+  OnScene defines `t_received` as EMS CAD incident creation. Verify that mapping in a real extract; using 911 answer time instead requires targets for that different clock.
 - **Valid (timed) call** = `cancelled = N`, `t_onscene` present, `valid_time == Y`, and the four times in order.
   Cancelled, invalid, missing and out-of-order rows count in `calls` only, never in any time statistic.
   `invalid` on a card = calls − cancelled − valid.

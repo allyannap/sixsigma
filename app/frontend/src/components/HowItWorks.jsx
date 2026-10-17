@@ -122,7 +122,7 @@ function UsePage() {
         <li>Open <strong>Investigate</strong> for the ranked table, most urgent first.</li>
         <li>Check <strong>Response trends</strong> to see when late calls rose.</li>
       </ol>
-      <p className="guide-note">Simulated data: invented calls on real 2020 Census areas, no real patients or crews. The clock starts when the call is received (the 911 answer or the CAD record: not yet confirmed). This tool reviews the response process, not individual dispatchers or crews. Every number comes from the read-only API; the page only draws it.</p>
+      <p className="guide-note">Simulated data: invented calls on real 2020 Census areas, no real patients or crews. The response clock starts when the EMS CAD incident is created, not when 911 answers. A real extract needs that field mapping checked. This tool reviews the response process, not individual dispatchers or crews. Every number comes from the read-only API; the page only draws it.</p>
     </>
   )
 }

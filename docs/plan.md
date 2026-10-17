@@ -11,7 +11,7 @@ Status words: **implemented** (code exists), **tested** (known-answer and degene
 
 | # | Step | Where | Status (Oct 17, H-19) |
 |---|---|---|---|
-| a | Data validation, timestamp definitions, messy-input cleaning | `app/data.py`, `data/validate.py`, `tests/test_data.py` | implemented, tested (validate 71 PASS, `--messy` 14 PASS); `t_received` meaning still provisional |
+| a | Data validation, timestamp definitions, messy-input cleaning | `app/data.py`, `data/validate.py`, `tests/test_data.py` | implemented, tested; product clock starts at EMS CAD incident creation; real-extract field mapping still needs validation |
 | b | On-time metrics, Wilson intervals, chance Below count | `qc.on_time`, `qc.wilson_ci`, `qc.chance_below` | implemented, tested |
 | c | p chart, baseline screen, control status, queue label, excess-late ranking | `qc.p_chart`, `qc.baseline_screen`, `qc.control_status`, `qc.dispersion_check`, `qc.queue_label`, `qc.excess_late` | implemented, tested; false alarms re-measured after H-19 (`data/sensitivity.py`: 2 of 186 red, 3 of 186 yellow county-windows) |
 | d | Map drill-down and filters | `/api/summary`, `MapSection.jsx` | API implemented, tested; H-13 page fields (watch chip, volume, baseline stability, excess-late ranking) in progress |

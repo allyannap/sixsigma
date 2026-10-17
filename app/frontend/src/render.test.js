@@ -138,7 +138,7 @@ describe('sections render from fixtures', () => {
     expect(html).toContain('id="date-to"')
   })
 
-  it('the "How it works" guide says the clock start is not yet confirmed and the targets are NFPA 1720-based placeholders; no footer', async () => {
+  it('the "How it works" guide names EMS CAD creation as the clock start and calls targets placeholders; no footer', async () => {
     const html = plain(renderToString(h(App)))
     expect(html).not.toContain('<footer')
     expect(html).toContain('>How it works</button>')
@@ -146,7 +146,7 @@ describe('sections render from fixtures', () => {
     const { default: HowItWorks } = await import('./components/HowItWorks.jsx')
     const guide = (i) => plain(renderToString(h(HowItWorks, { open: true, onClose() {}, targets: [], initialPage: i })))
     expect(guide(0)).toContain('placeholders based on NFPA 1720')
-    expect(guide(3)).toContain('911 answer or the CAD record: not yet confirmed')
+    expect(guide(3)).toContain('response clock starts when the EMS CAD incident is created')
     expect(guide(3)).toContain('Every number comes from the read-only API')
   })
   it('the replay bar takes the baseline length from the API (60, or 120 when stretched)', () => {

@@ -160,10 +160,12 @@ Run checks from the repository root:
 
 The read-only FastAPI routes, parameters, and examples are in
 [docs/api.md](docs/api.md); backend setup is in [app/README.md](app/README.md).
-Inputs are one CAD export with standard columns. The statistics use only five: ZCTA, urgency code,
-`t_received`, `t_onscene` and `cancelled` (plus `valid_time` when the export has it); incident ID,
-`t_assigned`, `t_enroute` and `held` feed only the replay feed and the descriptive stage table. Targets come
-preset in `config/targets.csv`; nothing has to be measured or estimated by the supervisor. The page filters by dataset,
+Inputs are one CAD-shaped incident export. The loader requires `incident_id`, `zcta`,
+`urgency_code`, `t_received`, `t_assigned`, `t_enroute`, `cancelled`, and `valid_time`.
+A completed call also needs `t_onscene` and all four timestamps in order to enter timing statistics;
+`held` is optional and supports descriptive stage summaries. The three included synthetic
+files have all ten columns. Targets come preset in `config/targets.csv`; nothing has to be
+measured or estimated by the supervisor. The page filters by dataset,
 inclusive From/To dates, one urgency, and state/county/ZCTA. API clients
 can additionally choose `baseline_days` or multiple urgency groups;
 the API warns when groups are mixed. There is no time-of-day filter,
@@ -171,9 +173,10 @@ incident-entry endpoint, or ambulance-assignment function.
 
 ## Data and interpretation limits
 
-- The response clock runs from `t_received`, when the call is created in the EMS CAD (NYC EMS Incident
-  Dispatch Data: `INCIDENT_DATETIME`), to `t_onscene`. A centre that records the 911 answer time can map that
-  column instead; compare with a published standard only on the same clock.
+- OnScene defines `t_received` as EMS CAD incident creation and measures from that
+  timestamp to `t_onscene`. A center using 911 answer time instead must map that
+  field explicitly and use targets defined for the same clock. Confirm the
+  source-system field meaning before applying this model to real records.
 - Calls share county-day and seasonal effects. The p-chart stability screen
   catches some extra variation but does not seasonally adjust the data or
   guarantee detection of slow drift.

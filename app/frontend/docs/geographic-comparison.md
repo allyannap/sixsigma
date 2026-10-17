@@ -11,7 +11,7 @@ One row is one EMS incident, not one crew or patient outcome. Files span October
 | incident_id | text | Unique incident within its file |
 | zcta | five-character text | Census ZIP area; county joined through lookup |
 | urgency_code | integer 0–9 | 0–2 red, 3–5 yellow, 6–9 green |
-| t_received | offset ISO datetime, seconds | Provisional clock start: 911 receipt versus CAD creation unconfirmed |
+| t_received | offset ISO datetime, seconds | EMS CAD incident-creation time; verify mapping for a real extract |
 | t_assigned | offset ISO datetime, seconds | First unit assignment |
 | t_enroute | offset ISO datetime, seconds | Unit starts driving |
 | t_onscene | nullable offset ISO datetime, seconds | Arrival; empty for cancelled calls |
@@ -19,7 +19,7 @@ One row is one EMS incident, not one crew or patient outcome. Files span October
 | valid_time | Y/N | Whether timestamps can be trusted |
 | held | Y/N | Waiting for a free unit; unused in this view |
 
-The displayed response is **receipt to arrival**, not assignment to arrival, consistent with existing calculations. Only noncancelled, valid-time calls with ordered timestamps and positive elapsed time enter time statistics. Cancelled/missing-arrival calls are excluded, not assigned zero or treated as completed. No censored-duration estimator is used; these results describe valid completed calls. Exclusions can bias comparisons if completion differs by area. No patient outcome is recorded; a slow call cannot be identified as fatal from these files.
+The displayed response is **EMS CAD creation to arrival**, not assignment to arrival, consistent with existing calculations. Only noncancelled, valid-time calls with ordered timestamps and positive elapsed time enter time statistics. Cancelled/missing-arrival calls are excluded, not assigned zero or treated as completed. No censored-duration estimator is used; these results describe valid completed calls. Exclusions can bias comparisons if completion differs by area. No patient outcome is recorded; a slow call cannot be identified as fatal from these files.
 
 | File | Rows | Valid completed | Cancelled / missing arrival | Invalid-time flag | Red / yellow / green calls |
 |---|---:|---:|---:|---:|---|
@@ -89,7 +89,7 @@ Version 2 alternative (below version 1): a single overall percent-on-time score,
 
 Version 2 shared-line refinement: replaced the separate overall/area rulers with one fixed 0–100% comparison ruler. Three lowest-on-time areas appear as selectable markers in vertical label lanes; horizontal positions stay exact even for ties. Area chips also select a marker. An inline area picker adds a fourth comparison without replacing the three original areas or duplicating them. One selected summary shows the observed gap in percentage points, late share, call-time target and sample size. A single optional detail disclosure retains Wilson intervals, median, P90, maximum and overall call-weighted evidence. Missing-sample areas remain listed but are disabled in the picker. Variable goals omit the shared target shading/marker and say goals vary. Version 1 remains intact. Frontend tests: 36 passed; build passed. Browser visual verification remains manual.
 
-Final condensation: version 2 now uses three compact horizontal bars, each directly labeled by area and on-time percent, with a marked goal and zero-based 0–100% scale. The goal is explicit: “90% of calls arrive within 8 min of call receipt” for the current red configuration, changing to 15/30 minutes for yellow/green. A short selected-area line shows the percentage-point gap and n; the big overall score, staggered bubbles and duplicate selector chips were removed. The optional fourth-area selector and one Details disclosure preserve late share, tail, maximum, confidence intervals and overall statistics. Confirmed status colors and symbols remain consistent with alerts. Frontend tests: 37 passed; production build passed.
+Final condensation: version 2 now uses three compact horizontal bars, each directly labeled by area and on-time percent, with a marked goal and zero-based 0–100% scale. The goal uses the configured time target measured from EMS CAD incident creation. A short selected-area line shows the percentage-point gap and n; the big overall score, staggered bubbles and duplicate selector chips were removed. The optional fourth-area selector and one Details disclosure preserve late share, tail, maximum, confidence intervals and overall statistics. Confirmed status colors and symbols remain consistent with alerts. Frontend tests: 37 passed; production build passed.
 
 Post-feedback revision: version 2 no longer contains a chart. Three compact named buttons show the lowest on-time percentages; one selected result shows its on-time percentage, the explicit configured call-receipt-to-arrival deadline/goal, goal gap, sample size and status. The Other area selector replaces the result instead of adding a fourth graphic. Details retain late share, tail percentiles, maximum and uncertainty. Status words supplement color. Frontend: 37 passed; build passed.
 

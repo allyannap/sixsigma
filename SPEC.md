@@ -42,10 +42,11 @@ October 16, 2025 through October 15, 2026:
 | Station closure | Longer drive times in ZCTA 11368 beginning September 1, 2026 |
 | Summer surge | Higher volume and dispatch delay in Monroe County during July–August 2026 |
 
-Each incident has an ID, ZCTA, urgency code, received/assigned/en-route/on-scene
-timestamps, and cancelled, valid-time, and held flags. The core analysis needs
-the ZCTA, urgency, received and on-scene times, and eligibility flags. Stage
-summaries additionally use the intermediate timestamps and held flag. Real
+Each included incident has an ID, ZCTA, urgency code, received/assigned/en-route/on-scene
+timestamps, and cancelled, valid-time, and held flags. The loader requires the ID,
+ZCTA, urgency, received/assigned/en-route timestamps, and cancelled and valid-time
+flags. A completed call needs an on-scene timestamp and all four times in order
+to enter timing statistics; held is optional and supports descriptive summaries. Real
 2020 Census lookup and map data provide geographic context; they do not make
 the incident data real. The complete column definitions, generation method,
 and collection caveats are in [data/README.md](data/README.md).
@@ -85,7 +86,7 @@ These values come from [config/targets.csv](config/targets.csv). They are
 times are adapted from NFPA 1720 volunteer fire-service demand zones, whose
 clock is different from OnScene's. Remote reuses the rural time because that
 reference has no fixed remote time. The center must approve its own targets,
-goal, area types, and response-clock definition before using real records.
+goal, area types, and local field mapping before using real records.
 
 ## 3. Dashboard behavior
 
@@ -145,7 +146,8 @@ selection in place.
 
 All statistical calculations are implemented in [app/qc.py](app/qc.py) and
 covered by [tests/test_qc.py](tests/test_qc.py); the interface displays their
-results. Response time is `t_onscene − t_received`. A call is eligible for
+results. OnScene defines `t_received` as EMS CAD incident creation and calculates
+response time as `t_onscene − t_received`. A call is eligible for
 timing only when it is not cancelled, has an on-scene timestamp, has
 `valid_time = Y`, and has timestamps in order. A late call exceeds its
 urgency/area target; a very late call exceeds twice that target. Cancelled,
@@ -233,9 +235,10 @@ or map judgment.
 
 ## 5. Limits and responsible use
 
-- The meaning of `t_received`—original 911 receipt versus EMS CAD incident
-  creation—is not confirmed. Response times cannot be compared with a real
-  service standard until that clock start and all timestamps are validated.
+- The product clock starts at EMS CAD incident creation. Before using a real
+  extract, confirm that its mapped `t_received` field has that meaning and
+  validate the timestamps. A center using 911 answer time needs targets
+  defined for that different clock; do not compare unlike clocks.
 - Calls within a subgroup are modeled as independent Bernoulli trials with
   a common late probability. Shared county-day effects, seasonality, and
   overdispersion can violate that assumption. The screen catches some
