@@ -39,6 +39,14 @@ export function fmtDate(iso) {
   return `${MONTHS[Number(m) - 1]} ${Number(d)}`
 }
 
+/** "2026-10-12" -> "Oct 12, 2026". */
+export function fmtDateYear(iso) {
+  if (!iso) return ''
+  const [year, month, day] = String(iso).slice(0, 10).split('-')
+  if (!year || !month || !day) return String(iso)
+  return `${MONTHS[Number(month) - 1]} ${Number(day)}, ${year}`
+}
+
 /**
  * [80.6, 90.6] -> "80.6 to 90.6"; unit "%" -> "80.6% to 90.6%".
  * One bound missing -> "n/a" in its place (a P95 upper bound needs 59 or more calls); both missing -> "n/a".

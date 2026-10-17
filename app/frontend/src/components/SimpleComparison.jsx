@@ -6,7 +6,7 @@ import EvidenceDrawer from './EvidenceDrawer.jsx'
 const LABELS = { below: 'Below goal', meets: 'Meets goal', inconclusive: 'Uncertain' }
 const COLORS = { below: '#C2410C', inconclusive: '#A3AAB1', meets: '#0072B2' }
 const STACK = ['below', 'inconclusive', 'meets']
-const PAD = 16, TOP = 36, BIN = 10
+const PAD = 42, TOP = 36, BIN = 10
 
 export function goalGap(p) {
   if (p.on_time_pct == null || p.goal_pct == null) return 'No valid rate'
@@ -35,11 +35,10 @@ export function ordinal(n) {
   return n + (t >= 11 && t <= 13 ? 'th' : o === 1 ? 'st' : o === 2 ? 'nd' : o === 3 ? 'rd' : 'th')
 }
 
-// 10-point bins from the first bin holding an area (or the goal) up to 100; 100% falls in the last bin.
+// Fixed 10-point bins from 0 to 100 so each area histogram uses the same honest scale.
 export function histogram(areas, goal) {
-  const lo = Math.floor(Math.min(goal, ...areas.map((p) => p.on_time_pct)) / BIN) * BIN
   const bins = []
-  for (let from = Math.min(lo, 100 - BIN); from < 100; from += BIN) bins.push({ from, to: from + BIN, areas: [], below: 0, inconclusive: 0, meets: 0 })
+  for (let from = 0; from < 100; from += BIN) bins.push({ from, to: from + BIN, areas: [], below: 0, inconclusive: 0, meets: 0 })
   for (const p of areas) {
     const b = bins[Math.min(bins.length - 1, Math.floor((p.on_time_pct - bins[0].from) / BIN))]
     b.areas.push(p)
@@ -59,9 +58,8 @@ function Histogram({ bins, goal, selected, openBin, onOpen }) {
     observer.observe(ref.current)
     return () => observer.disconnect()
   }, [])
-  const W = size.width, H = size.height, PLOT = Math.max(32, H - TOP - 34)
-  const lo = bins[0].from
-  const x = (v) => PAD + (v - lo) / (100 - lo) * (W - 2 * PAD)
+  const W = size.width, H = size.height, PLOT = Math.max(32, H - TOP - 58)
+  const x = (v) => PAD + v / 100 * (W - 2 * PAD)
   const bw = (W - 2 * PAD) / bins.length
   const max = Math.max(...bins.map((b) => b.areas.length))
   const h = (c) => c / max * PLOT
@@ -88,8 +86,10 @@ function Histogram({ bins, goal, selected, openBin, onOpen }) {
     <line x1={PAD} x2={W - PAD} y1={base} y2={base} stroke="#9AA1A8" />
     {bins.map((b) => <text key={b.from} x={x(b.from)} y={base + 14} textAnchor="middle" className="hist-tick">{b.from}%</text>)}
     <text x={x(100)} y={base + 14} textAnchor="end" className="hist-tick">100%</text>
+    <text x={PAD / 2} y={TOP + PLOT / 2} transform={`rotate(-90 ${PAD / 2} ${TOP + PLOT / 2})`} textAnchor="middle" className="hist-axis-title">Number of areas</text>
+    <text x={W / 2} y={H - 4} textAnchor="middle" className="hist-axis-title">On-time calls (%)</text>
     <line x1={x(goal)} x2={x(goal)} y1={TOP - 24} y2={base + 2} stroke="#1F2933" strokeWidth="2" strokeDasharray="5 3" />
-    <text x={x(goal)} y={TOP - 25} textAnchor={goal <= lo ? 'start' : goal >= 98 ? 'end' : 'middle'} className="hist-goal">Goal {fmtPct(goal, 0)}</text>
+    <text x={x(goal)} y={TOP - 25} textAnchor={goal <= 0 ? 'start' : goal >= 98 ? 'end' : 'middle'} className="hist-goal">Goal {fmtPct(goal, 0)}</text>
     <path d={`M${x(selected.on_time_pct)} ${base + 20} l-6 9 h12 z`} fill="#1F2933" />
   </svg>
 }

@@ -14,6 +14,8 @@ it('defines the goal and shows the histogram as the main view beside one area ca
   const selected = extremes(areas)[0] || areas[0]
   expect((html.match(/id="simple-selected"/g) || []).length).toBe(1)
   expect((html.match(/class="hist"/g) || []).length).toBe(1)
+  expect(html).toContain('Number of areas')
+  expect(html).toContain('On-time calls (%)')
   expect(html).not.toContain('area-dot')
   expect(html).not.toContain('Grouped distribution (histogram)')
   expect(html).toContain(goalGap(selected))
@@ -41,16 +43,16 @@ it('picks the three lowest rates as extremes, skipping areas under 30 calls', ()
   expect(extremes([a('tiny', 10, 'below', true)])).toEqual([])
 })
 
-it('bins areas in 10-point bands from the lowest band to 100%, counting every area once by status', () => {
+it('bins areas in fixed 10-point bands from 0 to 100%, counting every area once by status', () => {
   const areas = [a('A', 14), a('B', 19.9), a('C', 20), a('D', 88, 'inconclusive'), a('E', 94, 'meets'), a('F', 100, 'meets')]
   const bins = histogram(areas, 90)
-  expect(bins.map((b) => b.from)).toEqual([10, 20, 30, 40, 50, 60, 70, 80, 90])
-  expect(bins.map((b) => b.areas.length)).toEqual([2, 1, 0, 0, 0, 0, 0, 1, 2])
-  expect(bins[7]).toMatchObject({ inconclusive: 1, below: 0 })
-  expect(bins[8]).toMatchObject({ meets: 2 })
+  expect(bins.map((b) => b.from)).toEqual([0, 10, 20, 30, 40, 50, 60, 70, 80, 90])
+  expect(bins.map((b) => b.areas.length)).toEqual([0, 2, 1, 0, 0, 0, 0, 0, 1, 2])
+  expect(bins[8]).toMatchObject({ inconclusive: 1, below: 0 })
+  expect(bins[9]).toMatchObject({ meets: 2 })
   expect(bins.reduce((s, b) => s + b.areas.length, 0)).toBe(areas.length)
-  expect(histogram([a('X', 96, 'meets')], 90).map((b) => b.from)).toEqual([90])
-  expect(histogram([a('X', 100, 'meets')], 100).map((b) => b.from)).toEqual([90])
+  expect(histogram([a('X', 96, 'meets')], 90).map((b) => b.from)).toEqual([0, 10, 20, 30, 40, 50, 60, 70, 80, 90])
+  expect(histogram([a('X', 100, 'meets')], 100).map((b) => b.from)).toEqual([0, 10, 20, 30, 40, 50, 60, 70, 80, 90])
 })
 
 it('computes the median area and English ordinals', () => {

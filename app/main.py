@@ -237,12 +237,17 @@ def descriptive_trend_card(qc, timed: pd.DataFrame, days: int) -> dict:
     """Observed ZIP late rates with pointwise Wilson intervals; this is not a control chart."""
     unit = "week" if days <= 180 else "month"
     groups = data.subgroups(timed, unit)
+    total_n = len(timed)
+    late_total = int(timed["late"].sum()) if total_n else 0
     points = []
-    for start, n, late in zip(groups["start"], groups["n"], groups["late"]):
-        ci = qc.wilson_ci(late, n)
-        points.append({"start": start, "n": n, "late": late, "p": late / n,
+    for start, group_n, late in zip(groups["start"], groups["n"], groups["late"]):
+        ci = qc.wilson_ci(late, group_n)
+        points.append({"start": start, "n": group_n, "late": late, "p": late / group_n,
                        "ci": [num(ci[0], 4), num(ci[1], 4)]})
-    return {"unit": unit, "interval": "95% Wilson (pointwise)", "points": points}
+    ci = qc.wilson_ci(late_total, total_n)
+    return {"unit": unit, "interval": "95% Wilson (pointwise)", "points": points,
+            "selected_range": {"n": total_n, "late": late_total, "p": late_total / total_n if total_n else None,
+                               "ci": [num(ci[0], 4), num(ci[1], 4)]}}
 
 
 def baseline_card(info: dict, ctl: dict | None = None) -> dict:

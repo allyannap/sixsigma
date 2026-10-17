@@ -23,11 +23,12 @@ breakdown (`/api/delays`, "What Held Up the Call") and the travel comparison (`/
   (`urban_rural`: urban / suburban / rural / remote) from `data/lookup/zcta_county.csv`;
   `urgency_group`, `target_s`, `goal_on_time_pct` from `config/targets.csv` by **(urgency_code, area type)**
   (red 480 / 600 / 840 / 840 s by area type, yellow 900, green 1800, goal 90%: illustrative placeholders);
-  `late = total_s > target_s`; `very_late = total_s > 2 × target_s`; `date` = `t_received` in America/New_York.
+  `late = total_s > target_s` (elapsed call receipt → on-scene arrival exceeded the configured target; this means a late arrival, not that an ambulance failed to reach its designated area); `very_late = total_s > 2 × target_s`; `date` = `t_received` in America/New_York.
   **`t_received` semantics are provisional** (911 call receipt vs EMS CAD incident creation is not yet confirmed; SPEC §3).
 - **Valid (timed) call** = `cancelled = N`, `t_onscene` present, `valid_time == Y`, and the four times in order.
   Cancelled, invalid, missing and out-of-order rows count in `calls` only, never in any time statistic.
   `invalid` on a card = calls − cancelled − valid.
+  Late-call percentages use valid completed calls as their denominator and report the number over target out of that count.
 - **Selection** = calls in [`from`, `to`] (inclusive dates), in the chosen `urgency` groups, inside the place.
 - **Baseline** = the same place and urgency, the `baseline_days` (default 60) days **before** `from` (never overlapping it);
   if under 30 valid calls, stretched to 120 days; if still under 30, `enough = false`.
@@ -99,9 +100,10 @@ counts and `needs_data`, never a 500. Any non-GET method → 404/405. If `app/qc
 routes answer 503 while `/api/health` and `/api/meta` still work.
 
 For a ZIP (`level=zcta`) with an insufficient control-chart baseline, `descriptive_trend` contains
-`{unit, interval: "95% Wilson (pointwise)", points[{start, n, late, p, ci[]}]}` for observed calls in the selected
-period. These are descriptive period rates with binomial uncertainty intervals; they have no control limits or
-statistical change signals and must not be read as evidence of county-level or ZIP-level process control. For
+`{unit, interval: "95% Wilson (pointwise)", selected_range{n, late, p, ci[]}, points[{start, n, late, p, ci[]}]}` for observed
+calls in the selected period and the total selected date range. These are descriptive period rates with binomial
+uncertainty intervals; they have no control limits or statistical change signals and must not be read as evidence of
+county-level or ZIP-level process control. For
 counties and ZIPs with an adequate baseline this field is `null`; county control charts retain their existing limits
 and signal rules.
 

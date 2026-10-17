@@ -12,6 +12,10 @@ it('leads with the confirmed finding and pairs the chart with one selectable per
   expect(html).toContain('simple-split control-split')
   expect(html).toContain('Selected period overview')
   expect(html).toContain('Response details')
+  expect(html).toContain('role="group" aria-label="Selected area and filters"')
+  expect(html).toContain('Monroe (fixture)')
+  expect(html).toContain('Jul 1, 2026 – Aug 31, 2026')
+  expect(html).toContain('Call urgency 1 (most urgent)')
   expect(html).toContain('Review calls')
   expect(html).toContain('Baseline: 6.3%')
   expect(html).toContain('Upper control limit')
@@ -22,15 +26,16 @@ it('leads with the confirmed finding and pairs the chart with one selectable per
 
 it('keeps one unconfirmed unusual period distinct from confirmed deterioration', () => {
   const html = render({ ...pchart, control: 'in_control', watch: true, signals: pchart.signals.slice(0, 1) })
-  expect(html).toContain('Watching one signal')
+  expect(html).toContain('Change not confirmed')
+  expect(html).not.toContain('Watching one signal')
   expect(html).not.toContain('Recent increase detected')
   expect(renderToString(h(ControlMethod, { p: pchart }))).toContain('two unusual periods, or one exceptionally strong signal')
 })
 
-it('uses a neutral finding for no confirmed increase and explains the service-goal distinction', () => {
+it('omits the empty neutral banner when there is no change or watch and explains the service-goal distinction', () => {
   const html = render({ ...pchart, control: 'in_control', watch: false, signals: [], points: pchart.points.map((p) => ({ ...p, p: pchart.p_bar, signal: false })) })
-  expect(html).toContain('No confirmed increase')
-  expect(html).toContain('finding-calm')
+  expect(html).not.toContain('No confirmed increase')
+  expect(html).not.toContain('control-finding')
   expect(renderToString(h(ControlMethod, { p: pchart }))).toContain('does not mean the service goal is met')
   expect(html).not.toContain('Review calls')
 })
@@ -54,20 +59,32 @@ it('shows sparse ZIP history as a descriptive trend with call counts and Wilson 
     selection: { ...pchart.selection, level: 'zcta', name: '06390', from: '2026-09-07', to: '2026-09-20' },
     control: 'insufficient_baseline', unit: null, points: [], signals: [],
     control_reason: 'fewer than 30 baseline calls',
-    descriptive_trend: { unit: 'week', interval: '95% Wilson (pointwise)', points },
+    descriptive_trend: { unit: 'week', interval: '95% Wilson (pointwise)', points,
+      selected_range: { n: 8, late: 3, p: 3 / 8, ci: [0.1368, 0.6943] } },
   }
   const html = render(p)
-  expect(html).toContain('Descriptive—limited baseline')
-  expect(html).toContain('Observed late-call rate')
-  expect(html).toContain('Pointwise 95% Wilson interval')
-  expect(html).toContain('missed target · 2 of 5')
-  expect(html).toContain('11.8%–76.9%')
+  expect(html).toContain('ZIP 06390 · observed trend')
+  expect(html).toContain('Late = on-scene arrival after the configured target.')
+  expect(html).toContain('Sep 7–Sep 20 · 8 valid calls')
+  expect(html).toContain('<strong>37.5%</strong> over target')
+  expect(html).toContain('· 3 of 8 valid calls')
+  expect(html).toContain('Calls over target (%)')
+  expect(html).toContain('Evidence')
+  expect(html).toContain('>Date</text>')
+  expect(html).toContain('Uncertainty range')
+  expect(html).not.toContain('Explore a week')
+  expect(html).not.toContain('Wilson')
   expect(html).not.toContain('Upper control limit')
   expect(html).not.toContain('Flagged periods (0)')
-  expect(html).toContain('Descriptive only')
-  expect(html.match(/Details &amp; evidence/g)).toHaveLength(1)
-  expect(renderToString(h(ControlMethod, { p })).replace(/<!-- -->/g, '')).toContain('does not establish a change in this individual ZIP')
-  const chart = renderToString(h(DescriptiveTrendChart, { d: { ...p.descriptive_trend, selection: p.selection }, selected: points[1].start, onSelect() {} }))
+  expect(html).toContain('control-tab-period')
+  expect(html).toContain('descriptive-period-card')
+  expect(html).toContain('control-tab-calls')
+  expect(html).not.toContain('control-tab-stages')
+  expect(html).not.toContain('control-tab-method')
+  expect(html).toContain('How this is measured')
+  expect(html.match(/>Evidence /g)).toHaveLength(1)
+  expect(renderToString(h(ControlMethod, { p })).replace(/<!-- -->/g, '')).toContain('no significance test or change signal is calculated')
+  const chart = renderToString(h(DescriptiveTrendChart, { d: { ...p.descriptive_trend, selection: p.selection } }))
   expect(chart).not.toMatch(/NaN|Infinity/)
 })
 
@@ -101,7 +118,7 @@ it('explains upper-limit crossings visibly without treating every crossing as a 
   expect(html).toContain('Upper limit')
   expect(html).toContain('above limit · Next')
   expect(html).toContain('Over upper limit')
-  expect(html).toContain('No confirmed increase')
+  expect(html).not.toContain('No confirmed increase')
   expect(html).not.toContain('Recent increase detected')
 })
 
@@ -123,7 +140,8 @@ it('lists every highlighted day while retaining the one-signal watch judgment', 
   expect(table).toContain('Sep 11')
   expect(table).toContain('Sep 12')
 
-  expect(html).toContain('Watching one signal')
+  expect(html).toContain('Change not confirmed')
+  expect(html).not.toContain('Watching one signal')
   expect(html).not.toContain('Recent increase detected')
 })
 

@@ -211,6 +211,7 @@ Replace the insight carousel's arrows, dots and page count with two persistent l
 
 ## Sparse ZIP response trends (H-11 follow-up, user approved Oct 17)
 
+<<<<<<< Updated upstream
 When a ZIP's baseline is insufficient, show its observed late-call rate, late-call count, and pointwise 95% Wilson interval for each selected period under the status “Descriptive—limited baseline.” Do not show control limits, flagged periods, or statistical change signals for this view. Keep county p charts and their statistical change signals unchanged; a county result describes the county process and is not evidence about any individual ZIP. The intervals describe per-period binomial uncertainty and do not create missing history or justify a ZIP control claim.
 
 ## Target vs goal wording and the "How it works" guide (H-27, user approved Oct 17)
@@ -225,3 +226,6 @@ When a ZIP's baseline is insufficient, show its observed late-call rate, late-ca
   1 / 2 / 3, with a footnote that remote reuses the rural time (NFPA 1720 has no fixed remote time); (2) the five map
   colours; (3) how to use the page plus the caveats (simulated data, provisional `t_received`, placeholder targets). The
   page itself gains no extra text.
+=======
+When a ZIP's baseline is insufficient, label the view with its ZIP code and “observed trend”, show the late-call rate/count for the user's full selected date range, and plot period rates with simple uncertainty whiskers. A call is late when elapsed time from call receipt (`t_received`) to on-scene arrival (`t_onscene`) exceeds that call's configured response target (`target_s`). This measures a late arrival; it does not mean an ambulance failed to reach its designated area. Calculate the rate only from valid completed calls, and show the count over that denominator. An Evidence button opens a concise selected-period count/rate and definition. Keep the legend and Evidence button visible without an internally scrollable card. Give both axes labels; omit the long warning banner, per-week selector and statistical interval jargon from the card. Do not show control limits, flagged periods, or statistical change signals for this view. Keep county p charts and their statistical change signals unchanged; a county result describes the county process and is not evidence about any individual ZIP. The intervals describe per-period binomial uncertainty and do not create missing history or justify a ZIP control claim.
+>>>>>>> Stashed changes

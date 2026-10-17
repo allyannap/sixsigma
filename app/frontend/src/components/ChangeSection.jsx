@@ -1,7 +1,7 @@
 import { urgencyText } from '../status.js'
 import { useEffect, useRef, useState } from 'react'
 import { linear, linePath } from '../charts.js'
-import { fmtDate, fmtInt, fmtNum, fmtP, fmtPct, mmss, periodBounds } from '../format.js'
+import { fmtDate, fmtDateYear, fmtInt, fmtNum, fmtP, fmtPct, mmss, periodBounds } from '../format.js'
 import { useEndpoint } from '../useApi.js'
 import { Async, BaselineCheck, JudgmentBadge, Messages, Section, WatchChip } from './common.jsx'
 import EvidenceDrawer from './EvidenceDrawer.jsx'
@@ -86,7 +86,7 @@ export function PChart({ d, selected, onSelect }) {
 }
 
 /** ZIP-only observed late-rate chart for a sparse baseline; intervals describe each period, not control limits. */
-export function DescriptiveTrendChart({ d, selected, onSelect }) {
+export function DescriptiveTrendChart({ d }) {
   const ref = useRef(null)
   const [size, setSize] = useState({ width: 640, height: 310 })
   useEffect(() => {
@@ -100,45 +100,32 @@ export function DescriptiveTrendChart({ d, selected, onSelect }) {
   }, [])
   const pts = d.points || []
   if (!pts.length) return <p>No valid calls in this ZIP area during the selected period.</p>
-  const W = size.width, H = Math.max(90, size.height)
-  const left = 42, right = W - 12, bottom = H - 29
+  const W = size.width, H = Math.max(130, size.height)
+  const left = 54, right = W - 12, bottom = H - 47
   const y = linear(0, 100, bottom, 26)
   const times = pts.map((p) => Date.parse(periodBounds(p.start, d.unit, d.selection).from))
   const x = (i) => pts.length === 1 ? (left + right) / 2
     : left + (times[i] - times[0]) / (times.at(-1) - times[0]) * (right - left)
   const dateIndices = [...new Set(W < 420 ? [0, Math.floor((pts.length - 1) / 2), pts.length - 1]
     : [0, Math.floor((pts.length - 1) / 3), Math.floor(2 * (pts.length - 1) / 3), pts.length - 1])]
-  const describe = (p) => `${periodLabel(p.start, d.unit, d.selection)}: ${fmtPct(p.p * 100)} of calls missed the target, ${fmtInt(p.late)} of ${fmtInt(p.n)}. Pointwise 95% Wilson interval ${fmtPct(p.ci[0] * 100)} to ${fmtPct(p.ci[1] * 100)}. Descriptive only; no control signal is calculated.`
-  const activate = (event, i) => {
-    let next = i
-    if (event.key === 'ArrowRight') next = Math.min(pts.length - 1, i + 1)
-    else if (event.key === 'ArrowLeft') next = Math.max(0, i - 1)
-    else if (event.key !== 'Enter' && event.key !== ' ') return
-    event.preventDefault()
-    onSelect(pts[next].start)
-    event.currentTarget.parentNode.querySelector(`[data-period="${pts[next].start}"]`)?.focus()
-  }
+  const describe = (p) => `${periodLabel(p.start, d.unit, d.selection)}: ${fmtPct(p.p * 100)} over target, ${fmtInt(p.late)} of ${fmtInt(p.n)} valid calls. Uncertainty range shown.`
   return <svg ref={ref} viewBox={`0 0 ${W} ${H}`} className="chart control-chart descriptive-chart" role="group"
-    aria-label={`Descriptive late-call rate by ${d.unit}, with 95% Wilson intervals. This chart does not detect control signals.`}>
-    <text x={left} y="13" className="control-axis-title">Observed calls missing target (%)</text>
+    aria-label={`Share of valid calls arriving after their response-time target by ${d.unit}. The chart covers the selected date range and does not calculate control signals.`}>
+    <text x={12} y={(bottom + 26) / 2} transform={`rotate(-90 12 ${(bottom + 26) / 2})`} textAnchor="middle" className="control-axis-title">Calls over target (%)</text>
     {[0, 25, 50, 75, 100].map((t) => <g key={t} aria-hidden="true">
       <line x1={left} x2={right} y1={y(t)} y2={y(t)} stroke="#E3E6EB" />
       <text x={left - 10} y={y(t) + 4} textAnchor="end" className="control-tick">{t}%</text>
     </g>)}
     <path d={linePath(pts.map((p, i) => [x(i), y(p.p * 100)]))} fill="none" stroke="#725694" strokeWidth="2.5" />
-    {pts.map((p, i) => <g key={p.start} data-period={p.start} role="button" tabIndex={selected === p.start ? 0 : -1}
-      aria-pressed={selected === p.start} aria-controls="control-selected"
-      aria-label={`${describe(p)} Select period details.`}
-      onClick={() => onSelect(p.start)} onKeyDown={(event) => activate(event, i)} className="control-point descriptive-point">
+    {pts.map((p, i) => <g key={p.start} data-period={p.start} role="img" aria-label={describe(p)} className="descriptive-point">
       <title>{describe(p)}</title>
       <line x1={x(i)} x2={x(i)} y1={y(p.ci[0] * 100)} y2={y(p.ci[1] * 100)} stroke="#725694" strokeWidth="2" />
       <line x1={x(i) - 4} x2={x(i) + 4} y1={y(p.ci[0] * 100)} y2={y(p.ci[0] * 100)} stroke="#725694" strokeWidth="2" />
       <line x1={x(i) - 4} x2={x(i) + 4} y1={y(p.ci[1] * 100)} y2={y(p.ci[1] * 100)} stroke="#725694" strokeWidth="2" />
-      <circle cx={x(i)} cy={y(p.p * 100)} r="22" fill="transparent" />
-      {selected === p.start && <circle cx={x(i)} cy={y(p.p * 100)} r="11" fill="none" stroke="#1F2933" strokeWidth="2" />}
       <circle cx={x(i)} cy={y(p.p * 100)} r="4" fill="#725694" />
     </g>)}
     {dateIndices.map((i) => <text key={i} x={x(i)} y={bottom + 17} textAnchor={i === 0 ? 'start' : i === pts.length - 1 ? 'end' : 'middle'} className="control-tick">{fmtDate(periodBounds(pts[i].start, d.unit, d.selection).from)}</text>)}
+    <text x={(left + right) / 2} y={H - 3} textAnchor="middle" className="control-axis-title">Date</text>
   </svg>
 }
 
@@ -162,15 +149,15 @@ export function ControlView({ p, params, selectedName, stagesState }) {
   }
   const b = p.baseline || {}
   const insufficient = p.control === 'insufficient_baseline' && !descriptive
-  const headline = descriptive ? 'Descriptive—limited baseline' : insufficient ? 'More history needed' : p.control === 'out_of_control' ? 'Recent increase detected' : p.watch ? 'Watching one signal' : 'No confirmed increase'
+  const headline = insufficient ? 'More history needed' : p.control === 'out_of_control' ? 'Recent increase detected' : p.watch ? 'Change not confirmed' : ''
   const count = (p.signals || []).length
   const finding = descriptive ? 'Observed ZIP rates with pointwise 95% Wilson intervals. No control limits or signals are calculated.'
-    : insufficient ? p.control_reason : p.watch ? 'Change not confirmed.' : p.control === 'out_of_control' ? `${count} statistical signals.` : ''
+    : insufficient ? p.control_reason : p.watch ? '' : p.control === 'out_of_control' ? `${count} statistical signals.` : ''
   const tone = insufficient || descriptive ? 'data' : p.control === 'out_of_control' || p.watch ? 'signal' : 'calm'
   const choose = (start) => { setSelected(start) }
   const review = (start) => { setSelected(start); setPanel('calls'); setDetailsOpen(true) }
   const openDetails = (tab = 'period') => { setPanel(tab); setDetailsOpen(true) }
-  const tabs = [{ id: 'period', label: 'Period' }, ...(!descriptive ? [{ id: 'signals', label: `Flagged periods (${flagged.length})` }] : []), { id: 'calls', label: 'Calls' }, ...(stagesState ? [{ id: 'stages', label: 'Stage times' }] : []), { id: 'method', label: 'Method' }]
+  const tabs = [{ id: 'period', label: 'Period' }, ...(!descriptive ? [{ id: 'signals', label: `Flagged periods (${flagged.length})` }] : []), { id: 'calls', label: 'Calls' }, ...(!descriptive && stagesState ? [{ id: 'stages', label: 'Stage times' }] : []), ...(!descriptive ? [{ id: 'method', label: 'Method' }] : [])]
   const navigateTabs = (event, index) => {
     let next
     if (event.key === 'ArrowRight') next = (index + 1) % tabs.length
@@ -187,30 +174,26 @@ export function ControlView({ p, params, selectedName, stagesState }) {
   const start = range?.from
   const end = range?.to
   return <div className="simple-comparison control-view">
-    <div className={`control-finding finding-${tone}`} role="status">
+    {!descriptive && (headline || above.length > 0) && <div className={`control-finding finding-${tone}`} role="status">
       <span className="control-finding-icon" aria-hidden="true">{tone === 'signal' ? '!' : tone === 'data' ? '…' : '—'}</span>
-      <div><p className="control-headline">{headline}</p>{finding && <p className="control-summary">{finding}</p>}</div>
+      {headline && <div><p className="control-headline">{headline}</p>{finding && <p className="control-summary">{finding}</p>}</div>}
       {!insufficient && above.length > 0 && <button type="button" className="trend-next" onClick={nextAbove}>{above.length} above limit · Next <span aria-hidden="true">→</span></button>}
-    </div>
-    <p className="control-baseline">{p.selection?.name || selectedName} · Baseline {fmtDate(b.from)}–{fmtDate(b.to)} · {fmtInt(p.base_n)} calls</p>
+    </div>}
+    {descriptive ? <div className="descriptive-intro">
+      <div><span className="descriptive-status">ZIP {p.selection?.name || selectedName} · observed trend</span><span className="descriptive-why">Late = on-scene arrival after the configured target.</span></div>
+      <p className="descriptive-range">{fmtDate(p.selection?.from)}–{fmtDate(p.selection?.to)} · {fmtInt(descriptive.selected_range?.n)} valid calls</p>
+      {descriptive.selected_range?.n ? <p className="descriptive-total"><strong>{fmtPct(descriptive.selected_range.p * 100)}</strong> over target <span>· {fmtInt(descriptive.selected_range.late)} of {fmtInt(descriptive.selected_range.n)} valid calls</span></p>
+        : <p className="descriptive-total">No valid calls in the selected range.</p>}
+    </div> : <p className="control-baseline">{p.selection?.name || selectedName} · Baseline {fmtDate(b.from)}–{fmtDate(b.to)} · {fmtInt(p.base_n)} calls</p>}
     {descriptive ? point ? <div className="simple-split control-split descriptive-split">
       <figure className="figure">
-        <DescriptiveTrendChart d={{ ...descriptive, selection: p.selection }} selected={point.start} onSelect={choose} />
+        <DescriptiveTrendChart d={{ ...descriptive, selection: p.selection }} />
         <figcaption className="simple-key control-key descriptive-key">
-          <span><i className="descriptive-key-line" />Observed late-call rate</span>
-          <span><i className="descriptive-key-range" />Pointwise 95% Wilson interval</span>
+          <span><i className="descriptive-key-line" />Calls over target</span>
+          <span><i className="descriptive-key-range" />Uncertainty range</span>
         </figcaption>
       </figure>
-      <aside id="control-selected" className="trend-selection comparison-selection selection-inconclusive" aria-label="Selected descriptive period" aria-live="polite">
-        <label htmlFor="control-period">Explore a {viewUnit}</label>
-        <select id="control-period" value={point.start} onChange={(event) => choose(event.target.value)}>
-          {chartPts.map((pt) => <option key={pt.start} value={pt.start}>{periodLabel(pt.start, viewUnit, p.selection)}</option>)}
-        </select>
-        <div className="trend-selected-rate"><strong className="rate-inconclusive">{fmtPct(point.p * 100)}</strong><span>missed target · {fmtInt(point.late)} of {fmtInt(point.n)}</span></div>
-        <div className="trend-selected-limit descriptive-interval"><strong>{fmtPct(point.ci[0] * 100)}–{fmtPct(point.ci[1] * 100)}</strong><span>95% Wilson interval</span></div>
-        <span className="card-badge badge-inconclusive">Descriptive only</span>
-      </aside>
-      <div className="trend-actions comparison-actions"><button type="button" onClick={() => openDetails()}>Details & evidence <span aria-hidden="true">↗</span></button></div>
+      <div className="trend-actions comparison-actions"><button type="button" onClick={() => openDetails()}>Evidence <span aria-hidden="true">↗</span></button></div>
     </div> : <p>No valid calls in this ZIP area during this selection.</p> : insufficient ? <div className="control-empty">
       <h3>We cannot judge change yet</h3>
       <p>{b.stable === false ? 'The baseline is not stable. Open Method to review the baseline checks or choose another period.' : 'There is not enough usable history. Try a larger area or a period with more baseline calls.'}</p>
@@ -229,28 +212,41 @@ export function ControlView({ p, params, selectedName, stagesState }) {
         <select id="control-period" value={point.start} onChange={(event) => choose(event.target.value)}>
           {pts.map((pt) => <option key={pt.start} value={pt.start}>{periodLabel(pt.start, p.unit, p.selection)}</option>)}
         </select>
-        <div className="trend-selected-rate"><strong className={over ? 'rate-below' : under ? 'control-improvement-rate' : 'rate-inconclusive'}>{fmtPct(point.p * 100)}</strong><span>missed target · {fmtInt(point.late)} of {fmtInt(point.n)}</span></div>
-        <div className="trend-selected-limit"><strong>{fmtPct(point.ucl * 100)}</strong><span>Upper limit</span></div>
+        <div className="trend-selection-metrics">
+          <div className="trend-selected-rate"><strong className={over ? 'rate-below' : under ? 'control-improvement-rate' : 'rate-inconclusive'}>{fmtPct(point.p * 100)}</strong><span>missed · {fmtInt(point.late)} / {fmtInt(point.n)}</span></div>
+          <div className="trend-selected-limit"><strong>{fmtPct(point.ucl * 100)}</strong><span>Upper limit</span></div>
+        </div>
         <span className={`card-badge badge-${over ? 'below' : under ? 'improvement' : 'inconclusive'}`}>{over ? 'Over upper limit' : under ? 'Below lower limit' : 'Within limits'}</span>
       </aside>
       <div className="trend-actions comparison-actions"><button type="button" onClick={() => openDetails()}>Details & evidence <span aria-hidden="true">↗</span></button></div>
     </div> : <p>No periods available in this selection.</p>}
-    {p.control === 'insufficient_baseline' && <button type="button" className="trend-baseline-button" onClick={() => openDetails('method')}>View baseline checks <span aria-hidden="true">↗</span></button>}
+    {p.control === 'insufficient_baseline' && !descriptive && <button type="button" className="trend-baseline-button" onClick={() => openDetails('method')}>View baseline checks <span aria-hidden="true">↗</span></button>}
     {!descriptive && !insufficient && (!point || !p.unit) && <button type="button" className="trend-baseline-button" onClick={() => openDetails('method')}>Details & evidence <span aria-hidden="true">↗</span></button>}
     <EvidenceDrawer open={detailsOpen} onClose={() => setDetailsOpen(false)} title="Response details" titleId="trend-drawer-title" className="trend-evidence-drawer">
-      <p className="comparison-context">{p.selection?.name || selectedName} · {p.selection?.from} – {p.selection?.to} · {(p.selection?.urgency || []).map(urgencyText).join(', ')}</p>
+      <div className="response-context-chips" role="group" aria-label="Selected area and filters">
+        <span className="response-context-chip">{p.selection?.level === 'zcta' ? `ZIP ${p.selection?.name || selectedName}` : p.selection?.name || selectedName}</span>
+        <span className="response-context-chip">{fmtDateYear(p.selection?.from)} – {fmtDateYear(p.selection?.to)}</span>
+        <span className="response-context-chip">{(p.selection?.urgency || []).map(urgencyText).join(', ')}</span>
+      </div>
       <div className="control-support">
         <div className="control-tabs" role="tablist" aria-label="Control chart supporting information">
           {tabs.map((tab, index) => <button type="button" key={tab.id} id={`control-tab-${tab.id}`} role="tab" aria-selected={panel === tab.id} aria-controls="control-support-panel" tabIndex={panel === tab.id ? 0 : -1} onClick={() => setPanel(tab.id)} onKeyDown={(event) => navigateTabs(event, index)}>{tab.label}</button>)}
         </div>
         <div id="control-support-panel" className="control-tab-panel" role="tabpanel" aria-labelledby={`control-tab-${panel}`} tabIndex={0}>
-          {panel === 'period' && descriptive && point ? <aside id="control-full-selected" className="simple-card control-card card-inconclusive" aria-label="Selected descriptive period details" aria-live="polite">
+          {panel === 'period' && descriptive && point ? <aside id="control-full-selected" className="simple-card control-card card-inconclusive descriptive-period-card" aria-label="Selected descriptive period details" aria-live="polite">
             <div className="card-head"><h3>{periodLabel(point.start, viewUnit, p.selection)}</h3><span className="card-badge badge-inconclusive">Descriptive only</span></div>
-            <p className="card-rate"><strong className="card-big control-rate">{fmtPct(point.p * 100)}</strong> missed target</p>
-            <p><strong>{fmtInt(point.late)} of {fmtInt(point.n)}</strong> calls missed their response target in this ZIP area.</p>
-            <div className="card-pair control-limit-values"><div><strong>{fmtPct(point.ci[0] * 100)}</strong><span>95% interval lower</span></div><div><strong>{fmtPct(point.ci[1] * 100)}</strong><span>95% interval upper</span></div></div>
-            <p className="small muted">Pointwise Wilson interval; no control limit or change signal is calculated.</p>
+            <p className="card-rate"><strong className="card-big control-rate">{fmtPct(point.p * 100)}</strong> over target</p>
+            <p><strong>{fmtInt(point.late)} / {fmtInt(point.n)}</strong> valid calls · receipt to scene exceeded target.</p>
+            <p className="small muted">Descriptive only. No significance test.</p>
             {params && <button type="button" className="btn control-calls-btn" aria-controls="control-support-panel" onClick={() => { setPanel('calls'); setDetailsOpen(true) }}>Review calls <span aria-hidden="true">→</span></button>}
+            {stagesState && <details className="response-extra-evidence">
+              <summary>Stage times</summary>
+              <Async state={stagesState}>{(d) => <><StageTable data={d} /><Messages messages={d.messages} /></>}</Async>
+            </details>}
+            <details className="response-extra-evidence">
+              <summary>How this is measured</summary>
+              <p>Late means call-receipt-to-scene time exceeded the call’s configured target. This ZIP has too little baseline history for a statistical change signal; county results describe the county aggregate.</p>
+            </details>
           </aside> : panel === 'period' && (point && !insufficient ? <>      <aside id="control-full-selected" className={`simple-card control-card card-${over || point.signal ? 'below' : under ? 'improvement' : 'inconclusive'}`} aria-label="Selected period details" aria-live="polite">
         <label className="eyebrow" htmlFor="control-period-details">Explore a {p.unit}</label>
         <select id="control-period-details" value={point.start} onChange={(event) => choose(event.target.value)}>
@@ -278,8 +274,8 @@ export function ControlMethod({ p }) {
   const b = p.baseline || {}
   if (p.selection?.level === 'zcta' && p.control === 'insufficient_baseline' && p.descriptive_trend) {
     return <div className="control-method-text">
-      <p><strong>Descriptive ZIP trend:</strong> each point is the observed late-call proportion for that period. Its interval is a pointwise 95% Wilson binomial interval; periods are not tested for a change.</p>
-      <p>This ZIP has too few baseline calls for a control chart, so no center line, control limits or statistical signals are shown. A county control-chart result describes the county aggregate and does not establish a change in this individual ZIP.</p>
+        <p><strong>Late = receipt to on-scene time over the configured target.</strong> The ambulance arrived; it arrived late.</p>
+      <p>This ZIP has too few baseline calls for a control chart. The plot is descriptive: whiskers show uncertainty, and no significance test or change signal is calculated. County results describe the county aggregate only.</p>
       <p>Periods with no valid, timed calls are omitted because a rate cannot be calculated. Wide intervals are expected when period call counts are small.</p>
       <BaselineCheck b={b} />
       <Messages messages={p.messages} />

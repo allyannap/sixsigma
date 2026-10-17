@@ -20,6 +20,7 @@ describe('Insights slide card', () => {
   it('has one slider card, not the two-column grid', () => {
     expect(html).toContain('insights-slider')
     expect(html).not.toContain('chart-grid')
+    expect(html).toContain('<span class="insights-place-name">Monroe</span><span>Wait Time Insights</span>')
   })
   it('replaces arrows and dots with two labeled tabs linked to their panels', () => {
     expect(html).toContain('role="tablist" aria-label="Wait time insights"')

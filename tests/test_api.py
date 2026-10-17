@@ -161,6 +161,11 @@ def test_at4_low_volume_pchart_is_insufficient_baseline_not_in_control():
     assert trend["unit"] in ("week", "month")
     assert trend["interval"] == "95% Wilson (pointwise)"
     assert trend["points"]
+    selected = trend["selected_range"]
+    assert selected["n"] == sum(point["n"] for point in trend["points"])
+    assert selected["late"] == sum(point["late"] for point in trend["points"])
+    assert selected["p"] == pytest.approx(selected["late"] / selected["n"])
+    assert selected["ci"] == pytest.approx(qc.wilson_ci(selected["late"], selected["n"]), abs=1e-4)
     for point in trend["points"]:
         assert point["n"] > 0 and 0 <= point["late"] <= point["n"]
         assert point["p"] == pytest.approx(point["late"] / point["n"])

@@ -175,7 +175,7 @@ describe('H-13 supervisor data', () => {
   it('section 2 says one signal is unconfirmed and retains its watch evidence in Method', () => {
     const p = { ...pchart, control: 'in_control', watch: true, control_reason: '1 period above the limit, not confirmed (needs 2, or a stronger single signal)' }
     const html = plain(renderToString(h(ChangeSection, { pState: ok(p), imrState: ok(imr), selectedName: 'X' })))
-    expect(html).toContain('Watching one signal')
+    expect(html).not.toContain('Watching one signal')
     expect(html).toContain('Change not confirmed')
     expect(plain(renderToString(h(ControlMethod, { p })))).toContain('chip-watch')
   })
@@ -444,7 +444,7 @@ describe('OnScene page (H-14)', () => {
     const html = plain(renderToString(h(InsightsSection, { placeName: 'Monroe', selection: summary.selection, dataset: 'baseline' },
       h(AnomSection, { summaryState: ok(summary) }),
       h(ChangeSection, { pState: ok(pchart), imrState: ok(imr), selectedName: 'Monroe' }))))
-    expect(html).toContain('Monroe Wait Time Insights')
+    expect(html).toContain('<span class="insights-place-name">Monroe</span><span>Wait Time Insights</span>')
     expect(html).toContain('Are calls arriving on time?')
     expect(html).toContain('Are more calls missing their response target?')
     expect(html).toContain('Response trends')

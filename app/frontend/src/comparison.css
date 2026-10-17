@@ -38,6 +38,8 @@
 .comparison-close .icon { display: block; stroke-width: 2; }
 .comparison-drawer-body { padding: 16px 22px 26px; overflow-y: auto; overscroll-behavior: contain; min-height: 0; }
 .comparison-context { font-size: 11px; color: var(--muted); line-height: 1.6; margin: 0 0 14px; text-transform: capitalize; }
+.response-context-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 14px; }
+.response-context-chip { display: inline-flex; align-items: center; min-height: 28px; padding: 4px 10px; border: 1px solid #dbe4ed; border-radius: 999px; background: #f4f7fa; color: #40566f; font-size: 11px; font-weight: 650; line-height: 1.3; }
 .comparison-drawer .simple-card { padding: 16px; gap: 12px; min-height: 0; }
 .comparison-drawer .card-scroll { display: flex; flex-direction: column; gap: 10px; overflow: visible; }
 .comparison-drawer .card-head h3 { font-size: 27px; }
