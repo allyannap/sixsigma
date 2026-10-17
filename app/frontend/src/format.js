@@ -96,3 +96,16 @@ export function fmtP(p) {
   if (missing(p)) return 'n/a'
   return p < 0.001 ? '<0.001' : Number(p).toFixed(3)
 }
+
+/**
+ * Late share as "1 in N late" (N = valid / late, rounded) for a quick borough comparison; "none late" when no call was
+ * late, and a percentage when more than half were late (where "1 in 1" would hide the size). Under 30 valid calls the
+ * share is too uncertain to compare: "too few calls".
+ */
+export function fmtOneIn(late, valid) {
+  if (missing(late) || missing(valid) || valid <= 0) return 'no calls'
+  if (valid < 30) return 'too few calls'
+  if (late <= 0) return 'none late'
+  const n = valid / late
+  return n < 2 ? `${fmtPct((100 * late) / valid, 0)} late` : `1 in ${Math.round(n)} late`
+}

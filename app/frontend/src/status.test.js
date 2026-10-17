@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { QUEUE, WATCH, attentionCount, attentionSplit, fillFor, latePct, rankPlaces } from './status.js'
+import { QUEUE, WATCH, attentionCount, attentionSplit, fillFor, latePct, legendRows, rankPlaces, tierOf } from './status.js'
 
 describe('status helpers', () => {
   it('ranks by queue label, then confirmed below-target first, then excess late calls (not raw late counts)', () => {
@@ -47,5 +47,21 @@ describe('status helpers', () => {
     expect(latePct({ on_time_pct: 86.5 })).toBeCloseTo(13.5)
     expect(latePct({})).toBe(null)
     expect(fillFor('red', 0)).not.toBe(fillFor('red', 1))
+  })
+})
+
+describe('map colour groups (OnScene legend)', () => {
+  it('maps the five queue labels to Critical, Watch, Stable and gray', () => {
+    expect(tierOf('act_now')).toBe('critical')
+    expect(tierOf('ongoing_gap')).toBe('watch')
+    expect(tierOf('recent_change')).toBe('watch')
+    expect(tierOf('meets_stable')).toBe('stable')
+    expect(tierOf('needs_data')).toBe('nodata')
+    expect(tierOf(undefined)).toBe('nodata')
+  })
+  it('legend rows add Ongoing gap + Recent change into Watch and keep the other counts', () => {
+    const rows = legendRows({ act_now: 1, ongoing_gap: 16, recent_change: 2, meets_stable: 16, needs_data: 29 })
+    expect(rows.map((r) => [r.label, r.count])).toEqual([['Critical', 1], ['Watch', 18], ['Stable', 16], ['Needs data', 29]])
+    expect(legendRows(null).map((r) => r.count)).toEqual([0, 0, 0, 0])
   })
 })

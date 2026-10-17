@@ -1,0 +1,60 @@
+/* Design tokens taken from design/sentinel/assets/styles.css (the Sentinel EMS prototype). Light theme only. */
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  font-style: normal;
+  font-weight: 300 800;
+  font-display: swap;
+  src: url("./assets/fonts/plus-jakarta-sans-latin.woff2") format("woff2");
+}
+
+:root {
+  /* colors */
+  --bg: #ffffff;
+  --frame: #0b0d10;
+  --frame-edge: #1c2129;
+  --surface: #ffffff;
+  --surface-2: #f7fafd;
+  --surface-3: #f0f5fa;
+  --ink: #0f243d;
+  --ink-2: #2b4260;
+  --muted: #5f748e;
+  --line: #e2eaf3;
+  --line-strong: #d2dfec;
+  --brand: #1f6fb8;
+  --brand-deep: #14538f;
+  --brand-soft: #e8f2fb;
+  --brand-mist: #f2f8fd;
+  --critical: #c43d2e;
+  --critical-soft: #fbeae6;
+  --watch: #b3761b;
+  --watch-soft: #fbf1df;
+  --stable: #2e7157;
+  --stable-soft: #e8f2ec;
+  --map-ground: #e8eff6;
+  --map-stable: #cfe3d8;
+  --map-watch: #ebc684;
+  --map-critical: #dd806d;
+  --map-nodata: #d9e0e8;
+  --map-water: #eff5fb;
+  --map-land: #e1e9f2;
+  --tip-bg: #102640;
+  /* shape */
+  --radius-card: 24px;
+  --radius-ctl: 12px;
+  --shadow-card: 0 1px 2px rgba(15, 36, 61, 0.04), 0 16px 38px -26px rgba(15, 36, 61, 0.28);
+  --shadow-float: 0 10px 26px -12px rgba(15, 36, 61, 0.35), 0 2px 6px rgba(15, 36, 61, 0.06);
+  /* spacing */
+  --gap: 14px;
+  --pad-card: 16px;
+  /* type scale */
+  --font: "Plus Jakarta Sans", "Avenir Next", "Segoe UI", sans-serif;
+  --fs-xs: 10px;
+  --fs-sm: 11.5px;
+  --fs-md: 13.5px;
+  --fs-body: 15px;
+  --fs-h2: 16px;
+  --fs-h1: 26px;
+  /* motion */
+  --ease: cubic-bezier(0.22, 0.8, 0.3, 1);
+  --t-fast: 0.16s;
+}

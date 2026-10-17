@@ -13,8 +13,29 @@ export function Messages({ messages }) {
 }
 
 /** Shows loading, an error (with Try again), or the children once data is here. */
+/** A small spinning ring; decorative (the text next to it says what is loading). */
+export function Spinner() {
+  return <span className="spinner" aria-hidden="true" />
+}
+
+/** Thin moving bar under the top bar while any request is in flight; screen readers hear one status line. */
+export function LoadingBar({ active }) {
+  return (
+    <div className={`loading-bar${active ? ' is-active' : ''}`} role="status" aria-live="polite">
+      <span className="sr-only">{active ? 'Loading the numbers...' : ''}</span>
+    </div>
+  )
+}
+
 export function Async({ state, children }) {
-  if (state.loading) return <p className="loading" role="status">Loading...</p>
+  if (state.loading) {
+    return (
+      <div className="loading" role="status">
+        <p className="loading-line"><Spinner />Loading...</p>
+        <div className="skeleton" aria-hidden="true"><span /><span /><span /></div>
+      </div>
+    )
+  }
   if (state.error) {
     return (
       <div className="error" role="alert">
@@ -30,7 +51,7 @@ export function Async({ state, children }) {
 /** One numbered card of the page. */
 export function Section({ num, title, tag, intro, children, id }) {
   return (
-    <section className="card" id={id} aria-labelledby={`h-${num}`}>
+    <section className="card section-card" id={id} aria-labelledby={`h-${num}`}>
       <div className="section-head">
         <span className="num">{num}</span>
         <h2 id={`h-${num}`}>{title}</h2>
@@ -132,5 +153,37 @@ export function BaselineCheck({ b }) {
       {b.removed > 0 && <> {b.removed} unusual period{b.removed === 1 ? '' : 's'} left out{b.removed_starts && b.removed_starts.length ? ` (${b.removed_starts.map(fmtDate).join(', ')})` : ''}.</>}
       {!b.stable && b.reasons && b.reasons.length > 0 && <> Reasons: {b.reasons.join('; ')}.</>}
     </>
+  )
+}
+
+const ICONS = {
+  search: <><circle cx="11" cy="11" r="6.6" /><path d="m20 20-3.6-3.6" /></>,
+  back: <><path d="M19 12H5" /><path d="m12 19-7-7 7-7" /></>,
+  reset: <><path d="M4 9V5.8A1.8 1.8 0 0 1 5.8 4H9" /><path d="M15 4h3.2A1.8 1.8 0 0 1 20 5.8V9" /><path d="M20 15v3.2a1.8 1.8 0 0 1-1.8 1.8H15" /><path d="M9 20H5.8A1.8 1.8 0 0 1 4 18.2V15" /><circle cx="12" cy="12" r="2.1" /></>,
+  chev: <path d="m6 9 6 6 6-6" />,
+  'chev-right': <path d="m9 6 6 6-6 6" />,
+  spark: <><path d="M12 3.5 13.7 9l5.5 1.7-5.5 1.7L12 18l-1.7-5.6L4.8 10.7 10.3 9 12 3.5Z" /><path d="M19 16.5v3M17.5 18h3" /></>,
+}
+
+/** Small line icon from the prototype's icon set (decorative: the button or text beside it carries the meaning). */
+export function Icon({ name, size = 16 }) {
+  return (
+    <svg className="od-icon icon" width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" focusable="false">{ICONS[name]}</svg>
+  )
+}
+
+/** One chart card of the "Wait Time Insights" row (the prototype's card chrome): a title, a one-line sub, an optional tag. */
+export function ChartCard({ id, title, sub, tag, children }) {
+  return (
+    <section className="card chart-card" id={id} aria-labelledby={`${id}-title`}>
+      <div className="chart-head">
+        <div>
+          <h3 id={`${id}-title`}>{title}</h3>
+          {sub && <p>{sub}</p>}
+        </div>
+        {tag && <span className="tag">{tag}</span>}
+      </div>
+      <div className="chart-body">{children}</div>
+    </section>
   )
 }

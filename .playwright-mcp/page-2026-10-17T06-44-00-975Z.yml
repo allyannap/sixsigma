@@ -1,0 +1,228 @@
+- generic [ref=f12e3]:
+  - banner [ref=f12e4]:
+    - generic [ref=f12e30] [cursor=pointer]:
+      - generic [ref=f12e31]: OnScene
+      - generic [ref=f12e32]: New York State · EMS response quality
+    - generic [ref=f12e33]:
+      - generic [ref=f12e34]:
+        - generic [ref=f12e35]: Dataset
+        - combobox "Dataset" [ref=f12e36]:
+          - option "baseline" [selected]
+          - option "station_closure"
+          - option "summer_surge"
+      - button "Start replay" [ref=f12e37] [cursor=pointer]
+    - generic [ref=f12e38]:
+      - 'generic "SYNTHETIC DATA: invented calls on real 2020 Census geography. Not real patients, not live CAD." [ref=f12e39]':
+        - generic [ref=f12e41]:
+          - generic [ref=f12e42]: "SYNTHETIC DATA:"
+          - text: Simulated service data
+      - generic [ref=f12e43]:
+        - img "Team Powerpuff Girls" [ref=f12e44]
+        - generic [aria-hidden] [ref=f12e45]: Team Powerpuff Girls
+  - status [ref=f12e46]:
+    - generic [ref=f12e47]: Loading the numbers...
+  - generic [ref=f12e48]:
+    - main [ref=f12e49]:
+      - generic [ref=f12e50]:
+        - region [ref=f12e51]:
+          - heading "New York State county map" [level=2] [ref=f12e52]
+          - group "Map of New York counties, colored by queue label. Select one to open its ZIP areas." [ref=f12e53]:
+            - generic [ref=f12e55]:
+              - 'button "Queens: No calls in this selection" [ref=f12e56] [cursor=pointer]'
+              - 'button "Cayuga: No calls in this selection" [ref=f12e57] [cursor=pointer]'
+              - 'button "Delaware: No calls in this selection" [ref=f12e58] [cursor=pointer]'
+              - 'button "Washington: No calls in this selection" [ref=f12e59] [cursor=pointer]'
+              - 'button "Kings: No calls in this selection" [ref=f12e60] [cursor=pointer]'
+              - 'button "Bronx: No calls in this selection" [ref=f12e61] [cursor=pointer]'
+              - 'button "Westchester: No calls in this selection" [ref=f12e62] [cursor=pointer]'
+              - 'button "Orange: No calls in this selection" [ref=f12e63] [cursor=pointer]'
+              - 'button "Oswego: No calls in this selection" [ref=f12e64] [cursor=pointer]'
+              - 'button "Ontario: No calls in this selection" [ref=f12e65] [cursor=pointer]'
+              - 'button "Wayne: No calls in this selection" [ref=f12e66] [cursor=pointer]'
+              - 'button "Livingston: No calls in this selection" [ref=f12e67] [cursor=pointer]'
+              - 'button "Dutchess: No calls in this selection" [ref=f12e68] [cursor=pointer]'
+              - 'button "Otsego: No calls in this selection" [ref=f12e69] [cursor=pointer]'
+              - 'button "Warren: No calls in this selection" [ref=f12e70] [cursor=pointer]'
+              - 'button "Cattaraugus: No calls in this selection" [ref=f12e71] [cursor=pointer]'
+              - 'button "Chautauqua: No calls in this selection" [ref=f12e72] [cursor=pointer]'
+              - 'button "Chenango: No calls in this selection" [ref=f12e73] [cursor=pointer]'
+              - 'button "Madison: No calls in this selection" [ref=f12e74] [cursor=pointer]'
+              - 'button "Erie: No calls in this selection" [ref=f12e75] [cursor=pointer]'
+              - 'button "Suffolk: No calls in this selection" [ref=f12e76] [cursor=pointer]'
+              - 'button "Oneida: No calls in this selection" [ref=f12e77] [cursor=pointer]'
+              - 'button "Jefferson: No calls in this selection" [ref=f12e78] [cursor=pointer]'
+              - 'button "Sullivan: No calls in this selection" [ref=f12e79] [cursor=pointer]'
+              - 'button "Essex: No calls in this selection" [ref=f12e80] [cursor=pointer]'
+              - 'button "Tioga: No calls in this selection" [ref=f12e81] [cursor=pointer]'
+              - 'button "Herkimer: No calls in this selection" [ref=f12e82] [cursor=pointer]'
+              - 'button "Clinton: No calls in this selection" [ref=f12e83] [cursor=pointer]'
+              - 'button "Richmond: No calls in this selection" [ref=f12e84] [cursor=pointer]'
+              - 'button "Onondaga: No calls in this selection" [ref=f12e85] [cursor=pointer]'
+              - 'button "Monroe: No calls in this selection" [ref=f12e86] [cursor=pointer]'
+              - 'button "Niagara: No calls in this selection" [ref=f12e87] [cursor=pointer]'
+              - 'button "Saratoga: No calls in this selection" [ref=f12e88] [cursor=pointer]'
+              - 'button "Steuben: No calls in this selection" [ref=f12e89] [cursor=pointer]'
+              - 'button "Albany: No calls in this selection" [ref=f12e90] [cursor=pointer]'
+              - 'button "Genesee: No calls in this selection" [ref=f12e91] [cursor=pointer]'
+              - 'button "Lewis: No calls in this selection" [ref=f12e92] [cursor=pointer]'
+              - 'button "Fulton: No calls in this selection" [ref=f12e93] [cursor=pointer]'
+              - 'button "Broome: No calls in this selection" [ref=f12e94] [cursor=pointer]'
+              - 'button "Hamilton: No calls in this selection" [ref=f12e95] [cursor=pointer]'
+              - 'button "Schoharie: No calls in this selection" [ref=f12e96] [cursor=pointer]'
+              - 'button "Wyoming: No calls in this selection" [ref=f12e97] [cursor=pointer]'
+              - 'button "Schuyler: No calls in this selection" [ref=f12e98] [cursor=pointer]'
+              - 'button "Tompkins: No calls in this selection" [ref=f12e99] [cursor=pointer]'
+              - 'button "Chemung: No calls in this selection" [ref=f12e100] [cursor=pointer]'
+              - 'button "Ulster: No calls in this selection" [ref=f12e101] [cursor=pointer]'
+              - 'button "Yates: No calls in this selection" [ref=f12e102] [cursor=pointer]'
+              - 'button "Greene: No calls in this selection" [ref=f12e103] [cursor=pointer]'
+              - 'button "Columbia: No calls in this selection" [ref=f12e104] [cursor=pointer]'
+              - 'button "Seneca: No calls in this selection" [ref=f12e105] [cursor=pointer]'
+              - 'button "Putnam: No calls in this selection" [ref=f12e106] [cursor=pointer]'
+              - 'button "Schenectady: No calls in this selection" [ref=f12e107] [cursor=pointer]'
+              - 'button "St. Lawrence: No calls in this selection" [ref=f12e108] [cursor=pointer]'
+              - 'button "Orleans: No calls in this selection" [ref=f12e109] [cursor=pointer]'
+              - 'button "Allegany: No calls in this selection" [ref=f12e110] [cursor=pointer]'
+              - 'button "New York: No calls in this selection" [ref=f12e111] [cursor=pointer]'
+              - 'button "Montgomery: No calls in this selection" [ref=f12e112] [cursor=pointer]'
+              - 'button "Nassau: No calls in this selection" [ref=f12e113] [cursor=pointer]'
+              - 'button "Rockland: No calls in this selection" [ref=f12e114] [cursor=pointer]'
+              - 'button "Rensselaer: No calls in this selection" [ref=f12e115] [cursor=pointer]'
+              - 'button "Cortland: No calls in this selection" [ref=f12e116] [cursor=pointer]'
+              - 'button "Franklin: No calls in this selection" [ref=f12e117] [cursor=pointer]'
+          - combobox "Search for a New York ZIP code or county" [ref=f12e123]
+          - button "Reset map to New York State" [ref=f12e125] [cursor=pointer]
+          - generic [ref=f12e132]:
+            - generic [ref=f12e133]: New York City
+            - generic [ref=f12e134]:
+              - img [aria-hidden] [ref=f12e135]:
+                - generic [ref=f12e136] [cursor=pointer]
+                - generic [ref=f12e137] [cursor=pointer]
+                - generic [ref=f12e138] [cursor=pointer]
+                - generic [ref=f12e139] [cursor=pointer]
+                - generic [ref=f12e140] [cursor=pointer]
+              - generic [ref=f12e141]:
+                - generic [aria-hidden] [ref=f12e142]:
+                  - generic [ref=f12e143]: Borough
+                  - generic [ref=f12e144]: late calls
+                - list "New York City boroughs, most late calls first" [ref=f12e145]:
+                  - listitem [ref=f12e146]:
+                    - 'button "Queens: Needs more data, no calls. Open its ZIP areas." [disabled] [ref=f12e147]':
+                      - generic [ref=f12e149]: Queens
+                      - generic [ref=f12e150]: no calls
+                  - listitem [ref=f12e151]:
+                    - 'button "Brooklyn: Needs more data, no calls. Open its ZIP areas." [disabled] [ref=f12e152]':
+                      - generic [ref=f12e154]: Brooklyn
+                      - generic [ref=f12e155]: no calls
+                  - listitem [ref=f12e156]:
+                    - 'button "Bronx: Needs more data, no calls. Open its ZIP areas." [disabled] [ref=f12e157]':
+                      - generic [ref=f12e159]: Bronx
+                      - generic [ref=f12e160]: no calls
+                  - listitem [ref=f12e161]:
+                    - 'button "Staten Is.: Needs more data, no calls. Open its ZIP areas." [disabled] [ref=f12e162]':
+                      - generic [ref=f12e164]: Staten Is.
+                      - generic [ref=f12e165]: no calls
+                  - listitem [ref=f12e166]:
+                    - 'button "Manhattan: Needs more data, no calls. Open its ZIP areas." [disabled] [ref=f12e167]':
+                      - generic [ref=f12e169]: Manhattan
+                      - generic [ref=f12e170]: no calls
+          - generic "Status legend":
+            - generic: Status
+            - generic:
+              - generic: Critical
+              - generic: "0"
+            - generic:
+              - generic: Watch
+              - generic: "0"
+            - generic:
+              - generic: Stable
+              - generic: "0"
+            - generic:
+              - generic: Needs data
+              - generic: "0"
+            - generic: Critical = act now · Watch = ongoing gap or recent change · Stable = meets goal · gray = needs more data
+          - status [ref=f12e171]: Loading the map colours...
+        - button "Toggle table for map Places ranked by queue label" [ref=f12e174] [cursor=pointer]:
+          - generic [ref=f12e178]:
+            - generic [ref=f12e179]: Toggle table for map
+            - generic [ref=f12e180]: Places ranked by queue label
+      - generic [ref=f12e181]:
+        - generic [ref=f12e183]:
+          - generic [ref=f12e184]:
+            - generic [ref=f12e185]: Selected place
+            - heading "New York State" [level=1] [ref=f12e186]
+            - generic [ref=f12e187]: Statewide
+          - form "Date range" [ref=f12e189]:
+            - generic [ref=f12e190]:
+              - generic [ref=f12e191]: From
+              - textbox "From" [ref=f12e192]
+            - generic [aria-hidden] [ref=f12e193]: –
+            - generic [ref=f12e194]:
+              - generic [ref=f12e195]: To
+              - textbox "To" [ref=f12e196]
+            - button "Search" [ref=f12e197] [cursor=pointer]
+            - generic [ref=f12e201]: Blank dates = the last 90 days of the dataset.
+        - region [ref=f12e202]:
+          - generic [ref=f12e203]:
+            - heading "Key Metrics" [level=2] [ref=f12e204]
+            - generic [ref=f12e205]: baseline
+          - generic [ref=f12e206]:
+            - generic [ref=f12e207]:
+              - group "Priority (urgency)" [ref=f12e208]:
+                - text: Priority
+                - generic [ref=f12e209]:
+                  - button "Red (most urgent)" [pressed] [ref=f12e210] [cursor=pointer]
+                  - button "Yellow" [ref=f12e212] [cursor=pointer]
+                  - button "Green" [ref=f12e214] [cursor=pointer]
+              - generic [ref=f12e216]: At least one group stays on. Pick one for a clean control chart. No time-of-day filter.
+            - generic [ref=f12e217]:
+              - generic [ref=f12e218]:
+                - generic [ref=f12e219]:
+                  - generic [ref=f12e220]: On time
+                  - generic [ref=f12e221]: —
+                  - generic [ref=f12e224]: Loading…
+                - generic [ref=f12e226]:
+                  - generic [ref=f12e227]: Median wait
+                  - generic [ref=f12e228]: —
+                  - generic [ref=f12e231]: Loading…
+                - generic [ref=f12e233]:
+                  - generic [ref=f12e234]: P95 wait
+                  - generic [ref=f12e235]: —
+                  - generic [ref=f12e238]: Loading…
+              - generic [ref=f12e240]:
+                - generic [ref=f12e241]: Summary
+                - paragraph [ref=f12e243]: "No label yet for this place: it has no calls in this selection, or the numbers are loading."
+        - region [ref=f12e244]:
+          - generic [ref=f12e245]:
+            - heading "New York State Wait Time Insights" [level=2] [ref=f12e246]
+            - generic [ref=f12e247]: baseline
+          - group "Wait time charts" [ref=f12e248]:
+            - generic [ref=f12e249]:
+              - generic [ref=f12e250]: 1 / 2
+              - generic [ref=f12e251]:
+                - 'button "Show chart 1: Are calls arriving on time?" [ref=f12e252] [cursor=pointer]'
+                - 'button "Show chart 2: Are late calls being unusually frequent?" [ref=f12e253] [cursor=pointer]'
+            - 'button "Next chart: Are late calls being unusually frequent?" [ref=f12e254] [cursor=pointer]'
+            - group "1 of 2" [ref=f12e258]:
+              - region [ref=f12e259]:
+                - generic [ref=f12e260]:
+                  - generic [ref=f12e261]:
+                    - heading "Are calls arriving on time?" [level=3] [ref=f12e262]
+                    - paragraph [ref=f12e263]: Each area's on-time rate against the service goal
+                  - generic [ref=f12e264]: Geographic comparison
+                - status [ref=f12e266]:
+                  - paragraph [ref=f12e267]: Loading...
+    - generic [ref=f12e273]:
+      - region [ref=f12e274]:
+        - heading "Investigation list" [level=2] [ref=f12e276]
+        - paragraph [ref=f12e277]: "Every flagged area in the current map view with its evidence, then every ZIP area in the state with a confirmed signal. A starting point for a review: the tool does not choose or rank interventions."
+        - status [ref=f12e278]:
+          - paragraph [ref=f12e279]: Loading...
+        - status [ref=f12e285]:
+          - paragraph [ref=f12e286]: Loading...
+      - contentinfo [ref=f12e292]:
+        - text: Every number on this page is computed by the API (
+        - code [ref=f12e293]: /api/*
+        - text: ", read-only); the page only draws and formats it. Source: synthetic incidents replayed from the server. The response clock start ("
+        - code [ref=f12e294]: t_received
+        - text: ") is provisional: it may be the 911 answer or the CAD record, and that is not yet confirmed. Targets are NFPA 1720-based placeholders, configurable and not certified standards: red 8 minutes in urban areas, 10 suburban, 14 rural and remote; yellow 15; green 30; 90% on time. The tool reviews the response process, not individual dispatchers or crews."

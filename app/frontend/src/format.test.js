@@ -49,3 +49,14 @@ describe('formatters', () => {
     expect(fmtVolume(20.24, 15.43)).toBe('20.2 calls/day now vs 15.4 in the baseline')
   })
 })
+
+describe('fmtOneIn (borough list)', () => {
+  it('rounds valid / late, and handles none, many and too few', async () => {
+    const { fmtOneIn } = await import('./format.js')
+    expect(fmtOneIn(10, 120)).toBe('1 in 12 late')
+    expect(fmtOneIn(0, 50)).toBe('none late')
+    expect(fmtOneIn(40, 60)).toBe('67% late')
+    expect(fmtOneIn(3, 20)).toBe('too few calls')
+    expect(fmtOneIn(null, 0)).toBe('no calls')
+  })
+})

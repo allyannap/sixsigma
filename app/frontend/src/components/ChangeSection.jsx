@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { dotsPath, linear, linePath, logScale, logTicks } from '../charts.js'
 import { fmtDate, fmtInt, fmtMin, fmtNum, fmtP, fmtPct, mmss, periodEnd } from '../format.js'
 import { useEndpoint } from '../useApi.js'
-import { Async, BaselineCheck, JudgmentBadge, Messages, Section, WatchChip } from './common.jsx'
+import { Async, BaselineCheck, ChartCard, JudgmentBadge, Messages, WatchChip } from './common.jsx'
 
 const L = 56
 const R = 704
@@ -176,6 +176,7 @@ function SignalList({ p, params, selection }) {
   const from = selection && selection.from
   const to = selection && selection.to
   return (
+    <div className="table-scroll short" tabIndex={0} role="region" aria-label="Signal evidence (scrolls sideways when narrow)">
     <table className="places compact">
       <caption className="small muted">Evidence: each {p.unit} above its upper control limit (exact binomial p-value, one-sided)</caption>
       <thead><tr><th scope="col">{p.unit} starting</th><th scope="col">Late</th><th scope="col">Late share</th><th scope="col">Upper limit</th><th scope="col">p-value</th><th scope="col">Calls</th></tr></thead>
@@ -201,6 +202,7 @@ function SignalList({ p, params, selection }) {
         })}
       </tbody>
     </table>
+    </div>
   )
 }
 
@@ -240,8 +242,8 @@ export function StageTable({ data }) {
 
 export default function ChangeSection({ pState, imrState, stagesState, params, selectedName }) {
   return (
-    <Section num={2} id="section-2" title={`${selectedName}: has the process changed from its own history?`}
-      intro="Statistical control compares the late share in each period with a fixed baseline: the days just before the selected range. It answers 'did something change?', not 'is the service good enough?' (that is the target check in Section 1).">
+    <ChartCard id="section-2" title="Are late calls being unusually frequent?" tag="Stand-in"
+      sub={`${selectedName}: the share of late calls against its own earlier baseline (p chart). It answers 'did something change?', not 'is the service good enough?' (that is the on-time check).`}>
       <Async state={pState}>
         {(p) => {
           const b = p.baseline || {}
@@ -306,6 +308,6 @@ export default function ChangeSection({ pState, imrState, stagesState, params, s
           )}
         </Async>
       </details>
-    </Section>
+    </ChartCard>
   )
 }

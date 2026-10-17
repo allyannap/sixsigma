@@ -10,7 +10,7 @@ export const QUEUE = {
     help: 'Below the on-time goal, and the late share is confirmed above its control limit (two or more periods, or one very strong one).',
     bg: '#B42318',
     fg: '#FFFFFF',
-    next: 'Check Section 2 for the dates of the signal, then review the calls from those periods.',
+    next: 'Check the p chart (Are late calls being unusually frequent?) for the dates of the signal, then review the calls from those periods.',
   },
   ongoing_gap: {
     label: 'Ongoing gap',
@@ -26,7 +26,7 @@ export const QUEUE = {
     help: 'The late share is confirmed above its control limit (two or more periods, or one very strong one). The on-time goal is met or not yet decided.',
     bg: '#FDE7D3',
     fg: '#8A3A00',
-    next: 'Section 2 lists the periods above the limit; check what changed then.',
+    next: 'The p chart (Are late calls being unusually frequent?) lists the periods above the limit; check what changed then.',
   },
   meets_stable: {
     label: 'Meets goal; no change signal',
@@ -135,4 +135,35 @@ export function attentionCount(summary) {
   const n = summary && summary.needs_attention
   if (typeof n === 'number') return n
   return (summary && summary.places ? summary.places : []).filter((p) => ATTENTION.includes(p.queue)).length
+}
+
+// ---- OnScene page: the four map colours. Only a mapping of queue labels to colour groups, no statistics. ----
+// Critical = act_now; Watch = ongoing_gap + recent_change; Stable = meets_stable; gray = needs_data.
+export const TIER_OF = {
+  act_now: 'critical',
+  ongoing_gap: 'watch',
+  recent_change: 'watch',
+  meets_stable: 'stable',
+  needs_data: 'nodata',
+}
+export const TIERS = [
+  { key: 'critical', label: 'Critical', queues: ['act_now'] },
+  { key: 'watch', label: 'Watch', queues: ['ongoing_gap', 'recent_change'] },
+  { key: 'stable', label: 'Stable', queues: ['meets_stable'] },
+  { key: 'nodata', label: 'Needs data', queues: ['needs_data'] },
+]
+
+/** Colour group of one queue label; unknown or missing -> 'nodata' (gray). */
+export function tierOf(queue) {
+  return TIER_OF[queue] || 'nodata'
+}
+
+/** The 4 legend rows from the API's queue_counts: [{key, label, count}]. A missing count shows as 0. */
+export function legendRows(queueCounts) {
+  const counts = queueCounts || {}
+  return TIERS.map((t) => ({
+    key: t.key,
+    label: t.label,
+    count: t.queues.reduce((sum, q) => sum + (counts[q] || 0), 0),
+  }))
 }

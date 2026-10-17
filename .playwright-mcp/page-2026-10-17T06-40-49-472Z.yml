@@ -1,0 +1,647 @@
+- generic [ref=f6e3]:
+  - banner [ref=f6e4]:
+    - generic [ref=f6e30] [cursor=pointer]:
+      - generic [ref=f6e31]: OnScene
+      - generic [ref=f6e32]: New York State · EMS response quality
+    - generic [ref=f6e33]:
+      - generic [ref=f6e34]:
+        - generic [ref=f6e35]: Dataset
+        - combobox "Dataset" [ref=f6e36]:
+          - option "baseline" [selected]
+          - option "station_closure"
+          - option "summer_surge"
+      - button "Start replay" [ref=f6e37] [cursor=pointer]
+    - generic [ref=f6e38]:
+      - 'generic "SYNTHETIC DATA: invented calls on real 2020 Census geography. Not real patients, not live CAD." [ref=f6e39]':
+        - generic [ref=f6e41]:
+          - generic [ref=f6e42]: "SYNTHETIC DATA:"
+          - text: Simulated service data
+      - generic [ref=f6e43]:
+        - img "Team Powerpuff Girls" [ref=f6e44]
+        - generic [aria-hidden] [ref=f6e45]: Team Powerpuff Girls
+  - generic [ref=f6e46]:
+    - main [ref=f6e47]:
+      - generic [ref=f6e48]:
+        - region [ref=f6e49]:
+          - heading "New York State county map" [level=2] [ref=f6e50]
+          - group "Map of New York counties, colored by queue label. Select one to open its ZIP areas." [ref=f6e51]:
+            - generic [ref=f6e53]:
+              - 'button "Queens: Meets goal; no change signal, On time 93.1% · n = 3,964 valid calls" [ref=f6e269] [cursor=pointer]'
+              - 'button "Cayuga: Needs more data / Inconclusive, On time 85.8% · n = 106 valid calls" [ref=f6e270] [cursor=pointer]'
+              - 'button "Delaware: Ongoing gap, On time 61.6% · n = 73 valid calls" [ref=f6e271] [cursor=pointer]'
+              - 'button "Washington: Ongoing gap, On time 76.8% · n = 82 valid calls" [ref=f6e272] [cursor=pointer]'
+              - 'button "Kings: Meets goal; no change signal, On time 93.7% · n = 4,346 valid calls" [ref=f6e273] [cursor=pointer]'
+              - 'button "Bronx: Meets goal; no change signal, On time 92.7% · n = 2,383 valid calls" [ref=f6e274] [cursor=pointer]'
+              - 'button "Westchester: Meets goal; no change signal, On time 93.8% · n = 1,685 valid calls" [ref=f6e275] [cursor=pointer]'
+              - 'button "Orange: Meets goal; no change signal, On time 93.4% · n = 632 valid calls" [ref=f6e276] [cursor=pointer]'
+              - 'button "Oswego: Ongoing gap, On time 77.4% · n = 195 valid calls" [ref=f6e277] [cursor=pointer]'
+              - 'button "Ontario: Ongoing gap, On time 84.8% · n = 191 valid calls" [ref=f6e278] [cursor=pointer]'
+              - 'button "Wayne: Needs more data / Inconclusive, On time 88.7% · n = 151 valid calls" [ref=f6e279] [cursor=pointer]'
+              - 'button "Livingston: Needs more data / Inconclusive, On time 87.3% · n = 110 valid calls" [ref=f6e280] [cursor=pointer]'
+              - 'button "Dutchess: Meets goal; no change signal, On time 93.0% · n = 469 valid calls" [ref=f6e281] [cursor=pointer]'
+              - 'button "Otsego: Ongoing gap, On time 73.2% · n = 71 valid calls" [ref=f6e282] [cursor=pointer]'
+              - 'button "Warren: Needs more data / Inconclusive, On time 86.2% · n = 94 valid calls" [ref=f6e283] [cursor=pointer]'
+              - 'button "Cattaraugus: Needs more data / Inconclusive, On time 86.4% · n = 125 valid calls" [ref=f6e284] [cursor=pointer]'
+              - 'button "Chautauqua: Ongoing gap, On time 79.7% · n = 207 valid calls" [ref=f6e285] [cursor=pointer]'
+              - 'button "Chenango: Ongoing gap, On time 65.5% · n = 87 valid calls" [ref=f6e286] [cursor=pointer]'
+              - 'button "Madison: Ongoing gap, On time 78.4% · n = 139 valid calls" [ref=f6e287] [cursor=pointer]'
+              - 'button "Erie: Meets goal; no change signal, On time 93.8% · n = 1,640 valid calls" [ref=f6e288] [cursor=pointer]'
+              - 'button "Suffolk: Needs more data / Inconclusive, On time 94.4% · n = 2,435 valid calls" [ref=f6e289] [cursor=pointer]'
+              - 'button "Oneida: Ongoing gap, On time 86.2% · n = 400 valid calls" [ref=f6e290] [cursor=pointer]'
+              - 'button "Jefferson: Ongoing gap, On time 79.9% · n = 189 valid calls" [ref=f6e291] [cursor=pointer]'
+              - 'button "Sullivan: Ongoing gap, On time 79.0% · n = 143 valid calls" [ref=f6e292] [cursor=pointer]'
+              - 'button "Essex: Ongoing gap, On time 69.0% · n = 87 valid calls" [ref=f6e293] [cursor=pointer]'
+              - 'button "Tioga: Needs more data / Inconclusive, On time 75.6% · n = 78 valid calls" [ref=f6e294] [cursor=pointer]'
+              - 'button "Herkimer: Ongoing gap, On time 82.1% · n = 95 valid calls" [ref=f6e295] [cursor=pointer]'
+              - 'button "Clinton: Needs more data / Inconclusive, On time 88.0% · n = 108 valid calls" [ref=f6e296] [cursor=pointer]'
+              - 'button "Richmond: Meets goal; no change signal, On time 93.1% · n = 838 valid calls" [ref=f6e297] [cursor=pointer]'
+              - 'button "Onondaga: Meets goal; no change signal, On time 93.4% · n = 820 valid calls" [ref=f6e298] [cursor=pointer]'
+              - 'button "Monroe: Meets goal; no change signal, On time 93.4% · n = 1,206 valid calls" [ref=f6e299] [cursor=pointer]'
+              - 'button "Niagara: Meets goal; no change signal, On time 94.7% · n = 359 valid calls" [ref=f6e300] [cursor=pointer]'
+              - 'button "Saratoga: Needs more data / Inconclusive, On time 92.1% · n = 394 valid calls" [ref=f6e301] [cursor=pointer]'
+              - 'button "Steuben: Ongoing gap, On time 83.2% · n = 149 valid calls" [ref=f6e302] [cursor=pointer]'
+              - 'button "Albany: Meets goal; no change signal, On time 94.1% · n = 440 valid calls" [ref=f6e303] [cursor=pointer]'
+              - 'button "Genesee: Needs more data / Inconclusive, On time 89.6% · n = 106 valid calls" [ref=f6e304] [cursor=pointer]'
+              - 'button "Lewis: Ongoing gap, On time 62.0% · n = 50 valid calls" [ref=f6e305] [cursor=pointer]'
+              - 'button "Fulton: Needs more data / Inconclusive, On time 83.5% · n = 85 valid calls" [ref=f6e306] [cursor=pointer]'
+              - 'button "Broome: Needs more data / Inconclusive, On time 92.7% · n = 331 valid calls" [ref=f6e307] [cursor=pointer]'
+              - 'button "Hamilton: Needs more data / Inconclusive, On time 57.1% · n = 7 valid calls" [ref=f6e308] [cursor=pointer]'
+              - 'button "Schoharie: Needs more data / Inconclusive, On time 83.7% · n = 43 valid calls" [ref=f6e309] [cursor=pointer]'
+              - 'button "Wyoming: Needs more data / Inconclusive, On time 88.7% · n = 62 valid calls" [ref=f6e310] [cursor=pointer]'
+              - 'button "Schuyler: Needs more data / Inconclusive, On time 80.0% · n = 25 valid calls" [ref=f6e311] [cursor=pointer]'
+              - 'button "Tompkins: Needs more data / Inconclusive, On time 91.4% · n = 175 valid calls" [ref=f6e312] [cursor=pointer]'
+              - 'button "Chemung: Needs more data / Inconclusive, On time 87.2% · n = 117 valid calls" [ref=f6e313] [cursor=pointer]'
+              - 'button "Ulster: Ongoing gap, On time 83.3% · n = 305 valid calls" [ref=f6e314] [cursor=pointer]'
+              - 'button "Yates: Needs more data / Inconclusive, On time 81.8% · n = 44 valid calls" [ref=f6e315] [cursor=pointer]'
+              - 'button "Greene: Needs more data / Inconclusive, On time 79.7% · n = 79 valid calls" [ref=f6e316] [cursor=pointer]'
+              - 'button "Columbia: Needs more data / Inconclusive, On time 90.5% · n = 95 valid calls" [ref=f6e317] [cursor=pointer]'
+              - 'button "Seneca: Needs more data / Inconclusive, On time 83.7% · n = 43 valid calls" [ref=f6e318] [cursor=pointer]'
+              - 'button "Putnam: Needs more data / Inconclusive, On time 89.9% · n = 158 valid calls" [ref=f6e319] [cursor=pointer]'
+              - 'button "Schenectady: Meets goal; no change signal, On time 96.1% · n = 258 valid calls" [ref=f6e320] [cursor=pointer]'
+              - 'button "St. Lawrence: Ongoing gap, On time 75.7% · n = 181 valid calls" [ref=f6e321] [cursor=pointer]'
+              - 'button "Orleans: Needs more data / Inconclusive, On time 93.3% · n = 75 valid calls" [ref=f6e322] [cursor=pointer]'
+              - 'button "Allegany: Needs more data / Inconclusive, On time 78.1% · n = 64 valid calls" [ref=f6e323] [cursor=pointer]'
+              - 'button "New York: Meets goal; no change signal, On time 91.7% · n = 2,764 valid calls" [ref=f6e324] [cursor=pointer]'
+              - 'button "Montgomery: Needs more data / Inconclusive, On time 87.6% · n = 97 valid calls" [ref=f6e325] [cursor=pointer]'
+              - 'button "Nassau: Meets goal; no change signal, On time 93.8% · n = 2,291 valid calls" [ref=f6e326] [cursor=pointer]'
+              - 'button "Rockland: Meets goal; no change signal, On time 92.5% · n = 550 valid calls" [ref=f6e327] [cursor=pointer]'
+              - 'button "Rensselaer: Needs more data / Inconclusive, On time 89.1% · n = 247 valid calls" [ref=f6e328] [cursor=pointer]'
+              - 'button "Cortland: Ongoing gap, On time 82.3% · n = 79 valid calls" [ref=f6e329] [cursor=pointer]'
+              - 'button "Franklin: Ongoing gap, On time 69.1% · n = 55 valid calls" [ref=f6e330] [cursor=pointer]'
+          - combobox "Search for a New York ZIP code or county" [ref=f6e121]
+          - button "Reset map to New York State" [ref=f6e123] [cursor=pointer]
+          - navigation "Map drilldown" [ref=f6e130]:
+            - generic [ref=f6e131]: New York State
+          - generic [ref=f6e132]:
+            - generic [ref=f6e133]: New York City
+            - generic [ref=f6e134]:
+              - img [aria-hidden] [ref=f6e135]:
+                - generic [ref=f6e136] [cursor=pointer]
+                - generic [ref=f6e137] [cursor=pointer]
+                - generic [ref=f6e138] [cursor=pointer]
+                - generic [ref=f6e139] [cursor=pointer]
+                - generic [ref=f6e140] [cursor=pointer]
+              - generic [ref=f6e141]:
+                - generic [aria-hidden] [ref=f6e142]:
+                  - generic [ref=f6e143]: Borough
+                  - generic [ref=f6e144]: late calls
+                - list "New York City boroughs, most late calls first" [ref=f6e145]:
+                  - listitem [ref=f6e166]:
+                    - 'button "Manhattan: Stable, 1 in 12 late. Open its ZIP areas." [ref=f6e331] [cursor=pointer]':
+                      - generic [ref=f6e169]: Manhattan
+                      - generic [ref=f6e170]: 1 in 12
+                  - listitem [ref=f6e156]:
+                    - 'button "Bronx: Stable, 1 in 14 late. Open its ZIP areas." [ref=f6e332] [cursor=pointer]':
+                      - generic [ref=f6e159]: Bronx
+                      - generic [ref=f6e160]: 1 in 14
+                  - listitem [ref=f6e146]:
+                    - 'button "Queens: Stable, 1 in 14 late. Open its ZIP areas." [ref=f6e333] [cursor=pointer]':
+                      - generic [ref=f6e149]: Queens
+                      - generic [ref=f6e150]: 1 in 14
+                  - listitem [ref=f6e161]:
+                    - 'button "Staten Is.: Stable, 1 in 14 late. Open its ZIP areas." [ref=f6e334] [cursor=pointer]':
+                      - generic [ref=f6e164]: Staten Is.
+                      - generic [ref=f6e165]: 1 in 14
+                  - listitem [ref=f6e151]:
+                    - 'button "Brooklyn: Stable, 1 in 16 late. Open its ZIP areas." [ref=f6e335] [cursor=pointer]':
+                      - generic [ref=f6e154]: Brooklyn
+                      - generic [ref=f6e155]: 1 in 16
+          - generic "Status legend":
+            - generic: Status
+            - generic:
+              - generic: Critical
+              - generic: "0"
+            - generic:
+              - generic: Watch
+              - generic: "19"
+            - generic:
+              - generic: Stable
+              - generic: "16"
+            - generic:
+              - generic: Needs data
+              - generic: "27"
+            - generic: Critical = act now · Watch = ongoing gap or recent change · Stable = meets goal · gray = needs more data
+        - generic [ref=f6e171]:
+          - generic "Labels for New York State" [ref=f6e336]:
+            - generic [ref=f6e337]: "New York State:"
+            - generic [ref=f6e338]: "Recent process change: investigate"
+            - generic [ref=f6e341]:
+              - 'generic "Target: Meets target" [ref=f6e342]':
+                - generic [ref=f6e343]: "Target:"
+                - text: Meets target
+              - 'generic "Control: Out of control" [ref=f6e344]':
+                - generic [ref=f6e345]: "Control:"
+                - text: Out of control
+          - generic [ref=f6e346]:
+            - status [ref=f6e347]: "19 of 62 counties need review: 0 with a recent signal (Act now + Recent change) · 19 ongoing gaps. Start at the top of the table."
+            - note [ref=f6e348]: About 1.7 would read Below by chance alone if every place were exactly at the goal (expected, of 60 counties); 23 read Below here.
+          - button "Toggle table for map Ranked by queue label, then late calls beyond the goal 62 counties" [ref=f6e349] [cursor=pointer]:
+            - generic [ref=f6e176]:
+              - generic [ref=f6e177]: Toggle table for map
+              - generic [ref=f6e178]: Ranked by queue label, then late calls beyond the goal
+            - generic [ref=f6e350]: 62 counties
+      - generic [ref=f6e179]:
+        - generic [ref=f6e181]:
+          - generic [ref=f6e182]:
+            - generic [ref=f6e183]: Selected place
+            - heading "New York State" [level=1] [ref=f6e184]
+            - generic [ref=f6e185]:
+              - generic [ref=f6e186]: Statewide
+              - generic [aria-hidden] [ref=f6e351]: ·
+              - generic [ref=f6e352]: 62 counties
+          - form "Date range" [ref=f6e187]:
+            - generic [ref=f6e188]:
+              - generic [ref=f6e189]: From
+              - textbox "From" [ref=f6e190]
+            - generic [aria-hidden] [ref=f6e191]: –
+            - generic [ref=f6e192]:
+              - generic [ref=f6e193]: To
+              - textbox "To" [ref=f6e194]
+            - button "Search" [ref=f6e195] [cursor=pointer]
+            - generic [ref=f6e199]: Blank dates = the last 90 days of the dataset.
+        - region [ref=f6e200]:
+          - generic [ref=f6e201]:
+            - heading "Key Metrics" [level=2] [ref=f6e202]
+            - generic [ref=f6e203]: baseline · Jul 18 to Oct 15, 2026
+          - generic [ref=f6e204]:
+            - generic [ref=f6e205]:
+              - group "Priority (urgency)" [ref=f6e206]:
+                - text: Priority
+                - generic [ref=f6e207]:
+                  - button "Red (most urgent)" [pressed] [ref=f6e208] [cursor=pointer]
+                  - button "Yellow" [ref=f6e210] [cursor=pointer]
+                  - button "Green" [ref=f6e212] [cursor=pointer]
+              - generic [ref=f6e214]: At least one group stays on. Pick one for a clean control chart. No time-of-day filter.
+            - generic [ref=f6e215]:
+              - generic [ref=f6e216]:
+                - generic "On time" [ref=f6e353]:
+                  - generic [ref=f6e355]: 91.7%
+                  - generic [ref=f6e357]: 30,147 of 32,877 valid calls · 95% CI 91.4% to 92.0% · goal 90%
+                - generic "Median wait" [ref=f6e358]:
+                  - generic [ref=f6e359]:
+                    - text: Median wait
+                    - generic [ref=f6e360]: call received to on scene
+                  - generic [ref=f6e361]:
+                    - generic [ref=f6e362]: "5.0"
+                    - generic [ref=f6e363]: min
+                  - generic [ref=f6e364]: 95% CI 5.0 to 5.1 min
+                - generic "P95 wait" [ref=f6e365]:
+                  - generic [ref=f6e366]:
+                    - text: P95 wait
+                    - generic [ref=f6e367]: 1 call in 20 waited longer
+                  - generic [ref=f6e368]:
+                    - generic [ref=f6e369]: "12.7"
+                    - generic [ref=f6e370]: min
+                  - generic [ref=f6e371]: 95% CI 12.5 to 12.9 min · P90 10.0 min
+              - generic [ref=f6e232]:
+                - generic [ref=f6e233]:
+                  - generic [ref=f6e234]: Summary
+                  - generic [ref=f6e372]: Watch
+                - paragraph [ref=f6e373]:
+                  - strong [ref=f6e374]: "New York State: Recent process change: investigate."
+                  - text: "Target: lower 95% bound is at or above the goal. Control: 2 day(s) above the upper control limit."
+                - paragraph [ref=f6e375]: "Next: The p chart (Are late calls being unusually frequent?) lists the periods above the limit; check what changed then."
+        - region [ref=f6e236]:
+          - generic [ref=f6e237]:
+            - heading "New York State Wait Time Insights" [level=2] [ref=f6e238]
+            - generic [ref=f6e239]: baseline · Jul 18 to Oct 15, 2026
+          - group "Wait time charts" [ref=f6e240]:
+            - generic [ref=f6e241]:
+              - generic [ref=f6e242]: 1 / 2
+              - generic [ref=f6e243]:
+                - 'button "Show chart 1: Are calls arriving on time?" [ref=f6e244] [cursor=pointer]'
+                - 'button "Show chart 2: Are late calls being unusually frequent?" [ref=f6e245] [cursor=pointer]'
+            - 'button "Next chart: Are late calls being unusually frequent?" [ref=f6e246] [cursor=pointer]'
+            - group "1 of 2" [ref=f6e250]:
+              - region [ref=f6e251]:
+                - generic [ref=f6e252]:
+                  - generic [ref=f6e253]:
+                    - heading "Are calls arriving on time?" [level=3] [ref=f6e254]
+                    - paragraph [ref=f6e255]: Each area's on-time rate against the service goal
+                  - generic [ref=f6e256]: Geographic comparison
+                - generic [ref=f6e376]:
+                  - paragraph [ref=f6e377]:
+                    - strong [ref=f6e378]: "Goal: 90% of calls arrive within their configured call target of call receipt."
+                  - status [ref=f6e379]:
+                    - strong [ref=f6e380]: 23 of 62 areas
+                    - text: are confirmed below goal.
+                  - generic [ref=f6e381]:
+                    - generic [ref=f6e382]:
+                      - 'img "Number of areas by on-time rate. 50–60%: 1; 60–70%: 5; 70–80%: 11; 80–90%: 23; 90–100%: 22. Goal 90%." [ref=f6e383]':
+                        - 'generic "50–60% on time: 1 area. Click to list them." [ref=f6e384] [cursor=pointer]': "1"
+                        - 'generic "60–70% on time: 5 areas. Click to list them." [ref=f6e388] [cursor=pointer]': "5"
+                        - 'generic "70–80% on time: 11 areas. Click to list them." [ref=f6e392] [cursor=pointer]': "11"
+                        - 'generic "80–90% on time: 23 areas. Click to list them." [ref=f6e396] [cursor=pointer]': "23"
+                        - 'generic "90–100% on time: 22 areas. Click to list them." [ref=f6e401] [cursor=pointer]': "22"
+                        - generic [ref=f6e406]: 50%
+                        - generic [ref=f6e407]: 60%
+                        - generic [ref=f6e408]: 70%
+                        - generic [ref=f6e409]: 80%
+                        - generic [ref=f6e410]: 90%
+                        - generic [ref=f6e411]: 100%
+                        - generic [ref=f6e412]: Goal 90%
+                      - paragraph [ref=f6e414]:
+                        - generic [ref=f6e415]: Below goal
+                        - generic [ref=f6e417]: Uncertain
+                        - generic [ref=f6e419]: Meets goal
+                        - generic [ref=f6e421]: ▲ selected area · tap a bar to see its areas
+                      - paragraph [ref=f6e422]:
+                        - strong [ref=f6e423]: "Furthest below:"
+                        - button "Delaware 62%" [pressed] [ref=f6e424] [cursor=pointer]
+                        - button "Lewis 62%" [ref=f6e425] [cursor=pointer]
+                        - button "Chenango 66%" [ref=f6e426] [cursor=pointer]
+                    - generic [ref=f6e427]:
+                      - combobox "Search an area by name" [ref=f6e428]
+                      - generic [ref=f6e429]:
+                        - generic [ref=f6e430]:
+                          - generic [ref=f6e431]: 2nd worst of 62 · 73 calls
+                          - heading "Delaware" [level=3] [ref=f6e432]
+                        - generic [ref=f6e433]: Below goal
+                      - generic [ref=f6e434]:
+                        - generic [ref=f6e435]: Mostly remote · 84% of calls
+                        - button "Why area type matters" [ref=f6e436] [cursor=pointer]: i
+                      - paragraph [ref=f6e437]:
+                        - strong [ref=f6e438]: 62%
+                        - text: of calls arrived within 14 min
+                      - paragraph [ref=f6e439]: 28.4 percentage points below goal of 90%
+                      - generic [ref=f6e440]:
+                        - generic [ref=f6e441]:
+                          - strong [ref=f6e442]: 11.8 min
+                          - text: Half of calls arrive by
+                        - generic [ref=f6e443]:
+                          - strong [ref=f6e444]: 20.7 min
+                          - text: Slowest 1 in 10 start at
+                      - paragraph [ref=f6e445]:
+                        - text: "Longest wait:"
+                        - strong [ref=f6e446]: 48.0 min
+                  - group [ref=f6e447]:
+                    - generic "How certain is this?" [ref=f6e448] [cursor=pointer]
+    - generic [ref=f6e259]:
+      - region [ref=f6e260]:
+        - heading "Investigation list" [level=2] [ref=f6e262]
+        - paragraph [ref=f6e263]: "Every flagged area in the current map view with its evidence, then every ZIP area in the state with a confirmed signal. A starting point for a review: the tool does not choose or rank interventions."
+        - region "Investigation list" [ref=f6e449]:
+          - table [ref=f6e450]:
+            - rowgroup [ref=f6e451]:
+              - row [ref=f6e452]:
+                - columnheader "Area" [ref=f6e453]
+                - columnheader "Queue and judgments" [ref=f6e454]
+                - columnheader "Target evidence" [ref=f6e455]
+                - columnheader "Control evidence" [ref=f6e456]
+            - rowgroup [ref=f6e457]:
+              - row [ref=f6e458]:
+                - rowheader [ref=f6e459]:
+                  - button "St. Lawrence" [ref=f6e460] [cursor=pointer]
+                - 'cell "Ongoing gap Target: Below target Control: In control" [ref=f6e461]':
+                  - generic [ref=f6e462]: Ongoing gap
+                  - generic [ref=f6e466]:
+                    - 'generic "Target: Below target" [ref=f6e467]':
+                      - generic [ref=f6e468]: "Target:"
+                      - text: Below target
+                    - 'generic "Control: In control" [ref=f6e469]':
+                      - generic [ref=f6e470]: "Control:"
+                      - text: In control
+                - cell "75.7% on time (137 of 181), 95% CI 68.9% to 81.4%, goal 90%" [ref=f6e471]
+                - cell "none; baseline May 19 to Jul 17" [ref=f6e472]
+              - row [ref=f6e473]:
+                - rowheader [ref=f6e474]:
+                  - button "Oswego" [ref=f6e475] [cursor=pointer]
+                - 'cell "Ongoing gap Target: Below target Control: In control" [ref=f6e476]':
+                  - generic [ref=f6e477]: Ongoing gap
+                  - generic [ref=f6e481]:
+                    - 'generic "Target: Below target" [ref=f6e482]':
+                      - generic [ref=f6e483]: "Target:"
+                      - text: Below target
+                    - 'generic "Control: In control" [ref=f6e484]':
+                      - generic [ref=f6e485]: "Control:"
+                      - text: In control
+                - cell "77.4% on time (151 of 195), 95% CI 71.1% to 82.7%, goal 90%" [ref=f6e486]
+                - cell "none; baseline May 19 to Jul 17" [ref=f6e487]
+              - row [ref=f6e488]:
+                - rowheader [ref=f6e489]:
+                  - button "Chautauqua" [ref=f6e490] [cursor=pointer]
+                - 'cell "Ongoing gap Target: Below target Control: In control" [ref=f6e491]':
+                  - generic [ref=f6e492]: Ongoing gap
+                  - generic [ref=f6e496]:
+                    - 'generic "Target: Below target" [ref=f6e497]':
+                      - generic [ref=f6e498]: "Target:"
+                      - text: Below target
+                    - 'generic "Control: In control" [ref=f6e499]':
+                      - generic [ref=f6e500]: "Control:"
+                      - text: In control
+                - cell "79.7% on time (165 of 207), 95% CI 73.7% to 84.6%, goal 90%" [ref=f6e501]
+                - cell "none; baseline May 19 to Jul 17" [ref=f6e502]
+              - row [ref=f6e503]:
+                - rowheader [ref=f6e504]:
+                  - button "Chenango" [ref=f6e505] [cursor=pointer]
+                - 'cell "Ongoing gap Target: Below target Control: In control watch : 1 period above the limit, not confirmed" [ref=f6e506]':
+                  - generic [ref=f6e507]: Ongoing gap
+                  - generic [ref=f6e511]:
+                    - 'generic "Target: Below target" [ref=f6e512]':
+                      - generic [ref=f6e513]: "Target:"
+                      - text: Below target
+                    - 'generic "Control: In control" [ref=f6e514]':
+                      - generic [ref=f6e515]: "Control:"
+                      - text: In control
+                    - generic "1 period above the limit, not confirmed" [ref=f6e516]:
+                      - text: watch
+                      - generic [ref=f6e517]: ": 1 period above the limit, not confirmed"
+                - cell "65.5% on time (57 of 87), 95% CI 55.1% to 74.7%, goal 90%" [ref=f6e518]
+                - cell "1 month(s) above the limit, Aug 1; baseline May 19 to Jul 17" [ref=f6e519]
+              - row [ref=f6e520]:
+                - rowheader [ref=f6e521]:
+                  - button "Delaware" [ref=f6e522] [cursor=pointer]
+                - 'cell "Ongoing gap Target: Below target Control: In control" [ref=f6e523]':
+                  - generic [ref=f6e524]: Ongoing gap
+                  - generic [ref=f6e528]:
+                    - 'generic "Target: Below target" [ref=f6e529]':
+                      - generic [ref=f6e530]: "Target:"
+                      - text: Below target
+                    - 'generic "Control: In control" [ref=f6e531]':
+                      - generic [ref=f6e532]: "Control:"
+                      - text: In control
+                - cell "61.6% on time (45 of 73), 95% CI 50.2% to 71.9%, goal 90%" [ref=f6e533]
+                - cell "none; baseline May 19 to Jul 17" [ref=f6e534]
+              - row [ref=f6e535]:
+                - rowheader [ref=f6e536]:
+                  - button "Ulster" [ref=f6e537] [cursor=pointer]
+                - 'cell "Ongoing gap Target: Below target Control: In control" [ref=f6e538]':
+                  - generic [ref=f6e539]: Ongoing gap
+                  - generic [ref=f6e543]:
+                    - 'generic "Target: Below target" [ref=f6e544]':
+                      - generic [ref=f6e545]: "Target:"
+                      - text: Below target
+                    - 'generic "Control: In control" [ref=f6e546]':
+                      - generic [ref=f6e547]: "Control:"
+                      - text: In control
+                - cell "83.3% on time (254 of 305), 95% CI 78.7% to 87.0%, goal 90%" [ref=f6e548]
+                - cell "none; baseline May 19 to Jul 17" [ref=f6e549]
+              - row [ref=f6e550]:
+                - rowheader [ref=f6e551]:
+                  - button "Jefferson" [ref=f6e552] [cursor=pointer]
+                - 'cell "Ongoing gap Target: Below target Control: In control" [ref=f6e553]':
+                  - generic [ref=f6e554]: Ongoing gap
+                  - generic [ref=f6e558]:
+                    - 'generic "Target: Below target" [ref=f6e559]':
+                      - generic [ref=f6e560]: "Target:"
+                      - text: Below target
+                    - 'generic "Control: In control" [ref=f6e561]':
+                      - generic [ref=f6e562]: "Control:"
+                      - text: In control
+                - cell "79.9% on time (151 of 189), 95% CI 73.6% to 85.0%, goal 90%" [ref=f6e563]
+                - cell "none; baseline May 19 to Jul 17" [ref=f6e564]
+              - row [ref=f6e565]:
+                - rowheader [ref=f6e566]:
+                  - button "Essex" [ref=f6e567] [cursor=pointer]
+                - 'cell "Ongoing gap Target: Below target Control: In control" [ref=f6e568]':
+                  - generic [ref=f6e569]: Ongoing gap
+                  - generic [ref=f6e573]:
+                    - 'generic "Target: Below target" [ref=f6e574]':
+                      - generic [ref=f6e575]: "Target:"
+                      - text: Below target
+                    - 'generic "Control: In control" [ref=f6e576]':
+                      - generic [ref=f6e577]: "Control:"
+                      - text: In control
+                - cell "69.0% on time (60 of 87), 95% CI 58.6% to 77.7%, goal 90%" [ref=f6e578]
+                - cell "none; baseline May 19 to Jul 17" [ref=f6e579]
+              - row [ref=f6e580]:
+                - rowheader [ref=f6e581]:
+                  - button "Madison" [ref=f6e582] [cursor=pointer]
+                - 'cell "Ongoing gap Target: Below target Control: In control" [ref=f6e583]':
+                  - generic [ref=f6e584]: Ongoing gap
+                  - generic [ref=f6e588]:
+                    - 'generic "Target: Below target" [ref=f6e589]':
+                      - generic [ref=f6e590]: "Target:"
+                      - text: Below target
+                    - 'generic "Control: In control" [ref=f6e591]':
+                      - generic [ref=f6e592]: "Control:"
+                      - text: In control
+                - cell "78.4% on time (109 of 139), 95% CI 70.9% to 84.4%, goal 90%" [ref=f6e593]
+                - cell "none; baseline May 19 to Jul 17" [ref=f6e594]
+              - row [ref=f6e595]:
+                - rowheader [ref=f6e596]:
+                  - button "Sullivan" [ref=f6e597] [cursor=pointer]
+                - 'cell "Ongoing gap Target: Below target Control: In control" [ref=f6e598]':
+                  - generic [ref=f6e599]: Ongoing gap
+                  - generic [ref=f6e603]:
+                    - 'generic "Target: Below target" [ref=f6e604]':
+                      - generic [ref=f6e605]: "Target:"
+                      - text: Below target
+                    - 'generic "Control: In control" [ref=f6e606]':
+                      - generic [ref=f6e607]: "Control:"
+                      - text: In control
+                - cell "79.0% on time (113 of 143), 95% CI 71.6% to 84.9%, goal 90%" [ref=f6e608]
+                - cell "none; baseline May 19 to Jul 17" [ref=f6e609]
+              - row [ref=f6e610]:
+                - rowheader [ref=f6e611]:
+                  - button "Oneida" [ref=f6e612] [cursor=pointer]
+                - 'cell "Ongoing gap Target: Below target Control: In control" [ref=f6e613]':
+                  - generic [ref=f6e614]: Ongoing gap
+                  - generic [ref=f6e618]:
+                    - 'generic "Target: Below target" [ref=f6e619]':
+                      - generic [ref=f6e620]: "Target:"
+                      - text: Below target
+                    - 'generic "Control: In control" [ref=f6e621]':
+                      - generic [ref=f6e622]: "Control:"
+                      - text: In control
+                - cell "86.2% on time (345 of 400), 95% CI 82.5% to 89.3%, goal 90%" [ref=f6e623]
+                - cell "none; baseline May 19 to Jul 17" [ref=f6e624]
+              - row [ref=f6e625]:
+                - rowheader [ref=f6e626]:
+                  - button "Lewis" [ref=f6e627] [cursor=pointer]
+                - 'cell "Ongoing gap Target: Below target Control: In control" [ref=f6e628]':
+                  - generic [ref=f6e629]: Ongoing gap
+                  - generic [ref=f6e633]:
+                    - 'generic "Target: Below target" [ref=f6e634]':
+                      - generic [ref=f6e635]: "Target:"
+                      - text: Below target
+                    - 'generic "Control: In control" [ref=f6e636]':
+                      - generic [ref=f6e637]: "Control:"
+                      - text: In control
+                - cell "62.0% on time (31 of 50), 95% CI 48.2% to 74.1%, goal 90%" [ref=f6e638]
+                - cell "none; baseline May 19 to Jul 17" [ref=f6e639]
+              - row [ref=f6e640]:
+                - rowheader [ref=f6e641]:
+                  - button "Otsego" [ref=f6e642] [cursor=pointer]
+                - 'cell "Ongoing gap Target: Below target Control: In control" [ref=f6e643]':
+                  - generic [ref=f6e644]: Ongoing gap
+                  - generic [ref=f6e648]:
+                    - 'generic "Target: Below target" [ref=f6e649]':
+                      - generic [ref=f6e650]: "Target:"
+                      - text: Below target
+                    - 'generic "Control: In control" [ref=f6e651]':
+                      - generic [ref=f6e652]: "Control:"
+                      - text: In control
+                - cell "73.2% on time (52 of 71), 95% CI 61.9% to 82.1%, goal 90%" [ref=f6e653]
+                - cell "none; baseline May 19 to Jul 17" [ref=f6e654]
+              - row [ref=f6e655]:
+                - rowheader [ref=f6e656]:
+                  - button "Franklin" [ref=f6e657] [cursor=pointer]
+                - 'cell "Ongoing gap Target: Below target Control: In control" [ref=f6e658]':
+                  - generic [ref=f6e659]: Ongoing gap
+                  - generic [ref=f6e663]:
+                    - 'generic "Target: Below target" [ref=f6e664]':
+                      - generic [ref=f6e665]: "Target:"
+                      - text: Below target
+                    - 'generic "Control: In control" [ref=f6e666]':
+                      - generic [ref=f6e667]: "Control:"
+                      - text: In control
+                - cell "69.1% on time (38 of 55), 95% CI 56.0% to 79.7%, goal 90%" [ref=f6e668]
+                - cell "none; baseline May 19 to Jul 17" [ref=f6e669]
+              - row [ref=f6e670]:
+                - rowheader [ref=f6e671]:
+                  - button "Washington" [ref=f6e672] [cursor=pointer]
+                - 'cell "Ongoing gap Target: Below target Control: In control" [ref=f6e673]':
+                  - generic [ref=f6e674]: Ongoing gap
+                  - generic [ref=f6e678]:
+                    - 'generic "Target: Below target" [ref=f6e679]':
+                      - generic [ref=f6e680]: "Target:"
+                      - text: Below target
+                    - 'generic "Control: In control" [ref=f6e681]':
+                      - generic [ref=f6e682]: "Control:"
+                      - text: In control
+                - cell "76.8% on time (63 of 82), 95% CI 66.6% to 84.6%, goal 90%" [ref=f6e683]
+                - cell "none; baseline May 19 to Jul 17" [ref=f6e684]
+              - row [ref=f6e685]:
+                - rowheader [ref=f6e686]:
+                  - button "Steuben" [ref=f6e687] [cursor=pointer]
+                - 'cell "Ongoing gap Target: Below target Control: In control" [ref=f6e688]':
+                  - generic [ref=f6e689]: Ongoing gap
+                  - generic [ref=f6e693]:
+                    - 'generic "Target: Below target" [ref=f6e694]':
+                      - generic [ref=f6e695]: "Target:"
+                      - text: Below target
+                    - 'generic "Control: In control" [ref=f6e696]':
+                      - generic [ref=f6e697]: "Control:"
+                      - text: In control
+                - cell "83.2% on time (124 of 149), 95% CI 76.4% to 88.4%, goal 90%" [ref=f6e698]
+                - cell "none; baseline May 19 to Jul 17" [ref=f6e699]
+              - row [ref=f6e700]:
+                - rowheader [ref=f6e701]:
+                  - button "Ontario" [ref=f6e702] [cursor=pointer]
+                - 'cell "Ongoing gap Target: Below target Control: In control" [ref=f6e703]':
+                  - generic [ref=f6e704]: Ongoing gap
+                  - generic [ref=f6e708]:
+                    - 'generic "Target: Below target" [ref=f6e709]':
+                      - generic [ref=f6e710]: "Target:"
+                      - text: Below target
+                    - 'generic "Control: In control" [ref=f6e711]':
+                      - generic [ref=f6e712]: "Control:"
+                      - text: In control
+                - cell "84.8% on time (162 of 191), 95% CI 79.0% to 89.2%, goal 90%" [ref=f6e713]
+                - cell "none; baseline May 19 to Jul 17" [ref=f6e714]
+              - row [ref=f6e715]:
+                - rowheader [ref=f6e716]:
+                  - button "Herkimer" [ref=f6e717] [cursor=pointer]
+                - 'cell "Ongoing gap Target: Below target Control: In control" [ref=f6e718]':
+                  - generic [ref=f6e719]: Ongoing gap
+                  - generic [ref=f6e723]:
+                    - 'generic "Target: Below target" [ref=f6e724]':
+                      - generic [ref=f6e725]: "Target:"
+                      - text: Below target
+                    - 'generic "Control: In control" [ref=f6e726]':
+                      - generic [ref=f6e727]: "Control:"
+                      - text: In control
+                - cell "82.1% on time (78 of 95), 95% CI 73.2% to 88.5%, goal 90%" [ref=f6e728]
+                - cell "none; baseline May 19 to Jul 17" [ref=f6e729]
+              - row [ref=f6e730]:
+                - rowheader [ref=f6e731]:
+                  - button "Cortland" [ref=f6e732] [cursor=pointer]
+                - 'cell "Ongoing gap Target: Below target Control: In control" [ref=f6e733]':
+                  - generic [ref=f6e734]: Ongoing gap
+                  - generic [ref=f6e738]:
+                    - 'generic "Target: Below target" [ref=f6e739]':
+                      - generic [ref=f6e740]: "Target:"
+                      - text: Below target
+                    - 'generic "Control: In control" [ref=f6e741]':
+                      - generic [ref=f6e742]: "Control:"
+                      - text: In control
+                - cell "82.3% on time (65 of 79), 95% CI 72.4% to 89.1%, goal 90%" [ref=f6e743]
+                - cell "none; baseline May 19 to Jul 17" [ref=f6e744]
+              - row [ref=f6e745]:
+                - rowheader [ref=f6e746]:
+                  - button "Tioga" [ref=f6e747] [cursor=pointer]
+                - 'cell "Needs more data Target: Below target Control: Insufficient baseline" [ref=f6e748]':
+                  - generic [ref=f6e749]: Needs more data
+                  - generic [ref=f6e753]:
+                    - 'generic "Target: Below target" [ref=f6e754]':
+                      - generic [ref=f6e755]: "Target:"
+                      - text: Below target
+                    - 'generic "Control: Insufficient baseline" [ref=f6e756]':
+                      - generic [ref=f6e757]: "Control:"
+                      - text: Insufficient baseline
+                - cell "75.6% on time (59 of 78), 95% CI 65.1% to 83.8%, goal 90%" [ref=f6e758]
+                - cell "not assessable (insufficient baseline); baseline May 19 to Jul 17" [ref=f6e759]
+              - row [ref=f6e760]:
+                - rowheader [ref=f6e761]:
+                  - button "Greene" [ref=f6e762] [cursor=pointer]
+                - 'cell "Needs more data Target: Below target Control: Insufficient baseline" [ref=f6e763]':
+                  - generic [ref=f6e764]: Needs more data
+                  - generic [ref=f6e768]:
+                    - 'generic "Target: Below target" [ref=f6e769]':
+                      - generic [ref=f6e770]: "Target:"
+                      - text: Below target
+                    - 'generic "Control: Insufficient baseline" [ref=f6e771]':
+                      - generic [ref=f6e772]: "Control:"
+                      - text: Insufficient baseline
+                - cell "79.7% on time (63 of 79), 95% CI 69.6% to 87.1%, goal 90%" [ref=f6e773]
+                - cell "not assessable (insufficient baseline); baseline May 19 to Jul 17" [ref=f6e774]
+              - row [ref=f6e775]:
+                - rowheader [ref=f6e776]:
+                  - button "Allegany" [ref=f6e777] [cursor=pointer]
+                - 'cell "Needs more data Target: Below target Control: Insufficient baseline" [ref=f6e778]':
+                  - generic [ref=f6e779]: Needs more data
+                  - generic [ref=f6e783]:
+                    - 'generic "Target: Below target" [ref=f6e784]':
+                      - generic [ref=f6e785]: "Target:"
+                      - text: Below target
+                    - 'generic "Control: Insufficient baseline" [ref=f6e786]':
+                      - generic [ref=f6e787]: "Control:"
+                      - text: Insufficient baseline
+                - cell "78.1% on time (50 of 64), 95% CI 66.6% to 86.5%, goal 90%" [ref=f6e788]
+                - cell "not assessable (insufficient baseline); baseline May 19 to Jul 17" [ref=f6e789]
+              - row [ref=f6e790]:
+                - rowheader [ref=f6e791]:
+                  - button "Fulton" [ref=f6e792] [cursor=pointer]
+                - 'cell "Needs more data Target: Below target Control: Insufficient baseline" [ref=f6e793]':
+                  - generic [ref=f6e794]: Needs more data
+                  - generic [ref=f6e798]:
+                    - 'generic "Target: Below target" [ref=f6e799]':
+                      - generic [ref=f6e800]: "Target:"
+                      - text: Below target
+                    - 'generic "Control: Insufficient baseline" [ref=f6e801]':
+                      - generic [ref=f6e802]: "Control:"
+                      - text: Insufficient baseline
+                - cell "83.5% on time (71 of 85), 95% CI 74.2% to 89.9%, goal 90%" [ref=f6e803]
+                - cell "not assessable (insufficient baseline); baseline May 19 to Jul 17" [ref=f6e804]
+        - generic [ref=f6e805]:
+          - heading "ZIP areas with a confirmed signal anywhere in the state" [level=3] [ref=f6e806]
+          - paragraph [ref=f6e807]: 0 of 367 ZIP areas with 30 or more valid calls (Jul 18 to Oct 15, 2026) have a confirmed signal (Act now or Recent change). This list covers the whole state, so a ZIP inside a county that looks fine still appears.
+          - note [ref=f6e808]: About 12.6 would read Below by chance alone if every place were exactly at the goal (expected, of 367 ZIP areas); 5 read Below here.
+          - paragraph [ref=f6e809]: No ZIP area in the state has a confirmed signal in this period.
+      - contentinfo [ref=f6e266]:
+        - text: Every number on this page is computed by the API (
+        - code [ref=f6e267]: /api/*
+        - text: ", read-only); the page only draws and formats it. Source: synthetic incidents replayed from the server. The response clock start ("
+        - code [ref=f6e268]: t_received
+        - text: ") is provisional: it may be the 911 answer or the CAD record, and that is not yet confirmed. Targets are NFPA 1720-based placeholders, configurable and not certified standards: red 8 minutes in urban areas, 10 suburban, 14 rural and remote; yellow 15; green 30; 90% on time. The tool reviews the response process, not individual dispatchers or crews."

@@ -1,14 +1,19 @@
-import { useEffect, useMemo, useState } from 'react'
+// Left column of the OnScene page: the map card (map, search, back/reset, breadcrumb, NYC borough panel, legend, tooltip)
+// and the collapsible ranked table. Every number comes from /api/summary; this file only draws and formats it.
+// Map fill = the queue label's colour group (status.js tierOf): no statistic is computed here.
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { geoMercator, geoPath } from 'd3-geo'
 import { getGeo } from '../api.js'
 import { rewindForD3 } from '../geo.js'
-import { fmtChanceBelow, fmtCi, fmtDate, fmtInt, fmtMin, fmtNum, fmtPct, fmtVolume } from '../format.js'
-import { QUEUE, SPEC, CONTROL, URGENCY, attentionSplit, fillFor, latePct, rankPlaces } from '../status.js'
-import { Async, Judgments, Messages, Section, StatusBadge, StatusIcon, StatusLegend, WatchChip, BaselineCheck } from './common.jsx'
+import { fmtChanceBelow, fmtCi, fmtDate, fmtInt, fmtNum, fmtOneIn, fmtPct } from '../format.js'
+import { CONTROL, QUEUE, SPEC, attentionSplit, legendRows, rankPlaces, tierOf } from '../status.js'
+import { Icon, Judgments, Messages, Spinner, StatusBadge, WatchChip } from './common.jsx'
+import { placeFor } from './PlaceHead.jsx'
 
-const MIN_N = 30 // under this many valid calls a place is drawn gray (insufficient data)
-const W = 640
-const H = 440
+const W = 1000
+const H = 800
+const NYC_BOROUGHS = ['36005', '36047', '36061', '36081', '36085'] // Bronx, Kings, New York, Queens, Richmond
+const FIT = [[70, 96], [930, 740]] // room for the search box (top) and the legend (bottom right)
 
 // Map shapes load once per page view.
 const geoCache = {}
@@ -31,165 +36,283 @@ function useGeo(kind, enabled) {
   return state
 }
 
-function PlaceMap({ parent, places, urgency, selected, onPick, onBack }) {
-  const drillIn = parent.level !== 'state'
-  const counties = useGeo('counties', !drillIn)
-  const zctas = useGeo('zcta', drillIn)
-  const geo = drillIn ? zctas : counties
+/** Shapes -> [{id, name, d}] with one projection that fits the given features into the box. */
+function project(features, box) {
+  if (!features.length) return []
+  const projection = geoMercator().fitExtent(box, { type: 'FeatureCollection', features })
+  const path = geoPath(projection)
+  return features.map((f) => ({ id: f.properties.GEOID, name: f.properties.NAME, d: path(f) }))
+}
 
-  const features = useMemo(() => {
-    if (!geo.data) return []
-    const all = geo.data.features
-    const picked = drillIn ? all.filter((f) => f.properties.county_fips === parent.id) : all
-    return picked.map(rewindForD3)
-  }, [geo.data, drillIn, parent.id])
+/** The place's colour class: t-critical, t-watch, t-stable or t-nodata (gray, also when it has no calls). */
+const tierClass = (p) => `t-${p ? tierOf(p.queue) : 'nodata'}`
 
-  const byId = useMemo(() => Object.fromEntries((places || []).map((p) => [p.id, p])), [places])
-  const maxLate = Math.max(1, ...(places || []).filter((p) => p.valid >= MIN_N).map((p) => latePct(p) || 0))
-  const mainUrgency = urgency[0] || 'red'
+function tipText(p, name) {
+  if (!p) return { title: name, queue: 'No calls in this selection', line: '' }
+  return {
+    title: name,
+    queue: QUEUE[p.queue]?.label || p.queue,
+    line: `On time ${fmtPct(p.on_time_pct)} · n = ${fmtInt(p.valid)} valid calls`,
+  }
+}
 
-  const shapes = useMemo(() => {
-    if (!features.length) return []
-    const collection = { type: 'FeatureCollection', features }
-    const projection = geoMercator().fitSize([W, H], collection)
-    const path = geoPath(projection)
-    return features.map((f) => ({ id: f.properties.GEOID, name: f.properties.NAME, d: path(f), c: path.centroid(f) }))
-  }, [features])
-
-  const selectedShape = shapes.find((s) => s.id === selected.id)
-
+/** Search box with a suggestion list: a county, or a ZIP area. Keyboard: arrows, Enter, Escape. */
+function SearchBox({ options, onChoose, onType }) {
+  const [query, setQuery] = useState('')
+  const [open, setOpen] = useState(false)
+  const [active, setActive] = useState(0)
+  const q = query.trim().toLowerCase()
+  const shown = useMemo(() => {
+    if (!q) return options.filter((o) => o.level === 'county').slice(0, 8)
+    return options.filter((o) => o.name.toLowerCase().includes(q) || o.id.startsWith(q)).slice(0, 8)
+  }, [options, q])
+  useEffect(() => setActive(0), [q])
+  const choose = (o) => {
+    onChoose(o)
+    setQuery('')
+    setOpen(false)
+  }
+  const onKeyDown = (e) => {
+    if (e.key === 'ArrowDown') { e.preventDefault(); setOpen(true); setActive((a) => Math.min(a + 1, shown.length - 1)) }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); setActive((a) => Math.max(a - 1, 0)) }
+    else if (e.key === 'Enter' && open && shown[active]) { e.preventDefault(); choose(shown[active]) }
+    else if (e.key === 'Escape') setOpen(false)
+  }
   return (
-    <figure className="map-figure">
-      <div className="map-bar">
-        {drillIn ? (
-          <button type="button" className="btn" onClick={onBack} aria-label="Back to all counties">
-            &larr; All counties
-          </button>
-        ) : (
-          <span className="map-hint">Click a county to see its ZIP areas.</span>
-        )}
-        <strong>{drillIn ? `${parent.name || 'County'}: ZIP areas` : 'New York counties'}</strong>
+    <div className="map-search">
+      <div className="search-box">
+        <Icon name="search" />
+        <input type="text" role="combobox" aria-expanded={open} aria-controls="search-results" aria-autocomplete="list"
+          aria-activedescendant={open && shown[active] ? `opt-${shown[active].level}-${shown[active].id}` : undefined}
+          aria-label="Search for a New York ZIP code or county" placeholder="Search ZIP or county"
+          autoComplete="off" spellCheck="false" value={query}
+          onChange={(e) => { setQuery(e.target.value); setOpen(true); onType(e.target.value) }}
+          onFocus={() => setOpen(true)} onBlur={() => setOpen(false)} onKeyDown={onKeyDown} />
       </div>
-      {geo.error && <p className="error" role="alert">{geo.error}</p>}
-      {!geo.data && !geo.error && <p className="loading" role="status">Loading map...</p>}
-      {shapes.length > 0 && (
-        <svg viewBox={`0 0 ${W} ${H}`} className="map-svg" role="group"
-          aria-label={drillIn ? 'Map of ZIP areas, colored by share of late calls' : 'Map of counties, colored by share of late calls'}>
-          <rect x="0" y="0" width={W} height={H} rx="10" fill="#F6F7F5" />
-          {shapes.map((s) => {
-            const p = byId[s.id]
-            const q = p ? p.queue : null
-            const sparse = !p || p.valid < MIN_N
-            const fill = sparse ? '#C9CEC7' : fillFor(mainUrgency, (latePct(p) || 0) / maxLate)
-            const outline = q === 'act_now' ? { stroke: '#17201C', strokeWidth: 3 }
-              : q === 'ongoing_gap' ? { stroke: '#17201C', strokeWidth: 2.5, strokeDasharray: '2 4', strokeLinecap: 'round' }
-              : { stroke: '#FFFFFF', strokeWidth: 1 }
-            const tip = p
-              ? `${p.name}: ${fmtPct(p.on_time_pct)} on time (${fmtInt(p.on_time)} of ${fmtInt(p.valid)}), ${SPEC[p.spec]?.label}, ${CONTROL[p.control]?.label}: ${QUEUE[q]?.short || q}`
-              : `${s.name}: no calls in this selection`
-            return (
-              <path key={s.id} d={s.d} fill={fill} {...outline} className="shape" tabIndex={p ? 0 : -1}
-                role="button" aria-label={tip}
-                onClick={() => p && onPick(p, true)}
-                onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && p && (e.preventDefault(), onPick(p, true))}>
-                <title>{tip}</title>
-              </path>
-            )
-          })}
-          {selectedShape && (
-            <path d={selectedShape.d} fill="none" stroke="#1F3A5F" strokeWidth="4.5" strokeLinejoin="round" style={{ pointerEvents: 'none' }} />
-          )}
-          {shapes.map((s) => {
-            const p = byId[s.id]
-            if (!p || (p.queue !== 'act_now' && p.queue !== 'recent_change')) return null
-            const [cx, cy] = s.c
-            if (Number.isNaN(cx)) return null
-            return (
-              <g key={`flag-${s.id}`} transform={`translate(${cx - 8} ${cy - 8}) scale(1.1)`} style={{ pointerEvents: 'none' }}>
-                <rect x="-2" y="-2" width="20" height="20" rx="4" fill="#FFFFFF" fillOpacity="0.85" />
-                <StatusIcon status={p.queue} size={16} />
-              </g>
-            )
-          })}
+      {open && (
+        <div className="search-results" id="search-results" role="listbox" aria-label="Search suggestions">
+          {shown.length === 0 && <div className="search-empty">No county or ZIP area matches. ZIP areas load when you type digits.</div>}
+          {shown.map((o, i) => (
+            <div key={`${o.level}-${o.id}`} id={`opt-${o.level}-${o.id}`} role="option" aria-selected={i === active}
+              className={`search-option${i === active ? ' is-active' : ''}`}
+              onMouseDown={(e) => { e.preventDefault(); choose(o) }} onMouseEnter={() => setActive(i)}>
+              <span>
+                <span className="opt-main">{o.name}</span>
+                <span className="opt-sub">{o.sub}</span>
+              </span>
+              <span className="opt-val">{o.id}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+/** One clickable place on a map. Colour = queue label group; keyboard: Enter or Space opens it. */
+function Shape({ s, p, selected, onPick, setTip, cls, noFocus = false }) {
+  const tip = tipText(p, p ? p.name : s.name)
+  const label = `${tip.title}: ${tip.queue}${tip.line ? `, ${tip.line}` : ''}`
+  const open = () => p && onPick(p, true)
+  return (
+    <path d={s.d} className={`${cls} ${tierClass(p)}${selected.id === s.id ? ' is-selected' : ''}`}
+      tabIndex={p && !noFocus ? 0 : -1} role={noFocus ? undefined : 'button'} aria-label={noFocus ? undefined : label}
+      onClick={open}
+      onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), open())}
+      onMouseMove={(e) => setTip({ x: e.clientX, y: e.clientY, ...tip })}
+      onMouseLeave={() => setTip(null)}
+      onFocus={(e) => {
+        const r = e.currentTarget.getBoundingClientRect()
+        setTip({ x: r.left + r.width / 2, y: r.top + r.height / 2, ...tip })
+      }}
+      onBlur={() => setTip(null)} />
+  )
+}
+
+const TIER_WORD = { critical: 'Critical', watch: 'Watch', stable: 'Stable', nodata: 'Needs more data' }
+// Everyday borough names for the county FIPS codes (Census calls them Bronx, Kings, New York, Queens, Richmond).
+const BOROUGH_NAME = { 36005: 'Bronx', 36047: 'Brooklyn', 36061: 'Manhattan', 36081: 'Queens', 36085: 'Staten Is.' }
+
+/** Late share for sorting only (most late first); places without valid calls go last. */
+const lateShare = (p) => (p && p.valid > 0 ? p.late / p.valid : -1)
+
+/**
+ * New York City card: the five boroughs as a small map, and beside it a list with a status dot and "1 in N" late calls
+ * for each, worst first, so all five can be compared without hovering. Rows are buttons (keyboard users pick a borough
+ * there); hovering or focusing a row outlines that borough on the map.
+ */
+function Boroughs({ boroughs, byId, selected, onPick, setTip, busy }) {
+  const [hot, setHot] = useState(null)
+  const shapes = useMemo(() => project(boroughs, [[8, 8], [172, 172]]), [boroughs])
+  if (!shapes.length) return null
+  const rows = shapes
+    .map((s) => ({ id: s.id, p: byId[s.id], name: BOROUGH_NAME[s.id] || s.name }))
+    .sort((x, y) => lateShare(y.p) - lateShare(x.p))
+  const marked = hot || selected.id
+  return (
+    <div className="map-inset borough-panel">
+      <div className="borough-title">New York City</div>
+      <div className="borough-body">
+        <svg className="inset-map" viewBox="0 0 180 180" aria-hidden="true" focusable="false">
+          {shapes.map((s) => <Shape key={s.id} s={s} p={byId[s.id]} selected={selected} onPick={onPick} setTip={setTip} cls="zip" noFocus />)}
+          {shapes.filter((s) => s.id === marked).map((s) => <path key="hot" d={s.d} className="borough-hot" />)}
         </svg>
-      )}
-      <div className="legend-row" aria-label="Map legend">
-        <span className="swatch-ramp" aria-hidden="true">
-          <span>smaller late share</span>
-          <span className="ramp" style={{ background: `linear-gradient(90deg, ${URGENCY[mainUrgency].light}, ${URGENCY[mainUrgency].dark})` }} />
-          <span>larger</span>
-        </span>
-        <span><StatusIcon status="act_now" size={14} /> Act now: filled flag, thick outline</span>
-        <span><StatusIcon status="recent_change" size={14} /> Recent change: hollow flag</span>
-        <span><StatusIcon status="ongoing_gap" size={14} /> Ongoing gap: dotted outline</span>
-        <span><span className="gray-swatch" /> Under {MIN_N} valid calls: insufficient data</span>
+        <div className="borough-table">
+          <div className="borough-cols" aria-hidden="true"><span>Borough</span><span>late calls</span></div>
+          <ul className="borough-list" aria-label="New York City boroughs, most late calls first">
+            {rows.map((r) => {
+              const tier = r.p ? tierOf(r.p.queue) : 'nodata'
+              const val = busy ? '…' : r.p ? fmtOneIn(r.p.late, r.p.valid).replace(/ late$/, '') : 'no calls'
+              return (
+                <li key={r.id}>
+                  <button type="button" className={`borough-row${marked === r.id ? ' is-selected' : ''}`} disabled={!r.p}
+                    aria-pressed={selected.id === r.id}
+                    aria-label={`${r.name}: ${TIER_WORD[tier]}, ${r.p ? fmtOneIn(r.p.late, r.p.valid) : 'no calls'}. Open its ZIP areas.`}
+                    onMouseEnter={() => setHot(r.id)} onMouseLeave={() => setHot(null)}
+                    onFocus={() => setHot(r.id)} onBlur={() => setHot(null)}
+                    onClick={() => r.p && onPick(r.p, true)}>
+                    <i className={`dot dot-${tier}`} aria-hidden="true" />
+                    <span className="borough-name">{r.name}</span>
+                    <span className="borough-val">{val}</span>
+                  </button>
+                </li>
+              )
+            })}
+          </ul>
+        </div>
       </div>
-    </figure>
+    </div>
   )
 }
 
-/** Cancelled, invalid and volume lines: the denominators behind the percentages. */
-export function Denominators({ p }) {
-  return (
-    <ul className="denoms" aria-label="Call counts behind the rates">
-      <li>{fmtInt(p.calls)} calls received: {fmtInt(p.valid)} valid, {fmtInt(p.cancelled)} cancelled ({fmtPct(p.cancel_pct)}), {fmtInt(p.invalid)} invalid (cancelled and invalid calls are not in the on-time rate).</li>
-      <li>Volume: {fmtVolume(p.calls_per_day, p.base_calls_per_day)}.</li>
-      <li>Excess late vs goal: {fmtNum(p.excess_late, 1)} late calls beyond what the goal allows (negative = fewer than allowed).</li>
-    </ul>
-  )
-}
+function MapCard({ summaryState, parent, selected, countyOptions = [], onPick, onReset, onSearch }) {
+  const drillIn = parent.level !== 'state'
+  const [zipWanted, setZipWanted] = useState(false) // the ZIP shapes (about 0.9 MB) load when needed
+  const counties = useGeo('counties', true)
+  const zctas = useGeo('zcta', drillIn || zipWanted)
+  const [tip, setTip] = useState(null)
+  const cardRef = useRef(null)
+  const s = summaryState.data
+  const places = (s && s.places) || []
+  const byId = useMemo(() => Object.fromEntries(places.map((p) => [p.id, p])), [places])
 
-function SelectedPanel({ summary, selected, parent, onDrill }) {
-  const isParent = selected.level === parent.level && selected.id === parent.id
-  // A ZIP picked from the statewide list arrives without its numbers: find it in the county's list.
-  const p = selected.place || (summary.places || []).find((x) => x.id === selected.id) || (isParent ? summary.place : null)
-  const name = selected.name || summary.selection?.name || 'New York State'
-  if (!p) return null
-  const q = QUEUE[p.queue]
+  const countyFeatures = useMemo(() => (counties.data ? counties.data.features.map(rewindForD3) : []), [counties.data])
+  const zctaFeatures = useMemo(
+    () => (drillIn && zctas.data ? zctas.data.features.filter((f) => f.properties.county_fips === parent.id).map(rewindForD3) : []),
+    [drillIn, zctas.data, parent.id],
+  )
+  // Drilled in: the ZIP areas of the county fill the frame ("camera" on the county); other counties stay as gray context.
+  const focus = drillIn && zctaFeatures.length ? zctaFeatures : countyFeatures
+  // One projection for the shapes, the gray context counties and the outline, fitted to `focus`.
+  const draw = useMemo(() => {
+    if (!focus.length) return null
+    const projection = geoMercator().fitExtent(FIT, { type: 'FeatureCollection', features: focus })
+    return geoPath(projection)
+  }, [focus])
+  const shapes = useMemo(() => (draw ? (drillIn ? zctaFeatures : countyFeatures).map((f) => ({ id: f.properties.GEOID, name: f.properties.NAME, d: draw(f) })) : []), [draw, drillIn, zctaFeatures, countyFeatures])
+  const contextShapes = useMemo(
+    () => (drillIn && draw ? countyFeatures.filter((f) => f.properties.GEOID !== parent.id).map((f) => ({ id: f.properties.GEOID, d: draw(f) })) : []),
+    [drillIn, draw, countyFeatures, parent.id],
+  )
+  const outline = useMemo(() => {
+    if (!drillIn || !draw) return null
+    const f = countyFeatures.find((c) => c.properties.GEOID === parent.id)
+    return f ? draw(f) : null
+  }, [drillIn, draw, countyFeatures, parent.id])
+
+  const boroughs = useMemo(() => (drillIn ? [] : countyFeatures.filter((f) => NYC_BOROUGHS.includes(f.properties.GEOID))), [drillIn, countyFeatures])
+  const geoError = counties.error || ((drillIn || zipWanted) && zctas.error)
+  const loading = !counties.error && (!counties.data || (drillIn && !zctas.error && !zctas.data))
+
+  // Search suggestions: every county, the ZIP areas of the open county, and (once the ZIP shapes are loaded) any ZIP.
+  const options = useMemo(() => {
+    const countyName = Object.fromEntries(countyOptions.map((c) => [c.id, c.name]))
+    const byZip = new Map()
+    if (zctas.data) {
+      for (const f of zctas.data.features) {
+        const id = f.properties.GEOID
+        byZip.set(id, { level: 'zcta', id, name: id, sub: `ZIP area in ${countyName[f.properties.county_fips] || 'New York'}`, countyId: f.properties.county_fips })
+      }
+    }
+    for (const p of places) {
+      if (drillIn && p.id.length === 5 && parent.id) byZip.set(p.id, { level: 'zcta', id: p.id, name: p.id, sub: `ZIP area in ${parent.name || 'this county'}`, countyId: parent.id })
+    }
+    return [...countyOptions, ...byZip.values()]
+  }, [drillIn, places, parent.id, parent.name, countyOptions, zctas.data])
+
+  const rows = legendRows(s && s.queue_counts)
+  const rect = cardRef.current ? cardRef.current.getBoundingClientRect() : { left: 0, top: 0 }
+
   return (
-    <aside className="selected" aria-label="Selected place">
-      <div className="eyebrow">Selected place</div>
-      <div className="selected-title">
-        <h3>{name}</h3>
-        <StatusBadge status={p.queue} short />
-        <WatchChip p={p} />
-      </div>
-      <Judgments p={p} />
-      <p>{q?.help}</p>
-      <div className="mini-grid">
-        <div className="mini">
-          <div className="mini-label">On time (the service goal)</div>
-          <div className="mini-value">{fmtPct(p.on_time_pct)}</div>
-          <div className="mini-sub">{fmtInt(p.on_time)} of {fmtInt(p.valid)} valid calls &middot; 95% CI {fmtCi(p.on_time_ci, '%')} &middot; goal {fmtPct(p.goal_pct, 0)}</div>
-        </div>
-        <div className="mini">
-          <div className="mini-label">Longest waits (P95)</div>
-          <div className="mini-value">{fmtMin(p.p95_min)}</div>
-          <div className="mini-sub">95% CI {fmtCi(p.p95_ci)} min &middot; median {fmtMin(p.median_min)} (95% CI {fmtCi(p.median_ci)} min) &middot; P90 {fmtMin(p.p90_min)}</div>
-        </div>
-      </div>
-      <Denominators p={p} />
-      <ul className="reasons">
-        <li><strong>Target:</strong> {p.spec_reason || 'n/a'}.</li>
-        <li><strong>Control:</strong> {p.control_reason || 'n/a'}{p.unit ? ` (${p.unit}ly subgroups)` : ''}.
-          {p.signals && p.signals.length > 0 && <> Signals: {p.signals.slice(0, 4).map((s) => `${p.unit} of ${fmtDate(s.start)} (${fmtPct(100 * s.p)} late, limit ${fmtPct(100 * s.ucl)})`).join('; ')}{p.signals.length > 4 ? '; ...' : ''}.</>}
-        </li>
-        {p.watch && p.control === 'in_control' && <li><strong>Watch:</strong> 1 period above the limit, not confirmed.</li>}
-        {p.baseline && (
-          <li><strong>Baseline:</strong> {fmtDate(p.baseline.from)} to {fmtDate(p.baseline.to)} ({p.baseline.days} days, {fmtInt(p.baseline.valid)} valid calls{p.baseline.stretched ? ', stretched from 60 days' : ''}).
-            {' '}<BaselineCheck b={p.baseline} />
-          </li>
+    <section className={`mapcard card${summaryState.loading ? ' is-loading' : ''}`} aria-labelledby="map-heading" aria-busy={summaryState.loading} ref={cardRef}>
+      <h2 id="map-heading" className="sr-only">{drillIn ? `${parent.name} ZIP area map` : 'New York State county map'}</h2>
+      <svg className="map" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" role="group"
+        aria-label={drillIn ? 'Map of ZIP areas, colored by queue label. Select one to see it on the right.' : 'Map of New York counties, colored by queue label. Select one to open its ZIP areas.'}>
+        <rect className="map-water" x="0" y="0" width={W} height={H} />
+        <g className="map-context" pointerEvents="none" aria-hidden="true">
+          {contextShapes.map((c) => <path key={c.id} d={c.d} className="county ghost" />)}
+        </g>
+        <g className={drillIn ? 'layer-in' : undefined}>
+          {shapes.map((m) => <Shape key={m.id} s={m} p={byId[m.id]} selected={selected} onPick={onPick} setTip={setTip} cls={drillIn ? 'zip' : 'county'} />)}
+        </g>
+        {outline && <path d={outline} className="county-outline" />}
+      </svg>
+
+      <SearchBox options={options} onChoose={onSearch} onType={(text) => /^\d/.test(text.trim()) && setZipWanted(true)} />
+
+      <div className="map-tools">
+        {drillIn && (
+          <button type="button" className="map-tool" title="Back to all counties" aria-label="Back to all counties" onClick={onReset}>
+            <Icon name="back" />
+          </button>
         )}
-      </ul>
-      <p><strong>Next step:</strong> {q?.next}</p>
-      {!isParent && selected.level === 'county' && (
-        <button type="button" className="btn" onClick={() => onDrill(selected.place)}>Show this county's ZIP areas</button>
+        <button type="button" className="map-tool" title="Reset to New York State" aria-label="Reset map to New York State" onClick={onReset}>
+          <Icon name="reset" />
+        </button>
+      </div>
+
+      {drillIn && (
+        <nav className="breadcrumb" aria-label="Map drilldown">
+          <button type="button" onClick={onReset}>New York State</button>
+          <Icon name="chev-right" />
+          <span className="crumb-now" aria-current="page">{parent.name || 'County'}</span>
+        </nav>
       )}
-      <p className="small"><a href="#section-2">Section 2 below looks at {name}.</a></p>
-    </aside>
+
+      {boroughs.length > 0 && <Boroughs boroughs={boroughs} byId={byId} selected={selected} onPick={onPick} setTip={setTip} busy={summaryState.loading} />}
+
+      <div className="map-legend" aria-label="Status legend">
+        <div className="legend-title">Status</div>
+        {rows.map((r) => (
+          <div key={r.key} className="legend-row">
+            <i className={`dot dot-${r.key}`} aria-hidden="true" /><span>{r.label}</span><span className="legend-val">{summaryState.loading ? '…' : r.count}</span>
+          </div>
+        ))}
+        <div className="legend-foot">Critical = act now · Watch = ongoing gap or recent change · Stable = meets goal · gray = needs more data</div>
+      </div>
+
+      {tip && (
+        <div className="map-tooltip is-visible" role="presentation" style={{ left: tip.x - rect.left, top: tip.y - rect.top }}>
+          <strong>{tip.title}</strong>
+          <span>{tip.queue}</span>
+          {tip.line && <span>{tip.line}</span>}
+        </div>
+      )}
+      {(loading || summaryState.loading) && (
+        <p className="map-note map-loading" role="status"><Spinner />{loading ? 'Loading map...' : 'Loading the map colours...'}</p>
+      )}
+      {geoError && <p className="map-note error" role="alert">{geoError}</p>}
+      {summaryState.error && (
+        <div className="map-note error" role="alert">
+          <p><strong>The numbers are not available yet.</strong> {summaryState.error}</p>
+          <button type="button" className="btn" onClick={summaryState.reload}>Try again</button>
+        </div>
+      )}
+    </section>
   )
 }
 
+/** The ranked table (the team's full table). Place name selects the place; ranking comes from status.js rankPlaces. */
 function PlaceTable({ places, selected, onPick }) {
   const ranked = rankPlaces(places)
   return (
@@ -234,39 +357,65 @@ function PlaceTable({ places, selected, onPick }) {
   )
 }
 
-export default function MapSection({ summaryState, parent, urgency, selected, onPick, onBack, onDrill }) {
+/** "Toggle table for map": collapsed by default; the headline stays visible above it. */
+function TableCard({ summaryState, parent, selected, onPick }) {
+  const [open, setOpen] = useState(false)
+  const s = summaryState.data
+  const places = (s && s.places) || []
+  const noun = parent.level === 'state' ? 'counties' : 'ZIP areas'
+  const split = s ? attentionSplit(s) : null
+  const chance = s ? fmtChanceBelow(s.chance_below, noun) : ''
+  const p = placeFor(s, selected, parent)
+  const name = selected.name || (s && s.selection && s.selection.name) || 'New York State'
   return (
-    <Section num={1} title="Which areas need review?" id="section-1">
-      <Async state={summaryState}>
-        {(s) => {
-          const total = (s.places || []).length
-          const split = attentionSplit(s)
-          const noun = parent.level === 'state' ? 'counties' : 'ZIP areas'
-          const chance = fmtChanceBelow(s.chance_below, noun)
-          return (
-            <>
-              <p className="headline" role="status">
-                {split.total} of {total} {noun} need review: {split.recent} with a recent signal (Act now + Recent change) &middot; {split.ongoing} ongoing gaps{split.total > 0 ? '. Start at the top of the table.' : '.'}
-              </p>
-              {chance && <p className="small muted" role="note">{chance}</p>}
-              <div className="split">
-                <PlaceMap parent={parent} places={s.places} urgency={urgency} selected={selected} onPick={onPick} onBack={onBack} />
-                <SelectedPanel summary={s} selected={selected} parent={parent} onDrill={onDrill} />
-              </div>
-              <StatusLegend />
-              <PlaceTable places={s.places} selected={selected} onPick={onPick} />
-              <p className="small muted">
-                Two separate questions. <strong>Target</strong>: is the on-time rate confidently at or above the goal? Meets = the lower end
-                of its 95% interval is at or above the goal; Below = the upper end is below it; anything else, or under 30 valid calls, is Inconclusive.
-                {' '}<strong>Control</strong>: is the late share confirmed above its p-chart upper limit, set from the baseline before the period (two or more periods, or one very strong one; a single weaker period is only marked watch)?
-                Being in control does not mean the service is good, and no alert does not mean the target is met.
-                Rows are ranked inside each queue label by excess late calls vs the goal, so a big place with a modest gap is not buried under a tiny place with a high rate. Fill color is the late share for the urgency you picked; gray means under 30 valid calls.
-              </p>
-              <Messages messages={s.messages} />
-            </>
-          )
-        }}
-      </Async>
-    </Section>
+    <div className="tablecard card">
+      {p && (
+        <div className="place-badges table-badges" aria-label={`Labels for ${name}`}>
+          <span className="badges-for">{name}:</span>
+          <StatusBadge status={p.queue} />
+          <Judgments p={p} />
+        </div>
+      )}
+      {split && (
+        <div className="table-headline">
+          <p role="status">
+            {split.total} of {places.length} {noun} need review: {split.recent} with a recent signal (Act now + Recent change) &middot; {split.ongoing} ongoing gaps{split.total > 0 ? '. Start at the top of the table.' : '.'}
+          </p>
+          {chance && <p className="small muted" role="note">{chance}</p>}
+        </div>
+      )}
+      <button className="table-toggle" type="button" aria-expanded={open} aria-controls="table-wrap" onClick={() => setOpen(!open)}>
+        <span className="toggle-icon" aria-hidden="true"><Icon name="chev" /></span>
+        <span className="toggle-text">
+          <span className="toggle-title">Toggle table for map</span>
+          <span className="toggle-sub">{s ? `Ranked by queue label, then late calls beyond the goal` : 'Places ranked by queue label'}</span>
+        </span>
+        <span className="toggle-count">{s ? `${places.length} ${noun}` : ''}</span>
+      </button>
+      <div className="table-wrap" id="table-wrap" hidden={!open}>
+        {places.length > 0 && <PlaceTable places={places} selected={selected} onPick={onPick} />}
+        {s && !places.length && <p className="table-empty">No place has calls in this selection.</p>}
+        <div className="table-note">
+          <p>
+            Two separate questions. <strong>Target</strong>: is the on-time rate confidently at or above the goal? Meets = the lower end
+            of its 95% interval is at or above the goal; Below = the upper end is below it; anything else, or under 30 valid calls, is Inconclusive.
+            {' '}<strong>Control</strong>: is the late share confirmed above its p-chart upper limit, set from the baseline before the period (two or more periods, or one very strong one; a single weaker period is only marked watch)?
+            Being in control does not mean the service is good, and no alert does not mean the target is met.
+            Rows are ranked inside each queue label by excess late calls vs the goal, so a big place with a modest gap is not buried under a tiny place with a high rate.
+            Map colour is the queue label: Critical = Act now, Watch = Ongoing gap or Recent change, Stable = Meets goal, gray = Needs more data.
+          </p>
+          {s && <Messages messages={s.messages} />}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function MapSection(props) {
+  return (
+    <>
+      <MapCard {...props} />
+      <TableCard summaryState={props.summaryState} parent={props.parent} selected={props.selected} onPick={props.onPick} />
+    </>
   )
 }
