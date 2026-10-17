@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>OnScene logo</title>
+<style>
+  body { margin: 0; background: #FFFFFF; }
+  .logo { display: inline-block; cursor: pointer; }
+  .logo svg { display: block; width: 760px; height: 300px; }
+
+  /* Resting state */
+  .logo .icon { transform-box: view-box; transform-origin: 150px 204px; }
+  .logo .beam { transform: translateX(-34px); }
+  .logo .ray { stroke: #FFB020; opacity: 1; }
+  .logo .glow { opacity: 0; }
+
+  /* Hover (and .play, used to render the GIF): ring, sweep, ding-ding-ding */
+  .logo:hover .icon, .logo.play .icon { animation: wobble 0.4s ease-in-out infinite; }
+  .logo:hover .beam, .logo.play .beam { animation: sweep 0.6s linear infinite; }
+  .logo:hover .glow, .logo.play .glow { animation: glow 0.3s ease-in-out infinite alternate; }
+  .logo:hover .ray, .logo.play .ray { animation: ding 0.6s steps(1, end) infinite; }
+  .logo:hover .r2, .logo.play .r2 { animation-delay: -0.4s; }
+  .logo:hover .r3, .logo.play .r3 { animation-delay: -0.2s; }
+
+  @keyframes wobble { 0% { transform: rotate(0deg); } 25% { transform: rotate(8deg); } 50% { transform: rotate(0deg); } 75% { transform: rotate(-8deg); } 100% { transform: rotate(0deg); } }
+  @keyframes sweep { from { transform: translateX(-90px); } to { transform: translateX(90px); } }
+  @keyframes glow { from { opacity: 0.12; } to { opacity: 0.5; } }
+  @keyframes ding { 0% { opacity: 1; stroke: #FFB020; } 33.3% { opacity: 0.25; stroke: #F5B6B8; } 100% { opacity: 0.25; stroke: #F5B6B8; } }
+</style>
+</head>
+<body>
+<div class="logo" id="logo" role="img" aria-label="OnScene logo: a smiling ambulance siren">
+<svg viewBox="0 0 760 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <clipPath id="dome-clip"><path d="M88 172 C88 112 116 92 150 92 C184 92 212 112 212 172 Z"/></clipPath>
+    <linearGradient id="dome-fill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FF6B6F"/>
+      <stop offset="1" stop-color="#E5323A"/>
+    </linearGradient>
+    <radialGradient id="glow-fill">
+      <stop offset="0" stop-color="#FF5A5F" stop-opacity="1"/>
+      <stop offset="1" stop-color="#FF5A5F" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="beam-fill" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#FFF3C4" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#FFF3C4" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#FFF3C4" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <g class="icon">
+    <circle class="glow" cx="150" cy="140" r="122" fill="url(#glow-fill)"/>
+
+    <!-- ding lines: three each side, lit in turn -->
+    <g stroke-width="11" stroke-linecap="round" fill="none">
+      <line class="ray r1" x1="74" y1="138" x2="44" y2="132"/>
+      <line class="ray r2" x1="86" y1="102" x2="62" y2="82"/>
+      <line class="ray r3" x1="114" y1="76" x2="102" y2="48"/>
+      <line class="ray r1" x1="226" y1="138" x2="256" y2="132"/>
+      <line class="ray r2" x1="214" y1="102" x2="238" y2="82"/>
+      <line class="ray r3" x1="186" y1="76" x2="198" y2="48"/>
+    </g>
+
+    <!-- dome -->
+    <path d="M88 172 C88 112 116 92 150 92 C184 92 212 112 212 172 Z" fill="url(#dome-fill)"/>
+    <g clip-path="url(#dome-clip)">
+      <rect class="beam" x="122" y="80" width="56" height="100" fill="url(#beam-fill)"/>
+    </g>
+    <path d="M104 138 C106 118 118 106 134 102" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" fill="none" opacity="0.85"/>
+
+    <!-- face -->
+    <ellipse cx="130" cy="144" rx="7" ry="9" fill="#1B2A3F"/>
+    <ellipse cx="170" cy="144" rx="7" ry="9" fill="#1B2A3F"/>
+    <circle cx="132.5" cy="140.5" r="2.4" fill="#FFFFFF"/>
+    <circle cx="172.5" cy="140.5" r="2.4" fill="#FFFFFF"/>
+    <ellipse cx="114" cy="158" rx="8" ry="5" fill="#FFB3B6" opacity="0.9"/>
+    <ellipse cx="186" cy="158" rx="8" ry="5" fill="#FFB3B6" opacity="0.9"/>
+    <path d="M141 156 Q150 165 159 156" stroke="#1B2A3F" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+
+    <!-- base -->
+    <rect x="74" y="168" width="152" height="36" rx="14" fill="#1F3A5F"/>
+    <rect x="92" y="178" width="116" height="7" rx="3.5" fill="#FFFFFF" opacity="0.25"/>
+  </g>
+
+  <!-- wordmark: stroke in the same color rounds the letter corners -->
+  <g font-family="Inter, 'DejaVu Sans', sans-serif" font-weight="900" font-size="98" letter-spacing="-1">
+    <text x="282" y="184" fill="#1F3A5F">On<tspan fill="#E5323A">Scene</tspan></text>
+  </g>
+  <text x="286" y="232" font-family="Inter, 'DejaVu Sans', sans-serif" font-weight="600" font-size="24" fill="#56615B" letter-spacing="0.5">New York State · Dispatch intelligence</text>
+</svg>
+</div>
+</body>
+</html>

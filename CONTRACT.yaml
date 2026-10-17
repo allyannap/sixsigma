@@ -22,7 +22,7 @@
 # Delete the paths you do not use.
 
 spec: SPEC.md
-updated: "2026-10-16"
+updated: "2026-10-17"
 
 tasks:
   - id: H-01
@@ -283,3 +283,26 @@ tasks:
       identical to the pre-change snapshot except the replay event field; no file mentions eta_google_s as an
       input, and docs list the minimal input set.
     result: "Incident file is now 10 columns (no travel-estimate column; disposition replaced by cancelled Y/N). Verified: every dashboard response identical to the pre-change snapshot except the replay field name. pytest 164 passed; npm test 52 passed; validate 71 PASS, --reproduce 75 PASS, --messy 14 PASS. Docs updated (README, SPEC, data/README, api.md, plan)."
+
+  - id: H-15
+    title: Implement the OnScene page design (Open Design prototype) on the live API
+    points: "protects working tool (25) and demonstration (10) - the team's chosen page design on real statistics"
+    status: in_progress
+    owner: "claude + Powerpuff Girls"
+    started_at: "2026-10-17 02:10"
+    owns: ["app/frontend/", "design/sentinel/", "docs/plan.md"]
+    notes: >
+      User instruction Oct 17 - make the live React app look like design/sentinel/ (Open Design prototype), with the
+      current schema and API (after H-13). Name OnScene with the siren logo. Map Critical = act_now, Watch =
+      ongoing_gap + recent_change, Stable = meets_stable, gray = needs_data. Priority = urgency; no on-scene wait
+      filter; dataset picker and replay in the top bar. Key Metrics = real on-time, median, P95 from /api/summary
+      totals and a plain summary from the queue label and reasons. Chart card 1 "Are calls arriving on time?" = the
+      geographic comparison; chart card 2 "Are late calls being unusually frequent?" = the Section 2 p chart as a
+      stand-in. No statistics in UI code; no API change.
+    definition_of_done: >
+      cd app/frontend && npm test passes and npm run build succeeds; with the API running, the page renders the
+      new layout on the baseline dataset with map colours, legend counts, Key Metrics numbers and table rows equal to
+      /api/summary, both chart cards drawn, county drill-down and back working, 0 console errors, and no horizontal
+      scroll at 1440 and 390 px (Playwright screenshots).
+    result: ""
+

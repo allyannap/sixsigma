@@ -1,0 +1,3 @@
+/* Top bar user chip: the team badge (round) and the team name. Loaded after nothing else; overrides .user only. */
+.user .team-badge { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; flex: none; display: block; }
+.user .user-role { font-size: 13px; }
