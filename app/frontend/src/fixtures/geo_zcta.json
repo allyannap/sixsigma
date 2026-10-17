@@ -1,0 +1,145 @@
+{
+ "type": "FeatureCollection",
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "GEOID": "99901",
+    "NAME": "99901",
+    "county_fips": "36901"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -76,
+       42
+      ],
+      [
+       -75.5,
+       42
+      ],
+      [
+       -75.5,
+       42.5
+      ],
+      [
+       -76,
+       42.5
+      ],
+      [
+       -76,
+       42
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "GEOID": "99902",
+    "NAME": "99902",
+    "county_fips": "36901"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -75.5,
+       42
+      ],
+      [
+       -75.0,
+       42
+      ],
+      [
+       -75.0,
+       42.5
+      ],
+      [
+       -75.5,
+       42.5
+      ],
+      [
+       -75.5,
+       42
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "GEOID": "99903",
+    "NAME": "99903",
+    "county_fips": "36901"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -76,
+       42.5
+      ],
+      [
+       -75.5,
+       42.5
+      ],
+      [
+       -75.5,
+       43.0
+      ],
+      [
+       -76,
+       43.0
+      ],
+      [
+       -76,
+       42.5
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "GEOID": "99904",
+    "NAME": "99904",
+    "county_fips": "36901"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -75.5,
+       42.5
+      ],
+      [
+       -75.0,
+       42.5
+      ],
+      [
+       -75.0,
+       43.0
+      ],
+      [
+       -75.5,
+       43.0
+      ],
+      [
+       -75.5,
+       42.5
+      ]
+     ]
+    ]
+   }
+  }
+ ]
+}

@@ -1,0 +1,49 @@
+{
+ "selection": {
+  "dataset": "station_closure",
+  "level": "county",
+  "id": "36901",
+  "name": "Fixture County A",
+  "from": "2026-09-16",
+  "to": "2026-10-15",
+  "urgency": [
+   "red"
+  ],
+  "baseline_from": "2026-07-18",
+  "baseline_to": "2026-09-15"
+ },
+ "messages": [
+  "FIXTURE DATA: invented numbers for building the page. Not real."
+ ],
+ "late_calls": 404,
+ "steps": {
+  "now": {
+   "dispatch_s": 62,
+   "turnout_s": 71,
+   "drive_s": 352,
+   "total_s": 485
+  },
+  "baseline": {
+   "dispatch_s": 60,
+   "turnout_s": 68,
+   "drive_s": 271,
+   "total_s": 399
+  }
+ },
+ "causes": {
+  "held": 18,
+  "dispatch": 22,
+  "turnout": 15,
+  "long_trip": 301,
+  "slow_drive": 48
+ },
+ "worst_call": {
+  "incident_id": "FX-1083",
+  "t_received": "2026-10-11T22:14:00-04:00",
+  "dispatch_s": 74,
+  "turnout_s": 80,
+  "eta_google_s": 690,
+  "drive_s": 812,
+  "total_s": 1476
+ }
+}

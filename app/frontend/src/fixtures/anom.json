@@ -1,0 +1,92 @@
+{
+ "selection": {
+  "dataset": "station_closure",
+  "level": "state",
+  "id": null,
+  "name": "New York State (fixture)",
+  "from": "2026-09-16",
+  "to": "2026-10-15",
+  "urgency": [
+   "red"
+  ],
+  "baseline_from": "2026-07-18",
+  "baseline_to": "2026-09-15"
+ },
+ "messages": [
+  "FIXTURE DATA: invented numbers for building the page. Not real."
+ ],
+ "grand_mean_min": 6.6,
+ "h": 2.39,
+ "k": 5,
+ "N": 9177,
+ "F": 41.2,
+ "df1": 4,
+ "df2": 9172,
+ "places": [
+  {
+   "id": "36901",
+   "name": "Fixture County A",
+   "n": 2705,
+   "mean_min": 8.9,
+   "ci_min": [
+    8.73,
+    9.07
+   ],
+   "lower_min": 6.31,
+   "upper_min": 6.89,
+   "verdict": "slower"
+  },
+  {
+   "id": "36903",
+   "name": "Fixture County C",
+   "n": 1450,
+   "mean_min": 8.1,
+   "ci_min": [
+    7.87,
+    8.33
+   ],
+   "lower_min": 6.19,
+   "upper_min": 7.01,
+   "verdict": "slower"
+  },
+  {
+   "id": "36902",
+   "name": "Fixture County B",
+   "n": 1900,
+   "mean_min": 6.8,
+   "ci_min": [
+    6.6,
+    7.0
+   ],
+   "lower_min": 6.25,
+   "upper_min": 6.95,
+   "verdict": "inside"
+  },
+  {
+   "id": "36905",
+   "name": "Fixture County E",
+   "n": 22,
+   "mean_min": 6.5,
+   "ci_min": [
+    4.62,
+    8.38
+   ],
+   "lower_min": 3.31,
+   "upper_min": 9.89,
+   "verdict": "inside"
+  },
+  {
+   "id": "36904",
+   "name": "Fixture County D",
+   "n": 3100,
+   "mean_min": 5.2,
+   "ci_min": [
+    5.04,
+    5.36
+   ],
+   "lower_min": 6.32,
+   "upper_min": 6.88,
+   "verdict": "faster"
+  }
+ ]
+}

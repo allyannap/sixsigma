@@ -1,0 +1,294 @@
+{
+ "selection": {
+  "dataset": "station_closure",
+  "level": "county",
+  "id": "36901",
+  "name": "Fixture County A",
+  "from": "2026-09-16",
+  "to": "2026-10-15",
+  "urgency": [
+   "red"
+  ],
+  "baseline_from": "2026-07-18",
+  "baseline_to": "2026-09-15"
+ },
+ "messages": [
+  "FIXTURE DATA: invented numbers for building the page. Not real."
+ ],
+ "unit": "day",
+ "p_bar": 0.12,
+ "base_n": 5200,
+ "points": [
+  {
+   "start": "2026-09-16",
+   "n": 90,
+   "late": 14,
+   "p": 0.1556,
+   "ucl": 0.2228,
+   "lcl": 0.0172,
+   "signal": false
+  },
+  {
+   "start": "2026-09-17",
+   "n": 95,
+   "late": 13,
+   "p": 0.1368,
+   "ucl": 0.22,
+   "lcl": 0.02,
+   "signal": false
+  },
+  {
+   "start": "2026-09-18",
+   "n": 74,
+   "late": 11,
+   "p": 0.1486,
+   "ucl": 0.2333,
+   "lcl": 0.0067,
+   "signal": false
+  },
+  {
+   "start": "2026-09-19",
+   "n": 76,
+   "late": 8,
+   "p": 0.1053,
+   "ucl": 0.2318,
+   "lcl": 0.0082,
+   "signal": false
+  },
+  {
+   "start": "2026-09-20",
+   "n": 73,
+   "late": 11,
+   "p": 0.1507,
+   "ucl": 0.2341,
+   "lcl": 0.0059,
+   "signal": false
+  },
+  {
+   "start": "2026-09-21",
+   "n": 83,
+   "late": 7,
+   "p": 0.0843,
+   "ucl": 0.227,
+   "lcl": 0.013,
+   "signal": false
+  },
+  {
+   "start": "2026-09-22",
+   "n": 97,
+   "late": 11,
+   "p": 0.1134,
+   "ucl": 0.219,
+   "lcl": 0.021,
+   "signal": false
+  },
+  {
+   "start": "2026-09-23",
+   "n": 85,
+   "late": 7,
+   "p": 0.0824,
+   "ucl": 0.2257,
+   "lcl": 0.0143,
+   "signal": false
+  },
+  {
+   "start": "2026-09-24",
+   "n": 97,
+   "late": 8,
+   "p": 0.0825,
+   "ucl": 0.219,
+   "lcl": 0.021,
+   "signal": false
+  },
+  {
+   "start": "2026-09-25",
+   "n": 106,
+   "late": 10,
+   "p": 0.0943,
+   "ucl": 0.2147,
+   "lcl": 0.0253,
+   "signal": false
+  },
+  {
+   "start": "2026-09-26",
+   "n": 84,
+   "late": 11,
+   "p": 0.131,
+   "ucl": 0.2264,
+   "lcl": 0.0136,
+   "signal": false
+  },
+  {
+   "start": "2026-09-27",
+   "n": 107,
+   "late": 17,
+   "p": 0.1589,
+   "ucl": 0.2142,
+   "lcl": 0.0258,
+   "signal": false
+  },
+  {
+   "start": "2026-09-28",
+   "n": 106,
+   "late": 13,
+   "p": 0.1226,
+   "ucl": 0.2147,
+   "lcl": 0.0253,
+   "signal": false
+  },
+  {
+   "start": "2026-09-29",
+   "n": 73,
+   "late": 12,
+   "p": 0.1644,
+   "ucl": 0.2341,
+   "lcl": 0.0059,
+   "signal": false
+  },
+  {
+   "start": "2026-09-30",
+   "n": 72,
+   "late": 9,
+   "p": 0.125,
+   "ucl": 0.2349,
+   "lcl": 0.0051,
+   "signal": false
+  },
+  {
+   "start": "2026-10-01",
+   "n": 78,
+   "late": 8,
+   "p": 0.1026,
+   "ucl": 0.2304,
+   "lcl": 0.0096,
+   "signal": false
+  },
+  {
+   "start": "2026-10-02",
+   "n": 79,
+   "late": 10,
+   "p": 0.1266,
+   "ucl": 0.2297,
+   "lcl": 0.0103,
+   "signal": false
+  },
+  {
+   "start": "2026-10-03",
+   "n": 106,
+   "late": 24,
+   "p": 0.2264,
+   "ucl": 0.2147,
+   "lcl": 0.0253,
+   "signal": true
+  },
+  {
+   "start": "2026-10-04",
+   "n": 81,
+   "late": 17,
+   "p": 0.2099,
+   "ucl": 0.2283,
+   "lcl": 0.0117,
+   "signal": false
+  },
+  {
+   "start": "2026-10-05",
+   "n": 106,
+   "late": 27,
+   "p": 0.2547,
+   "ucl": 0.2147,
+   "lcl": 0.0253,
+   "signal": true
+  },
+  {
+   "start": "2026-10-06",
+   "n": 93,
+   "late": 19,
+   "p": 0.2043,
+   "ucl": 0.2211,
+   "lcl": 0.0189,
+   "signal": false
+  },
+  {
+   "start": "2026-10-07",
+   "n": 74,
+   "late": 18,
+   "p": 0.2432,
+   "ucl": 0.2333,
+   "lcl": 0.0067,
+   "signal": true
+  },
+  {
+   "start": "2026-10-08",
+   "n": 109,
+   "late": 24,
+   "p": 0.2202,
+   "ucl": 0.2134,
+   "lcl": 0.0266,
+   "signal": true
+  },
+  {
+   "start": "2026-10-09",
+   "n": 104,
+   "late": 24,
+   "p": 0.2308,
+   "ucl": 0.2156,
+   "lcl": 0.0244,
+   "signal": true
+  },
+  {
+   "start": "2026-10-10",
+   "n": 90,
+   "late": 21,
+   "p": 0.2333,
+   "ucl": 0.2228,
+   "lcl": 0.0172,
+   "signal": true
+  },
+  {
+   "start": "2026-10-11",
+   "n": 99,
+   "late": 23,
+   "p": 0.2323,
+   "ucl": 0.218,
+   "lcl": 0.022,
+   "signal": true
+  },
+  {
+   "start": "2026-10-12",
+   "n": 85,
+   "late": 22,
+   "p": 0.2588,
+   "ucl": 0.2257,
+   "lcl": 0.0143,
+   "signal": true
+  },
+  {
+   "start": "2026-10-13",
+   "n": 85,
+   "late": 18,
+   "p": 0.2118,
+   "ucl": 0.2257,
+   "lcl": 0.0143,
+   "signal": false
+  },
+  {
+   "start": "2026-10-14",
+   "n": 89,
+   "late": 22,
+   "p": 0.2472,
+   "ucl": 0.2233,
+   "lcl": 0.0167,
+   "signal": true
+  },
+  {
+   "start": "2026-10-15",
+   "n": 91,
+   "late": 24,
+   "p": 0.2637,
+   "ucl": 0.2222,
+   "lcl": 0.0178,
+   "signal": true
+  }
+ ],
+ "run_signal": true
+}

@@ -1,0 +1,175 @@
+{
+ "type": "FeatureCollection",
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "GEOID": "36901",
+    "NAME": "Fixture County A"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -76,
+       42
+      ],
+      [
+       -75,
+       42
+      ],
+      [
+       -75,
+       43
+      ],
+      [
+       -76,
+       43
+      ],
+      [
+       -76,
+       42
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "GEOID": "36902",
+    "NAME": "Fixture County B"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -75,
+       42
+      ],
+      [
+       -74,
+       42
+      ],
+      [
+       -74,
+       43
+      ],
+      [
+       -75,
+       43
+      ],
+      [
+       -75,
+       42
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "GEOID": "36903",
+    "NAME": "Fixture County C"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -76,
+       41
+      ],
+      [
+       -75,
+       41
+      ],
+      [
+       -75,
+       42
+      ],
+      [
+       -76,
+       42
+      ],
+      [
+       -76,
+       41
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "GEOID": "36904",
+    "NAME": "Fixture County D"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -75,
+       41
+      ],
+      [
+       -74,
+       41
+      ],
+      [
+       -74,
+       42
+      ],
+      [
+       -75,
+       42
+      ],
+      [
+       -75,
+       41
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "GEOID": "36905",
+    "NAME": "Fixture County E"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -74,
+       41.5
+      ],
+      [
+       -73.3,
+       41.5
+      ],
+      [
+       -73.3,
+       42.5
+      ],
+      [
+       -74,
+       42.5
+      ],
+      [
+       -74,
+       41.5
+      ]
+     ]
+    ]
+   }
+  }
+ ]
+}

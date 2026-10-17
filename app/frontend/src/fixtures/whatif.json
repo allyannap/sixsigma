@@ -1,0 +1,32 @@
+{
+ "selection": {
+  "dataset": "station_closure",
+  "level": "county",
+  "id": "36901",
+  "name": "Fixture County A",
+  "from": "2026-09-16",
+  "to": "2026-10-15",
+  "urgency": [
+   "red"
+  ],
+  "baseline_from": "2026-07-18",
+  "baseline_to": "2026-09-15"
+ },
+ "messages": [
+  "FIXTURE DATA: invented numbers for building the page. Not real."
+ ],
+ "fix": "closer",
+ "pct": 25,
+ "now": {
+  "late": 404,
+  "pct_late": 16.6,
+  "p95_min": 19.8
+ },
+ "with_fix": {
+  "late": 210,
+  "pct_late": 8.6,
+  "p95_min": 13.9
+ },
+ "avoided": 194,
+ "n": 2440
+}

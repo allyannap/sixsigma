@@ -1,0 +1,102 @@
+{
+ "selection": {
+  "dataset": "station_closure",
+  "level": "county",
+  "id": "36901",
+  "name": "Fixture County A",
+  "from": "2026-09-16",
+  "to": "2026-10-15",
+  "urgency": [
+   "red"
+  ],
+  "baseline_from": "2026-07-18",
+  "baseline_to": "2026-09-15"
+ },
+ "messages": [
+  "FIXTURE DATA: invented numbers for building the page. Not real."
+ ],
+ "totals": {
+  "calls": 2520,
+  "timed": 2440,
+  "late": 404,
+  "pct_late": 16.6,
+  "median_min": 7.6,
+  "median_dispatch_to_scene_min": 6.0,
+  "p95_min": 19.8,
+  "p95_ci": [
+   18.2,
+   21.5
+  ]
+ },
+ "needs_attention": 2,
+ "places": [
+  {
+   "id": "99901",
+   "name": "ZIP 99901 (fixture)",
+   "calls": 1100,
+   "timed": 1067,
+   "late": 260,
+   "pct_late": 24.4,
+   "p95_min": 21.4,
+   "cpk": 0.12,
+   "cpk_upper": 0.3,
+   "too_slow": true,
+   "changed": true,
+   "reasons": [
+    "p chart above its limit",
+    "I chart test 1 fired"
+   ],
+   "status": "act_now"
+  },
+  {
+   "id": "99902",
+   "name": "ZIP 99902 (fixture)",
+   "calls": 800,
+   "timed": 776,
+   "late": 70,
+   "pct_late": 9.0,
+   "p95_min": 11.0,
+   "cpk": 0.7,
+   "cpk_upper": 0.9,
+   "too_slow": false,
+   "changed": false,
+   "reasons": [],
+   "status": "on_track"
+  },
+  {
+   "id": "99903",
+   "name": "ZIP 99903 (fixture)",
+   "calls": 600,
+   "timed": 582,
+   "late": 72,
+   "pct_late": 12.4,
+   "p95_min": 12.9,
+   "cpk": 0.5,
+   "cpk_upper": 0.7,
+   "too_slow": false,
+   "changed": true,
+   "reasons": [
+    "I chart test 2 fired"
+   ],
+   "status": "recent_change"
+  },
+  {
+   "id": "99904",
+   "name": "ZIP 99904 (fixture)",
+   "calls": 20,
+   "timed": 19,
+   "late": 2,
+   "pct_late": 10.5,
+   "p95_min": null,
+   "cpk": null,
+   "cpk_upper": null,
+   "too_slow": false,
+   "changed": false,
+   "reasons": [
+    "Fewer than 30 timed calls"
+   ],
+   "status": "not_enough"
+  }
+ ],
+ "urgent_by_county": []
+}

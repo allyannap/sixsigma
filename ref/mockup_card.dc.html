@@ -1,0 +1,859 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Statistical Analysis – EMS response quality</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#EEF0EC;font-family:'IBM Plex Sans',system-ui,sans-serif;color:#17201C}
+a{color:#1F3A5F}a:hover{color:#122640}
+</style>
+</helmet>
+<div style="background: #EEF0EC; padding: 32px 24px 64px; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #17201C; font-variant-numeric: tabular-nums; position: absolute; left: 6px; top: -250px">
+<div style="max-width: 1220px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; width: 1524px">
+
+<!-- Header -->
+<div style="background: #FFFFFF; border: 1px solid #DCE0DA; border-radius: 12px; padding: 24px 28px; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #56615B">Metro EMS Dispatch · Quality supervisor view</div>
+<h1 style="margin: 0; font-size: 28px; font-weight: 700; letter-spacing: -0.01em">Statistical analysis</h1>
+<div style="font-size: 15px; color: #3D4842; max-width: 680px; line-height: 1.5">Read top to bottom: <strong>1</strong> which zones need attention, <strong>2</strong> which zones are consistently slower (for planners), <strong>3</strong> whether Zone 4's problem is real, <strong>4</strong> where the extra minutes come from, <strong>5</strong> which fix would help most.</div>
+</div>
+<div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px">
+<div style="display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; background: #E6EDF6; color: #1F3A5F; font-size: 13px; font-weight: 600">
+<svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><circle cx="5" cy="5" r="4" fill="#1F3A5F"></circle></svg>
+Replay mode · call 2,705 of 2,705 · station_closure.csv
+</div>
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #8A3A00; background: #FDF1E4; padding: 4px 10px; border-radius: 6px">MOCKUP · synthetic data</div>
+</div>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 10px">
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #56615B">Priority
+<select style="font: inherit; font-size: 14px; color: #17201C; padding: 8px 10px; border: 1px solid #C9CEC7; border-radius: 8px; background: #FFFFFF; min-height: 40px"><option>Urgent (severity 1–3)</option><option>All</option></select></label>
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #56615B">Shift
+<select style="font: inherit; font-size: 14px; color: #17201C; padding: 8px 10px; border: 1px solid #C9CEC7; border-radius: 8px; background: #FFFFFF; min-height: 40px"><option>All shifts</option><option>Day 07–15</option><option>Evening 15–23</option><option>Night 23–07</option></select></label>
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #56615B">Response goal (set by the center)
+<input value="8:00 min" style="font: inherit; font-size: 14px; color: #17201C; padding: 8px 10px; border: 1px solid #C9CEC7; border-radius: 8px; width: 120px; min-height: 22px"></label>
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #56615B">Period
+<select style="font: inherit; font-size: 14px; color: #17201C; padding: 8px 10px; border: 1px solid #C9CEC7; border-radius: 8px; background: #FFFFFF; min-height: 40px"><option>Sep 16 – Oct 15, 2026 (30 days)</option></select></label>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px">
+<div style="background: #F6F7F5; border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px"><div style="font-size: 13px; color: #56615B">Zones needing attention</div><div style="font-size: 26px; font-weight: 700">3 <span style="font-size: 15px; font-weight: 500; color: #56615B">of 8</span></div></div>
+<div style="background: #F6F7F5; border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px"><div style="font-size: 13px; color: #56615B">Urgent calls this month</div><div style="font-size: 26px; font-weight: 700">2,705</div></div>
+<div style="background: #F6F7F5; border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px"><div style="font-size: 13px; color: #56615B">Arrived after 8:00, citywide</div><div style="font-size: 26px; font-weight: 700">{{cityLate}} <span style="font-size: 15px; font-weight: 500; color: #56615B">· {{cityPct}}%</span></div></div>
+<div style="background: #F6F7F5; border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px"><div style="font-size: 13px; color: #56615B">Monthly average (what the center tracks today)</div><div style="font-size: 26px; font-weight: 700">6.9 <span style="font-size: 15px; font-weight: 500; color: #56615B">min · looks fine</span></div></div>
+</div>
+</div>
+
+<!-- 1. Which zones need attention -->
+<section style="background: #FFFFFF; border: 1px solid #DCE0DA; border-radius: 12px; padding: 24px 28px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px">
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600; color: #FFFFFF; background: #17201C; border-radius: 6px; padding: 2px 8px">1</div>
+<h2 style="margin: 0; font-size: 20px; font-weight: 700">Which zones need attention?</h2>
+<div style="font-size: 14px; color: #56615B">Our goal: no more than 1 in 10 urgent calls takes longer than 8 minutes.</div>
+</div>
+<div style="font-size: 18px; font-weight: 600; background: #F6F7F5; border-radius: 10px; padding: 14px 18px">3 of 8 zones need attention this month. Start with Zone 4. Sections 3–5 below look at Zone 4.</div>
+<div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: stretch">
+<figure style="margin: 0; flex: 3 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 10px">
+<svg viewBox="0 0 640 440" style="width: 100%; height: auto" role="img" aria-label="Map of the city's 8 response zones by ZIP code, colored by status. Zone 4 in the south-center is red (act now), Zone 2 orange (recent change), Zone 6 yellow (ongoing gap), the rest green (on track).">
+<rect x="0" y="0" width="640" height="440" rx="10" fill="#F6F7F5"></rect>
+<path d="M30 40 L170 25 L185 190 L40 210 Z" fill="{{mz.Z1.fill}}" stroke="#FFFFFF" stroke-width="2" onClick="{{mz.Z1.pick}}" style="cursor: pointer"></path>
+<path d="M170 25 L330 30 L320 200 L185 190 Z" fill="{{mz.Z2.fill}}" stroke="#FFFFFF" stroke-width="2" onClick="{{mz.Z2.pick}}" style="cursor: pointer"></path>
+<path d="M330 30 L480 45 L470 195 L320 200 Z" fill="{{mz.Z3.fill}}" stroke="#FFFFFF" stroke-width="2" onClick="{{mz.Z3.pick}}" style="cursor: pointer"></path>
+<path d="M480 45 L610 70 L600 210 L470 195 Z" fill="{{mz.Z5.fill}}" stroke="#FFFFFF" stroke-width="2" onClick="{{mz.Z5.pick}}" style="cursor: pointer"></path>
+<path d="M40 210 L185 190 L195 400 L60 380 Z" fill="{{mz.Z6.fill}}" stroke="#FFFFFF" stroke-width="2" onClick="{{mz.Z6.pick}}" style="cursor: pointer"></path>
+<path d="M185 190 L320 200 L470 195 L450 300 L330 410 L195 400 Z" fill="{{mz.Z4.fill}}" stroke="#FFFFFF" stroke-width="2" onClick="{{mz.Z4.pick}}" style="cursor: pointer"></path>
+<path d="M470 195 L600 210 L590 330 L450 300 Z" fill="{{mz.Z7.fill}}" stroke="#FFFFFF" stroke-width="2" onClick="{{mz.Z7.pick}}" style="cursor: pointer"></path>
+<path d="M450 300 L590 330 L560 415 L330 410 Z" fill="{{mz.Z8.fill}}" stroke="#FFFFFF" stroke-width="2" onClick="{{mz.Z8.pick}}" style="cursor: pointer"></path>
+<g stroke="#FFFFFF" stroke-width="1.2" stroke-dasharray="4 4" stroke-opacity="0.85" fill="none" style="pointer-events: none">
+<path d="M100 32 L112 200"></path>
+<path d="M250 28 L252 195"></path>
+<path d="M405 38 L395 198"></path>
+<path d="M545 58 L535 203"></path>
+<path d="M45 280 L188 265 M50 330 L191 320"></path>
+<path d="M252 195 L262 405 M395 198 L388 355"></path>
+<path d="M535 203 L520 315"></path>
+<path d="M520 315 L445 412"></path>
+</g>
+<g style="pointer-events: none" font-family="IBM Plex Sans, system-ui, sans-serif" text-anchor="middle">
+<text x="105" y="108" font-size="17" font-weight="700" fill="{{mz.Z1.ink}}">Zone 1</text><text x="105" y="126" font-size="12" fill="{{mz.Z1.ink}}">{{mz.Z1.oneIn}} late</text><text x="105" y="142" font-size="10" fill="{{mz.Z1.ink}}">{{mz.Z1.zips}}</text>
+<text x="250" y="103" font-size="17" font-weight="700" fill="{{mz.Z2.ink}}">Zone 2</text><text x="250" y="121" font-size="12" fill="{{mz.Z2.ink}}">{{mz.Z2.oneIn}} late</text><text x="250" y="137" font-size="10" fill="{{mz.Z2.ink}}">{{mz.Z2.zips}}</text>
+<text x="398" y="108" font-size="17" font-weight="700" fill="{{mz.Z3.ink}}">Zone 3</text><text x="398" y="126" font-size="12" fill="{{mz.Z3.ink}}">{{mz.Z3.oneIn}} late</text><text x="398" y="142" font-size="10" fill="{{mz.Z3.ink}}">{{mz.Z3.zips}}</text>
+<text x="540" y="123" font-size="17" font-weight="700" fill="{{mz.Z5.ink}}">Zone 5</text><text x="540" y="141" font-size="12" fill="{{mz.Z5.ink}}">{{mz.Z5.oneIn}} late</text><text x="540" y="157" font-size="10" fill="{{mz.Z5.ink}}">{{mz.Z5.zips}}</text>
+<text x="118" y="288" font-size="17" font-weight="700" fill="{{mz.Z6.ink}}">Zone 6</text><text x="118" y="306" font-size="12" fill="{{mz.Z6.ink}}">{{mz.Z6.oneIn}} late</text><text x="118" y="356" font-size="10" fill="{{mz.Z6.ink}}">{{mz.Z6.zips}}</text>
+<text x="325" y="280" font-size="20" font-weight="700" fill="{{mz.Z4.ink}}">Zone 4</text><text x="325" y="300" font-size="13" fill="{{mz.Z4.ink}}">{{mz.Z4.oneIn}} late</text><text x="325" y="318" font-size="10" fill="{{mz.Z4.ink}}">{{mz.Z4.zips}}</text>
+<text x="527" y="255" font-size="17" font-weight="700" fill="{{mz.Z7.ink}}">Zone 7</text><text x="527" y="273" font-size="12" fill="{{mz.Z7.ink}}">{{mz.Z7.oneIn}} late</text><text x="527" y="289" font-size="10" fill="{{mz.Z7.ink}}">{{mz.Z7.zips}}</text>
+<text x="478" y="368" font-size="17" font-weight="700" fill="{{mz.Z8.ink}}">Zone 8</text><text x="478" y="386" font-size="12" fill="{{mz.Z8.ink}}">{{mz.Z8.oneIn}} late</text><text x="478" y="402" font-size="10" fill="{{mz.Z8.ink}}">{{mz.Z8.zips}}</text>
+</g>
+<path d="{{selPath}}" fill="none" stroke="#17201C" stroke-width="4" stroke-linejoin="round" style="pointer-events: none"></path>
+</svg>
+<div style="display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: #3D4842">
+<span style="display: flex; align-items: center; gap: 6px"><span style="width: 14px; height: 14px; border-radius: 3px; background: #B42318"></span>Act now</span>
+<span style="display: flex; align-items: center; gap: 6px"><span style="width: 14px; height: 14px; border-radius: 3px; background: #F4B98A"></span>Recent change</span>
+<span style="display: flex; align-items: center; gap: 6px"><span style="width: 14px; height: 14px; border-radius: 3px; background: #EED27A"></span>Ongoing gap</span>
+<span style="display: flex; align-items: center; gap: 6px"><span style="width: 14px; height: 14px; border-radius: 3px; background: #BFE0C8"></span>On track</span>
+<span style="color: #56615B">Dashed lines = ZIP code boundaries. Synthetic city; ZIP codes are illustrative.</span>
+</div>
+</figure>
+<div style="flex: 2 1 300px; border: 1px solid #DCE0DA; border-radius: 12px; padding: 18px 20px; display: flex; flex-direction: column; gap: 12px">
+<div style="font-size: 12px; font-weight: 600; color: #56615B; text-transform: uppercase; letter-spacing: 0.06em">Selected zone</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px"><div style="font-size: 24px; font-weight: 700">Zone {{sel.num}}</div><span style="padding: 4px 12px; border-radius: 999px; font-size: 13px; font-weight: 600; background: {{sel.sBg}}; color: {{sel.sFg}}">{{sel.sLabel}}</span></div>
+<div style="font-size: 13px; color: #56615B">ZIP codes {{sel.zips}}</div>
+<div style="font-size: 15px; line-height: 1.45">{{sel.what}}</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<div style="background: #F6F7F5; border-radius: 10px; padding: 10px 12px"><div style="font-size: 12px; color: #56615B">Late urgent calls</div><div style="font-size: 12px; color: #56615B">{{sel.late}} of {{sel.n}}</div><div style="font-size: 20px; font-weight: 700">{{sel.oneIn}}</div></div>
+<div style="background: #F6F7F5; border-radius: 10px; padding: 10px 12px"><div style="font-size: 12px; color: #56615B">Longest waits</div><div style="font-size: 20px; font-weight: 700">{{sel.p95}} min</div><div style="font-size: 12px; color: #56615B">1 in 20 waited longer</div></div>
+</div>
+<div style="font-size: 14px; line-height: 1.45"><strong>Next step:</strong> {{sel.next}}</div>
+<sc-if value="{{sel.isZ4}}" hint-placeholder-val="{{ true }}">
+<a href="#zone4-analysis" style="font-weight: 600">See the Zone 4 analysis below ↓</a>
+</sc-if>
+<div style="margin-top: auto; display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 12px; color: #56615B">Click a zone on the map, or pick one:</div>
+<div style="display: flex; flex-wrap: wrap; gap: 6px">
+<sc-for list="{{zoneBtns}}" as="b" hint-placeholder-count="8">
+<button onClick="{{b.pick}}" aria-label="Show zone {{b.num}}" style="font: inherit; font-size: 13px; font-weight: 600; min-width: 44px; min-height: 44px; border-radius: 8px; cursor: pointer; border: 1px solid {{b.bd}}; background: {{b.bg}}; color: {{b.fg}}">Z{{b.num}}</button>
+</sc-for>
+</div>
+</div>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 12px">
+<sc-for list="{{attention}}" as="z" hint-placeholder-count="3">
+<div style="border: 1px solid {{z.bd}}; border-radius: 12px; padding: 18px 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px 28px; align-items: start; background: {{z.bg}}">
+<div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start">
+<span style="padding: 4px 12px; border-radius: 999px; font-size: 13px; font-weight: 600; background: {{z.sBg}}; color: {{z.sFg}}">{{z.sLabel}}</span>
+<div style="font-size: 22px; font-weight: 700">Zone {{z.num}}</div>
+<div style="font-size: 14px; color: #3D4842; line-height: 1.45">{{z.what}}</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 13px; font-weight: 600; color: #56615B">Urgent calls that were late</div>
+<div style="font-size: 26px; font-weight: 700">{{z.oneIn}}</div>
+<div style="height: 10px; background: #EEF0EC; border-radius: 5px; position: relative; margin-top: 4px">
+<div style="height: 10px; border-radius: 5px; width: {{z.barW}}%; background: {{z.barC}}"></div>
+<div style="position: absolute; left: 40%; top: -4px; width: 2px; height: 18px; background: #17201C"></div>
+</div>
+<div style="position: relative; height: 16px"><span style="position: absolute; left: 40%; transform: translateX(-50%); font-size: 12px; color: #3D4842">goal</span></div>
+<div style="font-size: 13px; color: #56615B">{{z.late}} of {{z.n}} calls this month</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 13px; font-weight: 600; color: #56615B">Longest waits</div>
+<div style="font-size: 26px; font-weight: 700">{{z.p95}} min</div>
+<div style="font-size: 13px; color: #56615B; line-height: 1.45">1 in 20 patients waited longer than this.</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 13px; font-weight: 600; color: #56615B">Suggested next step</div>
+<div style="font-size: 14px; line-height: 1.45">{{z.next}}</div>
+</div>
+</div>
+</sc-for>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="font-size: 13px; font-weight: 600; color: #56615B">On track · no action needed</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<sc-for list="{{onTrack}}" as="o" hint-placeholder-count="5">
+<div style="display: flex; flex-direction: column; gap: 2px; padding: 8px 14px; border-radius: 10px; background: #EEF6F0; font-size: 14px"><span><strong>Zone {{o.num}}</strong> · {{o.oneIn}} late</span><span style="font-size: 12px; color: #3D4842">{{o.note}}</span></div>
+</sc-for>
+</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; font-size: 13px; color: #3D4842; border-top: 1px solid #E3E6E1; padding-top: 14px">
+<div style="display: flex; gap: 8px; align-items: flex-start"><span style="padding: 2px 8px; border-radius: 999px; background: #B42318; color: #FFFFFF; font-weight: 600; font-size: 12px; white-space: nowrap">Act now</span><span>Getting worse, and too slow overall.</span></div>
+<div style="display: flex; gap: 8px; align-items: flex-start"><span style="padding: 2px 8px; border-radius: 999px; background: #FDE7D3; color: #8A3A00; font-weight: 600; font-size: 12px; white-space: nowrap">Recent change</span><span>Usually fine, but something changed lately.</span></div>
+<div style="display: flex; gap: 8px; align-items: flex-start"><span style="padding: 2px 8px; border-radius: 999px; background: #FBF1C7; color: #6B5300; font-weight: 600; font-size: 12px; white-space: nowrap">Ongoing gap</span><span>Steady, but too slow week after week. Needs a planning fix.</span></div>
+<div style="display: flex; gap: 8px; align-items: flex-start"><span style="padding: 2px 8px; border-radius: 999px; background: #DCEFE2; color: #1E6B3A; font-weight: 600; font-size: 12px; white-space: nowrap">On track</span><span>No action needed.</span></div>
+</div>
+<button onClick="{{toggleMath}}" style="align-self: flex-start; font: inherit; font-size: 14px; font-weight: 600; min-height: 44px; padding: 0 16px; border-radius: 8px; border: 1px solid #C9CEC7; background: #FFFFFF; color: #1F3A5F; cursor: pointer">{{mathLabel}}</button>
+<sc-if value="{{showMath}}" hint-placeholder-val="{{ false }}">
+<div style="overflow-x: auto; border: 1px solid #E3E6E1; border-radius: 10px">
+<div style="min-width: 1040px">
+<div style="display: grid; grid-template-columns: 36px 1.7fr 0.7fr 0.7fr 1.6fr 0.7fr 1.4fr 1.1fr 1.1fr; gap: 12px; align-items: end; padding: 10px 16px; background: #F6F7F5; font-size: 12px; font-weight: 600; color: #56615B">
+<div>#</div><div>Zone · evidence</div><div>Calls</div><div>Late</div><div>% over target <span style="font-weight: 400">(bar 0–25%, tick = 10%)</span></div><div>P90</div><div>P95 [bootstrap 95% CI]</div><div>Cpk [95% upper]</div><div>Status</div>
+</div>
+<sc-for list="{{zones}}" as="z" hint-placeholder-count="8">
+<div style="display: grid; grid-template-columns: 36px 1.7fr 0.7fr 0.7fr 1.6fr 0.7fr 1.4fr 1.1fr 1.1fr; gap: 12px; align-items: center; padding: 12px 16px; border-top: 1px solid #E3E6E1; font-size: 14px; background: {{z.rowBg}}">
+<div style="font-family: 'IBM Plex Mono', monospace; color: #56615B">{{z.r}}</div>
+<div style="display: flex; flex-direction: column; gap: 2px"><div style="font-weight: 600">{{z.z}}</div><div style="font-size: 12px; color: #56615B">{{z.ev}}</div></div>
+<div style="font-family: 'IBM Plex Mono', monospace">{{z.n}}</div>
+<div style="font-family: 'IBM Plex Mono', monospace; font-weight: 600">{{z.late}}</div>
+<div style="display: flex; align-items: center; gap: 10px">
+<div style="flex: 1; height: 8px; background: #EEF0EC; border-radius: 4px; position: relative">
+<div style="height: 8px; border-radius: 4px; width: {{z.barW}}%; background: {{z.barC}}"></div>
+<div style="position: absolute; left: 40%; top: -3px; width: 2px; height: 14px; background: #17201C"></div>
+</div>
+<div style="font-family: 'IBM Plex Mono', monospace; width: 52px; text-align: right">{{z.pct}}%</div>
+</div>
+<div style="font-family: 'IBM Plex Mono', monospace">{{z.p90}}</div>
+<div style="font-family: 'IBM Plex Mono', monospace">{{z.p95}} <span style="color: #56615B; font-size: 12px">[{{z.ci}}]</span></div>
+<div style="font-family: 'IBM Plex Mono', monospace">{{z.cpk}} <span style="color: #56615B; font-size: 12px">[≤ {{z.ub}}]</span></div>
+<div><span style="display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; background: {{z.sBg}}; color: {{z.sFg}}">{{z.sLabel}}</span></div>
+</div>
+</sc-for>
+</div>
+</div>
+<div style="font-size: 12px; color: #56615B; padding-top: 12px; line-height: 1.5">How the labels are decided: "too slow overall" means one-sided Cpk (on log minutes) is confidently below 0.43, the same as fewer than 90% of calls on time. "Getting worse" or "something changed" means an I-chart special-cause test fired (Section 3). Longest waits = P95 with a bootstrap 95% interval. Ranking: label first, then number of late urgent calls.</div>
+</sc-if>
+</section>
+
+<!-- 2. Consistently slower zones (planners) -->
+<section style="background: #FFFFFF; border: 1px solid #DCE0DA; border-radius: 12px; padding: 24px 28px; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px">
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600; color: #FFFFFF; background: #17201C; border-radius: 6px; padding: 2px 8px">2</div>
+<h2 style="margin: 0; font-size: 20px; font-weight: 700">Which zones are consistently slower than the city?</h2>
+<span style="font-size: 12px; font-weight: 600; color: #1F3A5F; background: #E6EDF6; padding: 3px 10px; border-radius: 999px">For planners</span>
+</div>
+<div style="font-size: 14px; color: #3D4842; line-height: 1.5; margin-top: -6px">A zone can meet the 8-minute goal and still be slower than the rest of the city month after month. That gap matters when deciding where the next ambulance or station goes.</div>
+<div style="font-size: 16px; line-height: 1.5; background: #E6EDF6; color: #122640; border-radius: 10px; padding: 14px 18px">{{anomVerdict}}</div>
+
+<figure style="margin: 0; display: flex; flex-direction: column; gap: 8px">
+<figcaption style="display: flex; flex-direction: column; gap: 4px">
+<div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px"><strong style="font-size: 16px">Typical wait in each zone, urgent calls, Sep 16 – Oct 15</strong><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #56615B; background: #F2F3F1; padding: 2px 6px; border-radius: 4px">analyst name: analysis of means (ANOM), log scale</span></div>
+<span style="font-size: 14px; color: #3D4842; line-height: 1.45">Each dot is a zone's typical wait; the line through it shows how sure we are. The dashed line is the city's typical wait. The <strong>grey band</strong> on each row is how far a zone can drift from the city by chance. A dot <strong style="color: #B42318">right of its band</strong> is consistently slower; <strong style="color: #1E6B3A">left of it</strong>, consistently faster.</span>
+</figcaption>
+<svg viewBox="0 0 720 342" style="width: 100%; height: auto" role="img" aria-label="Typical wait by zone compared with the city average. Zones 4 and 6 are consistently slower, zones 3, 5 and 7 consistently faster, all under the 8 minute goal.">
+<path d="{{anBand}}" fill="#E3E6E1"></path>
+<line x1="{{anGx}}" y1="24" x2="{{anGx}}" y2="294" stroke="#17201C" stroke-width="1.5" stroke-dasharray="6 4"></line>
+<text x="{{anGx}}" y="16" font-size="11" fill="#17201C" font-weight="600" text-anchor="middle">city: {{anG}} min</text>
+<line x1="{{anGoalX}}" y1="24" x2="{{anGoalX}}" y2="294" stroke="#B54708" stroke-width="1.5" stroke-dasharray="2 3"></line>
+<text x="{{anGoalX}}" y="16" font-size="11" fill="#B54708" font-weight="600" text-anchor="middle">8:00 goal</text>
+<path d="{{anWsame}}" stroke="#5C7FA8" stroke-width="2" fill="none"></path>
+<path d="{{anWslow}}" stroke="#B42318" stroke-width="2" fill="none"></path>
+<path d="{{anWfast}}" stroke="#1E6B3A" stroke-width="2" fill="none"></path>
+<path d="{{anDsame}}" stroke="#5C7FA8" stroke-width="11" stroke-linecap="round" fill="none"></path>
+<path d="{{anDslow}}" stroke="#B42318" stroke-width="11" stroke-linecap="round" fill="none"></path>
+<path d="{{anDfast}}" stroke="#1E6B3A" stroke-width="11" stroke-linecap="round" fill="none"></path>
+<text x="24" y="44" font-size="13" font-weight="600" fill="#17201C">{{anR.r0.label}}</text><text x="574" y="44" font-size="12" fill="{{anR.r0.c}}" font-weight="600">{{anR.r0.txt}}</text>
+<text x="24" y="78" font-size="13" font-weight="600" fill="#17201C">{{anR.r1.label}}</text><text x="574" y="78" font-size="12" fill="{{anR.r1.c}}" font-weight="600">{{anR.r1.txt}}</text>
+<text x="24" y="112" font-size="13" font-weight="600" fill="#17201C">{{anR.r2.label}}</text><text x="574" y="112" font-size="12" fill="{{anR.r2.c}}" font-weight="600">{{anR.r2.txt}}</text>
+<text x="24" y="146" font-size="13" font-weight="600" fill="#17201C">{{anR.r3.label}}</text><text x="574" y="146" font-size="12" fill="{{anR.r3.c}}" font-weight="600">{{anR.r3.txt}}</text>
+<text x="24" y="180" font-size="13" font-weight="600" fill="#17201C">{{anR.r4.label}}</text><text x="574" y="180" font-size="12" fill="{{anR.r4.c}}" font-weight="600">{{anR.r4.txt}}</text>
+<text x="24" y="214" font-size="13" font-weight="600" fill="#17201C">{{anR.r5.label}}</text><text x="574" y="214" font-size="12" fill="{{anR.r5.c}}" font-weight="600">{{anR.r5.txt}}</text>
+<text x="24" y="248" font-size="13" font-weight="600" fill="#17201C">{{anR.r6.label}}</text><text x="574" y="248" font-size="12" fill="{{anR.r6.c}}" font-weight="600">{{anR.r6.txt}}</text>
+<text x="24" y="282" font-size="13" font-weight="600" fill="#17201C">{{anR.r7.label}}</text><text x="574" y="282" font-size="12" fill="{{anR.r7.c}}" font-weight="600">{{anR.r7.txt}}</text>
+<line x1="120" y1="298" x2="560" y2="298" stroke="#9AA39D"></line>
+<text x="{{anT4}}" y="316" font-size="11" fill="#56615B" text-anchor="middle">4</text>
+<text x="{{anT5}}" y="316" font-size="11" fill="#56615B" text-anchor="middle">5</text>
+<text x="{{anT6}}" y="316" font-size="11" fill="#56615B" text-anchor="middle">6</text>
+<text x="{{anT7}}" y="316" font-size="11" fill="#56615B" text-anchor="middle">7</text>
+<text x="{{anT8}}" y="316" font-size="11" fill="#56615B" text-anchor="middle">8</text>
+<text x="340" y="330" font-size="11" fill="#56615B" text-anchor="middle">typical wait (minutes)</text>
+</svg>
+</figure>
+
+<button onClick="{{toggleMath4}}" style="align-self: flex-start; font: inherit; font-size: 14px; font-weight: 600; min-height: 44px; padding: 0 16px; border-radius: 8px; border: 1px solid #C9CEC7; background: #FFFFFF; color: #1F3A5F; cursor: pointer">{{math4Label}}</button>
+<sc-if value="{{math4}}" hint-placeholder-val="{{ false }}">
+<div style="font-size: 13px; color: #3D4842; line-height: 1.55; border-top: 1px solid #E3E6E1; padding-top: 14px; display: flex; flex-direction: column; gap: 6px">
+<div>Analysis of means (ANOM) on ln(minutes), within one urgency group so zones with more severe calls are not penalized. Center line = overall mean of ln(minutes), shown as {{anG}} min. Decision limits for zone i: center ± h · σ̂ · √((N − nᵢ) / (N · nᵢ)), with pooled within-zone σ̂ = {{anSp}}, N = {{anN}} calls and h = 2.73 (k = 8, α = 0.05, Bonferroni approximation to the ANOM critical value). Whiskers are 95% confidence intervals for each zone's mean.</div>
+<div>One-way ANOVA on the same data asks whether any zone differs: F({{anDf1}}, {{anDf2}}) = {{anF}}. ANOM then shows which ones, and in which direction. In the product, the same chart compares counties in the state view and ZIP codes inside a county.</div>
+</div>
+</sc-if>
+</section>
+
+<!-- 3. Real change or bad luck -->
+<section id="zone4-analysis" style="background: #FFFFFF; border: 1px solid #DCE0DA; border-radius: 12px; padding: 24px 28px; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px">
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600; color: #FFFFFF; background: #17201C; border-radius: 6px; padding: 2px 8px">3</div>
+<h2 style="margin: 0; font-size: 20px; font-weight: 700">Zone 4: a real change, or just a few bad days?</h2>
+</div>
+<div style="font-size: 16px; line-height: 1.5; background: #FDF1E4; color: #4A2600; border-radius: 10px; padding: 14px 18px"><strong>A real change.</strong> The typical wait rose from {{medB}} before Oct 3 to {{medA}} since, and stayed there. Late calls went from {{pBefore}}% to {{pAfter}}% (about 1 in 10 to about 1 in 4). {{iOutN}} calls since Oct 3 fell far outside Zone 4's normal range.</div>
+
+<figure style="margin: 0; display: flex; flex-direction: column; gap: 8px">
+<figcaption style="display: flex; flex-direction: column; gap: 4px">
+<div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px"><strong style="font-size: 16px">Every urgent call this month, one dot each</strong><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #56615B; background: #F2F3F1; padding: 2px 6px; border-radius: 4px">analyst name: individuals (I) chart, log scale</span></div>
+<span style="font-size: 14px; color: #3D4842; line-height: 1.45">Higher dot = longer wait. The <strong style="color: #1E6B3A">green band</strong> is Zone 4's normal range from before Oct 3. The dark line is the typical wait. <strong style="color: #B42318">Red dots</strong> are single calls far outside normal; each one deserves a look.</span>
+</figcaption>
+<svg viewBox="0 0 720 270" style="width: 100%; height: auto" role="img" aria-label="Dot plot of every Zone 4 call. Typical wait rises after October 3 and several calls exceed the normal range, including a 24.6 minute call on October 11.">
+<rect x="48" y="{{iBandY}}" width="652" height="{{iBandH}}" fill="#DDEFE2"></rect>
+<line x1="48" y1="230" x2="700" y2="230" stroke="#9AA39D"></line>
+<text x="40" y="{{iy3}}" font-size="11" fill="#56615B" text-anchor="end">3</text>
+<text x="40" y="{{iy5}}" font-size="11" fill="#56615B" text-anchor="end">5</text>
+<text x="40" y="{{iy12}}" font-size="11" fill="#56615B" text-anchor="end">12</text>
+<text x="40" y="{{iy20}}" font-size="11" fill="#56615B" text-anchor="end">20</text>
+<text x="14" y="120" font-size="11" fill="#56615B" transform="rotate(-90 14 120)" text-anchor="middle">minutes to arrive</text>
+<line x1="48" y1="{{iy8l}}" x2="700" y2="{{iy8l}}" stroke="#B54708" stroke-width="1.5" stroke-dasharray="2 3"></line>
+<text x="40" y="{{iy8}}" font-size="11" fill="#B54708" text-anchor="end" font-weight="600">8 goal</text>
+<path d="{{iDots}}" fill="none" stroke="#1F3A5F" stroke-opacity="0.45" stroke-width="5" stroke-linecap="round"></path>
+<path d="{{iOutDots}}" fill="none" stroke="#B42318" stroke-width="9" stroke-linecap="round"></path>
+<line x1="48" y1="{{medBy}}" x2="{{shiftXl}}" y2="{{medBy}}" stroke="#17201C" stroke-width="3"></line>
+<line x1="{{shiftXl}}" y1="{{medAy}}" x2="700" y2="{{medAy}}" stroke="#17201C" stroke-width="3"></line>
+<text x="54" y="{{medBlab}}" font-size="11" fill="#17201C" font-weight="600">typical {{medB}}</text>
+<text x="{{medAlabX}}" y="{{medAlab}}" font-size="11" fill="#17201C" font-weight="600">typical {{medA}}</text>
+<text x="{{outLabX}}" y="{{outLabY}}" font-size="11" fill="#7A1A10" font-weight="600" text-anchor="end">24.6 min · Oct 11 (see Section 3)</text>
+<text x="{{xd0}}" y="250" font-size="11" fill="#56615B" text-anchor="middle">Sep 16</text>
+<text x="{{xd9}}" y="250" font-size="11" fill="#56615B" text-anchor="middle">Sep 25</text>
+<text x="{{xd19}}" y="250" font-size="11" fill="#56615B" text-anchor="middle">Oct 5</text>
+<text x="{{xd29}}" y="250" font-size="11" fill="#56615B" text-anchor="middle">Oct 15</text>
+</svg>
+</figure>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px">
+<div style="border: 1px solid #E3E6E1; border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px"><div style="font-size: 13px; font-weight: 600; color: #56615B">Is the whole zone slower?</div><div style="font-size: 15px; line-height: 1.45">Yes. The typical wait went from <strong>{{medB}}</strong> to <strong>{{medA}}</strong>, and stayed there.</div></div>
+<div style="border: 1px solid #E3E6E1; border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px"><div style="font-size: 13px; font-weight: 600; color: #56615B">Any dangerously long single calls?</div><div style="font-size: 15px; line-height: 1.45"><strong>{{iOutN}}</strong> calls since Oct 3 fell far outside normal. The worst waited <strong>24.6 min</strong>.</div></div>
+</div>
+
+<button onClick="{{toggleMath2}}" style="align-self: flex-start; font: inherit; font-size: 14px; font-weight: 600; min-height: 44px; padding: 0 16px; border-radius: 8px; border: 1px solid #C9CEC7; background: #FFFFFF; color: #1F3A5F; cursor: pointer">{{math2Label}}</button>
+<sc-if value="{{math2}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-wrap: wrap; gap: 24px; border-top: 1px solid #E3E6E1; padding-top: 16px">
+<div style="flex: 999 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 8px">
+<strong style="font-size: 14px">Moving range (MR) chart · call-to-call jumps in log minutes</strong>
+<svg viewBox="0 0 720 140" style="width: 100%; height: auto" role="img" aria-label="Moving range chart for all Zone 4 calls">
+<line x1="48" y1="120" x2="700" y2="120" stroke="#9AA39D"></line>
+<path d="{{mrPath}}" fill="none" stroke="#5C7FA8" stroke-width="1.2"></path>
+<path d="{{mrOutPath}}" fill="none" stroke="#B42318" stroke-width="2"></path>
+<line x1="48" y1="{{mrCLy}}" x2="700" y2="{{mrCLy}}" stroke="#17201C" stroke-width="1.2"></line>
+<line x1="48" y1="{{mrUCLy}}" x2="700" y2="{{mrUCLy}}" stroke="#B42318" stroke-width="1.2" stroke-dasharray="5 4"></line>
+<text x="40" y="124" font-size="11" fill="#56615B" text-anchor="end">0</text>
+<text x="40" y="{{mrULab}}" font-size="11" fill="#B42318" text-anchor="end">UCL</text>
+</svg>
+<div style="font-size: 12px; color: #56615B; line-height: 1.5">I chart on ln(minutes): CL and limits from the pre-Oct 3 calls, σ = MR̄/1.128 (d₂ for n = 2), so CL = {{iCL}} min, UCL = {{iUCL}} min, LCL = {{iLCL}} min. MR UCL = 3.267 × MR̄. Log scale because response times are right-skewed.</div>
+</div>
+<div style="flex: 1 1 280px; display: flex; flex-direction: column; gap: 8px">
+<strong style="font-size: 14px">Special-cause tests · I chart</strong>
+<div style="font-size: 12px; color: #56615B">All 8 run. Alerts fire only on tests 1, 2 and 5 to limit false alarms across 8 zones.</div>
+<div style="display: flex; flex-direction: column; border: 1px solid #E3E6E1; border-radius: 10px">
+<sc-for list="{{tests}}" as="t" hint-placeholder-count="8">
+<div style="display: flex; gap: 10px; align-items: flex-start; padding: 8px 12px; border-top: 1px solid {{t.border}}; font-size: 13px">
+<div style="font-family: 'IBM Plex Mono', monospace; color: #56615B; width: 18px">{{t.id}}</div>
+<div style="flex: 1">{{t.rule}}</div>
+<span style="padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; background: {{t.bg}}; color: {{t.fg}}">{{t.res}}</span>
+</div>
+</sc-for>
+</div>
+</div>
+</div>
+</sc-if>
+</section>
+
+<!-- 4. Where the minutes come from -->
+<section style="background: #FFFFFF; border: 1px solid #DCE0DA; border-radius: 12px; padding: 24px 28px; display: flex; flex-direction: column; gap: 20px">
+<div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px">
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600; color: #FFFFFF; background: #17201C; border-radius: 6px; padding: 2px 8px">4</div>
+<h2 style="margin: 0; font-size: 20px; font-weight: 700">Zone 4: where did the extra minutes come from?</h2>
+</div>
+<div style="font-size: 16px; line-height: 1.5; background: #FDF1E4; color: #4A2600; border-radius: 10px; padding: 14px 18px"><strong>The extra time is on the road, because the trips got longer.</strong> Since Oct 3, Google Maps expects Zone 4 drives to take {{gUp}} longer, and ambulances still beat Google's estimate. The 911 center and crews are as quick as before. This points to where ambulances start from (coverage), not to the people on the call.</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<strong style="font-size: 16px">A typical call, step by step</strong>
+<div style="font-size: 14px; color: #3D4842">Each call has three steps. The bar shows how long each step usually takes (median).</div>
+<div style="display: flex; flex-wrap: wrap; gap: 16px; font-size: 13px">
+<span style="display: flex; align-items: center; gap: 6px"><span style="width: 14px; height: 14px; border-radius: 3px; background: #B9C9DE"></span>911 center: call answered → ambulance assigned</span>
+<span style="display: flex; align-items: center; gap: 6px"><span style="width: 14px; height: 14px; border-radius: 3px; background: #4A6E99"></span>Crew: assigned → rolling</span>
+<span style="display: flex; align-items: center; gap: 6px"><span style="width: 14px; height: 14px; border-radius: 3px; background: #1F3A5F"></span>Drive: rolling → on scene</span>
+</div>
+<sc-for list="{{steps}}" as="row" hint-placeholder-count="2">
+<div style="display: flex; align-items: center; gap: 12px">
+<div style="width: 104px; font-size: 13px; font-weight: 600">{{row.label}}</div>
+<div style="flex: 1; position: relative">
+<div style="display: flex; height: 36px; width: {{row.w}}%">
+<div style="width: {{row.s1}}%; background: #B9C9DE; color: #17201C; font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; border-radius: 6px 0 0 6px">{{row.t1}}</div>
+<div style="width: {{row.s2}}%; background: #4A6E99; color: #FFFFFF; font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center">{{row.t2}}</div>
+<div style="width: {{row.s3}}%; background: #1F3A5F; color: #FFFFFF; font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; border-radius: 0 6px 6px 0">{{row.t3}}</div>
+</div>
+<div style="position: absolute; left: 88.9%; top: -6px; width: 2px; height: 48px; background: #B54708"></div>
+</div>
+<div style="width: 64px; font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600">{{row.tot}}</div>
+</div>
+</sc-for>
+<div style="display: flex; gap: 12px"><div style="width: 104px"></div><div style="flex: 1; position: relative; height: 16px"><span style="position: absolute; left: 88.9%; transform: translateX(-50%); font-size: 12px; color: #B54708; font-weight: 600; white-space: nowrap">8:00 goal</span></div><div style="width: 64px"></div></div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px; font-size: 13px">
+<span style="padding: 6px 10px; border-radius: 8px; background: #F2F3F1">911 center: <strong>{{dDisp}}</strong></span>
+<span style="padding: 6px 10px; border-radius: 8px; background: #F2F3F1">Crew: <strong>{{dTurn}}</strong></span>
+<span style="padding: 6px 10px; border-radius: 8px; background: #FBE9E7; color: #7A1A10">Drive: <strong>{{dDrive}}</strong></span>
+</div>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 28px; border-top: 1px solid #E3E6E1; padding-top: 20px">
+<div style="flex: 1 1 400px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<strong style="font-size: 16px">Ambulance vs Google Maps: a typical drive</strong>
+<div style="font-size: 14px; color: #3D4842; line-height: 1.45">When an ambulance is assigned, we save Google's drive estimate for that trip, with traffic. With lights and sirens, the ambulance should beat it.</div>
+<sc-for list="{{gRows}}" as="g" hint-placeholder-count="2">
+<div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border: 1px solid #E3E6E1; border-radius: 10px">
+<div style="font-size: 14px; font-weight: 700">{{g.label}}</div>
+<div style="display: grid; grid-template-columns: 112px 1fr 48px; gap: 10px; align-items: center; font-size: 13px">
+<div style="color: #3D4842">Google estimate</div>
+<div style="height: 22px; background: #FFFFFF; border: 2px dashed #5C7FA8; border-radius: 4px; box-sizing: border-box; width: {{g.gW}}%"></div>
+<div style="font-family: 'IBM Plex Mono', monospace">{{g.g}}</div>
+<div style="color: #3D4842">Ambulance</div>
+<div style="height: 22px; background: #1F3A5F; border-radius: 4px; width: {{g.aW}}%"></div>
+<div style="font-family: 'IBM Plex Mono', monospace; font-weight: 600">{{g.a}}</div>
+</div>
+<div style="font-size: 13px; font-weight: 600; color: #1E6B3A">Beat Google by {{g.beat}}</div>
+</div>
+</sc-for>
+<div style="font-size: 14px; line-height: 1.45; background: #F6F7F5; border-radius: 10px; padding: 12px 14px">Google's estimate went up by <strong>{{gUp}}</strong>, so the trips themselves got longer. Ambulances still beat it, so the driving did not get worse.</div>
+</div>
+
+<figure style="margin: 0; flex: 1 1 460px; min-width: 0; display: flex; flex-direction: column; gap: 8px">
+<figcaption style="display: flex; flex-direction: column; gap: 4px"><strong style="font-size: 16px">Every drive compared with Google</strong><span style="font-size: 14px; color: #3D4842; line-height: 1.45">Each bar counts drives. <strong style="color: #1E6B3A">Green, left of the line:</strong> the ambulance beat Google. <strong style="color: #B42318">Red, right of the line:</strong> it took longer than Google said.</span></figcaption>
+<svg viewBox="0 0 560 300" style="width: 100%; height: auto" role="img" aria-label="Two histograms of actual drive time minus Google's estimate, before and since October 3. Both are mostly to the left of zero, meaning ambulances usually beat Google, with a similar small share slower.">
+<text x="48" y="14" font-size="12" fill="#17201C" font-weight="700">Before Oct 3 · {{slowB}}% slower than Google</text>
+<line x1="48" y1="120" x2="540" y2="120" stroke="#9AA39D"></line>
+<path d="{{hBg}}" fill="#5E9E72"></path>
+<path d="{{hBr}}" fill="#B42318"></path>
+<text x="48" y="154" font-size="12" fill="#17201C" font-weight="700">Since Oct 3 · {{slowA}}% slower than Google</text>
+<line x1="48" y1="260" x2="540" y2="260" stroke="#9AA39D"></line>
+<path d="{{hAg}}" fill="#5E9E72"></path>
+<path d="{{hAr}}" fill="#B42318"></path>
+<line x1="355.5" y1="22" x2="355.5" y2="264" stroke="#17201C" stroke-width="1.5"></line>
+<text x="109.5" y="278" font-size="11" fill="#56615B" text-anchor="middle">−2:00</text>
+<text x="232.5" y="278" font-size="11" fill="#56615B" text-anchor="middle">−1:00</text>
+<text x="355.5" y="278" font-size="11" fill="#17201C" text-anchor="middle" font-weight="600">same as Google</text>
+<text x="478.5" y="278" font-size="11" fill="#56615B" text-anchor="middle">+1:00</text>
+<text x="200" y="296" font-size="11" fill="#1E6B3A" text-anchor="middle" font-weight="600">← faster than Google</text>
+<text x="460" y="296" font-size="11" fill="#B42318" text-anchor="middle" font-weight="600">slower than Google →</text>
+</svg>
+<div style="font-size: 13px; color: #3D4842; line-height: 1.45">The two shapes look alike, so driving has not changed. A drive in the red is worth a question to the crew, not proof of a problem: road closures and detours don't always show up in Google.</div>
+</figure>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 28px; border-top: 1px solid #E3E6E1; padding-top: 20px">
+<div style="flex: 1 1 460px; min-width: 0; display: flex; flex-direction: column; gap: 10px">
+<strong style="font-size: 16px">What held up each of the {{z4late}} late calls?</strong>
+<div style="font-size: 14px; color: #3D4842; line-height: 1.45">For each late call, we find the part that ran furthest over Zone 4's normal and count it there.</div>
+<div style="font-size: 12px; font-weight: 600; color: #56615B; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 4px">The trip itself</div>
+<sc-for list="{{attrExt}}" as="a" hint-placeholder-count="2">
+<div style="display: grid; grid-template-columns: 190px 1fr 70px; gap: 10px; align-items: center; font-size: 14px">
+<div>{{a.label}}</div>
+<div style="height: 14px; background: #EEF0EC; border-radius: 4px"><div style="height: 14px; border-radius: 4px; width: {{a.w}}%; background: {{a.c}}"></div></div>
+<div style="font-family: 'IBM Plex Mono', monospace; font-weight: 600">{{a.n}} <span style="font-weight: 400; color: #56615B">calls</span></div>
+</div>
+</sc-for>
+<div style="font-size: 12px; font-weight: 600; color: #56615B; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 6px">People on the call</div>
+<sc-for list="{{attrPpl}}" as="a" hint-placeholder-count="3">
+<div style="display: grid; grid-template-columns: 190px 1fr 70px; gap: 10px; align-items: center; font-size: 14px">
+<div>{{a.label}}</div>
+<div style="height: 14px; background: #EEF0EC; border-radius: 4px"><div style="height: 14px; border-radius: 4px; width: {{a.w}}%; background: {{a.c}}"></div></div>
+<div style="font-family: 'IBM Plex Mono', monospace; font-weight: 600">{{a.n}} <span style="font-weight: 400; color: #56615B">calls</span></div>
+</div>
+</sc-for>
+</div>
+
+<div style="flex: 1 1 320px; display: flex; flex-direction: column; gap: 10px; background: #F6F7F5; border-radius: 12px; padding: 16px 18px">
+<strong style="font-size: 16px">Check one call: the 24.6-minute wait</strong>
+<div style="font-size: 13px; color: #56615B">EMS-1011-4471 · Oct 11, 22:14</div>
+<div style="display: flex; flex-direction: column; gap: 6px; font-size: 14px">
+<div style="display: flex; justify-content: space-between; gap: 8px"><span>911 center</span><span style="font-family: 'IBM Plex Mono', monospace">{{ocDisp}} <span style="color: #56615B">(normal {{bDisp}})</span></span></div>
+<div style="display: flex; justify-content: space-between; gap: 8px"><span>Crew getting rolling</span><span style="font-family: 'IBM Plex Mono', monospace">{{ocTurn}} <span style="color: #56615B">(normal {{bTurn}})</span></span></div>
+<div style="display: flex; justify-content: space-between; gap: 8px"><span>Google's estimate for this trip</span><span style="font-family: 'IBM Plex Mono', monospace">{{ocTraf}} <span style="color: #56615B">(normal {{bG}})</span></span></div>
+<div style="display: flex; justify-content: space-between; gap: 8px; font-weight: 600"><span>Actual drive</span><span style="font-family: 'IBM Plex Mono', monospace">{{ocDrive}}</span></div>
+</div>
+<div style="font-size: 14px; line-height: 1.45; border-top: 1px solid #DCE0DA; padding-top: 10px">Google already expected this drive to take <strong>{{ocMult}}× longer than normal</strong>, so most of the wait came from the trip itself. The ambulance took {{ocDv}} longer than Google, and the 911 center and crew were close to normal. Worth asking the crew what they ran into.</div>
+</div>
+</div>
+
+
+<button onClick="{{toggleMath3}}" style="align-self: flex-start; font: inherit; font-size: 14px; font-weight: 600; min-height: 44px; padding: 0 16px; border-radius: 8px; border: 1px solid #C9CEC7; background: #FFFFFF; color: #1F3A5F; cursor: pointer">{{math3Label}}</button>
+<sc-if value="{{math3}}" hint-placeholder-val="{{ false }}">
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; border-top: 1px solid #E3E6E1; padding-top: 16px; font-size: 13px; line-height: 1.55; color: #3D4842">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<strong style="color: #17201C">Fault tree (series system)</strong>
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; background: #F6F7F5; border-radius: 8px; padding: 10px 12px; white-space: pre-line">Late arrival (total &gt; 8:00)
+ OR ─ Dispatch delay (911 center)
+    ─ Turnout delay (crew)
+    ─ Drive delay
+        OR ─ Long trip (Google ETA above zone normal)
+           ─ Drive slower than Google (actual − ETA)</div>
+<div>Each late call is assigned to the basic event with the largest excess over its zone's pre-Oct 3 median. Counts / {{z4late}} give the branch shares.</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<strong style="color: #17201C">Extra data this needs, per call</strong>
+<div><span style="font-family: 'IBM Plex Mono', monospace">eta_google_s</span>: Google Maps drive time with traffic, from the ambulance's position when assigned to the incident address. Requested at assignment time (Routes / Distance Matrix API, traffic-aware). Traffic at that moment cannot be looked up later, so it must be logged live.</div>
+<div>In the synthetic datasets this column is simulated, so the repo runs without a Google API key. Only a live deployment needs one.</div>
+</div>
+</div>
+</sc-if>
+</section>
+
+<!-- 4. What would help most -->
+<section style="background: #FFFFFF; border: 1px solid #DCE0DA; border-radius: 12px; padding: 24px 28px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px">
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600; color: #17201C; background: #F2C94C; border-radius: 6px; padding: 2px 8px">5</div>
+<h2 style="margin: 0; font-size: 20px; font-weight: 700">Zone 4: which fix would help most?</h2>
+</div>
+<div style="font-size: 14px; color: #3D4842; margin-top: -6px">Pick a fix. We replay all {{z4n}} of this month's Zone 4 calls with that change and count how many would still be late.</div>
+<div style="display: flex; flex-wrap: wrap; gap: 28px">
+<div style="flex: 1 1 340px; display: flex; flex-direction: column; gap: 10px">
+<div style="font-size: 12px; font-weight: 600; color: #56615B">Fix to try</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<sc-for list="{{stages}}" as="s" hint-placeholder-count="4">
+<button onClick="{{s.pick}}" style="font: inherit; font-size: 14px; font-weight: 600; min-height: 44px; padding: 0 16px; border-radius: 8px; cursor: pointer; border: 1px solid {{s.bd}}; background: {{s.bg}}; color: {{s.fg}}">{{s.label}}</button>
+</sc-for>
+</div>
+<sc-if value="{{showCuts}}" hint-placeholder-val="{{ true }}">
+<div style="font-size: 12px; font-weight: 600; color: #56615B; margin-top: 4px">Make that step faster by</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<sc-for list="{{cuts}}" as="c" hint-placeholder-count="3">
+<button onClick="{{c.pick}}" style="font: inherit; font-family: 'IBM Plex Mono', monospace; font-size: 14px; font-weight: 600; min-height: 44px; padding: 0 18px; border-radius: 8px; cursor: pointer; border: 1px solid {{c.bd}}; background: {{c.bg}}; color: {{c.fg}}">{{c.label}}</button>
+</sc-for>
+</div>
+</sc-if>
+<sc-if value="{{showCloser}}" hint-placeholder-val="{{ false }}">
+<div style="font-size: 14px; color: #3D4842; line-height: 1.45; background: #F6F7F5; border-radius: 8px; padding: 10px 12px">Brings Google's trip estimates for calls since Oct 3 back to what they were before Oct 3 (for example, by posting an ambulance in Zone 4 again).</div>
+</sc-if>
+</div>
+<div style="flex: 2 1 460px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px">
+<div style="background: #F6F7F5; border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 4px"><div style="font-size: 13px; color: #56615B">Late calls</div><div style="font-size: 24px; font-weight: 700">{{simOneIn}}</div><div style="font-size: 13px; color: #56615B">{{simPct}}%, now {{z4pct}}%</div></div>
+<div style="background: #F6F7F5; border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 4px"><div style="font-size: 13px; color: #56615B">Longest waits (1 in 20)</div><div style="font-size: 24px; font-weight: 700">{{simP95}} min</div><div style="font-size: 13px; color: #56615B">now {{z4p95}} min</div></div>
+<div style="background: #F6F7F5; border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 4px"><div style="font-size: 13px; color: #56615B">Late calls avoided</div><div style="font-size: 24px; font-weight: 700">{{simAvoid}}</div><div style="font-size: 13px; color: #56615B">per month</div></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; font-size: 13px">
+<div style="display: flex; align-items: center; gap: 10px"><div style="width: 72px; color: #56615B">Now</div><div style="flex: 1; height: 14px; background: #EEF0EC; border-radius: 4px; position: relative"><div style="width: {{nowW}}%; height: 14px; background: #B42318; border-radius: 4px"></div><div style="position: absolute; left: 40%; top: -4px; width: 2px; height: 22px; background: #17201C"></div></div></div>
+<div style="display: flex; align-items: center; gap: 10px"><div style="width: 72px; color: #56615B">With fix</div><div style="flex: 1; height: 14px; background: #EEF0EC; border-radius: 4px; position: relative"><div style="width: {{simW}}%; height: 14px; background: {{simC}}; border-radius: 4px"></div><div style="position: absolute; left: 40%; top: -4px; width: 2px; height: 22px; background: #17201C"></div></div></div>
+<div style="display: flex; gap: 10px; color: #56615B"><div style="width: 72px"></div><div style="flex: 1; position: relative; height: 16px"><span style="position: absolute; left: 40%; transform: translateX(-50%); font-size: 12px; white-space: nowrap">goal: 1 in 10</span></div></div>
+</div>
+<div style="font-size: 15px; background: #F6F7F5; border-radius: 10px; padding: 12px 14px; line-height: 1.45">{{simVerdict}}</div>
+</div>
+</div>
+<div style="font-size: 12px; color: #56615B; border-top: 1px solid #E3E6E1; padding-top: 12px">Scenario estimate, not a prediction. It assumes everything else about each call stays the same.</div>
+</section>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":4700}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { stage: 'closer', cut: 25, showMath: false, math2: false, math3: false, math4: false, selZone: '4' };
+  }
+  data() {
+    return [[0,116,59,37,247,275,280,0],[0,407,63,86,157,206,148,0],[0,542,90,61,185,214,174,0],[0,653,65,67,341,355,309,0],[0,736,37,95,134,145,129,0],[0,874,28,104,243,283,271,0],[0,902,35,51,220,252,239,0],[0,1046,40,55,189,220,186,0],[0,1154,52,159,203,221,201,0],[0,1269,36,60,233,267,204,0],[0,1354,102,61,242,279,260,0],[0,1358,89,75,231,258,203,0],[0,1397,95,51,167,214,184,0],[0,1405,32,147,213,249,200,0],[1,69,164,46,302,324,278,0],[1,483,28,39,189,212,185,0],[1,533,40,115,241,299,292,0],[1,719,69,69,227,248,240,0],[1,785,78,81,286,307,281,0],[1,799,29,120,237,264,243,0],[1,818,55,63,316,350,278,0],[1,913,67,35,357,390,340,0],[1,924,152,166,239,272,264,0],[1,928,117,66,240,285,254,0],[1,1049,77,89,173,197,132,0],[1,1214,49,120,174,206,198,0],[2,10,39,97,190,207,187,0],[2,45,54,67,249,268,218,0],[2,380,50,103,226,285,253,0],[2,392,14,59,358,394,328,0],[2,485,37,119,301,394,358,0],[2,546,105,97,169,223,197,0],[2,553,52,95,234,246,250,0],[2,564,88,67,211,262,201,0],[2,611,63,64,212,225,183,0],[2,1081,90,119,264,321,256,0],[2,1081,76,133,152,213,149,0],[2,1113,47,82,163,170,151,0],[2,1129,82,58,329,351,364,0],[2,1338,58,77,272,304,318,0],[2,1355,148,87,222,235,189,0],[3,63,35,110,288,311,308,0],[3,77,41,63,144,166,145,0],[3,95,89,93,238,264,259,0],[3,146,51,66,237,273,260,0],[3,280,131,68,324,348,323,0],[3,360,59,142,275,297,275,0],[3,363,66,63,217,231,266,0],[3,368,60,105,174,184,158,0],[3,573,53,98,181,205,209,0],[3,668,37,103,183,205,186,0],[3,900,123,54,246,288,224,0],[3,1015,56,50,196,258,242,0],[3,1387,179,124,329,360,305,0],[4,63,47,85,231,245,217,0],[4,94,56,38,311,326,291,0],[4,105,35,51,195,223,171,0],[4,259,51,131,195,214,199,0],[4,297,43,85,196,224,197,0],[4,352,36,124,227,247,196,0],[4,461,45,68,244,337,257,0],[4,619,47,114,244,274,280,0],[4,624,64,85,230,286,277,0],[4,629,40,88,173,203,189,0],[4,678,51,60,146,167,144,0],[4,692,48,94,195,210,170,0],[4,803,30,184,221,239,228,0],[4,1085,13,69,233,264,240,0],[4,1409,22,70,290,300,225,0],[4,1418,50,68,192,214,189,0],[5,17,123,36,202,249,210,1],[5,79,64,69,189,217,169,1],[5,101,111,89,319,379,319,1],[5,113,35,77,228,282,288,1],[5,363,36,89,156,200,165,1],[5,400,50,70,345,418,342,1],[5,593,31,74,180,215,184,1],[5,606,70,50,268,361,267,1],[5,1071,96,158,193,270,202,1],[5,1128,61,59,243,287,227,1],[5,1140,43,50,191,230,177,1],[5,1234,48,80,123,150,119,1],[5,1244,31,38,179,211,187,1],[5,1417,29,99,180,225,214,1],[6,154,55,63,200,227,215,0],[6,171,54,126,304,347,280,0],[6,243,128,117,132,139,115,0],[6,478,83,114,214,267,249,0],[6,717,31,88,214,237,205,0],[6,1003,32,47,234,289,245,0],[6,1114,89,61,169,183,157,0],[6,1177,52,111,265,310,287,0],[6,1205,51,106,217,241,190,0],[6,1238,58,62,256,319,353,0],[6,1434,87,69,288,321,263,0],[7,187,44,93,194,205,164,0],[7,341,69,82,251,271,216,0],[7,518,83,39,220,245,205,0],[7,639,52,115,110,133,106,0],[7,647,63,97,191,210,192,0],[7,888,53,53,245,271,204,0],[7,913,103,77,125,133,138,0],[7,919,114,79,151,165,160,0],[7,939,67,62,193,223,191,0],[7,977,65,87,359,447,401,0],[7,1079,25,111,296,361,252,0],[7,1154,43,73,405,460,435,0],[7,1205,81,121,174,186,144,0],[7,1235,49,62,241,255,225,0],[7,1322,38,165,204,278,286,0],[8,11,38,69,260,284,233,0],[8,57,52,48,255,263,266,0],[8,69,57,86,292,308,337,0],[8,83,34,85,254,304,265,0],[8,319,29,80,123,134,112,0],[8,495,112,63,207,239,191,0],[8,519,43,90,165,198,149,0],[8,556,51,75,169,197,173,0],[8,560,78,103,226,256,189,0],[8,616,78,122,255,311,259,0],[8,648,46,131,178,202,183,0],[8,845,59,140,184,199,141,0],[8,1086,34,57,210,251,225,0],[9,340,87,108,276,306,253,0],[9,421,71,65,207,252,217,0],[9,437,82,48,445,504,420,0],[9,672,84,50,204,225,145,0],[9,722,44,47,217,245,228,0],[9,737,109,125,304,334,323,0],[9,768,35,67,338,389,294,0],[9,955,42,101,273,320,233,0],[9,997,31,63,180,219,191,0],[9,1021,65,67,270,358,317,0],[9,1023,32,119,247,315,279,0],[9,1226,27,89,196,207,206,0],[9,1292,48,79,294,362,263,0],[9,1352,40,93,196,199,176,0],[10,173,44,78,256,271,262,0],[10,436,81,97,114,140,121,0],[10,447,35,89,157,222,201,0],[10,480,44,125,263,332,253,0],[10,587,70,124,311,327,328,0],[10,740,114,99,210,220,175,0],[10,945,42,78,268,286,211,0],[10,1005,45,41,328,366,333,0],[10,1048,79,47,299,360,288,0],[10,1139,35,72,304,315,291,0],[10,1140,50,51,223,244,210,0],[10,1170,78,48,384,443,362,0],[11,48,78,58,209,254,217,0],[11,308,52,60,252,286,245,0],[11,361,33,80,187,202,180,0],[11,461,62,27,363,482,510,0],[11,488,173,48,200,250,239,0],[11,494,43,61,306,349,310,0],[11,496,89,62,282,340,251,0],[11,521,42,63,210,255,230,0],[11,532,61,73,203,242,201,0],[11,582,41,117,138,152,111,0],[11,719,40,92,209,248,194,0],[11,909,45,51,224,242,199,0],[11,1031,53,102,230,278,230,0],[11,1087,37,36,167,201,141,0],[11,1173,67,54,171,182,165,0],[11,1180,58,71,346,447,335,0],[12,15,99,83,223,304,276,1],[12,85,39,45,207,254,243,1],[12,267,81,73,171,219,192,1],[12,377,34,43,246,304,287,1],[12,433,32,151,144,191,190,1],[12,620,87,47,270,352,329,1],[12,633,35,135,150,183,142,1],[12,643,44,60,261,305,270,1],[12,881,96,70,263,326,262,1],[12,964,45,69,258,442,451,1],[12,1003,43,57,175,207,204,1],[12,1153,68,31,229,329,298,1],[12,1359,67,74,187,219,174,1],[12,1363,57,62,275,373,343,1],[12,1428,79,60,163,231,215,1],[13,21,60,96,285,295,283,0],[13,164,23,91,205,216,177,0],[13,189,30,69,295,338,294,0],[13,491,90,85,406,521,425,0],[13,496,47,51,213,256,238,0],[13,507,77,71,257,296,243,0],[13,662,18,50,202,275,208,0],[13,672,56,60,151,168,146,0],[13,741,28,27,226,237,220,0],[13,797,48,86,212,258,241,0],[13,824,110,73,176,185,153,0],[13,870,63,54,443,486,443,0],[13,874,57,42,308,351,333,0],[14,73,46,51,333,371,364,0],[14,334,79,110,224,231,215,0],[14,373,41,92,204,253,215,0],[14,549,83,113,230,292,255,0],[14,579,37,131,184,193,160,0],[14,651,60,73,214,232,163,0],[14,835,75,145,193,201,189,0],[14,1071,52,14,191,212,164,0],[14,1165,140,107,225,248,255,0],[14,1209,34,97,198,229,205,0],[14,1250,40,111,272,345,289,0],[14,1335,60,54,327,349,305,0],[14,1399,103,89,254,284,258,0],[14,1417,76,63,138,166,130,0],[15,175,29,77,213,235,166,0],[15,284,20,95,237,256,221,0],[15,286,41,58,280,305,285,0],[15,308,40,33,194,212,165,0],[15,393,46,57,297,343,334,0],[15,427,38,80,327,406,350,0],[15,563,38,98,242,332,284,0],[15,704,143,69,166,184,168,0],[15,897,100,57,200,217,181,0],[15,958,20,94,324,346,271,0],[15,1231,51,50,286,307,284,0],[15,1296,31,39,152,160,145,0],[16,96,169,72,274,312,237,0],[16,117,33,53,242,279,246,0],[16,175,92,57,159,175,151,0],[16,334,28,107,180,192,171,0],[16,466,33,90,258,330,287,0],[16,519,44,51,252,365,345,0],[16,632,66,107,333,351,305,0],[16,745,98,54,206,235,201,0],[16,853,98,63,275,377,371,0],[16,1152,30,46,179,197,149,0],[16,1160,73,145,356,381,323,0],[16,1177,49,51,368,394,307,0],[16,1368,66,81,351,429,367,0],[16,1394,21,93,289,362,269,0],[16,1398,32,133,359,429,372,0],[17,8,24,78,319,336,284,0],[17,111,56,83,223,239,185,0],[17,254,63,60,239,272,231,0],[17,452,31,110,362,461,359,0],[17,579,90,54,170,185,193,0],[17,608,44,88,401,444,373,0],[17,612,54,87,244,272,250,0],[17,1076,45,92,324,383,326,0],[17,1198,57,65,264,280,245,0],[17,1256,76,89,225,254,234,0],[17,1266,36,85,267,289,256,0],[17,1297,49,28,295,312,268,0],[17,1344,74,63,248,275,250,0],[17,1391,37,53,318,387,335,0],[18,10,17,66,300,333,297,0],[18,356,32,51,263,280,231,0],[18,544,92,48,253,386,329,0],[18,546,34,75,290,357,261,0],[18,648,61,80,474,539,448,0],[18,823,63,91,270,297,296,0],[18,854,68,86,220,248,179,0],[18,902,96,59,335,403,317,0],[18,998,94,78,385,458,374,0],[18,1055,101,85,291,328,328,0],[18,1173,49,66,241,266,247,0],[18,1197,55,69,249,303,311,0],[18,1358,50,51,306,321,287,0],[19,18,93,45,237,259,192,0],[19,174,34,136,207,239,193,0],[19,199,87,81,360,379,341,0],[19,249,44,97,343,382,330,0],[19,341,56,79,251,272,223,0],[19,422,35,108,204,291,273,0],[19,529,26,35,287,326,288,0],[19,662,85,82,270,295,298,0],[19,923,48,141,482,523,472,0],[19,932,121,55,321,376,298,0],[19,940,67,76,252,308,267,0],[19,1043,157,96,241,305,248,0],[19,1052,82,94,213,254,233,0],[19,1268,59,50,382,460,349,0],[19,1412,110,33,278,299,248,0],[20,316,83,38,451,522,488,0],[20,354,48,59,220,241,213,0],[20,363,53,68,175,188,152,0],[20,412,65,60,255,283,236,0],[20,420,50,110,274,314,291,0],[20,531,80,91,205,278,244,0],[20,596,60,74,321,363,367,0],[20,733,63,69,337,370,360,0],[20,833,61,96,252,294,273,0],[20,1033,39,62,293,328,259,0],[20,1293,70,87,402,424,358,0],[20,1302,23,141,205,224,236,0],[21,104,74,31,452,528,451,1],[21,425,104,83,282,363,335,1],[21,497,102,57,317,414,347,1],[21,586,23,79,361,439,424,1],[21,616,61,115,297,359,299,1],[21,682,59,80,236,287,221,1],[21,751,32,92,315,403,358,1],[21,973,63,147,233,322,329,1],[21,1044,137,90,280,352,303,1],[21,1080,61,72,326,462,387,1],[21,1209,38,64,319,430,322,1],[21,1253,90,64,376,516,474,1],[21,1257,34,61,313,377,328,1],[21,1432,40,65,244,311,280,1],[22,52,50,44,265,343,321,0],[22,152,37,65,279,308,226,0],[22,183,37,66,185,203,178,0],[22,355,78,106,271,302,281,0],[22,363,86,73,236,268,253,0],[22,388,59,88,422,456,372,0],[22,464,35,81,360,423,439,0],[22,678,44,79,277,331,273,0],[22,679,114,67,204,220,189,0],[22,811,115,59,284,362,321,0],[22,889,43,54,193,217,212,0],[22,1022,48,47,304,372,320,0],[22,1105,67,71,258,350,256,0],[22,1128,34,63,201,243,171,0],[22,1302,74,87,306,343,283,0],[22,1429,40,120,271,284,219,0],[23,229,80,100,441,466,438,0],[23,285,28,93,347,397,374,0],[23,387,53,56,345,371,347,0],[23,434,39,81,307,353,300,0],[23,478,83,72,326,382,338,0],[23,576,30,53,390,442,387,0],[23,583,60,43,317,336,274,0],[23,774,76,54,251,276,243,0],[23,905,99,37,257,291,243,0],[23,997,47,52,263,342,335,0],[23,1064,64,119,290,319,299,0],[23,1309,23,69,283,299,256,0],[23,1370,44,74,262,298,250,0],[24,96,21,44,430,467,531,0],[24,117,66,83,252,275,243,0],[24,141,81,73,280,297,248,0],[24,200,46,66,235,249,210,0],[24,308,19,39,228,255,206,0],[24,683,34,88,268,316,267,0],[24,690,39,58,423,506,442,0],[24,706,81,40,372,413,352,0],[24,720,53,73,244,263,201,0],[24,791,100,47,260,299,286,0],[24,848,93,52,240,261,187,0],[24,852,72,35,257,291,267,0],[24,1133,41,89,343,357,295,0],[24,1138,65,74,250,271,285,0],[24,1370,42,94,197,219,205,0],[25,473,22,46,234,309,270,1],[25,522,102,147,435,621,546,1],[25,589,22,66,240,300,235,1],[25,659,37,51,325,398,312,1],[25,668,26,55,237,283,247,1],[25,823,73,92,235,280,279,1],[25,1011,48,90,292,402,405,1],[25,1018,49,105,319,422,351,1],[25,1086,44,108,359,454,410,1],[25,1125,25,71,466,548,491,1],[25,1267,42,72,217,267,186,1],[25,1334,70,94,500,1240,1312,1],[25,1349,49,62,275,379,295,1],[25,1394,41,41,317,387,300,1],[26,327,60,91,554,587,491,0],[26,499,33,52,348,418,314,0],[26,629,94,134,337,357,278,0],[26,695,92,46,240,251,260,0],[26,842,40,63,229,245,189,0],[26,971,85,52,395,439,396,0],[26,1001,79,43,291,337,261,0],[26,1019,43,32,254,279,255,0],[26,1051,100,114,227,271,281,0],[26,1203,90,85,160,173,184,0],[26,1213,64,56,279,363,354,0],[26,1293,30,43,277,326,260,0],[27,111,36,38,307,357,291,1],[27,227,34,61,283,338,265,1],[27,238,40,25,259,354,313,1],[27,433,85,66,273,375,344,1],[27,472,69,48,275,335,320,1],[27,486,52,60,198,274,261,1],[27,515,66,104,226,327,282,1],[27,592,16,75,214,259,209,1],[27,691,36,103,241,295,274,1],[27,930,45,42,284,345,273,1],[27,971,57,115,360,573,572,1],[27,1047,60,71,214,325,267,1],[27,1129,72,136,292,342,269,1],[28,36,58,96,221,251,190,0],[28,71,41,56,267,299,206,0],[28,76,52,59,198,215,195,0],[28,92,44,57,333,356,343,0],[28,397,65,82,327,388,314,0],[28,398,91,49,310,352,311,0],[28,465,34,43,212,258,228,0],[28,592,71,38,306,357,316,0],[28,643,55,97,426,515,523,0],[28,649,32,126,263,303,250,0],[28,669,66,57,265,335,260,0],[28,766,87,73,215,257,226,0],[28,776,44,82,233,288,217,0],[28,957,45,32,305,353,338,0],[28,1024,113,72,255,347,287,0],[29,107,18,73,319,363,297,0],[29,216,90,83,178,205,212,0],[29,392,65,54,464,545,400,0],[29,535,93,86,312,343,255,0],[29,583,62,156,302,335,277,0],[29,598,48,109,235,297,273,0],[29,696,65,68,236,257,194,0],[29,722,57,33,497,544,405,0],[29,756,60,72,241,267,213,0],[29,917,50,63,314,336,299,0],[29,997,15,104,290,371,313,0],[29,1210,79,67,293,323,265,0],[29,1370,36,85,329,360,354,0],[29,1410,58,84,373,426,363,0]];
+  }
+  stats() {
+    if (this._s) return this._s;
+    var SH = 17, i, d;
+    var f = function (v) { return v.toFixed(1); };
+    var sortN = function (a) { return a.slice().sort(function (x, y) { return x - y; }); };
+    var med = function (a) { var b = sortN(a), m = b.length; return m % 2 ? b[(m - 1) / 2] : (b[m / 2 - 1] + b[m / 2]) / 2; };
+    var pct = function (a, p) { var b = sortN(a), h = (b.length - 1) * p, lo = Math.floor(h); var hi = Math.min(lo + 1, b.length - 1); return b[lo] + (b[hi] - b[lo]) * (h - lo); };
+    var mmss = function (s) { var sg = s < 0 ? '−' : ''; s = Math.round(Math.abs(s)); var r = s % 60; return sg + Math.floor(s / 60) + ':' + (r < 10 ? '0' : '') + r; };
+    var signed = function (s) { return (s >= 0 ? '+' : '') + mmss(s); };
+    var C = this.data().map(function (r) {
+      var tot = r[2] + r[3] + r[6];
+      return { day: r[0], t: r[0] + r[1] / 1440, disp: r[2], turn: r[3], ff: r[4], traf: r[5], drive: r[6], rain: r[7], tot: tot, late: tot > 480, after: r[0] >= SH };
+    });
+    var B = C.filter(function (c) { return !c.after; }), A = C.filter(function (c) { return c.after; });
+    var col = function (S, k) { return S.map(function (c) { return typeof k === 'function' ? k(c) : c[k]; }); };
+    var lateN = function (S) { return S.filter(function (c) { return c.late; }).length; };
+    var N = C.length, LN = lateN(C);
+    var tots = col(C, function (c) { return c.tot / 60; });
+
+    // --- p chart (daily late fraction)
+    var nD = [], lD = [];
+    for (d = 0; d < 30; d++) { nD.push(0); lD.push(0); }
+    C.forEach(function (c) { nD[c.day]++; if (c.late) lD[c.day]++; });
+    var pb = lateN(B) / B.length, pa = lateN(A) / A.length;
+    var step = 652 / 30, bw = 14;
+    var XC = function (k) { return 48 + (k + 0.5) * step; };
+    var Y = function (p) { return 200 - p / 0.7 * 184; };
+    var band = '', bars = '', red = '', redN = 0, run = 0, best = 0;
+    for (d = 0; d < 30; d++) {
+      var p = lD[d] / nD[d], u = pb + 3 * Math.sqrt(pb * (1 - pb) / nD[d]);
+      var x0 = 48 + d * step;
+      band += 'M' + f(x0) + ' 200 V' + f(Y(u)) + ' H' + f(x0 + step) + ' V200 Z ';
+      var bx = XC(d) - bw / 2;
+      var rect = 'M' + f(bx) + ' 200 V' + f(Y(p)) + ' H' + f(bx + bw) + ' V200 Z ';
+      if (p > u) { red += rect; redN++; } else { bars += rect; }
+      if (d >= SH) { run = p > pb ? run + 1 : 0; best = Math.max(best, run); }
+    }
+
+    // --- I chart on ln(minutes), limits from pre-Oct 3 calls
+    var LB = col(B, function (c) { return Math.log(c.tot / 60); });
+    var cl = LB.reduce(function (a, b) { return a + b; }, 0) / LB.length;
+    var mrb = 0; for (i = 1; i < LB.length; i++) mrb += Math.abs(LB[i] - LB[i - 1]); mrb /= (LB.length - 1);
+    var sig = mrb / 1.128, iu = cl + 3 * sig, il = cl - 3 * sig;
+    var lo = Math.log(2.5), hi = Math.log(26);
+    var Xt = function (t) { return 48 + t / 30 * 652; };
+    var Y2 = function (l) { return 230 - (l - lo) / (hi - lo) * 214; };
+    var dots = '', outd = '', outN = 0, oc = C[0];
+    C.forEach(function (c) {
+      var l = Math.log(c.tot / 60), s = 'M' + f(Xt(c.t)) + ' ' + f(Y2(l)) + ' l0 0 ';
+      if (l > iu || l < il) { outd += s; if (c.after) outN++; } else { dots += s; }
+      if (c.tot > oc.tot) oc = c;
+    });
+    var medB = med(col(B, 'tot')), medA = med(col(A, 'tot'));
+
+    // --- MR chart
+    var LA = col(C, function (c) { return Math.log(c.tot / 60); });
+    var mru = 3.267 * mrb, top = 1.8;
+    var Y3 = function (v) { return 120 - Math.min(v, top) / top * 108; };
+    var mrp = '', mro = '';
+    for (i = 1; i < C.length; i++) {
+      var mr = Math.abs(LA[i] - LA[i - 1]), seg = 'M' + f(Xt(C[i].t)) + ' 120 V' + f(Y3(mr)) + ' ';
+      if (mr > mru) mro += seg; else mrp += seg;
+    }
+
+    // --- stage medians
+    var M = function (S, k) { return med(col(S, k)); };
+    var tx = function (c) { return c.traf - c.ff; }, dv = function (c) { return c.drive - c.traf; };
+    var bD = M(B, 'disp'), bT = M(B, 'turn'), bR = M(B, 'drive'), aD = M(A, 'disp'), aT = M(A, 'turn'), aR = M(A, 'drive');
+    var scale = 540;
+    var mkRow = function (label, d1, d2, d3) {
+      var s = d1 + d2 + d3;
+      return { label: label, w: f(s / scale * 100), s1: f(d1 / s * 100), s2: f(d2 / s * 100), s3: f(d3 / s * 100), t1: mmss(d1), t2: mmss(d2), t3: mmss(d3), tot: mmss(s) };
+    };
+
+    // --- ambulance vs Google estimate (traf = Google ETA with traffic)
+    var slow = function (S) { return Math.round(100 * S.filter(function (c) { return c.drive > c.traf; }).length / S.length); };
+    var bG = M(B, 'traf'), aG = M(A, 'traf');
+    var gScale = 360;
+    var gRow = function (label, g, a) {
+      return { label: label, g: mmss(g), a: mmss(a), gW: f(Math.min(100, g / gScale * 100)), aW: f(Math.min(100, a / gScale * 100)), beat: mmss(g - a) };
+    };
+    var hist = function (S, yBase) {
+      var lo = -150, w = 15, nb = 16, cnts = [], k;
+      for (k = 0; k < nb; k++) cnts.push(0);
+      S.forEach(function (c) { var b = Math.floor((dv(c) - lo) / w); cnts[Math.max(0, Math.min(nb - 1, b))]++; });
+      var px = 492 / 240, g = '', r = '';
+      for (k = 0; k < nb; k++) {
+        var h = cnts[k] / S.length / 0.30 * 90, x0 = 48 + k * w * px + 1, x1 = 48 + (k + 1) * w * px - 1;
+        var rect = 'M' + f(x0) + ' ' + yBase + ' V' + f(yBase - h) + ' H' + f(x1) + ' V' + yBase + ' Z ';
+        if (lo + k * w >= 0) r += rect; else g += rect;
+      }
+      return { g: g, r: r };
+    };
+    var hB = hist(B, 120), hA = hist(A, 260);
+
+    // --- attribution of late calls
+    var bm = { disp: bD, turn: bT, g: bG, dv: med(col(B, dv)) };
+    var cnt = { disp: 0, turn: 0, g: 0, dv: 0 };
+    C.forEach(function (c) {
+      if (!c.late) return;
+      var ex = { disp: c.disp - bm.disp, turn: c.turn - bm.turn, g: c.traf - bm.g, dv: dv(c) - bm.dv };
+      var k = 'disp'; for (var key in ex) if (ex[key] > ex[k]) k = key;
+      cnt[k]++;
+    });
+    var aw = function (n) { return f(n / LN * 100); };
+
+    this._s = {
+      C: C, B: B, A: A, N: N, LN: LN, med: med, pct: pct, f: f, mmss: mmss,
+      p95: pct(tots, 0.95), p90: pct(tots, 0.90), trafRatio: bG / aG,
+      out: {
+        pBefore: (pb * 100).toFixed(1), pAfter: (pa * 100).toFixed(1), runLen: best, redN: redN,
+        bandPath: band, barsPath: bars, redBarsPath: red, pCL: f(Y(pb)), pCLlab: f(Y(pb) - 6),
+        yt20: f(Y(0.2) + 4), yt40: f(Y(0.4) + 4), yt60: f(Y(0.6) + 4),
+        shiftX: f(48 + SH * step), shiftW: f(652 - SH * step), shiftLabX: f(48 + SH * step + 6),
+        xd0: f(XC(0)), xd9: f(XC(9)), xd19: f(XC(19)), xd29: f(XC(29)),
+        iBandY: f(Y2(iu)), iBandH: f(Y2(il) - Y2(iu)), iCL: Math.exp(cl).toFixed(1), iUCL: Math.exp(iu).toFixed(1), iLCL: Math.exp(il).toFixed(1),
+        iy3: f(Y2(Math.log(3)) + 4), iy5: f(Y2(Math.log(5)) + 4), iy8: f(Y2(Math.log(8)) + 4), iy8l: f(Y2(Math.log(8))), iy12: f(Y2(Math.log(12)) + 4), iy20: f(Y2(Math.log(20)) + 4),
+        iDots: dots, iOutDots: outd, iOutN: outN,
+        shiftXl: f(Xt(SH)), medBy: f(Y2(Math.log(medB / 60))), medAy: f(Y2(Math.log(medA / 60))),
+        medBlab: f(Y2(Math.log(medB / 60)) + 16), medAlab: f(Y2(Math.log(medA / 60)) + 16), medAlabX: f(Xt(SH) + 6),
+        medB: mmss(medB), medA: mmss(medA),
+        outLabX: f(Xt(oc.t) - 10), outLabY: f(Y2(Math.log(oc.tot / 60)) + 4),
+        mrPath: mrp, mrOutPath: mro, mrCLy: f(Y3(mrb)), mrUCLy: f(Y3(mru)), mrULab: f(Y3(mru) + 4),
+        steps: [mkRow('Before Oct 3', bD, bT, bR), mkRow('Since Oct 3', aD, aT, aR)],
+        dDisp: signed(aD - bD), dTurn: signed(aT - bT), dDrive: signed(aR - bR),
+        gRows: [gRow('Before Oct 3', bG, bR), gRow('Since Oct 3', aG, aR)], gUp: mmss(aG - bG), bG: mmss(bG),
+        slowB: slow(B), slowA: slow(A), hBg: hB.g, hBr: hB.r, hAg: hA.g, hAr: hA.r,
+        attrExt: [
+          { label: 'Long trip (Google expected a long drive)', n: cnt.g, w: aw(cnt.g), c: '#B42318' }
+        ],
+        attrPpl: [
+          { label: '911 center slow to assign', n: cnt.disp, w: aw(cnt.disp), c: '#5C7FA8' },
+          { label: 'Crew slow to get rolling', n: cnt.turn, w: aw(cnt.turn), c: '#5C7FA8' },
+          { label: 'Drive slower than Google', n: cnt.dv, w: aw(cnt.dv), c: '#5C7FA8' }
+        ],
+        ocDisp: mmss(oc.disp), ocTurn: mmss(oc.turn), ocDrive: mmss(oc.drive), ocTraf: mmss(oc.traf),
+        ocMult: (oc.traf / bG).toFixed(1), ocDv: mmss(oc.drive - oc.traf), bDisp: mmss(bD), bTurn: mmss(bT),
+        z4late: LN, z4n: N
+      }
+    };
+    return this._s;
+  }
+  simulate(stage, frac) {
+    var s = this.stats(), ratio = s.trafRatio;
+    var t = s.C.map(function (c) {
+      var d = c.disp, u = c.turn, r = c.drive;
+      if (stage === 'disp') d *= 1 - frac;
+      if (stage === 'turn') u *= 1 - frac;
+      if (stage === 'drive') r *= 1 - frac;
+      if (stage === 'closer' && c.after) r *= ratio;
+      return (d + u + r) / 60;
+    });
+    var late = t.filter(function (v) { return v > 8; }).length;
+    return { late: late, pct: 100 * late / t.length, p95: s.pct(t, 0.95) };
+  }
+  renderVals() {
+    var self = this, s = this.stats(), o = s.out;
+    var S = {
+      urgent: ['Act now', '#B42318', '#FFFFFF'],
+      newp: ['Recent change', '#FDE7D3', '#8A3A00'],
+      chronic: ['Ongoing gap', '#FBF1C7', '#6B5300'],
+      ok: ['On track', '#DCEFE2', '#1E6B3A']
+    };
+    var z4pct = 100 * s.LN / s.N;
+    var oneIn = function (p) { return '1 in ' + Math.max(1, Math.round(100 / p)); };
+    var attention = [
+      ['4', 'urgent', 'Getting worse since about Oct 3: late calls went from about 1 in 10 to about 1 in 4.', z4pct, s.LN, s.N, s.p95.toFixed(1),
+       'Find out what changed around Oct 3. Sections 3–5 below show it is real, that it comes from longer drives, and which fix helps most.'],
+      ['2', 'newp', 'Usually on track, but the last 4 days were unusually slow.', 6.4, 25, 388, '8.4',
+       'Pull the late calls from the last 4 days and look for something they share: a shift, an event, a road closure.'],
+      ['6', 'chronic', 'Not getting worse, but too many late calls every week. This points to coverage, not to the crews.', 14.8, 44, 297, '10.2',
+       'Bring to planning: does this area need another ambulance, or a different standby location?']
+    ].map(function (a) {
+      var st = S[a[1]];
+      return {
+        num: a[0], what: a[2], oneIn: oneIn(a[3]), late: a[4], n: a[5], p95: a[6], next: a[7],
+        barW: Math.min(100, a[3] / 25 * 100).toFixed(1), barC: a[3] > 10 ? '#B42318' : '#1F3A5F',
+        sLabel: st[0], sBg: st[1], sFg: st[2],
+        bg: a[1] === 'urgent' ? '#FFF8F7' : '#FFFFFF', bd: a[1] === 'urgent' ? '#E9B4AE' : '#DCE0DA'
+      };
+    });
+    var onTrack = [['1', '1 in 13', ''], ['8', '1 in 11', 'Close to the goal. Keep watching.'], ['3', '1 in 19', ''], ['5', '1 in 24', ''], ['7', '1 in 48', '']]
+      .map(function (x) { return { num: x[0], oneIn: x[1], note: x[2] }; });
+
+    // --- zone map
+    var FILL = { urgent: ['#B42318', '#FFFFFF'], newp: ['#F4B98A', '#4A2600'], chronic: ['#EED27A', '#3D3000'], ok: ['#BFE0C8', '#17201C'] };
+    var POLY = {
+      '1': 'M30 40 L170 25 L185 190 L40 210 Z', '2': 'M170 25 L330 30 L320 200 L185 190 Z', '3': 'M330 30 L480 45 L470 195 L320 200 Z',
+      '5': 'M480 45 L610 70 L600 210 L470 195 Z', '6': 'M40 210 L185 190 L195 400 L60 380 Z',
+      '4': 'M185 190 L320 200 L470 195 L450 300 L330 410 L195 400 Z', '7': 'M470 195 L600 210 L590 330 L450 300 Z', '8': 'M450 300 L590 330 L560 415 L330 410 Z'
+    };
+    var ZD = {
+      '1': ['ok', '14601 · 14602', 'On track all month.', 7.9, 28, 356, '8.5', 'No action needed.'],
+      '2': ['newp', '14603 · 14604', attention[1].what, 6.4, 25, 388, '8.4', attention[1].next],
+      '3': ['ok', '14605 · 14606', 'On track all month.', 5.2, 21, 401, '8.1', 'No action needed.'],
+      '4': ['urgent', '14612 · 14613 · 14614', attention[0].what, z4pct, s.LN, s.N, s.p95.toFixed(1), 'Find out what changed around Oct 3.'],
+      '5': ['ok', '14607 · 14608', 'On track all month.', 4.1, 13, 318, '7.6', 'No action needed.'],
+      '6': ['chronic', '14609 · 14610 · 14611', attention[2].what, 14.8, 44, 297, '10.2', attention[2].next],
+      '7': ['ok', '14615 · 14616', 'On track all month.', 2.1, 6, 286, '6.8', 'No action needed.'],
+      '8': ['ok', '14617 · 14618', 'On track, but close to the goal.', 9.4, 23, 245, '8.7', 'No action yet. Check again next week.']
+    };
+    var selZ = this.state.selZone, mz = {};
+    Object.keys(ZD).forEach(function (k) {
+      var d = ZD[k];
+      mz['Z' + k] = { fill: FILL[d[0]][0], ink: FILL[d[0]][1], oneIn: oneIn(d[3]), zips: d[1], pick: function () { self.setState({ selZone: k }); } };
+    });
+    var sd = ZD[selZ], sst = S[sd[0]];
+    var sel = { num: selZ, zips: sd[1], what: sd[2], oneIn: oneIn(sd[3]), late: sd[4], n: sd[5], p95: sd[6], next: sd[7], sLabel: sst[0], sBg: sst[1], sFg: sst[2], isZ4: selZ === '4' };
+    var zoneBtns = ['1', '2', '3', '4', '5', '6', '7', '8'].map(function (k) {
+      var on2 = k === selZ;
+      return { num: k, bg: on2 ? '#1F3A5F' : '#FFFFFF', fg: on2 ? '#FFFFFF' : '#17201C', bd: on2 ? '#1F3A5F' : '#C9CEC7', pick: function () { self.setState({ selZone: k }); } };
+    });
+    var raw = [
+      ['Z4', s.N, s.LN, z4pct, s.p90.toFixed(1), s.p95.toFixed(1), '8.9–9.8', '0.31', '0.34', 'urgent', 'Shift since ~Oct 3; 1 call at 24.6 min'],
+      ['Z2', 388, 25, 6.4, '7.6', '8.4', '8.1–8.9', '0.51', '0.58', 'newp', '2 of 3 beyond 2σ, last 4 days'],
+      ['Z6', 297, 44, 14.8, '8.9', '10.2', '9.5–11.0', '0.35', '0.40', 'chronic', 'Stable, but over target all month'],
+      ['Z1', 356, 28, 7.9, '7.8', '8.5', '8.2–9.0', '0.47', '0.54', 'ok', 'No signals'],
+      ['Z8', 245, 23, 9.4, '7.9', '8.7', '8.1–9.5', '0.44', '0.50', 'ok', 'No signals · near the line'],
+      ['Z3', 401, 21, 5.2, '7.2', '8.1', '7.7–8.6', '0.54', '0.61', 'ok', 'No signals'],
+      ['Z5', 318, 13, 4.1, '6.9', '7.6', '7.2–8.1', '0.58', '0.65', 'ok', 'No signals'],
+      ['Z7', 286, 6, 2.1, '6.1', '6.8', '6.4–7.3', '0.68', '0.76', 'ok', 'No signals']
+    ];
+    var zones = raw.map(function (z, k) {
+      var st = S[z[9]];
+      return {
+        r: k + 1, z: z[0], n: z[1], late: z[2], pct: z[3].toFixed(1), p90: z[4], p95: z[5], ci: z[6], cpk: z[7], ub: z[8],
+        ev: z[10], barW: Math.min(100, z[3] / 25 * 100).toFixed(1), barC: z[3] > 10 ? '#B42318' : '#1F3A5F',
+        sLabel: st[0], sBg: st[1], sFg: st[2], rowBg: k === 0 ? '#F2F5FA' : '#FFFFFF'
+      };
+    });
+    var cityLate = 160 + s.LN;
+
+    // --- between-zone comparison: analysis of means (ANOM) on ln(minutes)
+    var z4L = s.C.map(function (c) { return Math.log(c.tot / 60); });
+    var z4m = z4L.reduce(function (a, b) { return a + b; }, 0) / z4L.length;
+    var z4s = Math.sqrt(z4L.reduce(function (a, b) { return a + (b - z4m) * (b - z4m); }, 0) / (z4L.length - 1));
+    var groups = [['1', Math.log(5.24), 0.30, 356], ['2', Math.log(5.07), 0.30, 388], ['3', Math.log(4.91), 0.30, 401], ['4', z4m, z4s, s.N],
+      ['5', Math.log(4.75), 0.30, 318], ['6', Math.log(5.85), 0.30, 297], ['7', Math.log(4.35), 0.30, 286], ['8', Math.log(5.39), 0.30, 245]]
+      .map(function (g) { return { num: g[0], m: g[1], sd: g[2], n: g[3] }; });
+    var NN = 0, sw = 0, ss = 0;
+    groups.forEach(function (g) { NN += g.n; sw += g.n * g.m; ss += (g.n - 1) * g.sd * g.sd; });
+    var gm = sw / NN, sp = Math.sqrt(ss / (NN - groups.length)), hA = 2.73;
+    var msb = 0; groups.forEach(function (g) { msb += g.n * (g.m - gm) * (g.m - gm); }); msb /= (groups.length - 1);
+    var AX = function (mins) { return 120 + (mins - 4) / 4.4 * 440; };
+    var fx = function (v) { return v.toFixed(1); };
+    groups.forEach(function (g) {
+      var dl = hA * sp * Math.sqrt((NN - g.n) / (NN * g.n));
+      g.lo = Math.exp(gm - dl); g.hi = Math.exp(gm + dl);
+      g.gmin = Math.exp(g.m); g.cl = Math.exp(g.m - 1.96 * g.sd / Math.sqrt(g.n)); g.ch = Math.exp(g.m + 1.96 * g.sd / Math.sqrt(g.n));
+      g.kind = g.gmin > g.hi ? 'slow' : (g.gmin < g.lo ? 'fast' : 'same');
+    });
+    groups.sort(function (a, b) { return b.gmin - a.gmin; });
+    var anP = { band: '', Wsame: '', Wslow: '', Wfast: '', Dsame: '', Dslow: '', Dfast: '' }, anR = {};
+    var KC = { slow: '#B42318', fast: '#1E6B3A', same: '#3D4842' }, KT = { slow: 'consistently slower', fast: 'consistently faster', same: 'about the same' };
+    groups.forEach(function (g, i) {
+      var y = 40 + i * 34;
+      anP.band += 'M' + fx(AX(g.lo)) + ' ' + (y - 9) + ' H' + fx(AX(g.hi)) + ' V' + (y + 9) + ' H' + fx(AX(g.lo)) + ' Z ';
+      var key = g.kind.charAt(0).toUpperCase() + g.kind.slice(1);
+      anP['W' + g.kind] += 'M' + fx(AX(g.cl)) + ' ' + y + ' H' + fx(AX(g.ch)) + ' ';
+      anP['D' + g.kind] += 'M' + fx(AX(g.gmin)) + ' ' + y + ' l0 0 ';
+      anR['r' + i] = { label: 'Zone ' + g.num, c: KC[g.kind], txt: g.gmin.toFixed(1) + ' min · ' + KT[g.kind] };
+    });
+    var listOf = function (k) { return groups.filter(function (g) { return g.kind === k; }); };
+    var anNames = function (arr) { return arr.map(function (g) { return 'Zone ' + g.num + ' (' + g.gmin.toFixed(1) + ' min)'; }).join(', '); };
+    var slowZ = listOf('slow'), fastZ = listOf('fast');
+    var anomVerdict = (slowZ.length ? 'Consistently slower than the city: ' + anNames(slowZ) + '. ' : 'No zone is consistently slower than the city. ') +
+      (fastZ.length ? 'Consistently faster: ' + anNames(fastZ) + '. ' : '') +
+      'Every one of these typical waits is under the 8-minute goal, so a monthly "% on time" report would not show the gap.';
+    var hit = ['Triggered', '#B42318', '#FFFFFF'], clr = ['Clear', '#EEF0EC', '#3D4842'];
+    var tests = [
+      ['1', 'One point beyond 3σ', hit, o.iOutN + ' calls'],
+      ['2', '9 in a row on one side of center', hit],
+      ['3', '6 in a row steadily up or down', clr],
+      ['4', '14 in a row alternating up and down', clr],
+      ['5', '2 of 3 beyond 2σ, same side', hit],
+      ['6', '4 of 5 beyond 1σ, same side', hit],
+      ['7', '15 in a row within 1σ', clr],
+      ['8', '8 in a row beyond 1σ, either side', clr]
+    ].map(function (t, k) {
+      return { id: t[0], rule: t[1], res: t[3] || t[2][0], bg: t[2][1], fg: t[2][2], border: k === 0 ? 'transparent' : '#E3E6E1' };
+    });
+
+    var st = this.state.stage, cu = this.state.cut;
+    var r = this.simulate(st, cu / 100);
+    var on = function (sel) { return sel ? { bg: '#1F3A5F', fg: '#FFFFFF', bd: '#1F3A5F' } : { bg: '#FFFFFF', fg: '#17201C', bd: '#C9CEC7' }; };
+    var names = { closer: 'Post an ambulance closer', disp: '911 center assigns faster', turn: 'Crew rolls faster', drive: 'Drive faster' };
+    var stages = ['closer', 'disp', 'turn', 'drive'].map(function (k) {
+      var x = on(k === st);
+      return { label: names[k], bg: x.bg, fg: x.fg, bd: x.bd, pick: function () { self.setState({ stage: k }); } };
+    });
+    var cuts = [10, 25, 40].map(function (v) {
+      var x = on(v === cu);
+      return { label: v + '% faster', bg: x.bg, fg: x.fg, bd: x.bd, pick: function () { self.setState({ cut: v }); } };
+    });
+    var what = st === 'closer' ? 'Posting an ambulance closer' : names[st] + ' (by ' + cu + '%)';
+    var verdict = r.pct <= 10
+      ? what + ' would bring Zone 4 back under the goal of 1 in 10 late.'
+      : what + ' would still leave Zone 4 above the goal of 1 in 10 late.' + (st === 'disp' || st === 'turn' ? ' The extra time is on the road, so this step is not the main lever.' : '');
+
+    return Object.assign({}, o, {
+      attention: attention, onTrack: onTrack, zones: zones, tests: tests,
+      mz: mz, sel: sel, selPath: POLY[selZ], zoneBtns: zoneBtns,
+      anomVerdict: anomVerdict, anR: anR, anBand: anP.band,
+      anWsame: anP.Wsame, anWslow: anP.Wslow, anWfast: anP.Wfast, anDsame: anP.Dsame, anDslow: anP.Dslow, anDfast: anP.Dfast,
+      anG: Math.exp(gm).toFixed(1), anGx: fx(AX(Math.exp(gm))), anGoalX: fx(AX(8)),
+      anT4: fx(AX(4)), anT5: fx(AX(5)), anT6: fx(AX(6)), anT7: fx(AX(7)), anT8: fx(AX(8)),
+      anSp: sp.toFixed(3), anN: NN.toLocaleString('en-US'), anDf1: groups.length - 1, anDf2: (NN - groups.length).toLocaleString('en-US'), anF: (msb / (sp * sp)).toFixed(1),
+      math4: this.state.math4,
+      math4Label: this.state.math4 ? 'Hide the method' : 'Show the method (for analysts)',
+      toggleMath4: function () { self.setState({ math4: !self.state.math4 }); },
+      cityLate: cityLate.toLocaleString('en-US'), cityPct: (100 * cityLate / 2705).toFixed(1),
+      showMath: this.state.showMath, math2: this.state.math2, math3: this.state.math3,
+      mathLabel: this.state.showMath ? 'Hide the statistics' : 'Show the statistics behind this (for analysts)',
+      math2Label: this.state.math2 ? 'Hide the statistics' : 'Show the statistics behind these charts (for analysts)',
+      math3Label: this.state.math3 ? 'Hide the method' : 'Show the method and the data it needs (for analysts)',
+      toggleMath: function () { self.setState({ showMath: !self.state.showMath }); },
+      toggleMath2: function () { self.setState({ math2: !self.state.math2 }); },
+      toggleMath3: function () { self.setState({ math3: !self.state.math3 }); },
+      stages: stages, cuts: cuts, showCuts: st !== 'closer', showCloser: st === 'closer',
+      z4pct: z4pct.toFixed(1), z4p95: s.p95.toFixed(1),
+      simPct: r.pct.toFixed(1), simOneIn: oneIn(Math.max(r.pct, 0.5)), simP95: r.p95.toFixed(1),
+      simAvoid: s.LN - r.late,
+      nowW: Math.min(100, z4pct / 25 * 100).toFixed(1),
+      simW: Math.min(100, r.pct / 25 * 100).toFixed(1), simC: r.pct <= 10 ? '#1E6B3A' : '#B42318',
+      simVerdict: verdict
+    });
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,2 @@
+# ZCTAs in data/lookup/zcta_county.csv that are allowed to have no shape.
+# One 5-digit ZCTA per line, then a reason after a space. Empty = every ZCTA must have a shape.

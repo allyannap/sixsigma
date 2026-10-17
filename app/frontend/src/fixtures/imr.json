@@ -1,0 +1,804 @@
+{
+ "selection": {
+  "dataset": "station_closure",
+  "level": "county",
+  "id": "36901",
+  "name": "Fixture County A",
+  "from": "2026-09-16",
+  "to": "2026-10-15",
+  "urgency": [
+   "red"
+  ],
+  "baseline_from": "2026-07-18",
+  "baseline_to": "2026-09-15"
+ },
+ "messages": [
+  "FIXTURE DATA: invented numbers for building the page. Not real."
+ ],
+ "cl_min": 6.2,
+ "ucl_min": 11.8,
+ "lcl_min": 3.2,
+ "mr_ucl": 0.85,
+ "points": [
+  {
+   "incident_id": "FX-1000",
+   "t_received": "2026-09-17T10:00:00-04:00",
+   "minutes": 5.02,
+   "ln_min": 1.613,
+   "mr": null,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1001",
+   "t_received": "2026-09-18T10:00:00-04:00",
+   "minutes": 14.81,
+   "ln_min": 2.695,
+   "mr": 1.082,
+   "tests": [
+    1
+   ]
+  },
+  {
+   "incident_id": "FX-1002",
+   "t_received": "2026-09-19T10:00:00-04:00",
+   "minutes": 7.93,
+   "ln_min": 2.07,
+   "mr": 0.625,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1003",
+   "t_received": "2026-09-20T10:00:00-04:00",
+   "minutes": 7.76,
+   "ln_min": 2.05,
+   "mr": 0.021,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1004",
+   "t_received": "2026-09-21T10:00:00-04:00",
+   "minutes": 6.25,
+   "ln_min": 1.833,
+   "mr": 0.217,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1005",
+   "t_received": "2026-09-22T10:00:00-04:00",
+   "minutes": 5.16,
+   "ln_min": 1.641,
+   "mr": 0.192,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1006",
+   "t_received": "2026-09-23T10:00:00-04:00",
+   "minutes": 5.66,
+   "ln_min": 1.734,
+   "mr": 0.093,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1007",
+   "t_received": "2026-09-24T10:00:00-04:00",
+   "minutes": 6.24,
+   "ln_min": 1.831,
+   "mr": 0.097,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1008",
+   "t_received": "2026-09-25T10:00:00-04:00",
+   "minutes": 4.74,
+   "ln_min": 1.557,
+   "mr": 0.274,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1009",
+   "t_received": "2026-09-26T10:00:00-04:00",
+   "minutes": 3.86,
+   "ln_min": 1.351,
+   "mr": 0.206,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1010",
+   "t_received": "2026-09-27T10:00:00-04:00",
+   "minutes": 3.45,
+   "ln_min": 1.239,
+   "mr": 0.112,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1011",
+   "t_received": "2026-09-28T10:00:00-04:00",
+   "minutes": 4.64,
+   "ln_min": 1.535,
+   "mr": 0.296,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1012",
+   "t_received": "2026-09-29T10:00:00-04:00",
+   "minutes": 5.12,
+   "ln_min": 1.632,
+   "mr": 0.097,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1013",
+   "t_received": "2026-09-30T10:00:00-04:00",
+   "minutes": 9.77,
+   "ln_min": 2.279,
+   "mr": 0.647,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1014",
+   "t_received": "2026-09-01T10:00:00-04:00",
+   "minutes": 4.37,
+   "ln_min": 1.475,
+   "mr": 0.804,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1015",
+   "t_received": "2026-10-02T10:00:00-04:00",
+   "minutes": 4.9,
+   "ln_min": 1.589,
+   "mr": 0.114,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1016",
+   "t_received": "2026-10-03T10:00:00-04:00",
+   "minutes": 3.44,
+   "ln_min": 1.235,
+   "mr": 0.354,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1017",
+   "t_received": "2026-10-04T10:00:00-04:00",
+   "minutes": 7.32,
+   "ln_min": 1.991,
+   "mr": 0.756,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1018",
+   "t_received": "2026-10-05T10:00:00-04:00",
+   "minutes": 8.72,
+   "ln_min": 2.166,
+   "mr": 0.175,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1019",
+   "t_received": "2026-10-06T10:00:00-04:00",
+   "minutes": 5.48,
+   "ln_min": 1.701,
+   "mr": 0.465,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1020",
+   "t_received": "2026-10-07T10:00:00-04:00",
+   "minutes": 5.85,
+   "ln_min": 1.766,
+   "mr": 0.065,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1021",
+   "t_received": "2026-10-08T10:00:00-04:00",
+   "minutes": 5.63,
+   "ln_min": 1.727,
+   "mr": 0.039,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1022",
+   "t_received": "2026-10-09T10:00:00-04:00",
+   "minutes": 5.4,
+   "ln_min": 1.686,
+   "mr": 0.041,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1023",
+   "t_received": "2026-10-10T10:00:00-04:00",
+   "minutes": 3.99,
+   "ln_min": 1.384,
+   "mr": 0.302,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1024",
+   "t_received": "2026-10-11T10:00:00-04:00",
+   "minutes": 11.23,
+   "ln_min": 2.418,
+   "mr": 1.034,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1025",
+   "t_received": "2026-10-12T10:00:00-04:00",
+   "minutes": 6.04,
+   "ln_min": 1.799,
+   "mr": 0.62,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1026",
+   "t_received": "2026-10-13T10:00:00-04:00",
+   "minutes": 5.79,
+   "ln_min": 1.756,
+   "mr": 0.042,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1027",
+   "t_received": "2026-10-14T10:00:00-04:00",
+   "minutes": 8.44,
+   "ln_min": 2.133,
+   "mr": 0.377,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1028",
+   "t_received": "2026-10-15T10:00:00-04:00",
+   "minutes": 6.0,
+   "ln_min": 1.791,
+   "mr": 0.342,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1029",
+   "t_received": "2026-10-16T10:00:00-04:00",
+   "minutes": 5.84,
+   "ln_min": 1.765,
+   "mr": 0.026,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1030",
+   "t_received": "2026-10-17T10:00:00-04:00",
+   "minutes": 5.13,
+   "ln_min": 1.636,
+   "mr": 0.129,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1031",
+   "t_received": "2026-10-18T10:00:00-04:00",
+   "minutes": 6.49,
+   "ln_min": 1.871,
+   "mr": 0.235,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1032",
+   "t_received": "2026-10-19T10:00:00-04:00",
+   "minutes": 6.73,
+   "ln_min": 1.907,
+   "mr": 0.036,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1033",
+   "t_received": "2026-10-20T10:00:00-04:00",
+   "minutes": 6.68,
+   "ln_min": 1.899,
+   "mr": 0.008,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1034",
+   "t_received": "2026-10-21T10:00:00-04:00",
+   "minutes": 6.32,
+   "ln_min": 1.844,
+   "mr": 0.056,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1035",
+   "t_received": "2026-10-22T10:00:00-04:00",
+   "minutes": 5.24,
+   "ln_min": 1.657,
+   "mr": 0.187,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1036",
+   "t_received": "2026-10-23T10:00:00-04:00",
+   "minutes": 6.23,
+   "ln_min": 1.829,
+   "mr": 0.172,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1037",
+   "t_received": "2026-10-24T10:00:00-04:00",
+   "minutes": 8.53,
+   "ln_min": 2.143,
+   "mr": 0.314,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1038",
+   "t_received": "2026-10-25T10:00:00-04:00",
+   "minutes": 6.79,
+   "ln_min": 1.915,
+   "mr": 0.228,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1039",
+   "t_received": "2026-10-26T10:00:00-04:00",
+   "minutes": 5.64,
+   "ln_min": 1.73,
+   "mr": 0.185,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1040",
+   "t_received": "2026-10-27T10:00:00-04:00",
+   "minutes": 4.22,
+   "ln_min": 1.441,
+   "mr": 0.289,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1041",
+   "t_received": "2026-10-28T10:00:00-04:00",
+   "minutes": 7.04,
+   "ln_min": 1.951,
+   "mr": 0.51,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1042",
+   "t_received": "2026-10-29T10:00:00-04:00",
+   "minutes": 9.63,
+   "ln_min": 2.265,
+   "mr": 0.313,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1043",
+   "t_received": "2026-10-30T10:00:00-04:00",
+   "minutes": 4.17,
+   "ln_min": 1.429,
+   "mr": 0.836,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1044",
+   "t_received": "2026-10-01T10:00:00-04:00",
+   "minutes": 7.35,
+   "ln_min": 1.994,
+   "mr": 0.566,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1045",
+   "t_received": "2026-10-02T10:00:00-04:00",
+   "minutes": 5.1,
+   "ln_min": 1.63,
+   "mr": 0.365,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1046",
+   "t_received": "2026-10-03T10:00:00-04:00",
+   "minutes": 4.78,
+   "ln_min": 1.565,
+   "mr": 0.065,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1047",
+   "t_received": "2026-10-04T10:00:00-04:00",
+   "minutes": 7.23,
+   "ln_min": 1.978,
+   "mr": 0.413,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1048",
+   "t_received": "2026-10-05T10:00:00-04:00",
+   "minutes": 11.31,
+   "ln_min": 2.426,
+   "mr": 0.448,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1049",
+   "t_received": "2026-10-06T10:00:00-04:00",
+   "minutes": 3.63,
+   "ln_min": 1.289,
+   "mr": 1.136,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1050",
+   "t_received": "2026-10-07T10:00:00-04:00",
+   "minutes": 9.43,
+   "ln_min": 2.244,
+   "mr": 0.955,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1051",
+   "t_received": "2026-10-08T10:00:00-04:00",
+   "minutes": 9.88,
+   "ln_min": 2.29,
+   "mr": 0.046,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1052",
+   "t_received": "2026-10-09T10:00:00-04:00",
+   "minutes": 8.62,
+   "ln_min": 2.155,
+   "mr": 0.135,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1053",
+   "t_received": "2026-10-10T10:00:00-04:00",
+   "minutes": 10.59,
+   "ln_min": 2.36,
+   "mr": 0.205,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1054",
+   "t_received": "2026-10-11T10:00:00-04:00",
+   "minutes": 5.49,
+   "ln_min": 1.703,
+   "mr": 0.657,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1055",
+   "t_received": "2026-10-12T10:00:00-04:00",
+   "minutes": 8.75,
+   "ln_min": 2.168,
+   "mr": 0.465,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1056",
+   "t_received": "2026-10-13T10:00:00-04:00",
+   "minutes": 8.38,
+   "ln_min": 2.126,
+   "mr": 0.043,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1057",
+   "t_received": "2026-10-14T10:00:00-04:00",
+   "minutes": 8.65,
+   "ln_min": 2.157,
+   "mr": 0.031,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1058",
+   "t_received": "2026-10-15T10:00:00-04:00",
+   "minutes": 6.42,
+   "ln_min": 1.86,
+   "mr": 0.297,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1059",
+   "t_received": "2026-10-16T10:00:00-04:00",
+   "minutes": 9.76,
+   "ln_min": 2.278,
+   "mr": 0.418,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1060",
+   "t_received": "2026-10-17T10:00:00-04:00",
+   "minutes": 4.07,
+   "ln_min": 1.404,
+   "mr": 0.874,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1061",
+   "t_received": "2026-10-18T10:00:00-04:00",
+   "minutes": 6.1,
+   "ln_min": 1.808,
+   "mr": 0.403,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1062",
+   "t_received": "2026-10-19T10:00:00-04:00",
+   "minutes": 7.3,
+   "ln_min": 1.988,
+   "mr": 0.18,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1063",
+   "t_received": "2026-10-20T10:00:00-04:00",
+   "minutes": 5.87,
+   "ln_min": 1.77,
+   "mr": 0.218,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1064",
+   "t_received": "2026-10-21T10:00:00-04:00",
+   "minutes": 5.89,
+   "ln_min": 1.773,
+   "mr": 0.003,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1065",
+   "t_received": "2026-10-22T10:00:00-04:00",
+   "minutes": 6.08,
+   "ln_min": 1.805,
+   "mr": 0.032,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1066",
+   "t_received": "2026-10-23T10:00:00-04:00",
+   "minutes": 16.04,
+   "ln_min": 2.775,
+   "mr": 0.971,
+   "tests": [
+    1
+   ]
+  },
+  {
+   "incident_id": "FX-1067",
+   "t_received": "2026-10-24T10:00:00-04:00",
+   "minutes": 10.55,
+   "ln_min": 2.357,
+   "mr": 0.419,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1068",
+   "t_received": "2026-10-25T10:00:00-04:00",
+   "minutes": 9.49,
+   "ln_min": 2.25,
+   "mr": 0.106,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1069",
+   "t_received": "2026-10-26T10:00:00-04:00",
+   "minutes": 4.43,
+   "ln_min": 1.488,
+   "mr": 0.762,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1070",
+   "t_received": "2026-10-27T10:00:00-04:00",
+   "minutes": 9.23,
+   "ln_min": 2.223,
+   "mr": 0.735,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1071",
+   "t_received": "2026-10-28T10:00:00-04:00",
+   "minutes": 15.23,
+   "ln_min": 2.723,
+   "mr": 0.5,
+   "tests": [
+    1
+   ]
+  },
+  {
+   "incident_id": "FX-1072",
+   "t_received": "2026-10-29T10:00:00-04:00",
+   "minutes": 7.45,
+   "ln_min": 2.008,
+   "mr": 0.715,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1073",
+   "t_received": "2026-10-30T10:00:00-04:00",
+   "minutes": 9.18,
+   "ln_min": 2.217,
+   "mr": 0.209,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1074",
+   "t_received": "2026-10-01T10:00:00-04:00",
+   "minutes": 7.78,
+   "ln_min": 2.052,
+   "mr": 0.165,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1075",
+   "t_received": "2026-10-02T10:00:00-04:00",
+   "minutes": 7.71,
+   "ln_min": 2.043,
+   "mr": 0.009,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1076",
+   "t_received": "2026-10-03T10:00:00-04:00",
+   "minutes": 10.26,
+   "ln_min": 2.328,
+   "mr": 0.285,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1077",
+   "t_received": "2026-10-04T10:00:00-04:00",
+   "minutes": 9.19,
+   "ln_min": 2.218,
+   "mr": 0.11,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1078",
+   "t_received": "2026-10-05T10:00:00-04:00",
+   "minutes": 9.79,
+   "ln_min": 2.281,
+   "mr": 0.063,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1079",
+   "t_received": "2026-10-06T10:00:00-04:00",
+   "minutes": 10.77,
+   "ln_min": 2.377,
+   "mr": 0.096,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1080",
+   "t_received": "2026-10-07T10:00:00-04:00",
+   "minutes": 8.46,
+   "ln_min": 2.135,
+   "mr": 0.242,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1081",
+   "t_received": "2026-10-08T10:00:00-04:00",
+   "minutes": 8.42,
+   "ln_min": 2.13,
+   "mr": 0.004,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1082",
+   "t_received": "2026-10-09T10:00:00-04:00",
+   "minutes": 9.15,
+   "ln_min": 2.214,
+   "mr": 0.084,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1083",
+   "t_received": "2026-10-10T10:00:00-04:00",
+   "minutes": 23.31,
+   "ln_min": 3.149,
+   "mr": 0.934,
+   "tests": [
+    1
+   ]
+  },
+  {
+   "incident_id": "FX-1084",
+   "t_received": "2026-10-11T10:00:00-04:00",
+   "minutes": 8.01,
+   "ln_min": 2.081,
+   "mr": 1.068,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1085",
+   "t_received": "2026-10-12T10:00:00-04:00",
+   "minutes": 8.87,
+   "ln_min": 2.183,
+   "mr": 0.103,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1086",
+   "t_received": "2026-10-13T10:00:00-04:00",
+   "minutes": 11.46,
+   "ln_min": 2.439,
+   "mr": 0.256,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1087",
+   "t_received": "2026-10-14T10:00:00-04:00",
+   "minutes": 6.14,
+   "ln_min": 1.815,
+   "mr": 0.624,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1088",
+   "t_received": "2026-10-15T10:00:00-04:00",
+   "minutes": 9.71,
+   "ln_min": 2.273,
+   "mr": 0.459,
+   "tests": []
+  },
+  {
+   "incident_id": "FX-1089",
+   "t_received": "2026-10-16T10:00:00-04:00",
+   "minutes": 10.22,
+   "ln_min": 2.324,
+   "mr": 0.051,
+   "tests": []
+  }
+ ],
+ "tests": [
+  {
+   "id": 1,
+   "rule": "One call beyond 3 sigma",
+   "alert": true,
+   "fired": true
+  },
+  {
+   "id": 2,
+   "rule": "9 calls in a row on one side of the center line",
+   "alert": true,
+   "fired": true
+  },
+  {
+   "id": 3,
+   "rule": "6 calls in a row going up or down",
+   "alert": false,
+   "fired": false
+  },
+  {
+   "id": 4,
+   "rule": "14 calls in a row alternating up and down",
+   "alert": false,
+   "fired": false
+  },
+  {
+   "id": 5,
+   "rule": "2 of 3 calls beyond 2 sigma",
+   "alert": true,
+   "fired": true
+  },
+  {
+   "id": 6,
+   "rule": "4 of 5 calls beyond 1 sigma",
+   "alert": false,
+   "fired": true
+  },
+  {
+   "id": 7,
+   "rule": "15 calls in a row within 1 sigma",
+   "alert": false,
+   "fired": false
+  },
+  {
+   "id": 8,
+   "rule": "8 calls in a row beyond 1 sigma",
+   "alert": false,
+   "fired": false
+  }
+ ],
+ "before_median_min": 6.2,
+ "after_median_min": 8.4
+}

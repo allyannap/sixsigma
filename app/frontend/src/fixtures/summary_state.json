@@ -1,0 +1,144 @@
+{
+ "selection": {
+  "dataset": "station_closure",
+  "level": "state",
+  "id": null,
+  "name": "New York State (fixture)",
+  "from": "2026-09-16",
+  "to": "2026-10-15",
+  "urgency": [
+   "red"
+  ],
+  "baseline_from": "2026-07-18",
+  "baseline_to": "2026-09-15"
+ },
+ "messages": [
+  "FIXTURE DATA: invented numbers for building the page. Not real."
+ ],
+ "totals": {
+  "calls": 9177,
+  "timed": 8900,
+  "late": 995,
+  "pct_late": 11.2,
+  "median_min": 6.9,
+  "median_dispatch_to_scene_min": 5.4,
+  "p95_min": 14.8,
+  "p95_ci": [
+   14.1,
+   15.6
+  ]
+ },
+ "needs_attention": 3,
+ "places": [
+  {
+   "id": "36901",
+   "name": "Fixture County A",
+   "calls": 2705,
+   "timed": 2623,
+   "late": 402,
+   "pct_late": 15.3,
+   "p95_min": 19.8,
+   "cpk": 0.21,
+   "cpk_upper": 0.44,
+   "too_slow": true,
+   "changed": true,
+   "reasons": [
+    "p chart: 6 days above the upper limit since Oct 3"
+   ],
+   "status": "act_now"
+  },
+  {
+   "id": "36902",
+   "name": "Fixture County B",
+   "calls": 1900,
+   "timed": 1843,
+   "late": 140,
+   "pct_late": 7.6,
+   "p95_min": 12.6,
+   "cpk": 0.61,
+   "cpk_upper": 0.82,
+   "too_slow": false,
+   "changed": true,
+   "reasons": [
+    "I chart test 1 fired on Oct 11"
+   ],
+   "status": "recent_change"
+  },
+  {
+   "id": "36903",
+   "name": "Fixture County C",
+   "calls": 1450,
+   "timed": 1406,
+   "late": 260,
+   "pct_late": 18.5,
+   "p95_min": 15.1,
+   "cpk": 0.18,
+   "cpk_upper": 0.35,
+   "too_slow": true,
+   "changed": false,
+   "reasons": [
+    "Cpk upper bound 0.35 is below the bar 0.43"
+   ],
+   "status": "ongoing_gap"
+  },
+  {
+   "id": "36904",
+   "name": "Fixture County D",
+   "calls": 3100,
+   "timed": 3007,
+   "late": 190,
+   "pct_late": 6.3,
+   "p95_min": 10.2,
+   "cpk": 0.93,
+   "cpk_upper": 1.1,
+   "too_slow": false,
+   "changed": false,
+   "reasons": [],
+   "status": "on_track"
+  },
+  {
+   "id": "36905",
+   "name": "Fixture County E",
+   "calls": 22,
+   "timed": 21,
+   "late": 3,
+   "pct_late": 14.3,
+   "p95_min": null,
+   "cpk": null,
+   "cpk_upper": null,
+   "too_slow": false,
+   "changed": false,
+   "reasons": [
+    "Fewer than 30 timed calls"
+   ],
+   "status": "not_enough"
+  }
+ ],
+ "urgent_by_county": [
+  {
+   "county_fips": "36901",
+   "name": "Fixture County A",
+   "calls": 2705
+  },
+  {
+   "county_fips": "36902",
+   "name": "Fixture County B",
+   "calls": 1900
+  },
+  {
+   "county_fips": "36903",
+   "name": "Fixture County C",
+   "calls": 1450
+  },
+  {
+   "county_fips": "36904",
+   "name": "Fixture County D",
+   "calls": 3100
+  },
+  {
+   "county_fips": "36905",
+   "name": "Fixture County E",
+   "calls": 22
+  }
+ ]
+}
