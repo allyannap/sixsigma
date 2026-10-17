@@ -3,7 +3,7 @@ import '../insights.css'
 
 // The chart ids the investigation links point at, in slide order (slide 1 = section-4, slide 2 = section-2).
 export const SLIDE_IDS = ['section-4', 'section-2']
-export const SLIDE_TITLES = ['Are calls arriving on time?', 'Are late calls being unusually frequent?']
+export const SLIDE_TITLES = ['Across areas', 'Change over time']
 
 /** Which slide a "#section-N" link points at, or -1 when it is not one of ours. */
 export function slideForHash(hash) {
@@ -38,38 +38,28 @@ export default function InsightsSlider({ children }) {
     return () => { window.removeEventListener('hashchange', onHash); document.removeEventListener('click', onClick) }
   }, [last])
 
-  const onKeyDown = (e) => {
-    if (e.target.closest && e.target.closest('input, select, textarea')) return
-    if (e.key === 'ArrowRight') { e.preventDefault(); go(index + 1) }
-    if (e.key === 'ArrowLeft') { e.preventDefault(); go(index - 1) }
+  const onKeyDown = (event, current) => {
+    let next
+    if (event.key === 'ArrowRight') next = (current + 1) % slides.length
+    else if (event.key === 'ArrowLeft') next = (current - 1 + slides.length) % slides.length
+    else if (event.key === 'Home') next = 0
+    else if (event.key === 'End') next = last
+    else return
+    event.preventDefault()
+    go(next)
+    root.current.querySelector(`#insight-tab-${next}`)?.focus()
   }
 
   return (
-    <div className="card insights-slider" ref={root} role="group" aria-roledescription="carousel" aria-label="Wait time charts"
-      tabIndex={0} onKeyDown={onKeyDown}>
-      <div className="slider-bar">
-        <span className="slider-count" aria-live="polite">{index + 1} / {slides.length}</span>
-        <span className="slider-dots">
-          {slides.map((_, i) => (
-            <button key={i} type="button" className="slider-dot" aria-label={`Show chart ${i + 1}: ${SLIDE_TITLES[i] || ''}`}
-              aria-current={i === index ? 'true' : undefined} onClick={() => go(i)} />
-          ))}
-        </span>
+    <div className="card insights-slider" ref={root}>
+      <div className="slider-bar" role="tablist" aria-label="Insight charts">
+        {slides.map((_, i) => <button type="button" role="tab" id={`insight-tab-${i}`} key={i}
+          aria-selected={index === i} aria-controls={`insight-panel-${i}`} tabIndex={index === i ? 0 : -1}
+          onClick={() => go(i)} onKeyDown={(event) => onKeyDown(event, i)}>{SLIDE_TITLES[i]}</button>)}
       </div>
-      {index > 0 && (
-        <button type="button" className="slider-arrow slider-prev" aria-label={`Previous chart: ${SLIDE_TITLES[index - 1] || ''}`} onClick={() => go(index - 1)}>
-          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
-        </button>
-      )}
-      {index < last && (
-        <button type="button" className="slider-arrow slider-next" aria-label={`Next chart: ${SLIDE_TITLES[index + 1] || ''}`} onClick={() => go(index + 1)}>
-          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
-        </button>
-      )}
       <div className="slider-track">
         {slides.map((s, i) => (
-          <div key={i} className={`slide${i === index ? ' is-active' : ''}`} hidden={i !== index} aria-hidden={i !== index} role="group"
-            aria-roledescription="slide" aria-label={`${i + 1} of ${slides.length}`}>
+          <div key={i} className={`slide${i === index ? ' is-active' : ''}`} hidden={i !== index} id={`insight-panel-${i}`} role="tabpanel" aria-labelledby={`insight-tab-${i}`}>
             {s}
           </div>
         ))}

@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { isFixtureMode } from './api.js'
 import { addDays } from './format.js'
-import { URGENCY_KEYS } from './status.js'
 import { useEndpoint } from './useApi.js'
 import AnomSection from './components/AnomSection.jsx'
 import ChangeSection from './components/ChangeSection.jsx'
@@ -22,8 +21,9 @@ const TICK_MS = 3000
 
 export default function App() {
   const fixtures = isFixtureMode()
+  const [mobileView, setMobileView] = useState('overview')
   const [dataset, setDataset] = useState('baseline')
-  const [urgency, setUrgency] = useState(URGENCY_KEYS) // all priorities (red, yellow, green) on at load
+  const [urgency, setUrgency] = useState(['red'])
   const [from, setFrom] = useState('') // applied by Search; blank still means the API's default last 90 days
   const [to, setTo] = useState('')
   // parent = what the map draws children of (state -> counties, county -> its ZIP areas).
@@ -66,8 +66,7 @@ export default function App() {
   }, [replay, lastDay])
 
   const toggleUrgency = (key) => {
-    const next = urgency.includes(key) ? urgency.filter((k) => k !== key) : [...urgency, key]
-    if (next.length) setUrgency(URGENCY_KEYS.filter((k) => next.includes(k)))
+    setUrgency([key])
   }
   const resetScope = () => { setParent(STATE); setSelected({ ...STATE, place: null }) }
 
@@ -125,10 +124,14 @@ export default function App() {
             <MapSection summaryState={summary} parent={parent} selected={selected} countyOptions={countyOptions}
               onPick={pick} onReset={resetScope} onSearch={searchPick} />
           </div>
-          <div className="right-col">
+          <div className={`right-col mobile-${mobileView}`}>
             <PlaceHead summaryState={summary} selected={selected} parent={parent} from={shownFrom} to={shownTo} replayOn={replay.on}
               dateMin={meta.data ? meta.data.date_min : undefined} dateMax={meta.data ? meta.data.date_max : undefined}
               onApply={(a, b) => { setFrom(a); setTo(b) }} onDrill={drill} />
+            <div className="mobile-view-switch" role="group" aria-label="Dashboard view">
+              <button type="button" aria-pressed={mobileView === 'overview'} onClick={() => setMobileView('overview')}>Overview</button>
+              <button type="button" aria-pressed={mobileView === 'charts'} onClick={() => setMobileView('charts')}>Charts</button>
+            </div>
             <MetricsSection summaryState={summary} selected={selected} parent={parent} urgency={urgency}
               onToggleUrgency={toggleUrgency} selection={sel} dataset={dataset}
               aiState={aiSummary} aiEnabled={aiEnabled} aiPaused={replay.playing} fixtures={fixtures} />

@@ -4,6 +4,7 @@ import App from './App.jsx'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import './tokens.css'
 import './styles.css'
+import './workspace.css'
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>

@@ -376,13 +376,38 @@ def ai_summary_route(request: Request, c: Ctx = Depends(common)):
     """Narrate the selected area's existing QC evidence, with explicit inclusive dates."""
     if not request.query_params.get("from") or not request.query_params.get("to"):
         raise HTTPException(400, "Select both From and To dates for an AI summary.")
-    card = place_card(get_qc(), c.sel, c.base, c.info, c.days)
+    snapshot = summary(c)
+    card = snapshot["place"]
     # Aggregate fields only; raw incidents and IDs never enter the model prompt.
     fields = ("valid", "on_time", "late", "on_time_pct", "on_time_ci", "goal_pct", "spec", "spec_reason",
               "control", "control_reason", "queue", "watch", "median_min", "p95_min", "p95_ci",
-              "unit", "signals", "baseline")
+              "unit", "signals", "baseline", "very_late", "excess_late")
     evidence = {"selection": c.selection(), "place": {k: card[k] for k in fields if k in card},
-                "messages": list(c.messages)}
+                "messages": snapshot["messages"]}
+    if card["valid"]:
+        evidence["stages"] = stages(c)
+        # Present existing judgments in the map table's order; do not derive new statistics.
+        order = {q: i for i, q in enumerate(get_qc().QUEUE)}
+        reviewed = [p for p in snapshot["places"] if p["queue"] in ("act_now", "ongoing_gap", "recent_change")
+                    or (p["queue"] == "needs_data" and p["spec"] == "below")]
+        reviewed.sort(key=lambda p: (order[p["queue"]], p["spec"] != "below",
+                                    -(p["excess_late"] if p["excess_late"] is not None else -math.inf)))
+        evidence["geography"] = {
+            "unit": "county" if c.level == "state" else "ZIP area",
+            "queue_counts": snapshot["queue_counts"], "chance_below": snapshot["chance_below"],
+            "areas_needing_review": snapshot["needs_attention"],
+            "top_areas": [{k: p[k] for k in ("id", "name", *fields) if k in p} for p in reviewed[:3]]
+                if c.level != "zcta" else [],
+            "ranking": "queue label, then confirmed below target, then excess late calls descending",
+            "coverage": "Top three review areas in the selected scope; omitted areas are not necessarily satisfactory.",
+        }
+        if c.level == "state":
+            local = flagged(c)
+            evidence["geography"]["statewide_zip_signals"] = {
+                "count": local["n_flagged"], "checked": local["n_checked"],
+                "top_areas": local["flagged"][:3],
+                "coverage": "Confirmed ZIP-level deterioration anywhere in the state, including within counties whose totals look satisfactory.",
+            }
     if len(c.groups) > 1:
         evidence["messages"].append("Several urgency groups combined: the p chart mixes case mix.")
     try:

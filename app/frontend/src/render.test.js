@@ -13,7 +13,7 @@ import stages from './fixtures/stages.json'
 import signalCalls from './fixtures/signal_calls.json'
 import App from './App.jsx'
 import AnomSection from './components/AnomSection.jsx'
-import ChangeSection, { SignalCallsTable, StageTable } from './components/ChangeSection.jsx'
+import ChangeSection, { ControlMethod, SignalCallsTable, StageTable } from './components/ChangeSection.jsx'
 import InvestigationSection, { FlaggedList, flaggedSelection, investigationRows } from './components/InvestigationSection.jsx'
 import MapSection from './components/MapSection.jsx'
 import { InsightsSection, MetricsSection } from './components/MetricsSection.jsx'
@@ -58,15 +58,17 @@ describe('sections render from fixtures', () => {
     expect(top).not.toContain('Evidence and call counts')
     expect(top).not.toContain('place-badges')
   })
-  it('section 2: control status, baseline explanation, signal evidence; I chart is optional', () => {
-    const html = plain(renderToString(h(ChangeSection, { pState: ok(pchart), imrState: ok(imr), selectedName: 'X' })))
-    expect(html).toContain('Out of control')
-    expect(html).toContain('never overlaps the selected range')
-    expect(html).toContain('above its upper control limit')
-    expect(html).toContain('screened for unusual periods and assumed to represent normal operation')
-    expect(html).not.toContain('cannot hide inside its own limits')
-    expect(html).toContain('Optional, secondary')
-    expect(html).toContain('does not set any status')
+  it('section 2 keeps the plot and selected strip visible with full method evidence on demand', () => {
+    const html = plain(renderToString(h(ChangeSection, { pState: ok(pchart), selectedName: 'X' })))
+    expect(html).toContain('Recent increase detected')
+    expect(html).toContain('control-strip')
+    expect(html).toContain('View evidence')
+    expect(html).toContain('<dialog')
+    expect(html).not.toContain('Optional, secondary')
+    const method = plain(renderToString(h(ControlMethod, { p: pchart })))
+    expect(method).toContain('Out of control')
+    expect(method).toContain('never overlaps the selected range')
+    expect(method).toContain('screened for unusual periods and assumed to represent normal operation')
   })
   it('insufficient baseline is said plainly, with no chart', () => {
     const p = { ...pchart, unit: null, points: [], signals: [], control: 'insufficient_baseline', control_reason: 'low volume', dispersion: null }
@@ -140,8 +142,8 @@ describe('H-13 supervisor data', () => {
   it('section 2 shows the watch chip when the p chart has one weak signal', () => {
     const p = { ...pchart, control: 'in_control', watch: true, control_reason: '1 period above the limit, not confirmed (needs 2, or a stronger single signal)' }
     const html = plain(renderToString(h(ChangeSection, { pState: ok(p), imrState: ok(imr), selectedName: 'X' })))
-    expect(html).toContain('chip-watch')
-    expect(html).toContain('not confirmed')
+    expect(html).toContain('Watching one signal')
+    expect(html).toContain('Change not confirmed.')
   })
   it('the queue label meets_stable never claims "statistically stable"', () => {
     const stable = summary.places.find((x) => x.queue === 'meets_stable')
@@ -167,7 +169,7 @@ describe('H-13 supervisor data', () => {
     expect(html).toContain(`${p.cancelled} (${p.cancel_pct.toFixed(1)}%) / ${p.invalid}`)
     expect(html).toContain(`${p.calls_per_day.toFixed(1)} (${p.base_calls_per_day.toFixed(1)})`)
     const ok2 = { ...pchart, baseline: { ...pchart.baseline, checked: true, stable: true, removed: 0 } }
-    expect(plain(renderToString(h(ChangeSection, { pState: ok(ok2), imrState: ok(imr), selectedName: 'X' })))).toContain('Screened: stable.')
+    expect(plain(renderToString(h(ControlMethod, { p: ok2 })))).toContain('Screened: stable.')
   })
   it('an unstable baseline shows the removed periods and the reasons', () => {
     const p = { ...summary.places[3], baseline: { ...summary.places[3].baseline, checked: true, stable: false, removed: 2, removed_starts: ['2026-06-08', '2026-06-15'], reasons: ['still too variable after dropping 2 periods'] } }
@@ -209,7 +211,7 @@ describe('H-13 supervisor data', () => {
     expect(html).toContain('This period (median)')
     expect(html).toContain('Baseline (median)')
     expect(html).toContain('Medians only')
-    expect(html).toContain('delay-breakdown card was removed')
+    expect(html).toContain('These comparisons do not explain why times changed.')
     expect(html).not.toMatch(/cause|held up|root/i)
     expect(html).not.toMatch(/NaN|undefined|null/)
   })
@@ -217,9 +219,12 @@ describe('H-13 supervisor data', () => {
     const blank = { now: { dispatch_s: null, turnout_s: null, drive_s: null, held_pct: null, n: 0 }, base: { dispatch_s: null, turnout_s: null, drive_s: null, held_pct: null, n: 0 } }
     expect(plain(renderToString(h(StageTable, { data: blank })))).toContain('n/a')
   })
-  it('section 2 puts the stage table below the chart', () => {
-    const html = plain(renderToString(h(ChangeSection, { pState: ok(pchart), imrState: ok(imr), stagesState: ok(stages), params: {}, selectedName: 'X' })))
-    expect(html.indexOf('Stage times (descriptive)')).toBeGreaterThan(html.indexOf('p chart, limits vary with n'))
+  it('section 2 provides stage times through its evidence workspace', () => {
+    const html = plain(renderToString(h(ChangeSection, { pState: ok(pchart), stagesState: ok(stages), params: {}, selectedName: 'X' })))
+    expect(html).toContain('>Stage times</button>')
+    expect(html).toContain('control-support-panel')
+    expect(html).toContain('<dialog')
+    expect(html).not.toContain('Stage times (descriptive)')
   })
   it('the statewide flagged list renders with chance-below context and no input fields', () => {
     const html = plain(renderToString(h(FlaggedList, { data: flagged, onPick() {} })))
@@ -355,11 +360,13 @@ describe('OnScene page (H-14)', () => {
     expect(html).toContain(`95% CI ${t.p95_ci[0].toFixed(1)} to ${t.p95_ci[1].toFixed(1)} min`)
     expect(html).toContain(`P90 ${t.p90_min.toFixed(1)} min`)
   })
-  it('Priority is the urgency multi-select, with no on-scene wait filter and no flag button', () => {
-    const html = metrics({ urgency: ['red', 'yellow'] })
+  it('Priority selects exactly one urgency with radio semantics', () => {
+    const html = metrics({ urgency: ['red'] })
     expect(html).toContain('Priority')
     expect((html.match(/class="pri-chip/g) || []).length).toBe(3)
-    expect((html.match(/aria-pressed="true"/g) || []).length).toBe(2)
+    expect(html).toContain('role="radiogroup"')
+    expect((html.match(/role="radio"/g) || []).length).toBe(3)
+    expect((html.match(/aria-checked="true"/g) || []).length).toBe(1)
     expect(html).not.toMatch(/on-scene wait|Flag/i)
   })
   it('a missing value shows a dash and the API note, never NaN or null', () => {
@@ -391,8 +398,8 @@ describe('OnScene page (H-14)', () => {
       h(ChangeSection, { pState: ok(pchart), imrState: ok(imr), selectedName: 'Monroe' }))))
     expect(html).toContain('Monroe Wait Time Insights')
     expect(html).toContain('Are calls arriving on time?')
-    expect(html).toContain('Are late calls being unusually frequent?')
-    expect(html).toContain('Stand-in')
+    expect(html).toContain('Are more calls missing their response target?')
+    expect(html).toContain('Change over time')
     expect(html).not.toMatch(/Where the delay sits|On-scene time trend/)
   })
   it('the whole page, rendered, has the brand and the layout regions and says "Selected place"', () => {

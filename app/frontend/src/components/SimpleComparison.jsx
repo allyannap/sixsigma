@@ -1,10 +1,12 @@
 import { useState } from 'react'
+import EvidencePanel from './EvidencePanel.jsx'
+import { usePlotSize } from '../usePlotSize.js'
 import { fmtInt, fmtMin, fmtPct, fmtCi } from '../format.js'
 
 const LABELS = { below: 'Below goal', meets: 'Meets goal', inconclusive: 'Uncertain' }
 const COLORS = { below: '#C2410C', inconclusive: '#A3AAB1', meets: '#0072B2' }
 const STACK = ['below', 'inconclusive', 'meets']
-const W = 520, PAD = 12, TOP = 40, PLOT = 170, BIN = 10
+const PAD = 18, BIN = 10
 
 export function goalGap(p) {
   if (p.on_time_pct == null || p.goal_pct == null) return 'No valid rate'
@@ -47,6 +49,8 @@ export function histogram(areas, goal) {
 }
 
 function Histogram({ bins, goal, selected, openBin, onOpen }) {
+  const [ref, size] = usePlotSize()
+  const W = size.width, TOP = 35, PLOT = Math.max(70, size.height - 70)
   const lo = bins[0].from
   const x = (v) => PAD + (v - lo) / (100 - lo) * (W - 2 * PAD)
   const bw = (W - 2 * PAD) / bins.length
@@ -54,12 +58,15 @@ function Histogram({ bins, goal, selected, openBin, onOpen }) {
   const h = (c) => c / max * PLOT
   const base = TOP + PLOT
   const H = base + 34
-  return <svg className="hist" viewBox={`0 0 ${W} ${H}`} role="img"
+  return <svg ref={ref} className="hist" viewBox={`0 0 ${W} ${H}`} role="group"
     aria-label={`Number of areas by on-time rate. ${bins.map((b) => `${b.from}–${b.to}%: ${b.areas.length}`).join('; ')}. Goal ${fmtPct(goal, 0)}.`}>
     {bins.map((b, i) => {
       let y = base
       const open = openBin === i
-      return <g key={b.from} className={`hist-bin ${open ? 'hist-open' : ''}`} onClick={() => onOpen(open ? null : i)}>
+      return <g key={b.from} className={`hist-bin ${open ? 'hist-open' : ''}`} role="button" tabIndex={0}
+        aria-label={`${b.from}–${b.to}% on time: ${b.areas.length} areas. Show areas.`}
+        onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); onOpen(open ? null : i) } }}
+        onClick={() => onOpen(open ? null : i)}>
         <title>{`${b.from}–${b.to}% on time: ${b.areas.length} area${b.areas.length === 1 ? '' : 's'}. Click to list them.`}</title>
         <rect x={PAD + i * bw} y={TOP - 18} width={bw} height={PLOT + 18} fill={open ? '#EDF4FC' : 'transparent'} rx="4" />
         {STACK.map((s) => {
@@ -138,6 +145,7 @@ export default function SimpleComparison({ d }) {
   const [openBin, setOpenBin] = useState(null)
   const [listing, setListing] = useState(false)
   const [query, setQuery] = useState('')
+  const [evidenceOpen, setEvidenceOpen] = useState(false)
   if (d.selection?.urgency?.length !== 1) return <p className="muted">Choose one urgency group to see this view.</p>
   const places = d.places || []
   if (places.some((p) => !p.response_profile)) return <p className="muted">Restart the dashboard server to load the updated analysis.</p>
@@ -155,14 +163,14 @@ export default function SimpleComparison({ d }) {
   const overallDeadline = targets.length === 1 && targets[0] != null ? `${Number(targets[0].toFixed(2))} min` : 'their configured call target'
   const deadline = target != null ? `${Number(target.toFixed(2))} min` : 'the configured call target'
   const pick = (id) => { setSelectedId(id); setListing(false); setQuery('') }
-  const openList = (i) => { setOpenBin(i); setListing(i != null) }
+  const openList = (i) => { setOpenBin(i); setListing(i != null); if (i != null) setEvidenceOpen(true) }
   const search = (text) => {
     setQuery(text)
     const hit = areas.find((p) => p.name.toLowerCase() === text.trim().toLowerCase())
     if (hit) { pick(hit.id); setOpenBin(null) }
   }
-  return <div className="simple-comparison">
-    <p className="simple-goal"><strong>Goal: {fmtPct(goal, 0)} of calls arrive within {overallDeadline} of call receipt.</strong></p>
+  return <div className="simple-comparison geographic-view">
+    <p className="simple-goal"><strong>Goal: {fmtPct(goal, 0)} of calls arrive within {overallDeadline} after call receipt.</strong></p>
     <p className="simple-overview" role="status"><strong>{below} of {areas.length} areas</strong> are confirmed below goal.</p>
     <div className="simple-split">
       <div className="simple-chart">
@@ -170,6 +178,11 @@ export default function SimpleComparison({ d }) {
         <p className="simple-key"><span><i className="k k-below" />Below goal</span><span><i className="k k-inconclusive" />Uncertain</span><span><i className="k k-meets" />Meets goal</span><span>▲ selected area · tap a bar to see its areas</span></p>
         {top.length > 0 && <p className="hist-worst"><strong>Furthest below:</strong>{top.map((p) => <button type="button" key={p.id} className={`chip chip-below ${p.id === selected.id ? 'chip-on' : ''}`} aria-pressed={p.id === selected.id} aria-controls="simple-selected" onClick={() => { pick(p.id); setOpenBin(null) }}>{p.name} {fmtPct(p.on_time_pct, 0)}</button>)}</p>}
       </div>
+      <div className="selected-strip" aria-live="polite">
+        <div><strong>{selected.name} · {fmtPct(selected.on_time_pct)}</strong><span>{LABELS[selected.spec]} · {fmtInt(selected.response_profile.n)} calls · Target: {deadline}</span></div>
+        <button type="button" className="btn btn-small" onClick={() => setEvidenceOpen(true)}>View evidence</button>
+      </div>
+      <EvidencePanel open={evidenceOpen} onClose={() => setEvidenceOpen(false)} title="Area evidence">
       <section id="simple-selected" className={`simple-card ${listing && bin ? '' : `card-${selected.spec}`}`} aria-live="polite">
         <input className="card-search" type="search" list="simple-area-names" placeholder="Search an area…" aria-label="Search an area by name" value={query} onChange={(e) => search(e.target.value)} />
         <datalist id="simple-area-names">{[...areas].sort((a, b) => a.name.localeCompare(b.name)).map((p) => <option key={p.id} value={p.name} />)}</datalist>
@@ -177,12 +190,13 @@ export default function SimpleComparison({ d }) {
           ? <BinList bin={bin} selectedId={selected.id} onPick={pick} onClose={() => openList(null)} />
           : <div className="card-scroll"><AreaCard p={selected} areas={areas} deadline={deadline} goal={goal} from={bin} onBack={() => setListing(true)} /></div>}
       </section>
-    </div>
-    <details className="simple-more">
+    <details className="simple-more" open>
       <summary>How certain is this?</summary>
       <p className="simple-proof">{selected.name}: {fmtPct(selected.on_time_pct)} on time against a {fmtPct(goal)} goal. 95% on-time uncertainty interval: {fmtCi(selected.on_time_ci, '%')}. {LABELS[selected.spec] || 'Uncertain'}: {selected.spec_reason}. The slowest-1-in-10 time is the observed 90th percentile, not a worst-case guarantee.</p>
       <p className="simple-proof">Each bar counts areas whose on-time rate falls in that 10-point band. Orange = the area's 95% interval is fully under the goal (confirmed below); blue = fully at or above it; gray = the interval crosses the goal, so the data cannot tell yet. "Furthest below" skips areas with under 30 calls.</p>
       <p className="simple-proof">Counted per call, {fmtPct(d.totals.on_time_pct)} of {fmtInt(d.totals.valid)} calls were on time (95% interval {fmtCi(d.totals.on_time_ci, '%')}); busy areas count more in this overall rate. Targets are configurable placeholders; red targets vary by area type. Comparisons are not evidence of unfair service. Cancelled and invalid-time calls are excluded.</p>
     </details>
+      </EvidencePanel>
+    </div>
   </div>
 }

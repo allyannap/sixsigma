@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import EvidencePanel from './EvidencePanel.jsx'
+import { usePlotSize } from '../usePlotSize.js'
 import { linear, linePath } from '../charts.js'
 import { fmtDate, fmtInt, fmtNum, fmtP, fmtPct, mmss, periodBounds } from '../format.js'
 import { useEndpoint } from '../useApi.js'
@@ -12,9 +14,10 @@ const periodLabel = (start, unit, selection) => {
 }
 
 export function PChart({ d, selected, onSelect }) {
+  const [ref, size] = usePlotSize()
   const pts = d.points || []
   if (!pts.length) return <p>No periods in this selection.</p>
-  const left = 48, right = 606, H = 310, bottom = 258
+  const left = 42, right = size.width - 18, H = size.height, bottom = H - 38
   const highest = Math.max(d.p_bar || 0, ...pts.flatMap((p) => [p.ucl, p.p])) * 100
   const step = highest <= 20 ? 5 : highest <= 40 ? 10 : highest <= 75 ? 20 : 25
   const top = Math.min(100, Math.max(step * 2, Math.ceil(highest * 1.12 / step) * step))
@@ -40,7 +43,7 @@ export function PChart({ d, selected, onSelect }) {
     onSelect(pts[next].start)
     event.currentTarget.parentNode.querySelector(`[data-period="${pts[next].start}"]`)?.focus()
   }
-  return <svg viewBox={`0 0 640 ${H}`} className="chart control-chart" role="group" aria-label={`Late calls by ${d.unit}. Select a point to see its calls; use left and right arrows to move between periods.`}>
+  return <svg ref={ref} viewBox={`0 0 ${size.width} ${H}`} className="chart control-chart" role="group" aria-label={`Late calls by ${d.unit}. Select a point to see its calls; use left and right arrows to move between periods.`}>
     <text x={left} y="15" className="control-axis-title">Calls missing target (%)</text>
     <text x={right} y="15" textAnchor="end" className="control-axis-note">Higher = more missed targets</text>
     {Array.from({ length: Math.floor(top / step) + 1 }, (_, i) => i * step).map((t) => <g key={t} aria-hidden="true">
@@ -78,6 +81,7 @@ export function ControlView({ p, params, selectedName, stagesState }) {
   const initial = [...pts].reverse().find((pt) => pt.signal) || pts.at(-1)
   const [selected, setSelected] = useState(initial?.start)
   const [panel, setPanel] = useState('signals')
+  const [evidenceOpen, setEvidenceOpen] = useState(false)
   const point = pts.find((pt) => pt.start === selected) || initial
   const flagged = pts.filter(isFlaggedPeriod)
   const above = pts.filter((pt) => pt.p > pt.ucl)
@@ -95,7 +99,7 @@ export function ControlView({ p, params, selectedName, stagesState }) {
   const finding = insufficient ? p.control_reason : p.watch ? 'Change not confirmed.' : p.control === 'out_of_control' ? `${count} statistical signals.` : ''
   const tone = insufficient ? 'data' : p.control === 'out_of_control' || p.watch ? 'signal' : 'calm'
   const choose = (start) => { setSelected(start) }
-  const review = (start) => { setSelected(start); setPanel('calls') }
+  const review = (start) => { setSelected(start); setPanel('calls'); setEvidenceOpen(true) }
   const tabs = [{ id: 'signals', label: `Flagged periods (${flagged.length})` }, { id: 'calls', label: 'Calls' }, ...(stagesState ? [{ id: 'stages', label: 'Stage times' }] : []), { id: 'method', label: 'Method' }]
   const navigateTabs = (event, index) => {
     let next
@@ -115,6 +119,7 @@ export function ControlView({ p, params, selectedName, stagesState }) {
     <div className={`control-finding finding-${tone}`} role="status">
       <span className="control-finding-icon" aria-hidden="true">{tone === 'signal' ? '!' : tone === 'data' ? '…' : '—'}</span>
       <div><p className="control-headline">{headline}</p>{finding && <p className="control-summary">{finding}</p>}</div>
+      {!insufficient && above.length > 0 && <button type="button" className="chip chip-below control-next" onClick={nextAbove}>Next above limit ({above.length}) <span aria-hidden="true">→</span></button>}
     </div>
     <p className="control-baseline">{p.selection?.name || selectedName} · Baseline {fmtDate(b.from)}–{fmtDate(b.to)} · {fmtInt(p.base_n)} calls</p>
     {insufficient ? <div className="control-empty">
@@ -130,10 +135,19 @@ export function ControlView({ p, params, selectedName, stagesState }) {
           <span><i className="control-key-signal" />Statistical signal</span>
         </figcaption>
         <p className="control-limit-explainer"><span className="control-upper-text">Orange: above upper limit.</span> <span className="control-lower-text">Green: below lower limit.</span></p>
-        <div className="control-flag-summary"><span><strong>{above.length}</strong> {above.length === 1 ? 'period' : 'periods'} above the upper limit</span>{above.length > 0 && <button type="button" className="chip chip-below" onClick={nextAbove}>Next above limit <span aria-hidden="true">→</span></button>}</div>
         <p className="control-chart-hint">Select a point. Crossings alone don’t confirm a change.</p>
       </figure>
-      <aside id="control-selected" className={`simple-card control-card card-${over || point.signal ? 'below' : under ? 'improvement' : 'inconclusive'}`} aria-label="Selected period details" aria-live="polite">
+      <div id="control-selected" className="selected-strip control-strip" aria-live="polite">
+        <label htmlFor="control-period-compact"><span>Selected {p.unit}</span><select id="control-period-compact" value={point.start} onChange={(event) => choose(event.target.value)}>
+          {pts.map((pt) => <option key={pt.start} value={pt.start}>{periodLabel(pt.start, p.unit, p.selection)}</option>)}
+        </select></label>
+        <div><strong>{fmtPct(point.p * 100)} missed target</strong><span>{fmtInt(point.late)} of {fmtInt(point.n)} calls · {over ? 'Above upper limit' : under ? 'Below lower limit' : 'Within limits'}</span></div>
+        <button type="button" className="btn btn-small" onClick={() => setEvidenceOpen(true)}>View evidence</button>
+      </div>
+    </div> : <p>No periods available in this selection.</p>}
+    {insufficient && <button type="button" className="btn btn-small" onClick={() => { setPanel('method'); setEvidenceOpen(true) }}>View baseline evidence</button>}
+    <EvidencePanel open={evidenceOpen} onClose={() => setEvidenceOpen(false)} title="Control chart evidence">
+      {!insufficient && point && <aside id="control-period-evidence" className={`simple-card control-card card-${over || point.signal ? 'below' : under ? 'improvement' : 'inconclusive'}`} aria-label="Selected period details" aria-live="polite">
         <label className="eyebrow" htmlFor="control-period">Explore a {p.unit}</label>
         <select id="control-period" value={point.start} onChange={(event) => choose(event.target.value)}>
           {pts.map((pt) => <option key={pt.start} value={pt.start}>{periodLabel(pt.start, p.unit, p.selection)}{pt.p > pt.ucl ? ' · above upper limit' : pt.p < pt.lcl ? ' · below lower limit' : pt.signal ? ' · statistical signal' : ''}</option>)}
@@ -144,8 +158,7 @@ export function ControlView({ p, params, selectedName, stagesState }) {
         <div className="card-pair control-limit-values"><div><strong>{fmtPct(p.p_bar * 100)}</strong><span>Historical rate</span></div><div><strong>{fmtPct(point.ucl * 100)}</strong><span>Upper limit</span></div><div><strong>{fmtPct(point.lcl * 100)}</strong><span>Lower limit</span></div></div>
         <p className="control-limit-comparison">{fmtPct(point.p * 100)} is <strong>{under ? 'below' : over ? 'above' : 'at or below'}</strong> {fmtPct((under ? point.lcl : point.ucl) * 100)} {under ? 'lower' : 'upper'} limit.</p>
         {isFlaggedPeriod(point) && params && <button type="button" className="btn control-calls-btn" aria-controls="control-support-panel" onClick={() => review(point.start)}>Review calls <span aria-hidden="true">→</span></button>}
-      </aside>
-    </div> : <p>No periods available in this selection.</p>}
+      </aside>}
     <div className="control-support">
       <div className="control-tabs" role="tablist" aria-label="Control chart supporting information">
         {tabs.map((tab, index) => <button type="button" key={tab.id} id={`control-tab-${tab.id}`} role="tab" aria-selected={panel === tab.id} aria-controls="control-support-panel" tabIndex={panel === tab.id ? 0 : -1} onClick={() => setPanel(tab.id)} onKeyDown={(event) => navigateTabs(event, index)}>{tab.label}</button>)}
@@ -158,6 +171,7 @@ export function ControlView({ p, params, selectedName, stagesState }) {
       </div>
     </div>
     {insufficient && <Messages messages={p.messages} />}
+    </EvidencePanel>
   </div>
 }
 

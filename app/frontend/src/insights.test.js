@@ -21,19 +21,22 @@ describe('Insights slide card', () => {
     expect(html).toContain('insights-slider')
     expect(html).not.toContain('chart-grid')
   })
-  it('shows "Are calls arriving on time?" first and the next arrow with its label', () => {
-    expect(html).toContain('aria-label="Next chart: Are late calls being unusually frequent?"')
-    expect(html).not.toContain('slider-prev')
-    expect(html).toContain('1 / 2')
+  it('uses named tabs with explicit selected state and panel ownership', () => {
+    expect(html).toContain('role="tablist" aria-label="Insight charts"')
+    expect(html).toContain('aria-selected="true" aria-controls="insight-panel-0"')
+    expect(html).toContain('>Across areas</button>')
+    expect(html).toContain('>Change over time</button>')
+    expect(html).not.toContain('slider-arrow')
+    expect(html).not.toContain('slider-dot')
   })
-  it('keeps slide 2 in the DOM but hidden, and slide 1 visible', () => {
+  it('keeps the inactive panel mounted but hidden', () => {
     const slides = html.split(/<div class="slide[ "]/).slice(1)
     expect(slides).toHaveLength(2)
     expect(slides[0]).toContain('is-active')
     expect(slides[0]).not.toMatch(/^[^>]*\shidden=""/)
     expect(slides[1]).toMatch(/^[^>]*\shidden=""/)
-    expect(slides[1]).toContain('Are late calls being unusually frequent?')
-    expect(slides[1]).toContain('Stand-in')
+    expect(slides[1]).toContain('Are more calls missing their response target?')
+    expect(slides[1]).toContain('aria-labelledby="insight-tab-1"')
   })
   it('maps the investigation links to slides', () => {
     expect(slideForHash('#section-4')).toBe(0)

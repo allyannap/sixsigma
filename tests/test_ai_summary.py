@@ -1,7 +1,6 @@
 """Selection-grounding and provider-boundary tests; no live credentials required."""
 import copy
 import json
-from types import SimpleNamespace
 
 import httpx
 import pytest
@@ -42,7 +41,7 @@ def test_exact_evidence_is_sent_to_ollama_only(monkeypatch, evidence):
     url, kwargs = calls[0]
     assert url == 'https://ollama.com/api/chat'
     assert kwargs['headers'] == {'Authorization': 'Bearer test-ollama-key'}
-    assert json.loads(kwargs['json']['messages'][1]['content']) == evidence
+    assert json.loads(kwargs['json']['messages'][-1]['content']) == evidence
     assert kwargs['json']['stream'] is False
     assert result['text'] == 'Selected-period summary.'
     assert 'test-ollama-key' not in json.dumps(result)
@@ -158,3 +157,78 @@ def test_endpoint_provider_error_is_503(monkeypatch):
     result = TestClient(app).get('/api/ai_summary?from=2026-09-01&to=2026-10-15')
     assert result.status_code == 503
     assert result.json()['detail'] == 'Ollama is unavailable.'
+
+
+def test_worked_examples_do_not_replace_selected_evidence(evidence):
+    messages = ai.summary_messages(evidence)
+    assert len(ai.EXAMPLES) == 6
+    assert len(messages) == 14
+    assert messages[-1]['role'] == 'user'
+    assert json.loads(messages[-1]['content']) == evidence
+    assert all(m['role'] == ('user' if i % 2 else 'assistant') for i, m in enumerate(messages[1:-1], 1))
+
+
+@pytest.mark.parametrize('section', ['stages', 'geography'])
+def test_new_supporting_evidence_invalidates_summary_cache(monkeypatch, evidence, section):
+    calls = []
+    provider(monkeypatch, calls)
+    ai.generate_summary(evidence)
+    changed = copy.deepcopy(evidence)
+    changed[section] = {'now': {'dispatch_s': 40}} if section == 'stages' else {'areas_needing_review': 2}
+    assert not ai.generate_summary(changed)['cached']
+    assert len(calls) == 2
+
+
+@pytest.mark.parametrize('level,id', [('county', '36081'), ('state', None), ('zcta', '11368')])
+def test_briefing_evidence_reconciles_to_existing_routes(monkeypatch, level, id):
+    captured = []
+    def generate(evidence):
+        captured.append(evidence)
+        return {'text': 'Investigation briefing.', 'status': 'ok'}
+    monkeypatch.setattr(ai, 'generate_summary', generate)
+    client = TestClient(app)
+    query = {'from': '2026-09-01', 'to': '2026-10-15', 'dataset': 'station_closure',
+             'urgency': 'red', 'level': level}
+    if id:
+        query['id'] = id
+    assert client.get('/api/ai_summary', params=query).status_code == 200
+    evidence = captured[0]
+    summary = client.get('/api/summary', params=query).json()
+    assert evidence['place']['very_late'] == summary['place']['very_late']
+    assert evidence['stages'] == client.get('/api/stages', params=query).json()
+    assert evidence['geography']['queue_counts'] == summary['queue_counts']
+    assert evidence['geography']['chance_below'] == summary['chance_below']
+    by_id = {p['id']: p for p in summary['places']}
+    priorities = evidence['geography']['top_areas']
+    assert len(priorities) <= 3
+    for p in priorities:
+        assert p['queue'] in ('act_now', 'ongoing_gap', 'recent_change') or p['spec'] == 'below'
+        assert all(by_id[p['id']][k] == v for k, v in p.items())
+    if level == 'state':
+        statewide = client.get('/api/flagged', params=query).json()
+        assert evidence['geography']['statewide_zip_signals']['top_areas'] == statewide['flagged'][:3]
+        assert evidence['geography']['statewide_zip_signals']['count'] == statewide['n_flagged']
+    else:
+        assert 'statewide_zip_signals' not in evidence['geography']
+    if level == 'zcta':
+        assert priorities == []
+    assert 'incident_id' not in json.dumps(evidence)
+
+
+def test_confirmed_below_with_insufficient_baseline_stays_in_review_queue(monkeypatch):
+    import app.main as main
+    # Keep source-card values fixed; check selection/ranking behavior, not statistical formulas.
+    place = {'valid': 100, 'very_late': 2}
+    children = [
+        {'id': 'uncertain', 'name': 'Uncertain', 'queue': 'needs_data', 'spec': 'inconclusive', 'excess_late': 99},
+        {'id': 'gap', 'name': 'Gap', 'queue': 'needs_data', 'spec': 'below', 'excess_late': 3},
+        {'id': 'signal', 'name': 'Signal', 'queue': 'act_now', 'spec': 'below', 'excess_late': 2},
+        {'id': 'larger', 'name': 'Larger gap', 'queue': 'act_now', 'spec': 'below', 'excess_late': 8},
+    ]
+    monkeypatch.setattr(main, 'summary', lambda c: {'place': place, 'places': children, 'messages': [],
+        'queue_counts': {}, 'needs_attention': 2, 'chance_below': {}})
+    monkeypatch.setattr(main, 'stages', lambda c: {})
+    captured = []
+    monkeypatch.setattr(ai, 'generate_summary', lambda evidence: captured.append(evidence) or {'text': 'test'})
+    assert TestClient(app).get('/api/ai_summary?from=2026-09-01&to=2026-10-15&level=county&id=36081').status_code == 200
+    assert [p['id'] for p in captured[0]['geography']['top_areas']] == ['larger', 'signal', 'gap']

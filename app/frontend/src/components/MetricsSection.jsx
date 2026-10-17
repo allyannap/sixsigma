@@ -1,3 +1,5 @@
+import { useState } from 'react'
+import EvidencePanel from './EvidencePanel.jsx'
 // Key Metrics card (three tiles + a plain Summary) and the "Wait Time Insights" row that holds the two chart cards.
 // Every number is read from /api/summary (totals, or the picked place's own card); this file only formats it.
 import { fmtCi, fmtInt, fmtNum, fmtPct } from '../format.js'
@@ -22,7 +24,7 @@ export function metricsSource(summary, selected, parent) {
 const dash = (v, digits = 1) => (v == null || Number.isNaN(v) ? '—' : fmtNum(v, digits))
 
 /** Three tiles: On time (k of n, 95% CI, goal), Median wait, P95 wait. A missing value shows "—" and the API's note. */
-function Tiles({ t, note }) {
+function Tiles({ t, note, compact = false }) {
   if (!t) {
     return (
       <div className="metric-grid">
@@ -40,18 +42,18 @@ function Tiles({ t, note }) {
         <div className="metric-foot">
           {t.on_time_pct == null
             ? note
-            : `${fmtInt(t.on_time)} of ${fmtInt(t.valid)} valid calls · 95% CI ${fmtCi(t.on_time_ci, '%')} · goal ${fmtPct(t.goal_pct, 0)}`}
+            : compact ? `${fmtInt(t.on_time)} of ${fmtInt(t.valid)} calls · goal ${fmtPct(t.goal_pct, 0)}` : `${fmtInt(t.on_time)} of ${fmtInt(t.valid)} valid calls · 95% CI ${fmtCi(t.on_time_ci, '%')} · goal ${fmtPct(t.goal_pct, 0)}`}
         </div>
       </div>
       <div className="metric" aria-label="Median wait">
         <span className="metric-label">Median wait <span className="metric-sub">call received to on scene</span></span>
         <div className="metric-value"><span>{dash(t.median_min)}</span>{t.median_min != null && <span className="unit">min</span>}</div>
-        <div className="metric-foot">{t.median_min == null ? note : `95% CI ${fmtCi(t.median_ci)} min`}</div>
+        <div className="metric-foot">{t.median_min == null ? note : compact ? 'Call receipt → on scene' : `95% CI ${fmtCi(t.median_ci)} min`}</div>
       </div>
       <div className="metric" aria-label="P95 wait">
         <span className="metric-label">P95 wait <span className="metric-sub">1 call in 20 waited longer</span></span>
         <div className="metric-value"><span>{dash(t.p95_min)}</span>{t.p95_min != null && <span className="unit">min</span>}</div>
-        <div className="metric-foot">{t.p95_min == null ? note : `95% CI ${fmtCi(t.p95_ci)} min · P90 ${t.p90_min == null ? 'n/a' : `${fmtNum(t.p90_min)} min`}`}</div>
+        <div className="metric-foot">{t.p95_min == null ? note : compact ? '1 in 20 waited longer' : `95% CI ${fmtCi(t.p95_ci)} min · P90 ${t.p90_min == null ? 'n/a' : `${fmtNum(t.p90_min)} min`}`}</div>
       </div>
     </div>
   )
@@ -90,6 +92,7 @@ function Summary({ place, name, busy }) {
 }
 
 export function AISummary({ state, enabled, paused, fixtures }) {
+  const [expanded, setExpanded] = useState(false)
   return (
     <div className="summary" aria-live="polite" aria-busy={state.loading}>
       <div className="summary-head"><span className="summary-title">AI summary</span></div>
@@ -99,9 +102,11 @@ export function AISummary({ state, enabled, paused, fixtures }) {
             : state.loading ? <p className="summary-text" role="status"><Spinner />Reading the selected period…</p>
               : state.error ? <div role="alert"><p className="summary-text">{state.error}</p><button type="button" className="btn btn-small" onClick={state.reload}>Retry summary</button></div>
                 : state.data ? <>
-                  <p className="summary-text">{state.data.text}</p>
-                  <p className="summary-foot">{state.data.status === 'ok' ? 'Generated with Ollama · ' : ''}{state.data.selection.name} · {state.data.selection.from} to {state.data.selection.to} · {state.data.selection.urgency.join(', ')}</p>
-                  {state.data.status === 'ok' && <p className="summary-foot">AI interpretation of synthetic data. Verify against the charts.</p>}
+                  <p className="summary-text summary-preview">{state.data.text}</p>
+                  <button type="button" className="text-action" onClick={() => setExpanded(true)}>Read full briefing</button>
+                  <EvidencePanel open={expanded} onClose={() => setExpanded(false)} title="AI investigation briefing"><p>{state.data.text}</p><p className="small muted">{state.data.selection.name} · {state.data.selection.from} to {state.data.selection.to} · {state.data.selection.urgency.join(', ')} · Synthetic data</p></EvidencePanel>
+                  <p className="summary-foot">{state.data.status === 'ok' ? 'Ollama · Synthetic · ' : ''}{state.data.selection.name} · {state.data.selection.from} to {state.data.selection.to} · {state.data.selection.urgency.join(', ')}</p>
+
                 </> : <p className="summary-text muted">Summary unavailable for this selection.</p>}
     </div>
   )
@@ -109,6 +114,7 @@ export function AISummary({ state, enabled, paused, fixtures }) {
 
 export function MetricsSection({ summaryState, selected, parent, urgency, onToggleUrgency, selection, dataset,
   aiState, aiEnabled, aiPaused, fixtures }) {
+  const [metricsOpen, setMetricsOpen] = useState(false)
   const s = summaryState.data
   const t = metricsSource(s, selected, parent)
   const place = placeFor(s, selected, parent)
@@ -119,14 +125,27 @@ export function MetricsSection({ summaryState, selected, parent, urgency, onTogg
     <section className="metrics-section" aria-labelledby="metrics-heading">
       <div className="sec-head">
         <h2 id="metrics-heading">Key Metrics</h2>
+        <button type="button" className="text-action" onClick={() => setMetricsOpen(true)}>Metric details</button>
       </div>
+      <EvidencePanel open={metricsOpen} onClose={() => setMetricsOpen(false)} title="Metric evidence"><Tiles t={t} note={note} /><p className="small muted">Confidence intervals describe uncertainty; bounds may be unavailable for small samples. Times are from call receipt to on scene.</p></EvidencePanel>
       <div className="card metrics-card">
         <div className="filterbar">
-          <div className="filter-field" role="group" aria-label="Priority (urgency)">
+          <div className="filter-field" role="radiogroup" aria-label="Priority (urgency)">
             Priority
             <span className="priority-chips">
               {URGENCY_KEYS.map((k) => (
-                <button key={k} type="button" className={`pri-chip pri-${k}`} aria-pressed={urgency.includes(k)} onClick={() => onToggleUrgency(k)}>
+                <button key={k} type="button" role="radio" className={`pri-chip pri-${k}`} aria-checked={urgency.includes(k)}
+                  tabIndex={urgency.includes(k) ? 0 : -1} onClick={() => onToggleUrgency(k)}
+                  onKeyDown={(event) => {
+                    const i = URGENCY_KEYS.indexOf(k)
+                    const next = event.key === 'ArrowRight' || event.key === 'ArrowDown' ? (i + 1) % 3
+                      : event.key === 'ArrowLeft' || event.key === 'ArrowUp' ? (i + 2) % 3
+                        : event.key === 'Home' ? 0 : event.key === 'End' ? 2 : null
+                    if (next === null) return
+                    event.preventDefault()
+                    onToggleUrgency(URGENCY_KEYS[next])
+                    event.currentTarget.parentNode.children[next].focus()
+                  }}>
                   <i aria-hidden="true" />{URGENCY[k].label}
                 </button>
               ))}
@@ -135,7 +154,7 @@ export function MetricsSection({ summaryState, selected, parent, urgency, onTogg
         </div>
 
         <div className="metrics-body" aria-busy={summaryState.loading}>
-          <Tiles t={t} note={note} />
+          <Tiles t={t} note={note} compact />
           <div className="vdivider" role="presentation" />
           {aiState ? <AISummary state={aiState} enabled={aiEnabled} paused={aiPaused} fixtures={fixtures} />
             : <Summary place={place} name={name} busy={summaryState.loading} />}

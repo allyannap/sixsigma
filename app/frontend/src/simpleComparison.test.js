@@ -9,7 +9,7 @@ const a = (id, pct, spec = 'below', low_n = false) => ({ id, name: id, on_time_p
 
 it('defines the goal and shows the histogram as the main view beside one area card', () => {
   const html = render(summary)
-  expect(html).toContain('Goal: 90% of calls arrive within their configured call target of call receipt.')
+  expect(html).toContain('Goal: 90% of calls arrive within their configured call target after call receipt.')
   const areas = comparisonAreas(summary.places)
   const selected = extremes(areas)[0] || areas[0]
   expect((html.match(/id="simple-selected"/g) || []).length).toBe(1)
@@ -21,6 +21,9 @@ it('defines the goal and shows the histogram as the main view beside one area ca
   expect(html).toContain(`${areas.filter((p) => p.spec === 'below').length} of ${areas.length} areas`)
   for (const p of areas) expect(html).toContain(`<option value="${p.name}">`)
   expect(html).toContain('Search an area')
+  expect(html).toContain('View evidence')
+  expect(html).toContain('<dialog')
+  expect(html).toContain('selected-strip')
   expect(html).toContain('95% on-time uncertainty interval')
   expect(html).toContain('Slowest 1 in 10')
   expect((html.match(/id="simple-selected"/g) || []).length).toBe(1)
@@ -75,7 +78,7 @@ it('handles empty, missing-profile and mixed-urgency selections', () => {
 it('uses each urgency group’s configured minutes in the goal definition', () => {
   for (const [urgency, minutes] of [['yellow', 15], ['green', 30]]) {
     const d = { ...summary, selection: { ...summary.selection, urgency: [urgency] }, places: summary.places.map((p) => ({ ...p, response_profile: { ...p.response_profile, target_min: minutes } })) }
-    expect(render(d)).toContain(`Goal: 90% of calls arrive within ${minutes} min of call receipt.`)
+    expect(render(d)).toContain(`Goal: 90% of calls arrive within ${minutes} min after call receipt.`)
   }
 })
 
