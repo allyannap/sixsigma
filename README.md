@@ -38,7 +38,7 @@ hides the late calls, cannot say **where** they happen, and cannot separate a lo
 | 1 | **Map** state → county → ZIP area, with a back button, and a ranked table | Where? Per place: n, on-time rate + CI, **Target** badge, **Control** badge (with a **watch** chip for one unconfirmed signal), queue label, excess late calls, P95 + CI, volume, baseline stability. Rows rank by label, then by **late calls beyond what the goal allows** | on-time rate, p chart, P95 |
 | 2 | **Has the process changed?** | late share by day / week / month against the screened baseline; the evidence for each signal (exact p-value); the **calls behind a signal**; a **stage-median table** (received → assigned → en route → on scene, period vs baseline, % held), descriptive only | p chart with exact binomial signals; baseline screen; dispersion check; optional I chart |
 | 3 | **Investigation list** | the flagged places of the current view, plus a **statewide list of flagged ZIP areas** (Act now or Recent change, 30+ valid calls) so a bad ZIP inside a county that looks fine still shows | none new |
-| 4 | **Geographic comparison** (secondary) | within one urgency group, which places have typical waits above or below the **call-weighted average** | ANOM on ln(minutes), descriptive only |
+| 4 | **Geographic comparison** | histogram of area on-time rates, with selected-area waits, target and sample size | existing Wilson judgment; median and P90; [data profile and design](app/frontend/docs/geographic-comparison.md) |
 
 The footer states the response-clock caveat (`t_received` meaning is provisional) and that the red targets are
 NFPA 1720-based placeholders.

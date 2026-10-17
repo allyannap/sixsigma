@@ -567,6 +567,39 @@ def test_assumption_checks_known_answer_and_degenerate():
     assert qc.assumption_checks([1.0, 2.0])["skew"] is None
 
 
+def test_response_profile_known_answer():
+    r = qc.response_profile(list(range(1, 21)), [12] * 20)
+    assert r['n'] == 20
+    assert r['median_min'] == 10.5
+    assert r['p90_min'] == pytest.approx(18.1)
+    assert r['max_min'] == 20
+    assert r['over_target_pct'] == 40  # 12 itself is on time
+    assert r['target_min'] == 12
+    assert r['low_n']
+
+
+@pytest.mark.parametrize('times,targets,n,median,late', [
+    ([], [], 0, None, None),
+    ([8], [8], 1, 8, 0),
+    ([9, 9, 9], [8, 8, 8], 3, 9, 100),
+    ([None, float('nan'), float('inf'), -1, 0, 5], [8]*6, 1, 5, 0),
+    ([5, 8, 12], [None, 8, float('nan')], 1, 8, 0),
+])
+def test_response_profile_degenerate(times, targets, n, median, late):
+    r = qc.response_profile(times, targets)
+    assert r['n'] == n
+    assert r['median_min'] == median
+    assert r['over_target_pct'] == late
+    assert r['p90_min'] == median
+
+
+def test_response_profile_mixed_targets_and_sample_boundary():
+    r = qc.response_profile([8]*30, [7]*15 + [9]*15)
+    assert r['target_min'] is None
+    assert r['over_target_pct'] == 50
+    assert not r['low_n']
+    with pytest.raises(ValueError):
+        qc.response_profile([1], [])
 # ---------------------------------------------------------------- 10. Phase I baseline screen
 
 # Hand work, 10 baseline days of n = 100. Late: 20 on nine days and 40 on the tenth.

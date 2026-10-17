@@ -298,7 +298,23 @@
     17.13
    ],
    "cpk": 0.276,
-   "cpk_upper": 0.296
+   "cpk_upper": 0.296,
+   "response_profile": {
+    "n": 1163,
+    "median_min": 6.416666666666667,
+    "p90_min": 12.916666666666666,
+    "max_min": 42.733333333333334,
+    "over_target_pct": 21.15219260533104,
+    "target_min": null,
+    "low_n": false,
+    "messages": []
+   },
+   "area_mix": {
+    "urban": 33.0,
+    "suburban": 53.3,
+    "rural": 13.7,
+    "remote": 0.0
+   }
   },
   {
    "id": "36081",
@@ -369,7 +385,23 @@
     9.33
    ],
    "cpk": 0.501,
-   "cpk_upper": 0.518
+   "cpk_upper": 0.518,
+   "response_profile": {
+    "n": 2921,
+    "median_min": 4.6,
+    "p90_min": 7.5,
+    "max_min": 37.85,
+    "over_target_pct": 7.565902088325916,
+    "target_min": null,
+    "low_n": false,
+    "messages": []
+   },
+   "area_mix": {
+    "urban": 99.9,
+    "suburban": 0.1,
+    "rural": 0.0,
+    "remote": 0.0
+   }
   },
   {
    "id": "36005",
@@ -430,7 +462,23 @@
     8.8
    ],
    "cpk": 0.544,
-   "cpk_upper": 0.567
+   "cpk_upper": 0.567,
+   "response_profile": {
+    "n": 1826,
+    "median_min": 4.6,
+    "p90_min": 7.333333333333333,
+    "max_min": 20.8,
+    "over_target_pct": 6.571741511500548,
+    "target_min": null,
+    "low_n": false,
+    "messages": []
+   },
+   "area_mix": {
+    "urban": 99.6,
+    "suburban": 0.4,
+    "rural": 0.0,
+    "remote": 0.0
+   }
   },
   {
    "id": "36001",
@@ -491,7 +539,23 @@
     13.98
    ],
    "cpk": 0.521,
-   "cpk_upper": 0.573
+   "cpk_upper": 0.573,
+   "response_profile": {
+    "n": 340,
+    "median_min": 5.058333333333334,
+    "p90_min": 9.535000000000005,
+    "max_min": 28.533333333333335,
+    "over_target_pct": 6.176470588235294,
+    "target_min": null,
+    "low_n": false,
+    "messages": []
+   },
+   "area_mix": {
+    "urban": 35.3,
+    "suburban": 52.1,
+    "rural": 10.6,
+    "remote": 2.1
+   }
   },
   {
    "id": "36009",
@@ -552,7 +616,23 @@
     26.88
    ],
    "cpk": 0.302,
-   "cpk_upper": 0.374
+   "cpk_upper": 0.374,
+   "response_profile": {
+    "n": 99,
+    "median_min": 10.4,
+    "p90_min": 15.776666666666669,
+    "max_min": 26.883333333333333,
+    "over_target_pct": 18.181818181818183,
+    "target_min": null,
+    "low_n": false,
+    "messages": []
+   },
+   "area_mix": {
+    "urban": 0.0,
+    "suburban": 5.1,
+    "rural": 58.6,
+    "remote": 36.4
+   }
   },
   {
    "id": "36017",
@@ -613,7 +693,23 @@
     null
    ],
    "cpk": 0.068,
-   "cpk_upper": 0.142
+   "cpk_upper": 0.142,
+   "response_profile": {
+    "n": 56,
+    "median_min": 12.416666666666666,
+    "p90_min": 21.791666666666664,
+    "max_min": 34.983333333333334,
+    "over_target_pct": 39.285714285714285,
+    "target_min": 14.0,
+    "low_n": false,
+    "messages": []
+   },
+   "area_mix": {
+    "urban": 0.0,
+    "suburban": 0.0,
+    "rural": 53.6,
+    "remote": 46.4
+   }
   },
   {
    "id": "36023",
@@ -674,7 +770,23 @@
     null
    ],
    "cpk": 0.414,
-   "cpk_upper": 0.523
+   "cpk_upper": 0.523,
+   "response_profile": {
+    "n": 58,
+    "median_min": 9.216666666666667,
+    "p90_min": 13.313333333333334,
+    "max_min": 16.45,
+    "over_target_pct": 6.896551724137931,
+    "target_min": 14.0,
+    "low_n": false,
+    "messages": []
+   },
+   "area_mix": {
+    "urban": 0.0,
+    "suburban": 0.0,
+    "rural": 84.5,
+    "remote": 15.5
+   }
   },
   {
    "id": "36041",
@@ -735,7 +847,25 @@
     null
    ],
    "cpk": null,
-   "cpk_upper": null
+   "cpk_upper": null,
+   "response_profile": {
+    "n": 7,
+    "median_min": 15.233333333333333,
+    "p90_min": 28.490000000000006,
+    "max_min": 38.6,
+    "over_target_pct": 57.142857142857146,
+    "target_min": 14.0,
+    "low_n": true,
+    "messages": [
+     "Fewer than 30 valid calls: tail estimates are uncertain."
+    ]
+   },
+   "area_mix": {
+    "urban": 0.0,
+    "suburban": 0.0,
+    "rural": 0.0,
+    "remote": 100.0
+   }
   }
  ],
  "calls_by_county": [

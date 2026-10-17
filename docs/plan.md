@@ -84,3 +84,23 @@ Status words: **implemented** (code exists), **tested** (known-answer and degene
 4. **Open dependencies:** `t_received` semantics, authoritative targets (the NFPA tiers are placeholders with a different
    clock), scope (brief issue 12).
 5. **Deploy** not done yet; keep the bundle small (gzipped data, simplified shapes).
+
+## Geographic comparison follow-up (H-11)
+
+User requested a supervisor-readable comparison. Section 4 now ranks median-to-P90 ranges
+on a linear minutes axis against configured targets, with late percentages, n, sparse warnings
+and expandable on-time uncertainty. The summary response is shared with the map and replay;
+existing Wilson judgments and control/queue rules remain unchanged. ANOM stays in the API.
+Known-answer profile: 1..20, target 12 → median 10.5, P90 18.1, 40% late.
+Empty/single/tied/missing cases and urgency/replay integration are tested.
+Data profile, all ZIP/urgency counts and run instructions: `app/frontend/docs/geographic-comparison.md`.
+
+- UI follow-up: five compact rows per page and a selected-area place card replace the inner scroll region. All areas remain accessible with a fixed common scale; original ANOM evidence is loaded on demand through the card. Frontend tests: 31 passed; production build passed.
+
+- Version 2 added below version 1 by user request: overall on-time percentage plus three compact goal-line indicators; statistical evidence on tap, all-area picker, unchanged statuses. Frontend tests: 34 passed; build passed.
+
+- Version 2 refinement: one shared line for three areas, staggered marker labels, selectable chips and optional fourth area. One selected explanation shows percentage-point goal gap, late share and n; complete evidence remains under one disclosure. Tests: 36 frontend tests passed; build passed.
+
+- Final version 2 condensation: three zero-based horizontal bars replace shared bubbles. Explicit call-receipt-to-arrival goal, on-time % labels, one selected gap/n line; all supporting metrics under Details. Frontend tests: 37 passed; build passed.
+
+- User rejected the bars: version 2 now uses three area/rate buttons and one direct-number result; Other area replaces the result. Full statistics remain under Details. Frontend: 37 passed; build passed.

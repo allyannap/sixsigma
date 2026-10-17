@@ -45,7 +45,6 @@ export default function App() {
   const selParams = { ...filters, level: selected.level, id: selected.id }
 
   const summary = useEndpoint('summary', parentParams)
-  const anom = useEndpoint('anom', parentParams)
   const pchart = useEndpoint('pchart', selParams)
   const imr = useEndpoint('imr', selParams)
   // Statewide list of ZIP areas with a confirmed signal: same dates, dataset and urgency, but level and id are ignored.
@@ -184,7 +183,7 @@ export default function App() {
         onPick={pick} onDrill={drill} onBack={resetScope} />
       <ChangeSection pState={pchart} imrState={imr} stagesState={stages} params={selParams} selectedName={selectedName} />
       <InvestigationSection summaryState={summary} flaggedState={flagged} onPick={pick} onPickFlagged={pickFlagged} />
-      <AnomSection anomState={anom} />
+      <AnomSection summaryState={summary} />
 
       <footer className="small muted">
         Every number on this page is computed by the API (<code>/api/*</code>, read-only); the page only draws and formats it.

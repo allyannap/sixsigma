@@ -290,6 +290,50 @@ def test_empty_selection_is_200_not_500():
     assert body["totals"]["calls"] >= 0 and body["place"]["queue"] == "needs_data"
 
 
+@pytest.mark.parametrize('urgency,target', [('red', 8), ('yellow', 15), ('green', 30)])
+def test_response_profile_matches_valid_calls_and_existing_status(urgency, target):
+    from app.main import Ctx
+    ctx = Ctx('baseline', '2026-07-18', '2026-10-15', urgency, 'county', '36081', 60)
+    body = get(f'/api/summary?{LAST_90}&urgency={urgency}&level=county&id=36081')
+    for p in body['places']:
+        calls = ctx.timed[ctx.timed.zcta == p['id']]
+        r = p['response_profile']
+        assert r == qc.response_profile(calls.minutes.tolist(), (calls.target_s / 60).tolist())
+        assert r['n'] == p['valid']
+        if r['n']:
+            targets = (calls.target_s / 60).unique()
+            assert r['target_min'] == (float(targets[0]) if len(targets) == 1 else None)
+            if urgency != 'red':
+                assert r['target_min'] == target
+            assert r['over_target_pct'] == pytest.approx(100 * p['late'] / p['valid'])
+        expected = qc.on_time(p['valid'], p['on_time'], p['goal_pct'] or 90)
+        assert p['spec'] == expected['status']
+
+
+def test_response_profiles_empty_and_replay_window():
+    empty = get('/api/summary?from=2027-01-01&to=2027-01-02&level=zcta&id=11368')
+    assert empty['places'][0]['response_profile']['n'] == 0
+    assert empty['places'][0]['response_profile']['p90_min'] is None
+    before = get('/api/summary?dataset=station_closure&from=2026-08-25&to=2026-09-01&level=zcta&id=11368')
+    after = get('/api/summary?dataset=station_closure&from=2026-08-25&to=2026-09-20&level=zcta&id=11368')
+    assert after['places'][0]['response_profile']['n'] > before['places'][0]['response_profile']['n']
+    assert after['selection']['baseline_from'] == before['selection']['baseline_from']
+
+
+def test_area_mix_counts_valid_calls_by_area_type_and_is_none_when_empty():
+    from app.main import Ctx
+    ctx = Ctx('baseline', '2026-07-18', '2026-10-15', 'red', 'state', None, 60)
+    body = get(f'/api/summary?{LAST_90}&urgency=red')
+    for p in body['places']:
+        mix, calls = p['area_mix'], ctx.timed[ctx.timed.county_fips == p['id']]
+        if not len(calls):
+            assert mix is None
+            continue
+        assert set(mix) == set(data.AREA_TYPES) and sum(mix.values()) == pytest.approx(100, abs=0.3)
+        for t in data.AREA_TYPES:
+            assert mix[t] == pytest.approx(100 * (calls.urban_rural == t).sum() / len(calls), abs=0.051)
+    empty = get('/api/summary?from=2027-01-01&to=2027-01-02&level=zcta&id=11368')
+    assert empty['places'][0]['area_mix'] is None
 # ---------------------------------------------------------------- H-13: new fields on the place card and summary
 
 def test_place_card_counts_cancelled_invalid_and_calls_per_day():

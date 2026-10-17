@@ -243,6 +243,14 @@ def baseline_card(info: dict, ctl: dict | None = None) -> dict:
                            "overdispersed": bool(disp["overdispersed"])}}
 
 
+def area_mix(timed: pd.DataFrame) -> dict | None:
+    """Share of valid calls (percent) from urban, suburban, rural and remote ZIP areas; None with no valid calls."""
+    if not len(timed):
+        return None
+    counts = timed["urban_rural"].value_counts()
+    return {t: num(100 * int(counts.get(t, 0)) / len(timed), 1) for t in data.AREA_TYPES}
+
+
 def place_core(qc, rows: pd.DataFrame, base_rows: pd.DataFrame, base_info: dict) -> dict:
     """A, B and the queue label of one place (no percentiles): enough for the statewide flagged list."""
     sel_t = split_timed(rows)
@@ -275,6 +283,8 @@ def place_card(qc, rows, base_rows, base_info, days) -> dict:
     card = {"calls": len(rows), **place_core(qc, rows, base_rows, base_info), "very_late": very_late_count(sel_t)}
     card.update(volume_fields(rows, card["valid"], base_rows, base_info, days))
     card.update(percentile_fields(qc.percentiles(sel_t["minutes"].tolist())))
+    card["response_profile"] = qc.response_profile(sel_t["minutes"].tolist(), (sel_t["target_s"] / 60).tolist())
+    card["area_mix"] = area_mix(sel_t)
     card.update(cpk=None, cpk_upper=None)
     if len(sel_t) >= data.MIN_CALLS:
         # Secondary and assumption-dependent (lognormal times): Cpk never sets the queue label.
