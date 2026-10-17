@@ -116,3 +116,9 @@ export function fmtOneIn(late, valid) {
   const n = valid / late
   return n < 2 ? `${fmtPct((100 * late) / valid, 0)} late` : `1 in ${Math.round(n)} late`
 }
+
+/** On-time goal as the late share it allows: 90 -> "1 in 10"; missing or 100 -> ''. */
+export function fmtGoalOneIn(goalPct) {
+  if (missing(goalPct) || goalPct >= 100) return ''
+  return `1 in ${Math.round(100 / (100 - goalPct))}`
+}

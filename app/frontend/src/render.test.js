@@ -25,6 +25,7 @@ import ReplayBar from './components/ReplayBar.jsx'
 
 // React puts <!-- --> between text pieces; drop them so words can be searched.
 const plain = (html) => html.replace(/<!-- -->/g, '')
+const mmssOf = (min) => `${Math.floor(Math.round(min * 60) / 60)}:${String(Math.round(min * 60) % 60).padStart(2, '0')}`
 const ok = (data) => ({ data, loading: false, error: null, reload() {} })
 const STATE = { level: 'state', name: 'New York State' }
 const map = (extra = {}) => plain(renderToString(h(MapSection, {
@@ -300,6 +301,24 @@ describe('OnScene page (H-14)', () => {
     const rows = [...html.matchAll(/<span>(Critical|Watch|Stable|Needs data)<\/span><span class="legend-val">(\d+)<\/span>/g)].map((m) => [m[1], Number(m[2])])
     expect(rows).toEqual([['Critical', q.act_now], ['Watch', q.ongoing_gap + q.recent_change], ['Stable', q.meets_stable], ['Needs data', q.needs_data]])
     expect(html).toContain('<div class="legend-title">Status</div>')
+  })
+  it('the hover card: place, county and status; calls per urgency; late share vs goal; typical wait vs the parent', async () => {
+    const { makeTip } = await import('./components/MapSection.jsx')
+    const p = { ...summary.places.find((x) => x.queue === 'act_now'), calls_by_urgency: { red: 142, yellow: 210, green: 96 } }
+    const zip = makeTip(summary, { level: 'county', id: '36055', name: 'Monroe' })({ ...p, late: 40, valid: 240, goal_pct: 90, median_min: 6 + 55 / 60 }, '14612')
+    expect([zip.title, zip.sub]).toEqual(['ZIP 14612', 'Monroe County'])
+    expect(zip.status).toEqual({ label: 'Act now', tier: 'critical' })
+    expect(zip.rows).toEqual([
+      { label: 'Late red calls', value: '1 in 6', note: 'goal 1 in 10' },
+      { label: 'Typical wait', value: '6:55', note: `county ${mmssOf(summary.totals.median_min)}` },
+    ])
+    expect(zip.urgency.map((u) => `${u.label} ${u.count}`)).toEqual(['Red 142', 'Yellow 210', 'Green 96'])
+    expect(zip.text).toContain('ZIP 14612, Monroe County: Act now')
+    const county = makeTip(summary, STATE)(p, p.name)
+    expect([county.title, county.sub]).toEqual([`${p.name} County`, ''])
+    expect(county.rows[1].note).toMatch(/^state \d+:\d\d$/)
+    const none = makeTip(summary, STATE)(null, 'Hamilton')
+    expect([none.title, none.empty, none.status]).toEqual(['Hamilton County', 'No calls in this selection', null])
   })
   it('the map card has a keyboard search combobox, back/reset and a breadcrumb', () => {
     const html = map()

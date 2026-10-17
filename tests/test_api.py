@@ -334,6 +334,16 @@ def test_area_mix_counts_valid_calls_by_area_type_and_is_none_when_empty():
             assert mix[t] == pytest.approx(100 * (calls.urban_rural == t).sum() / len(calls), abs=0.051)
     empty = get('/api/summary?from=2027-01-01&to=2027-01-02&level=zcta&id=11368')
     assert empty['places'][0]['area_mix'] is None
+
+
+def test_calls_by_urgency_counts_every_group_whatever_the_filter():
+    red = get(f'/api/summary?{LAST_90}&urgency=red&level=county&id=36055')
+    every = get(f'/api/summary?{LAST_90}&urgency=red,yellow,green&level=county&id=36055')
+    for r, e in zip(red['places'], every['places']):
+        assert r['calls_by_urgency'] == e['calls_by_urgency']
+        assert set(r['calls_by_urgency']) == set(data.GROUPS)
+        assert r['calls_by_urgency']['red'] == r['calls']
+        assert sum(e['calls_by_urgency'].values()) == e['calls']
 # ---------------------------------------------------------------- H-13: new fields on the place card and summary
 
 def test_place_card_counts_cancelled_invalid_and_calls_per_day():

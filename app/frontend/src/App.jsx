@@ -23,8 +23,8 @@ const TICK_MS = 3000
 export default function App() {
   const fixtures = isFixtureMode()
   const [dataset, setDataset] = useState('baseline')
-  const [urgency, setUrgency] = useState(['red'])
-  const [from, setFrom] = useState('') // applied by the Search button; blank = the API's default last 90 days
+  const [urgency, setUrgency] = useState(URGENCY_KEYS) // all priorities (red, yellow, green) on at load
+  const [from, setFrom] = useState('') // applied by Search; blank still means the API's default last 90 days
   const [to, setTo] = useState('')
   // parent = what the map draws children of (state -> counties, county -> its ZIP areas).
   // selected = the place the right column and the two chart cards describe.
@@ -38,6 +38,9 @@ export default function App() {
   // During replay the period runs from the fixed start to the simulated day; otherwise the date inputs.
   const winFrom = replay.on ? replay.start : from
   const winTo = replay.on ? replay.day : to
+  // The page loads that default window before the user picks dates, so show it in the boxes.
+  const shownFrom = winFrom || (meta.data && meta.data.default_from) || ''
+  const shownTo = winTo || (meta.data && meta.data.default_to) || ''
   const filters = { dataset, from: winFrom, to: winTo, urgency }
   const parentParams = { ...filters, level: parent.level, id: parent.id }
   const selParams = { ...filters, level: selected.level, id: selected.id }
@@ -123,7 +126,7 @@ export default function App() {
               onPick={pick} onReset={resetScope} onSearch={searchPick} />
           </div>
           <div className="right-col">
-            <PlaceHead summaryState={summary} selected={selected} parent={parent} from={winFrom} to={winTo} replayOn={replay.on}
+            <PlaceHead summaryState={summary} selected={selected} parent={parent} from={shownFrom} to={shownTo} replayOn={replay.on}
               dateMin={meta.data ? meta.data.date_min : undefined} dateMax={meta.data ? meta.data.date_max : undefined}
               onApply={(a, b) => { setFrom(a); setTo(b) }} onDrill={drill} />
             <MetricsSection summaryState={summary} selected={selected} parent={parent} urgency={urgency}
