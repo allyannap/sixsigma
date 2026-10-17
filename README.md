@@ -1,292 +1,151 @@
-# EMS Response Monitor
+# OnScene
 
-**A read-only quality-control dashboard that shows a New York State EMS dispatch center's quality supervisor which
-counties and ZIP areas need review, and whether each is below the on-time goal, shows a new statistical change, or both.**
+OnScene is a read-only EMS response-quality dashboard for a New York State
+dispatch center's quality supervisor. It shows **where calls miss their
+response-time target** and separates a persistent service gap from a recent
+statistical change. Team Powerpuff Girls built it for the Cornell Six Sigma
+Hackathon's Health Systems: Emergency Response prompt.
 
-Team **Powerpuff Girls** · Cornell Six Sigma Hackathon 2026, on-campus track ·
-Prompt: *Health Systems: Emergency Response*
+> **Demonstration only:** all incidents are synthetic. Census geography is
+> real, but no patient, ambulance, dispatcher, or live CAD record is used.
+> Replay is a simulation, not a live feed.
 
-> **All incident data is SYNTHETIC** (invented calls on real 2020 Census geography), played back as a
-> **simulated replay**. It is not live CAD or FDNY data. Requirements: the approved
-> [decisions brief](EMS_RESPONSE_MONITOR_DECISIONS.md), with the team's later changes in [SPEC.md](SPEC.md) section 10.
-> What works today is in [Build status](#8-build-status). The live URL goes here once deployed.
+## What you can do
 
----
+1. Choose a synthetic dataset and one urgency priority. The initial view
+   uses `baseline`, **1 Most urgent** (red), and July 18–October 15, 2026.
+   From and To dates are inclusive; results load without entering dates.
+2. Scan the state map, then select a county or ZIP Code Tabulation Area
+   (ZCTA). Switch between **Status** categories and descriptive **Late %**.
+3. Open **Investigate** to review areas by queue label and excess late-call
+   volume. The **Goal** and **Control** badges answer different questions.
+4. Use **Area comparison** for geographic differences and **Response
+   trends** for the selected place's late-share chart, period evidence,
+   call records, and descriptive stage times. A ZIP without enough baseline
+   history gets an observed trend—not control limits or a change verdict.
+5. Try **Simulation / Replay** to move through synthetic days with a fixed
+   statistical baseline. **How it works** is a short onboarding guide;
+   **Documentation**, beside it, is a searchable in-dashboard reference.
 
-## 1. The problem
+The Key Metrics panel may show an AI-written investigation briefing when
+Ollama Cloud is configured. It summarizes existing aggregate results; it
+does not calculate the statistics or establish a cause. Provider errors are
+shown, and the rest of the dashboard works without AI.
 
-Ambulance response times vary widely from place to place, but the dispatch center only looks at **monthly averages**.
-An average of 5 minutes "looks fine" even when one urgent call in four in one ZIP area misses the target. The average
-hides the late calls, cannot say **where** they happen, and cannot separate a long-running gap from a recent change.
+## The two judgments
 
-## 2. Who it is for, and the decision it supports
+The **target** is the maximum response time for one call. A completed,
+valid call is late only when its received-to-on-scene time exceeds that
+call's configured target. The **goal** is **90% of valid completed calls on
+time**. Targets vary by priority and area type:
 
-- **User:** the dispatch center's **quality supervisor**. Not the dispatcher assigning an ambulance, not the public.
-- **Decision:** which areas need review; for each, two separate questions: **is it meeting the service goal?** and
-  **has its process changed from its own history?**
-- **What it does not do:** no incident entry or logging forms, no ambulance assignment or ranking of people, no
-  what-if or "best fix" (deferred), no stage-by-stage cause analysis or travel-time comparison (removed; plain stage
-  medians are shown, descriptive only), no time-of-day analysis, no causal or fairness claims.
+| Priority | Urban | Suburban | Rural | Remote |
+|---|---:|---:|---:|---:|
+| 1 Most urgent | 8 min | 10 min | 14 min | 14 min |
+| 2 Urgent | 15 min | 15 min | 15 min | 15 min |
+| 3 Less urgent | 30 min | 30 min | 30 min | 30 min |
 
-## 3. What you see (one page, top to bottom)
+These are illustrative placeholders in [config/targets.csv](config/targets.csv),
+**not certified EMS standards**. The first row adapts NFPA 1720 volunteer
+fire-service demand-zone times; its clock and area definitions differ from
+OnScene's. Remote reuses the rural time.
 
-| # | Part | Answers | Statistic |
-|---|---|---|---|
-| – | **Filters** | dataset, urgency (red / yellow / green), date range (choose From and To; blank dates show no analysis) | none |
-| – | **Simulation / Replay** | plays the synthetic file forward one simulated day per tick (3 s); the period start and its baseline stay fixed while the end date advances; the day's calls are listed | read-only feed |
-| – | **Summary** | places needing review, split into **recent signal** (Act now + Recent change) and **ongoing gap**, with how many places would read "Below goal" **by chance alone** if every place sat exactly at the goal; on-time k of n with 95% CI vs the goal; median and P95 with intervals; calls, cancelled, invalid, cancel %, calls per day | Wilson interval, exact order-statistic intervals, binomial expected count |
-| 1 | **Map** state → county → ZIP area, with a back button, and the **Investigate** list beside it | Where? The list has two tabs that never overlap, **Needs review** (default; the map's Critical + Watch places) and **Not flagged** (the rest), each a table ranked by label, then by **late calls beyond what the goal allows**. Every row has the place's queue label, **Goal** and **Control** (with a **watch** chip for one unconfirmed signal), n, on-time rate + CI, excess late calls, cancelled / invalid, calls per day, P95 + CI and Cpk. The old table under the map was removed (H-24) | on-time rate, p chart, P95 |
-| 2 | **Has the process changed?** | late share by day / week / month against the screened baseline; the evidence for each signal (exact p-value); the **calls behind a signal**; a **stage-median table** (received → assigned → en route → on scene, period vs baseline, % held), descriptive only | p chart with exact binomial signals; baseline screen; dispersion check |
-| 3 | **Investigation list** | the flagged places of the current view, plus a **statewide list of flagged ZIP areas** (Act now or Recent change, 30+ valid calls) so a bad ZIP inside a county that looks fine still shows | none new |
-| 4 | **Geographic comparison** | histogram of area on-time rates, with selected-area waits, target and sample size | existing Wilson judgment; median and P90; [data profile and design](app/frontend/docs/geographic-comparison.md) |
-
-A **How it works** guide (top bar; it also opens on the first visit) explains the page in four short pages: target and
-goal with the target table (read from `/api/meta`), the map colours, the Investigate table's labels (Act now, Ongoing
-gap, Recent change, Needs more data, Meets goal, and the "watch" tag), and how to use the page, with the caveats: the data is
-simulated, the response-clock start (`t_received`) is provisional, and the targets are NFPA 1720-based placeholders.
-
-**Target vs goal.** The **target** is the time limit for one call (urgency 1: 8 min urban, 10 suburban, 14 rural and
-remote; urgency 2: 15 min; urgency 3: 30 min); a call that misses it is **late**. The **goal** is the share of calls that
-should be on time (90%); a place is judged **Meets goal / Below goal / Inconclusive** against it.
-
-**Two badges, one queue label.** The **Goal** badge (Meets / Below / Inconclusive) and the **Control** badge
-(In control / Out of control / Insufficient baseline) are always shown. The queue label combines them:
-
-| Goal | Control | Queue label |
+| Judgment | Method | Possible result |
 |---|---|---|
-| Below goal | Out of control | **Act now: performance gap + recent signal** |
-| Below goal | In control | **Ongoing gap** |
-| Meets goal or Inconclusive | Out of control | **Recent process change: investigate** |
-| Meets goal | In control | **Meets goal; no change signal** |
-| anything | Insufficient baseline (or Inconclusive + In control) | **Needs more data / Inconclusive** (confirmed Below-target places sort first) |
+| **Goal:** is the on-time share clearly above or below 90%? | 95% Wilson interval; fewer than 30 valid calls cannot get a confident verdict | Meets goal / Below goal / Inconclusive |
+| **Control:** has the late share risen above this place's earlier pattern? | p chart against a fixed, screened pre-period baseline | In control / Out of control / Insufficient baseline |
 
-"No alert" never means "meets the target", "In control" never means good service, and "Inconclusive" is never shown as a pass.
+**In control does not mean Meets goal.** The queue combines both judgments:
+**Act now** is Below goal plus a confirmed recent signal; **Ongoing gap** is
+Below goal without a confirmed change; **Recent process change** is a
+signal without a confirmed service gap. Other combinations read **Meets
+goal; no change signal** or **Needs more data / Inconclusive**. A **watch**
+chip marks one unconfirmed high period and does not change the queue.
+The [statistical specification](SPEC.md) gives the exact eligibility,
+interval, baseline-screen, signal, ranking, and low-volume rules.
 
-**Map colours.** The map does not paint every "Needs more data / Inconclusive" place gray: that hid places with plenty of
-calls that simply sit close to the goal. Each area is coloured by one rule (`mapTier` in `app/frontend/src/status.js`), used
-by the map, its legend, the New York City borough list and the metrics card:
+## Try the three datasets
 
-| Map group | Means | Queue labels it covers |
+The three fixed-seed files cover October 16, 2025–October 15, 2026 and
+contain about 1.82 million invented calls each. The steps below use
+**priority 1 (red)** and the dashboard's 60-day pre-period baseline.
+Select the dataset, set the stated dates where needed, and pick the place
+on the map or through search.
+
+| Dataset | Place and dates to inspect | Expected behavior |
 |---|---|---|
-| **Critical** | below the goal and a recent signal | Act now |
-| **Watch** | a gap or a change to look at | Ongoing gap, Recent change, and confirmed Below goal when change cannot be judged yet |
-| **Near goal** | 30 or more valid calls, but the on-time interval includes the goal, and no change signal | Needs more data / Inconclusive |
-| **Stable** | meets the goal | Meets goal; no change signal, and Meets goal when too few late calls exist to chart |
-| **Too few calls** (gray) | under 30 valid calls in the period | Needs more data / Inconclusive |
+| **Baseline** — no planted process change | Initial state view, July 18–October 15, 2026 | Counties include persistent **Ongoing gaps**; the state Meets goal but has **Insufficient baseline** for its daily control chart. One county (Erie) and one ZIP (11212) show chance false alarms. A clean synthetic file does **not** guarantee zero statistical signals. |
+| **Station closure** — longer drive times in Corona, Queens from September 1 | Choose `station_closure`, ZIP **11368**, September 1–October 15, 2026 | **Act now:** 72.2% on time among 407 valid red calls, Below goal and Out of control. Both September and October exceed the upper control limit. In the Baseline file over those same dates, the ZIP is Inconclusive and In control. |
+| **Summer surge** — more calls and dispatch delay in Monroe County during July–August | Choose `summer_surge`, **Monroe County (36055)**, July 1–August 31, 2026 | **Act now:** 80.2% on time among 5,285 valid red calls, Below goal with 10 weekly deterioration signals. The Baseline file over the same dates Meets goal and is In control. |
 
-A **Status / Late %** switch on the legend recolours the map by the share of late calls (light 0%, dark red 30%+); areas
-with under 30 valid calls are faded rather than gray, so a delay hot spot shows before a firm verdict is possible. The queue
-labels, the Goal and Control badges and the API are unchanged; hovering an area shows both its map group and its label.
-On the baseline data (default window, red calls; H-19 files, 0.09 calls per person per year) the county map reads Watch 40,
-Near goal 3, Stable 19, Too few calls 0; Manhattan's 69 ZIP areas read Near goal 32, Stable 11, Too few calls 26 (68 were
-gray before H-18).
+**Date choice matters.** In `summer_surge`, Monroe is **Needs more data /
+Inconclusive** for a control judgment in the default July 18–October 15
+window: its preceding baseline includes the surge and fails the stability
+screen. From September 1–October 15 it Meets goal, but the earlier surge
+still makes its pre-period baseline unsuitable. This is a safeguard, not a
+missing scenario. For the clearest demonstration, use the July–August dates
+in the table.
 
+For replay, choose `station_closure` and ZIP 11368, then **Start replay**.
+Without an applied From date it begins August 25. A watch period appears
+September 3; the control judgment turns Out of control September 4 and
+the queue turns Act now September 8. In `summer_surge`, replay begins
+June 25; Monroe turns Out of control July 2 and Act now July 5. If you
+apply a From date first, replay starts there instead. The baseline stays
+fixed as the simulated end date advances.
 
-## 4. How the statistics work
+The full codebook, generation assumptions, observed results, and cleaning
+test sample are in [data/README.md](data/README.md). Synthetic signals are
+not claims about real EMS operations.
 
-A **valid call** is completed (not cancelled), has `t_onscene`, `valid_time = Y` and times in order; anything else counts
-in volume only. Each call's **total wait** is `t_onscene − t_received` (provisional definition, see section 10). A call is
-**late** when its total wait is longer than its target in `config/targets.csv`. **Red targets depend on the area type**
-(adapted from NFPA 1720 demand zones, illustrative placeholders): urban 8:00, suburban 10:00, rural 14:00, remote 14:00
-(NFPA gives no remote value, so rural is reused, flagged). Yellow 15:00 and green 30:00 everywhere; goal 90% on time.
-**These are configurable placeholders, not certified standards** (`config/build_targets.py --flat` restores a flat 8:00 red target).
+## Run locally
 
-- **Goal (specification):** on-time rate with a 95% **Wilson** interval. Meets if the lower bound ≥ goal; Below if the
-  upper bound < goal; otherwise Inconclusive, and Inconclusive under 30 valid calls. Beside the count of Below places,
-  the page shows **how many would read Below by chance** if every place were exactly at the goal (`qc.chance_below`).
-- **Control (p chart):** the **baseline** is the 60 days before the selected range, never overlapping it (120 days if
-  under 30 valid calls). Subgroups are days, weeks or months: the shortest with expected late calls n·p̄ ≥ 5 in the
-  baseline. **Baseline screen (Phase I):** baseline subgroups whose exact binomial tail is under 0.00135 are dropped once
-  and p̄ is recomputed; the baseline is **unstable** (status Insufficient baseline) if another subgroup still stands out,
-  more than 10% were dropped, 8 in a row sit on one side of p̄, or the rest are overdispersed (Pearson chi-square,
-  α = 0.01). With fewer than 4 baseline subgroups the screen is not run. Limits are p̄ ± 3·√(p̄(1 − p̄)/nᵢ), clipped to [0, 1].
-  A subgroup is a **signal** when it is above its UCL **and** its exact binomial p-value P(X ≥ lateᵢ | nᵢ, p̄) is under
-  0.00135. **Out of control** needs **2 or more signals, or one with p < 0.00135 / m** (m = subgroups on the chart);
-  a single weaker signal stays In control with a **watch** chip.
-- **Ranking:** inside a queue label, places rank by **excess late calls** = late − (1 − goal) × valid, so a big place with
-  a modest gap outranks a tiny place with a high rate.
-- **Percentiles:** median and P95 by linear interpolation, with exact distribution-free 95% intervals from order
-  statistics at every n. A bound that needs more calls than there are reads "n/a" (any P95 upper bound needs 59 calls).
-- **Secondary, never set a status:** I chart on ln(minutes) (only "beyond 3 sigma" is marked); one-sided Cpk with the
-  Bissell bound, whose sigma comes from the moving range across all places and days of the selection, so it is an
-  **overall (Ppk-like)** summary, not a within-subgroup capability; ANOM within one urgency group, compared with the
-  call-weighted average (a big place pulls the average toward itself; differences can be geography, not service).
-  Plain stage medians are descriptive, with no excess or cause attached.
-
-Every statistic is one plain, tested function in `app/qc.py`, checked against a hand-worked known answer and a
-degenerate case ([`SPEC.md`](SPEC.md) section 4).
-
-```mermaid
-flowchart LR
-  csv["data/incidents_*.csv.xz<br>(SYNTHETIC, fixed seed)"] --> dl["app/data.py<br>clean · valid calls · select · baseline"]
-  tg["config/targets.csv<br>(NFPA-based placeholders)"] --> dl
-  lk["data/lookup/<br>ZCTA → county, area type"] --> dl
-  dl --> qc["app/qc.py<br>on-time + Wilson CI · chance_below<br>p chart + baseline screen + control<br>queue label · excess late · percentiles<br>stage medians · secondary: I-MR · Cpk · ANOM"]
-  qc --> api["FastAPI, read-only GET<br>/summary /flagged /pchart /stages<br>/signal_calls /replay /imr /anom /meta /health"]
-  api --> ui["React dashboard<br>map · charts · investigation list<br>Simulation / Replay"]
-```
-
-## 5. Inputs
-
-**`incidents.csv`, one row per EMS call.** Ten columns, all of which a dispatch (CAD) system already records. Only six
-are needed for the on-time and control statistics; the stage times and `held` feed the descriptive stage table, and
-`cancelled` only separates cancelled calls from the rest. **No travel-estimate column is needed** (removed Oct 17, H-14).
-
-| Column | Required | Meaning |
-|---|---|---|
-| `incident_id` | yes | one call |
-| `zcta` | yes | 5-digit ZIP code area where the patient was |
-| `urgency_code` | yes | 0 = most urgent to 9 = least (0-2 red, 3-5 yellow, 6-9 green) |
-| `t_received`, `t_assigned`, `t_enroute`, `t_onscene` | yes (`t_onscene` empty if cancelled) | ISO 8601 times with the New York offset. `t_received` and `t_onscene` drive the core statistics; the other two give the stage times |
-| `cancelled` | yes | Y/N: the call was cancelled (its `t_onscene` is then empty) |
-| `valid_time` | yes | Y/N: the times are trustworthy |
-| `held` | optional | Y/N: the call waited because no unit was free (shown as % held in the stage table) |
-
-**Messy input never crashes the tool.** Rows with a repeated `incident_id`, an empty or unreadable `t_received`, an
-unknown ZIP area or an unknown urgency code are dropped and counted by reason; cancelled, `valid_time = N`, missing-time
-and out-of-order calls stay in the call count but never in a time statistic. `/api/health` reports these counts per file.
-`data/incidents_messy_sample.csv.xz` (13,327 rows, problems injected) tests this: 36 rows are dropped, exactly the injection log.
-
-**Filters on every request:** `dataset`, `from`, `to`, `urgency`, `level` (state / county / zcta), `id`, `baseline_days`.
-No street addresses, coordinates, ambulance IDs or dispatcher IDs are stored. Full API: [`docs/api.md`](docs/api.md).
-
-## 6. Test datasets and demo walkthrough
-
-Three synthetic 12-month files (Oct 16, 2025 to Oct 15, 2026), every New York ZIP area, about 1.82 million calls each
-(xz-compressed CSV, about 22 MB each, under the project's 25 MB file limit), built by a fixed-seed generator from 2020 Census
-populations at 0.09 calls per person per year, about 60% of a typical real US rate of ~0.15 (0.0198 at first, 0.04 from
-H-17, 0.09 from H-19, Oct 17), with
-day-to-day county effects, winter and summer seasonality, an hour-of-day profile and congestion. Codebook:
-[`data/README.md`](data/README.md). All numbers below are red calls, 60-day baseline, measured with the API on the current files.
-
-| Dataset | Planted scenario | Try this | What the tool shows |
-|---|---|---|---|
-| `baseline` | none (seasonal pattern; rural long trips) | default (Jul 18 to Oct 15), state view | 62 counties: Act now 0, Ongoing gap 35, Recent change 1, Meets goal 10, Needs more data 16 (36 need attention). 39 of 62 counties read Below goal where chance alone would give about 1.7. The one Recent change, Erie (one strong weekly signal, week of Aug 10, p = 5.1e-5), is a **false alarm** on a file with no planted change; Oneida, Ulster and Wayne carry watch chips. Statewide flagged ZIP list: one entry, 11212 (Kings, Recent change, 93.1% of 696), also a **false alarm** (807 ZIPs with 30+ valid calls checked; 94 read Below goal where chance alone would give about 25.6). The state as a whole: 150,495 valid calls, 91.8% on time, median 5.05 min, P95 12.67 min, Meets goal but Insufficient baseline (its daily baseline is overdispersed, chi-square / df 2.15); the state's daily chart is the least reliable view (section 7) |
-| `station_closure` | from Sep 1, 2026, drive times in ZIP 11368 (Corona, Queens) +60% (set through the generator's travel model) | Queens → ZIP 11368, dates 2026-09-01 to 2026-10-15 | **Act now**: 72.2% on time of 407 valid calls (95% CI 67.7-76.4%), out of control in both months (exact p = 3.1e-27 for Sep, 8.5e-18 for Oct), 72.3 late calls beyond the goal. Stage medians: en route → on scene 272 s vs 180 s in the baseline; received → assigned (41 vs 46 s) and turnout (51 vs 50 s) unchanged. The same dates on the clean file: 91.4% (CI 88.3-93.8%), in control, Needs more data |
-| `station_closure` | same | default 90 days | 11368 reads **Act now** (83.9% of 875 calls, CI 81.3-86.2%; Sep and Oct above the limit) and heads the statewide flagged ZIP list; the list's only other entry is 11212, the same false alarm as on the clean file. Queens county as a whole reads 92.9% on time, Needs more data |
-| `summer_surge` | Jul-Aug 2026, Monroe County volume +30%, held calls common | Monroe, dates 2026-07-01 to 2026-08-31 | **Act now**: 80.2% of 5,285 calls (CI 79.1-81.2%), 10 weekly signals, 518.5 late calls beyond the goal. Stage medians: received → assigned 83 s vs 42 s in the baseline, held 26.5% vs 1.7%; turnout (51 vs 50 s) and drive (194 vs 195 s) unchanged. Clean file, same dates: 94.2%, Meets goal, in control |
-| `summer_surge` | same | Monroe, 2026-09-01 to 2026-10-15 | Meets goal (94.7% of 2,532) but **Needs more data**: the 60-day baseline (Jul 3 to Aug 31) is the surge itself, overdispersed (chi-square / df 2.10) with a run of 8 on one side, so the screen refuses it. The clean file over the same dates: Meets goal, in control |
-| `summer_surge` | same | Jul 18–Oct 15, 2026 | Monroe reads Below goal (85.8% of 6,405) but **Needs more data**: its baseline (May 19 to Jul 17) contains the start of the surge; the screen drops 8 of 60 days, finds the rest overdispersed (chi-square / df 2.67) and refuses to set limits |
-
-**Replay:** choose `station_closure`, click Queens, then ZIP 11368, and press **Start replay**. The period starts Aug 25
-and its baseline (Jun 26 to Aug 24) stays fixed while the simulated day advances. 11368 reads *Needs more data* (in
-control) through Sep 3, with a watch chip on Sep 3; it is **out of control every day from Sep 4** to Oct 15: Recent change
-Sep 4-7, then **Act now from Sep 8** (Sep 10: 162 calls, 82.1% on time; Sep 20: 251 calls, 79.3%). On `summer_surge`, replay
-starts Jun 25 and Monroe turns out of control on Jul 2 (Recent change) and **Act now on Jul 5**, and stays. A rolling window
-is not used: its baseline would drift into the change.
-
-## 7. Measured false alarms and detection power
-
-Reproduce with `PYTHONPATH=. .venv/bin/python data/sensitivity.py` (about 75 s). Measured Oct 17 on the H-19 files (0.09 calls per person per year). On the
-clean `baseline` file every Out of control is a false alarm; they are counted here, not hidden:
-
-| Looks (clean file) | Out of control | Notes |
-|---|---|---|
-| counties, red, three non-overlapping 90-day windows ending Oct 15 | 2 of 186 (1.1%) | 35 of 186 are Insufficient baseline; 5 watch chips |
-| counties, yellow, same windows | 3 of 186 (1.6%) | 20 Insufficient baseline; 6 watch chips |
-| counties, red / yellow, five overlapping 180-day windows | 5 of 310 (1.6%) / 5 of 310 (1.6%) | windows share calls, so this is one rough estimate |
-| the state, red / yellow, eight overlapping 90-day windows | 0 of 8 / 0 of 8 (0 and 2 evaluable) | daily subgroups; day-to-day effects make the state baseline usually unstable, so the state chart is rarely evaluable |
-| the API test windows (Jul 18-Oct 15, Apr 1-Jun 29, Jan 15-Apr 14), counties, red | 3 of 186 (1.6%: Erie, Orange, Greene; Greene reads Act now) | `tests/test_api.py` fails above 10% |
-| ZIP areas with 30+ valid red calls, default window | 1 of 807 (11212, Kings, Recent change) | the flagged-ZIP test allows up to 1% such ZIPs on the clean file, never 11368 |
-
-**Detection** (ZIP 11368, red, drive times scaled from Sep 1 in the clean file; status over Sep 1 to Oct 15 and the
-first replay day from Aug 25 that is out of control):
-
-| Change | Status Sep 1-Oct 15 | On time | First out-of-control day |
-|---|---|---|---|
-| none | in control | 91.4% | never |
-| ×1.15 | out of control, Act now | 87.0% | Sep 21, and stays |
-| ×1.25 | out of control, Act now | 83.5% | Sep 7; out of control to the end from Sep 10 |
-| ×1.60 (the planted change) | out of control, Act now | 72.2% | Sep 4, and stays |
-| drift +2% per week | in control | 88.7% | **never (not detected)** |
-
-**Why x1.15 and x1.25 are caught, and the drift is not:** before H-17 (0.0198 calls per person per year) they were missed
-too. At the H-19 rate of 0.09, 11368 has 407 valid red calls in Sep 1 to Oct 15 (201 at 0.04, 68 at 0.0198) and 875 in the
-default 90-day window (379 at 0.04), so each monthly point carries enough calls for a 15-25% longer drive to stand out at
-p < 0.00135. A slow drift of +2% per week is still invisible: each month differs little from the one before, and the fixed
-60-day baseline sits just before it. The volume is still only about 60% of a real system's, and smaller ZIPs have far
-fewer calls (median 26 valid red calls per ZIP in the default window, over ZIPs with any calls), so for most ZIPs only large
-changes are visible. The tool is
-tuned to rarely cry wolf; look at the county, widen the dates, or treat a watch chip as a prompt to keep looking.
-
-## 8. Build status
-
-| Part | Task | Status |
-|---|---|---|
-| Spec, plan, decisions | H-01, H-11, H-13 | done; open dependencies in SPEC section 10 |
-| Test data + codebook + validation | H-02, H-13, H-14, H-17, H-19 | implemented, tested (`validate.py` 71 PASS; `--reproduce` 75 PASS with identical rebuild; `--messy` 14 PASS). H-17 (Oct 17): call rate doubled to 0.04 per person per year, files xz-compressed; H-19 (Oct 17): call rate 0.09 (about 60% of a real US rate), files about 22 MB each |
-| Statistics (`app/qc.py`) | H-03, H-11, H-13 | implemented, tested (known answers + degenerate cases, 93 tests) |
-| API (FastAPI, read-only) | H-04, H-11, H-13 | implemented, tested (55 API tests incl. acceptance tests AT-1 to AT-10, 33 data tests) |
-| Dashboard | H-05, H-13 | H-13 page changes (watch chip, flagged ZIP list, stage medians, calls behind a signal, split headline) in progress; `demo/README.md` planned |
-| Targets config + map shapes | H-09, H-13 | done (red targets tiered by area type, NFPA 1720-based placeholders) |
-| Deploy (Posit Connect) | H-06 | planned |
-| Fresh-clone check, Devpost | H-08 | planned |
-| Real-data compatibility check | – | planned (optional) |
-| What-if / intervention ranking | – | **deferred** (removed from the MVP) |
-
-## 9. Run it
+From the repository root, with Python 3 and Node.js/npm installed:
 
 ```bash
-python3 -m venv .venv && .venv/bin/pip install -r app/requirements.txt -r data/requirements.txt
-(cd app/frontend && npm ci && npm run build)   # builds the page into app/frontend/dist
-bash app/testme.sh                             # http://localhost:8000
+python3 -m venv .venv
+.venv/bin/pip install -r app/requirements.txt
+(cd app/frontend && npm ci && npm run build)
+bash app/testme.sh
 ```
 
-Verify:
+Open the local address printed by `testme.sh`. The first start loads and
+derives three large compressed files, so allow a little time for data to
+appear. The API is available at `/docs`.
+
+Run checks from the repository root:
 
 ```bash
-.venv/bin/python -m pytest tests -q            # 181 passed (about 2 minutes: the tests load the data files)
-(cd app/frontend && npm test)                  # 89 passed; 7 failing tests belong to the in-progress UI rewrite (H-15)
-.venv/bin/python data/validate.py              # 71 PASS, 0 FAIL (about 2 minutes)
-.venv/bin/python data/validate.py --reproduce  # 75 PASS, 0 FAIL (rebuilds all four files from the seed; about 15 minutes)
-.venv/bin/python data/validate.py --messy      # 14 PASS, 0 FAIL
-PYTHONPATH=. .venv/bin/python data/sensitivity.py   # the false-alarm and detection tables of section 7
+.venv/bin/python -m pytest tests -q
+(cd app/frontend && npm test)
+.venv/bin/python data/validate.py
 ```
 
-Rebuild the test data (no key needed, about 30 minutes; xz preset 9 is the slow part): `.venv/bin/python data/generate.py`, then `.venv/bin/python config/build_targets.py`.
-Only to rebuild the Census lookups: put `CENSUS_API_KEY=...` in a gitignored `.env`, then `python data/build_lookups.py`.
+The read-only FastAPI routes, parameters, and examples are in
+[docs/api.md](docs/api.md); backend setup is in [app/README.md](app/README.md).
+The core inputs are incident ID, ZCTA, urgency, four timestamps,
+`cancelled`, `valid_time`, and `held`. The page filters by dataset,
+inclusive From/To dates, one urgency, and state/county/ZCTA. API clients
+can additionally choose `baseline_days` or multiple urgency groups;
+the API warns when groups are mixed. There is no time-of-day filter,
+incident-entry endpoint, or ambulance-assignment function.
 
-## 10. Limitations and open dependencies
+## Data and interpretation limits
 
-- **Independence is assumed and only partly checked.** The p chart treats calls in a subgroup as independent. The
-  synthetic data now has shared day effects per county, so late counts are somewhat overdispersed; the baseline screen
-  and dispersion check catch strong cases, but mild overdispersion still narrows the limits a little. Real data may be worse.
-- **Seasonality is simulated but not modelled.** Winter roads and summer load are in the data; the tool's defence is the
-  60-day baseline just before the period. A baseline that drifts (or contains the start of a change, as Monroe's
-  default window shows) is refused by the screen or can mislead; there is no seasonal adjustment.
-- **Small samples.** Synthetic volume is about 60% of a real system's (0.09 vs ~0.15 calls per person per year; raised in
-  H-17 and H-19, capped by the 25 MB file limit). Sparse ZIP areas are often Inconclusive / Insufficient baseline (median 26 valid red
-  calls per ZIP in the default window), and only large changes are detectable in a small ZIP (section 7); a slow drift is
-  not detected at all. P95 upper bounds need 59 calls and read "n/a" below that.
-- **Synthetic times are faster than benchmarks** (red median in the clean file: urban 4.65 min (279 s), rural 9.05 min (543 s), vs roughly
-  7-10 min in published reports); the generator was tuned to land late shares in bands, not to match a real center. Raising
-  the volume (H-17, H-19) changed no duration.
-- **Targets are placeholders.** The red tiers borrow NFPA 1720's demand-zone times, but NFPA 1720 is a fire-service
-  standard for volunteer departments with a different clock (dispatch or notification to arrival), our area types come
-  from Census density, and remote reuses the rural value. A center must set its own.
-- **Response-clock start is provisional:** `t_received` could mean the original 911 call or the EMS CAD incident creation.
-  It must be confirmed against the source before real use.
-- **No causal or fairness claims:** urgency filters do not control for traffic, shift, season, call complexity or
-  resources; stage medians and ANOM are descriptive.
-- **Where the approved brief was overridden (team decisions, Oct 16):** the brief's acceptance tests AT-6 ("What Held Up
-  the Call" with stage excess) and AT-7 (Google travel comparison) and its success phrase "inspect abnormal timing stages"
-  are only **partly** met. The stage-excess cause analysis and the travel comparison were removed (H-12); H-13 restored a
-  **descriptive** stage-median table (period vs baseline, % held) and the list of calls behind a signal, with no excess,
-  ranking or cause.
-- **Not in scope:** ambulance assignment, ranking people, route optimization, patient outcomes, what-if optimization,
-  incident logging, a live CAD connection, time-of-day filters.
+- The meaning of `t_received` (original 911 receipt or EMS CAD creation)
+  has not been confirmed. Validate it before comparing with a real standard.
+- Calls share county-day and seasonal effects. The p-chart stability screen
+  catches some extra variation but does not seasonally adjust the data or
+  guarantee detection of slow drift.
+- Sparse ZIPs may be Inconclusive or lack a usable baseline. Observed-trend
+  intervals describe the data but do not establish a process change.
+- Stage medians, AI prose, and geographic comparisons are descriptive. The
+  tool makes no causal, fairness, patient-outcome, or intervention claim.
+- The baseline synthetic file has no planted change, yet 2/186 red and
+  3/186 yellow county-windows were Out of control across three
+  non-overlapping 90-day windows. The sensitivity and false-alarm checks
+  are documented in [data/README.md](data/README.md).
 
-## 11. Sources
-
-- NYC Open Data, [EMS Incident Dispatch Data](https://data.cityofnewyork.us/Public-Safety/EMS-Incident-Dispatch-Data/76xm-jjuj): the column definitions.
-- U.S. Census Bureau: 2020 Census DHC populations, ZCTA-to-tract relationship file, and cartographic boundary files.
-- NFPA 1720, *Standard for the Organization and Deployment of Fire Suppression Operations, Emergency Medical Operations, and Special Operations to the Public by Volunteer Fire Departments*: demand-zone response times, used only as placeholder tiers.
-- Course textbook, [timothyfraser.com/sigma](https://timothyfraser.com/sigma/): SPC and capability.
-- Montgomery, *Introduction to Statistical Quality Control*: p chart with varying limits, Phase I baseline, I-MR.
-- Wilson, E. B. (1927), "Probable inference...", *JASA* 22: the score interval; Brown, Cai & DasGupta (2001), *Statistical Science* 16: why not the Wald interval.
-- Hahn, G. J. & Meeker, W. Q. (1991), *Statistical Intervals*: distribution-free order-statistic intervals for percentiles.
-- Bissell, A. F. (1990), "How reliable is your capability index?", *Applied Statistics* 39(3): the Cpk bound.
-- Ott (1967) and Nelson (1982): analysis of means.
-
-Hackathon event pages: [schedule](docs/schedule.md) · [criteria](docs/criteria.md) ·
-[prompts](docs/prompts.md) · [resources](docs/resources.md) · [agent start](docs/start.md).
+The data and methods are for demonstration, not operational dispatch.
+Project decisions and task history live in [docs/plan.md](docs/plan.md)
+and [CONTRACT.yaml](CONTRACT.yaml).
