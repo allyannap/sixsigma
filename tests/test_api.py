@@ -157,6 +157,20 @@ def test_an_unstable_baseline_makes_the_place_insufficient_not_in_control():
 def test_at4_low_volume_pchart_is_insufficient_baseline_not_in_control():
     b = get("/api/pchart?level=zcta&id=06390")
     assert b["unit"] is None and b["points"] == [] and b["control"] == "insufficient_baseline"
+    trend = b["descriptive_trend"]
+    assert trend["unit"] in ("week", "month")
+    assert trend["interval"] == "95% Wilson (pointwise)"
+    assert trend["points"]
+    for point in trend["points"]:
+        assert point["n"] > 0 and 0 <= point["late"] <= point["n"]
+        assert point["p"] == pytest.approx(point["late"] / point["n"])
+        assert point["ci"] == pytest.approx(qc.wilson_ci(point["late"], point["n"]), abs=1e-4)
+
+
+def test_county_pchart_keeps_statistical_chart_without_descriptive_zip_fallback():
+    body = get(f"/api/pchart?{SURGE}&level=county&id=36055")
+    assert body["points"] and body["unit"] in ("day", "week", "month")
+    assert body["descriptive_trend"] is None
 
 
 # ---------------------------------------------------------------- AT-5 read-only replay, no incident entry

@@ -33,6 +33,11 @@
 .control-key-upper { border-color: #c2410c; border-top-style: dashed; }
 .control-key-lower { border-color: #28745a; border-top-style: dashed; }
 .control-key-signal { display: inline-block; width: 7px; height: 7px; border-radius: 1px; background: #c2410c; }
+.descriptive-key { color: #65547a; }
+.descriptive-key-line { display: inline-block; width: 12px; border-top: 2px solid #725694; }
+.descriptive-key-range { display: inline-block; width: 8px; height: 8px; border: 1px solid #725694; border-radius: 50%; background: #eee8f5; }
+.descriptive-chart .control-tick { fill: #68798c; }
+.descriptive-interval { border-top: 1px solid #e3dceb; padding-top: 6px; }
 .control-point { cursor: pointer; }
 .control-point:focus-visible { outline: none; }
 .control-point:focus-visible > circle:first-of-type { stroke: var(--brand); stroke-width: 2; }

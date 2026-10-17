@@ -86,7 +86,7 @@ Any interval bound may be `null` (too few calls).
 | `GET /api/meta` | filters | `{source, datasets[], date_min, earliest_from, date_max, default_from, default_to, counties[], targets[]}` (40 target rows). `earliest_from` = `date_min` + the default 60-day baseline: the first start date with a full baseline before it; the page's From calendar starts there |
 | `GET /api/summary` | summary, 1 | `totals{calls, valid, on_time, late, on_time_pct, on_time_ci, goal_pct, spec, spec_reason, very_late, cancelled, invalid, cancel_pct, calls_per_day, base_calls_per_day, excess_late, median_min, median_ci, p90_min, p95_min, p95_ci, spread_min, median_dispatch_to_scene_min, p95_dispatch_to_scene_min, p95_dispatch_to_scene_ci}, place{card}, queue_counts{label: n}, needs_attention (act_now + ongoing_gap + recent_change), chance_below{expected, n_places, observed_below}, places[{id, name, ...card}], calls_by_county[]` |
 | `GET /api/flagged` | 3 | **statewide** (level and id are ignored): `{scope: "statewide", n_checked (ZIPs with 30+ valid calls), n_flagged, flagged[{id, county_fips, county, calls, valid, on_time_pct, on_time_ci, goal_pct, spec, control, watch, queue, signals, excess_late}], chance_below{...} over the ZIPs checked}`; only `act_now` and `recent_change`, Act now first, then by excess late |
-| `GET /api/pchart` | 2 | `{unit, p_bar, base_n, base_late (kept baseline), baseline{...as on the card}, points[{start, n, late, p, ucl, lcl, p_value, signal}], run_signal, control, control_reason, watch, signals[], improvements[], dispersion{m, ratio, p_value, overdispersed} or null}` |
+| `GET /api/pchart` | 2 | `{unit, p_bar, base_n, base_late (kept baseline), baseline{...as on the card}, points[{start, n, late, p, ucl, lcl, p_value, signal}], run_signal, control, control_reason, watch, signals[], improvements[], dispersion{m, ratio, p_value, overdispersed} or null, descriptive_trend or null}` |
 | `GET /api/stages` | 2 | `{now{dispatch_s, turnout_s, drive_s, held_pct, n}, base{...}}`: medians in seconds, period vs baseline; descriptive only |
 | `GET /api/signal_calls?start=&end=&limit=` | 2 | the valid calls of the selected place and urgency received in [`start`, `end`] (default the selection; `limit` 1–500, default 50), newest first: `{start, end, valid, late, returned, calls[{incident_id, t_received, zcta, total_s, late, dispatch_s, turnout_s, drive_s, held}]}` |
 | `GET /api/imr` | 2 (optional) | `{cl_min, ucl_min, lcl_min, mr_ucl, points[{incident_id, t_received, minutes, ln_min, mr, beyond_3_sigma}], n_beyond, assumptions{n, skew, lag1}, before_median_min, after_median_min}` |
@@ -97,6 +97,13 @@ Any interval bound may be `null` (too few calls).
 Errors: unknown `dataset`, `level`, `id`, `urgency` or bad dates → HTTP 400 `{detail}`; empty selection → 200 with zero
 counts and `needs_data`, never a 500. Any non-GET method → 404/405. If `app/qc.py` cannot be imported, the statistics
 routes answer 503 while `/api/health` and `/api/meta` still work.
+
+For a ZIP (`level=zcta`) with an insufficient control-chart baseline, `descriptive_trend` contains
+`{unit, interval: "95% Wilson (pointwise)", points[{start, n, late, p, ci[]}]}` for observed calls in the selected
+period. These are descriptive period rates with binomial uncertainty intervals; they have no control limits or
+statistical change signals and must not be read as evidence of county-level or ZIP-level process control. For
+counties and ZIPs with an adequate baseline this field is `null`; county control charts retain their existing limits
+and signal rules.
 
 ## Geographic response profile (H-11 follow-up)
 

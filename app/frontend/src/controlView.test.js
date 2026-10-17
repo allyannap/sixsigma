@@ -1,7 +1,7 @@
 import { createElement as h } from 'react'
 import { renderToString } from 'react-dom/server'
 import { expect, it } from 'vitest'
-import { ControlView, ControlMethod, PChart, SignalList } from './components/ChangeSection.jsx'
+import { ControlView, ControlMethod, DescriptiveTrendChart, PChart, SignalList } from './components/ChangeSection.jsx'
 import pchart from './fixtures/pchart.json'
 
 const render = (p) => renderToString(h(ControlView, { p, selectedName: 'Monroe', params: {} })).replace(/<!-- -->/g, '')
@@ -42,6 +42,33 @@ it('withholds the chart with inadequate or unstable history, even when points ex
     expect(html).toContain('We cannot judge change yet')
     if (!stable) expect(html).toContain('The baseline is not stable')
   }
+})
+
+it('shows sparse ZIP history as a descriptive trend with call counts and Wilson intervals, without control signals', () => {
+  const points = [
+    { start: '2026-09-07', n: 3, late: 1, p: 1 / 3, ci: [0.0615, 0.7923] },
+    { start: '2026-09-14', n: 5, late: 2, p: 0.4, ci: [0.1176, 0.7693] },
+  ]
+  const p = {
+    ...pchart,
+    selection: { ...pchart.selection, level: 'zcta', name: '06390', from: '2026-09-07', to: '2026-09-20' },
+    control: 'insufficient_baseline', unit: null, points: [], signals: [],
+    control_reason: 'fewer than 30 baseline calls',
+    descriptive_trend: { unit: 'week', interval: '95% Wilson (pointwise)', points },
+  }
+  const html = render(p)
+  expect(html).toContain('Descriptive—limited baseline')
+  expect(html).toContain('Observed late-call rate')
+  expect(html).toContain('Pointwise 95% Wilson interval')
+  expect(html).toContain('missed target · 2 of 5')
+  expect(html).toContain('11.8%–76.9%')
+  expect(html).not.toContain('Upper control limit')
+  expect(html).not.toContain('Flagged periods (0)')
+  expect(html).toContain('Descriptive only')
+  expect(html.match(/Details &amp; evidence/g)).toHaveLength(1)
+  expect(renderToString(h(ControlMethod, { p })).replace(/<!-- -->/g, '')).toContain('does not establish a change in this individual ZIP')
+  const chart = renderToString(h(DescriptiveTrendChart, { d: { ...p.descriptive_trend, selection: p.selection }, selected: points[1].start, onSelect() {} }))
+  expect(chart).not.toMatch(/NaN|Infinity/)
 })
 
 it('shows a single panel with accessible tabs and point selection', () => {

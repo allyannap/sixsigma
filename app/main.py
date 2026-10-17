@@ -233,6 +233,18 @@ def control_card(qc, timed: pd.DataFrame, base_timed: pd.DataFrame, base_info: d
             "screen": screen, "removed_starts": removed_starts, "messages": msgs + ctl["messages"]}
 
 
+def descriptive_trend_card(qc, timed: pd.DataFrame, days: int) -> dict:
+    """Observed ZIP late rates with pointwise Wilson intervals; this is not a control chart."""
+    unit = "week" if days <= 180 else "month"
+    groups = data.subgroups(timed, unit)
+    points = []
+    for start, n, late in zip(groups["start"], groups["n"], groups["late"]):
+        ci = qc.wilson_ci(late, n)
+        points.append({"start": start, "n": n, "late": late, "p": late / n,
+                       "ci": [num(ci[0], 4), num(ci[1], 4)]})
+    return {"unit": unit, "interval": "95% Wilson (pointwise)", "points": points}
+
+
 def baseline_card(info: dict, ctl: dict | None = None) -> dict:
     """The baseline window plus what the stability screen found (checked False when nothing was screened)."""
     screen = (ctl or {}).get("screen")
@@ -521,11 +533,13 @@ def pchart(c: Ctx = Depends(common)):
         dispersion = {"m": d["m"], "ratio": num(d["ratio"], 3), "p_value": sig(d["p_value"]),
                       "overdispersed": d["overdispersed"]}
         msgs += d["messages"]
+    descriptive = (descriptive_trend_card(qc, c.timed, c.days)
+                   if c.level == "zcta" and ctl["control"] == "insufficient_baseline" else None)
     return c.reply({"unit": ctl["unit"], "p_bar": num(ctl["p_bar"], 4), "base_n": ctl["base_n"],
                     "base_late": ctl["base_late"], "baseline": baseline_card(c.info, ctl), "points": ctl["points"],
                     "run_signal": ctl["run_signal"], "control": ctl["control"], "control_reason": ctl["control_reason"],
                     "watch": bool(ctl["watch"]), "signals": ctl["signals"], "improvements": ctl["improvements"],
-                    "dispersion": dispersion}, msgs)
+                    "dispersion": dispersion, "descriptive_trend": descriptive}, msgs)
 
 
 @app.get("/api/imr")
