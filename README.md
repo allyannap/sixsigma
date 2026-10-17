@@ -6,6 +6,8 @@ response-time target** and separates a persistent service gap from a recent
 statistical change. Team Powerpuff Girls built it for the Cornell Six Sigma
 Hackathon's Health Systems: Emergency Response prompt.
 
+**Live app:** https://connect.systems-apps.com/content/1fd1035a-58f5-461d-8e00-9bb162e35770/
+
 > **Demonstration only:** all incidents are synthetic. Census geography is
 > real, but no patient, ambulance, dispatcher, or live CAD record is used.
 > Replay is a simulation, not a live feed.
@@ -100,14 +102,14 @@ not claims about real EMS operations.
 
 ## Run locally
 
-From the repository root, with Python 3 and Node.js/npm installed:
+From the repository root, with Python 3 and Node.js/npm installed, one command:
 
 ```bash
-python3 -m venv .venv
-.venv/bin/pip install -r app/requirements.txt
-(cd app/frontend && npm ci && npm run build)
 bash app/testme.sh
 ```
+
+On a fresh clone it first creates `.venv`, installs `app/requirements.txt` and builds the page (a few minutes, once);
+later runs start in seconds. If port 8000 is taken: `PORT=8001 bash app/testme.sh`.
 
 Open the local address printed by `testme.sh`. The first start loads and
 derives three large compressed files, so allow a little time for data to
@@ -123,8 +125,10 @@ Run checks from the repository root:
 
 The read-only FastAPI routes, parameters, and examples are in
 [docs/api.md](docs/api.md); backend setup is in [app/README.md](app/README.md).
-The core inputs are incident ID, ZCTA, urgency, four timestamps,
-`cancelled`, `valid_time`, and `held`. The page filters by dataset,
+Inputs are one CAD export with standard columns. The statistics use only five: ZCTA, urgency code,
+`t_received`, `t_onscene` and `cancelled` (plus `valid_time` when the export has it); incident ID,
+`t_assigned`, `t_enroute` and `held` feed only the replay feed and the descriptive stage table. Targets come
+preset in `config/targets.csv`; nothing has to be measured or estimated by the supervisor. The page filters by dataset,
 inclusive From/To dates, one urgency, and state/county/ZCTA. API clients
 can additionally choose `baseline_days` or multiple urgency groups;
 the API warns when groups are mixed. There is no time-of-day filter,
@@ -132,8 +136,9 @@ incident-entry endpoint, or ambulance-assignment function.
 
 ## Data and interpretation limits
 
-- The meaning of `t_received` (original 911 receipt or EMS CAD creation)
-  has not been confirmed. Validate it before comparing with a real standard.
+- The response clock runs from `t_received`, when the call is created in the EMS CAD (NYC EMS Incident
+  Dispatch Data: `INCIDENT_DATETIME`), to `t_onscene`. A centre that records the 911 answer time can map that
+  column instead; compare with a published standard only on the same clock.
 - Calls share county-day and seasonal effects. The p-chart stability screen
   catches some extra variation but does not seasonally adjust the data or
   guarantee detection of slow drift.
