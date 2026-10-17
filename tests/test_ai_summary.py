@@ -53,6 +53,15 @@ def test_exact_evidence_and_credential_go_only_to_ollama(monkeypatch, evidence):
     assert 'test-ollama-key' not in json.dumps(result)
 
 
+def test_prompt_leads_with_overall_goal_and_change_picture():
+    prompt = ' '.join(ai.SYSTEM_PROMPT.split())
+    assert 'exactly 2 short sentences' in prompt
+    assert 'overall picture for the selected area and date range' in prompt
+    assert 'whether recent deterioration is confirmed, absent, or unassessable' in prompt
+    assert 'single most useful supporting metric with its valid-call count' in prompt
+    assert 'Do not lead with an isolated weekly/monthly point or a child area' in prompt
+
+
 def test_accepts_valid_json_wrapped_in_ollama_markdown_fence(monkeypatch, evidence):
     content = json.dumps({
         'finding': 'ZIP 11368 has a confirmed gap. Only **70% of 300 calls** met the target.',
