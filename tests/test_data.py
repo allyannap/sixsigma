@@ -157,7 +157,7 @@ def test_subgroups_by_day_and_iso_week():
 def test_real_file_row_count_and_speed():
     import time
     df = data.load("station_closure")
-    assert len(df) == 399426 and df.attrs["quality"]["dropped_total"] == 0
+    assert len(df) == 1818312 and df.attrs["quality"]["dropped_total"] == 0
     t = time.time()
     sel = data.select(df, "county", "36081", "red", "2026-09-16", "2026-10-15")
     base, info = data.baseline(df, "county", "36081", "red", "2026-09-16", 60)
@@ -264,7 +264,7 @@ def test_baseline_is_not_contaminated_by_the_monitoring_period():
 
 # ---------------------------------------------------------------- H-13: robust loading of messy input
 
-MESSY = Path(__file__).resolve().parent.parent / "data" / "incidents_messy_sample.csv.gz"
+MESSY = Path(__file__).resolve().parent.parent / "data" / "incidents_messy_sample.csv.xz"
 
 
 @pytest.fixture(scope="module")
@@ -282,12 +282,12 @@ def test_messy_sample_loads_without_error_and_drops_exactly_the_logged_rows(mess
         warnings.simplefilter("error")                      # not even a RuntimeWarning from a log of a bad time
         df = data.derive(raw)
     q = df.attrs["quality"]
-    assert q["rows_in"] == len(raw) == 2901 and q["rows_kept"] == len(df)
+    assert q["rows_in"] == len(raw) == 13327 and q["rows_kept"] == len(df)
     assert q["duplicate_id"] == log["n_exact_duplicate_rows"] + log["n_duplicate_id_different_content"] == 18
     assert q["missing_t_received"] == log["n_missing_t_received"] == 8
     assert q["unknown_zcta"] == log["n_unknown_zcta"] == 5
     assert q["unknown_urgency_code"] == log["n_unknown_urgency_code"] == 5
-    assert q["dropped_total"] == 36 and len(df) == 2901 - 36
+    assert q["dropped_total"] == 36 and len(df) == 13327 - 36
     assert df["incident_id"].is_unique
 
 
@@ -296,7 +296,8 @@ def test_messy_sample_untimed_rows_are_kept_for_volume_but_never_timed(messy):
     df = data.derive(raw)
     q = df.attrs["quality"]
     assert q["missing_time"] == log["n_missing_t_assigned"] == 8       # t_assigned empty
-    assert q["out_of_order"] == log["n_out_of_order"] == 10            # swapped or arriving before the call
+    assert q["out_of_order"] == log["n_out_of_order"] == 10          # swapped or arriving before the call (measured Oct 17, H-18 file:
+                                                                     # none of them also has an ordinary valid_time = N, so all 10 are counted)
     assert q["invalid_time_flag"] >= log["n_valid_time_N_with_bad_times"]   # plus the file's ordinary valid_time = N
     assert q["timed"] + q["cancelled"] + q["invalid_time_flag"] + q["missing_time"] + q["out_of_order"] == len(df)
     assert int(df["timed"].sum()) == q["timed"]

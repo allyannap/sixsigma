@@ -38,8 +38,8 @@
    "urgency_group": "red",
    "target_s": 480,
    "goal_on_time_pct": 90,
-   "reference_p90_s": 461.0,
-   "n_reference": 37242.0
+   "reference_p90_s": 460.0,
+   "n_reference": 169613.0
   },
   {
    "urgency_code": 0,
@@ -48,7 +48,7 @@
    "target_s": 600,
    "goal_on_time_pct": 90,
    "reference_p90_s": 483.0,
-   "n_reference": 11627.0
+   "n_reference": 52518.0
   },
   {
    "urgency_code": 0,
@@ -56,8 +56,8 @@
    "urgency_group": "red",
    "target_s": 840,
    "goal_on_time_pct": 90,
-   "reference_p90_s": 974.0,
-   "n_reference": 9018.0
+   "reference_p90_s": 965.0,
+   "n_reference": 41208.0
   },
   {
    "urgency_code": 0,
@@ -65,8 +65,8 @@
    "urgency_group": "red",
    "target_s": 840,
    "goal_on_time_pct": 90,
-   "reference_p90_s": 1389.0,
-   "n_reference": 1572.0
+   "reference_p90_s": 1412.8,
+   "n_reference": 6913.0
   },
   {
    "urgency_code": 1,
@@ -74,8 +74,8 @@
    "urgency_group": "red",
    "target_s": 480,
    "goal_on_time_pct": 90,
-   "reference_p90_s": 461.0,
-   "n_reference": 37242.0
+   "reference_p90_s": 460.0,
+   "n_reference": 169613.0
   },
   {
    "urgency_code": 1,
@@ -84,7 +84,7 @@
    "target_s": 600,
    "goal_on_time_pct": 90,
    "reference_p90_s": 483.0,
-   "n_reference": 11627.0
+   "n_reference": 52518.0
   },
   {
    "urgency_code": 1,
@@ -92,8 +92,8 @@
    "urgency_group": "red",
    "target_s": 840,
    "goal_on_time_pct": 90,
-   "reference_p90_s": 974.0,
-   "n_reference": 9018.0
+   "reference_p90_s": 965.0,
+   "n_reference": 41208.0
   },
   {
    "urgency_code": 1,
@@ -101,8 +101,8 @@
    "urgency_group": "red",
    "target_s": 840,
    "goal_on_time_pct": 90,
-   "reference_p90_s": 1389.0,
-   "n_reference": 1572.0
+   "reference_p90_s": 1412.8,
+   "n_reference": 6913.0
   },
   {
    "urgency_code": 2,
@@ -110,8 +110,8 @@
    "urgency_group": "red",
    "target_s": 480,
    "goal_on_time_pct": 90,
-   "reference_p90_s": 461.0,
-   "n_reference": 37242.0
+   "reference_p90_s": 460.0,
+   "n_reference": 169613.0
   },
   {
    "urgency_code": 2,
@@ -120,7 +120,7 @@
    "target_s": 600,
    "goal_on_time_pct": 90,
    "reference_p90_s": 483.0,
-   "n_reference": 11627.0
+   "n_reference": 52518.0
   },
   {
    "urgency_code": 2,
@@ -128,8 +128,8 @@
    "urgency_group": "red",
    "target_s": 840,
    "goal_on_time_pct": 90,
-   "reference_p90_s": 974.0,
-   "n_reference": 9018.0
+   "reference_p90_s": 965.0,
+   "n_reference": 41208.0
   },
   {
    "urgency_code": 2,
@@ -137,8 +137,8 @@
    "urgency_group": "red",
    "target_s": 840,
    "goal_on_time_pct": 90,
-   "reference_p90_s": 1389.0,
-   "n_reference": 1572.0
+   "reference_p90_s": 1412.8,
+   "n_reference": 6913.0
   },
   {
    "urgency_code": 3,

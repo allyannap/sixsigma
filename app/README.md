@@ -1,7 +1,7 @@
 # EMS Response Monitor: API (app/)
 
 Read-only FastAPI back end for the quality supervisor's dashboard. It reads the three **synthetic** 12-month
-call files in `data/`, joins `config/targets.csv` and the Census lookups, and serves the JSON shapes fixed in
+call files in `data/` (`incidents_*.csv.xz`, about 1.82 million calls each since H-18, at 0.09 calls per person per year), joins `config/targets.csv` and the Census lookups, and serves the JSON shapes fixed in
 [`docs/api.md`](../docs/api.md). Every statistic comes from `app/qc.py`; this folder only loads, filters and forwards.
 There is no route that accepts or edits incidents.
 
@@ -22,10 +22,11 @@ bash app/testme.sh                             # http://localhost:8000 (page), h
 .venv/bin/python -m pytest tests -q
 ```
 
-The first start reads and derives the three files in a background thread (17.6 s for all three, measured Oct 17 on
-the development machine). Once loaded, measured with FastAPI's TestClient on the same machine: state summary about 0.5 s
-(1.2 s on the very first call), a county summary about 0.2 s, `/api/flagged` about 0.9 s, `/api/pchart`, `/api/stages`,
-`/api/anom` and `/api/imr` under 0.1 s. If `app/qc.py` is missing, the statistics routes answer HTTP 503.
+The first start reads and derives the three files in a background thread: about 29 s per file, about 88 s for all three
+after H-18 (measured Oct 17 on the development machine; 27.6 s for all three at the H-16 rate of 0.04, 17.6 s at 0.0198
+with gzip). Once loaded, measured with FastAPI's TestClient on the same machine: state summary about 1.1 s (1.9 s on the
+very first call), a county summary about 0.2 s, `/api/flagged` about 2.7 s, `/api/pchart`, `/api/stages` and `/api/anom`
+under 0.1 s, `/api/imr` about 0.1 s. If `app/qc.py` is missing, the statistics routes answer HTTP 503.
 
 ## Parameters (every GET except health and meta)
 

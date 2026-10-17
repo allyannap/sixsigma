@@ -137,33 +137,41 @@ export function attentionCount(summary) {
   return (summary && summary.places ? summary.places : []).filter((p) => ATTENTION.includes(p.queue)).length
 }
 
-// ---- OnScene page: the four map colours. Only a mapping of queue labels to colour groups, no statistics. ----
-// Critical = act_now; Watch = ongoing_gap + recent_change; Stable = meets_stable; gray = needs_data.
-export const TIER_OF = {
-  act_now: 'critical',
-  ongoing_gap: 'watch',
-  recent_change: 'watch',
-  meets_stable: 'stable',
-  needs_data: 'nodata',
-}
+// ---- OnScene page: the map colour groups. Only a mapping of what the API already says, no statistics. ----
+// The queue label alone made every "Needs more data / Inconclusive" place gray, which hid places with plenty of
+// calls that sit close to the goal, or that meet it but have too few late calls to chart. The map therefore also
+// reads the place's target result and call count, so gray means only "too few calls":
+//   Critical  = Act now
+//   Watch     = Ongoing gap, Recent change, or confirmed below target when change cannot be judged yet
+//   Near goal = 30+ valid calls but the on-time interval includes the goal (and no change signal)
+//   Stable    = Meets goal (with or without a usable baseline)
+//   gray      = under 30 valid calls (or none)
+// The queue label itself, and the Target / Control badges, are unchanged everywhere else on the page.
+export const MIN_VALID_CALLS = 30
 export const TIERS = [
-  { key: 'critical', label: 'Critical', queues: ['act_now'] },
-  { key: 'watch', label: 'Watch', queues: ['ongoing_gap', 'recent_change'] },
-  { key: 'stable', label: 'Stable', queues: ['meets_stable'] },
-  { key: 'nodata', label: 'Needs data', queues: ['needs_data'] },
+  { key: 'critical', label: 'Critical' },
+  { key: 'watch', label: 'Watch' },
+  { key: 'near', label: 'Near goal' },
+  { key: 'stable', label: 'Stable' },
+  { key: 'nodata', label: 'Too few calls' },
 ]
+export const TIER_LABEL = Object.fromEntries(TIERS.map((t) => [t.key, t.label]))
 
-/** Colour group of one queue label; unknown or missing -> 'nodata' (gray). */
-export function tierOf(queue) {
-  return TIER_OF[queue] || 'nodata'
+/** Colour group of one place card (or 'nodata' for a missing one). */
+export function mapTier(p) {
+  if (!p) return 'nodata'
+  if (p.queue === 'act_now') return 'critical'
+  if (p.queue === 'ongoing_gap' || p.queue === 'recent_change' || p.spec === 'below') return 'watch'
+  if (p.queue === 'meets_stable' || p.spec === 'meets') return 'stable'
+  return (p.valid || 0) >= MIN_VALID_CALLS ? 'near' : 'nodata'
 }
 
-/** The 4 legend rows from the API's queue_counts: [{key, label, count}]. A missing count shows as 0. */
-export function legendRows(queueCounts) {
-  const counts = queueCounts || {}
-  return TIERS.map((t) => ({
-    key: t.key,
-    label: t.label,
-    count: t.queues.reduce((sum, q) => sum + (counts[q] || 0), 0),
-  }))
+/** The 5 legend rows, counted over the places drawn on the map: [{key, label, count}]. */
+export function legendRows(places) {
+  const counts = {}
+  for (const p of places || []) {
+    const t = mapTier(p)
+    counts[t] = (counts[t] || 0) + 1
+  }
+  return TIERS.map((t) => ({ key: t.key, label: t.label, count: counts[t.key] || 0 }))
 }

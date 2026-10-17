@@ -56,6 +56,26 @@ NFPA 1720-based placeholders.
 
 "No alert" never means "meets the target", "In control" never means good service, and "Inconclusive" is never shown as a pass.
 
+**Map colours.** The map does not paint every "Needs more data / Inconclusive" place gray: that hid places with plenty of
+calls that simply sit close to the goal. Each area is coloured by one rule (`mapTier` in `app/frontend/src/status.js`), used
+by the map, its legend, the New York City borough list and the metrics card:
+
+| Map group | Means | Queue labels it covers |
+|---|---|---|
+| **Critical** | below target and a recent signal | Act now |
+| **Watch** | a gap or a change to look at | Ongoing gap, Recent change, and confirmed Below target when change cannot be judged yet |
+| **Near goal** | 30 or more valid calls, but the on-time interval includes the goal, and no change signal | Needs more data / Inconclusive |
+| **Stable** | meets the goal | Meets goal; no change signal, and Meets target when too few late calls exist to chart |
+| **Too few calls** (gray) | under 30 valid calls in the period | Needs more data / Inconclusive |
+
+A **Status / Late %** switch on the legend recolours the map by the share of late calls (light 0%, dark red 30%+); areas
+with under 30 valid calls are faded rather than gray, so a delay hot spot shows before a firm verdict is possible. The queue
+labels, the Target and Control badges and the API are unchanged; hovering an area shows both its map group and its label.
+On the baseline data (default window, red calls; H-18 files, 0.09 calls per person per year) the county map reads Watch 40,
+Near goal 3, Stable 19, Too few calls 0; Manhattan's 69 ZIP areas read Near goal 32, Stable 11, Too few calls 26 (68 were
+gray before H-17).
+
+
 ## 4. How the statistics work
 
 A **valid call** is completed (not cancelled), has `t_onscene`, `valid_time = Y` and times in order; anything else counts
@@ -92,7 +112,7 @@ degenerate case ([`SPEC.md`](SPEC.md) section 4).
 
 ```mermaid
 flowchart LR
-  csv["data/incidents_*.csv.gz<br>(SYNTHETIC, fixed seed)"] --> dl["app/data.py<br>clean · valid calls · select · baseline"]
+  csv["data/incidents_*.csv.xz<br>(SYNTHETIC, fixed seed)"] --> dl["app/data.py<br>clean · valid calls · select · baseline"]
   tg["config/targets.csv<br>(NFPA-based placeholders)"] --> dl
   lk["data/lookup/<br>ZCTA → county, area type"] --> dl
   dl --> qc["app/qc.py<br>on-time + Wilson CI · chance_below<br>p chart + baseline screen + control<br>queue label · excess late · percentiles<br>stage medians · secondary: I-MR · Cpk · ANOM"]
@@ -119,71 +139,78 @@ are needed for the on-time and control statistics; the stage times and `held` fe
 **Messy input never crashes the tool.** Rows with a repeated `incident_id`, an empty or unreadable `t_received`, an
 unknown ZIP area or an unknown urgency code are dropped and counted by reason; cancelled, `valid_time = N`, missing-time
 and out-of-order calls stay in the call count but never in a time statistic. `/api/health` reports these counts per file.
-`data/incidents_messy_sample.csv.gz` (2,901 rows, problems injected) tests this: 36 rows are dropped, exactly the injection log.
+`data/incidents_messy_sample.csv.xz` (13,327 rows, problems injected) tests this: 36 rows are dropped, exactly the injection log.
 
 **Filters on every request:** `dataset`, `from`, `to`, `urgency`, `level` (state / county / zcta), `id`, `baseline_days`.
 No street addresses, coordinates, ambulance IDs or dispatcher IDs are stored. Full API: [`docs/api.md`](docs/api.md).
 
 ## 6. Test datasets and demo walkthrough
 
-Three synthetic 12-month files (Oct 16, 2025 to Oct 15, 2026), every New York ZIP area, about 400,000 calls each, built
-by a fixed-seed generator from 2020 Census populations at about one-eighth of a typical real call rate, with day-to-day
-county effects, winter and summer seasonality, an hour-of-day profile and congestion. Codebook: [`data/README.md`](data/README.md).
-All numbers below are red calls, 60-day baseline, measured with the API on the current files.
+Three synthetic 12-month files (Oct 16, 2025 to Oct 15, 2026), every New York ZIP area, about 1.82 million calls each
+(xz-compressed CSV, about 22 MB each, under the project's 25 MB file limit), built by a fixed-seed generator from 2020 Census
+populations at 0.09 calls per person per year, about 60% of a typical real US rate of ~0.15 (0.0198 at first, 0.04 from
+H-16, 0.09 from H-18, Oct 17), with
+day-to-day county effects, winter and summer seasonality, an hour-of-day profile and congestion. Codebook:
+[`data/README.md`](data/README.md). All numbers below are red calls, 60-day baseline, measured with the API on the current files.
 
 | Dataset | Planted scenario | Try this | What the tool shows |
 |---|---|---|---|
-| `baseline` | none (seasonal pattern; rural long trips) | default (Jul 18 to Oct 15), state view | 62 counties: Act now 0, Ongoing gap 19, Recent change 0, Meets goal 16, Needs more data 27. 23 of 60 counties read Below target where chance alone would give about 1.7. 3 counties carry a watch chip. Statewide flagged ZIP list: empty (367 ZIPs checked). The state as a whole reads Recent change (2 daily signals, Aug 6 and Sep 6): a **false alarm** on a file with no planted change; the state's daily chart is the least reliable view (section 7) |
-| `station_closure` | from Sep 1, 2026, drive times in ZIP 11368 (Corona, Queens) +60% (set through the generator's travel model) | Queens → ZIP 11368, dates 2026-09-01 to 2026-10-15 | **Act now**: 69.1% on time of 68 calls (95% CI 57.4-78.8%), out of control in both months (exact p = 3.5e-5 for Sep, 5.3e-5 for Oct), 14.2 late calls beyond the goal. The same dates on the clean file: 95.6%, in control, Needs more data |
-| `station_closure` | same | default 90 days | 11368 reads **Act now** (85.2% of 183 calls, CI 79.4-89.7%; Sep and Oct above the limit) and is the only entry in the statewide flagged ZIP list; Queens county as a whole reads Meets goal |
-| `summer_surge` | Jul-Aug 2026, Monroe County volume +30%, held calls common | Monroe, dates 2026-07-01 to 2026-08-31 | **Act now**: 78.8% of 1,163 calls (CI 76.4-81.1%), 10 weekly signals, 129.7 late calls beyond the goal. Stage medians: received → assigned 86 s vs 42 s in the baseline, held 28.4% vs 2.0%; turnout and drive unchanged. Clean file, same dates: Meets goal, in control. Sep-Oct: Meets goal, in control |
-| `summer_surge` | same | Jul 18–Oct 15, 2026 | Monroe reads Below target but **Needs more data**: its baseline (May 19 to Jul 17) contains the start of the surge, and the baseline screen finds it unstable and refuses to set limits |
+| `baseline` | none (seasonal pattern; rural long trips) | default (Jul 18 to Oct 15), state view | 62 counties: Act now 0, Ongoing gap 35, Recent change 1, Meets goal 10, Needs more data 16 (36 need attention). 39 of 62 counties read Below target where chance alone would give about 1.7. The one Recent change, Erie (one strong weekly signal, week of Aug 10, p = 5.1e-5), is a **false alarm** on a file with no planted change; Oneida, Ulster and Wayne carry watch chips. Statewide flagged ZIP list: one entry, 11212 (Kings, Recent change, 93.1% of 696), also a **false alarm** (807 ZIPs with 30+ valid calls checked; 94 read Below target where chance alone would give about 25.6). The state as a whole: 150,495 valid calls, 91.8% on time, median 5.05 min, P95 12.67 min, Meets target but Insufficient baseline (its daily baseline is overdispersed, chi-square / df 2.15); the state's daily chart is the least reliable view (section 7) |
+| `station_closure` | from Sep 1, 2026, drive times in ZIP 11368 (Corona, Queens) +60% (set through the generator's travel model) | Queens → ZIP 11368, dates 2026-09-01 to 2026-10-15 | **Act now**: 72.2% on time of 407 valid calls (95% CI 67.7-76.4%), out of control in both months (exact p = 3.1e-27 for Sep, 8.5e-18 for Oct), 72.3 late calls beyond the goal. Stage medians: en route → on scene 272 s vs 180 s in the baseline; received → assigned (41 vs 46 s) and turnout (51 vs 50 s) unchanged. The same dates on the clean file: 91.4% (CI 88.3-93.8%), in control, Needs more data |
+| `station_closure` | same | default 90 days | 11368 reads **Act now** (83.9% of 875 calls, CI 81.3-86.2%; Sep and Oct above the limit) and heads the statewide flagged ZIP list; the list's only other entry is 11212, the same false alarm as on the clean file. Queens county as a whole reads 92.9% on time, Needs more data |
+| `summer_surge` | Jul-Aug 2026, Monroe County volume +30%, held calls common | Monroe, dates 2026-07-01 to 2026-08-31 | **Act now**: 80.2% of 5,285 calls (CI 79.1-81.2%), 10 weekly signals, 518.5 late calls beyond the goal. Stage medians: received → assigned 83 s vs 42 s in the baseline, held 26.5% vs 1.7%; turnout (51 vs 50 s) and drive (194 vs 195 s) unchanged. Clean file, same dates: 94.2%, Meets goal, in control |
+| `summer_surge` | same | Monroe, 2026-09-01 to 2026-10-15 | Meets target (94.7% of 2,532) but **Needs more data**: the 60-day baseline (Jul 3 to Aug 31) is the surge itself, overdispersed (chi-square / df 2.10) with a run of 8 on one side, so the screen refuses it. The clean file over the same dates: Meets goal, in control |
+| `summer_surge` | same | Jul 18–Oct 15, 2026 | Monroe reads Below target (85.8% of 6,405) but **Needs more data**: its baseline (May 19 to Jul 17) contains the start of the surge; the screen drops 8 of 60 days, finds the rest overdispersed (chi-square / df 2.67) and refuses to set limits |
 
 **Replay:** choose `station_closure`, click Queens, then ZIP 11368, and press **Start replay**. The period starts Aug 25
 and its baseline (Jun 26 to Aug 24) stays fixed while the simulated day advances. 11368 reads *Needs more data* (in
-control) through Sep 2; on Sep 3 one small, very surprising month briefly reads Recent change; Sep 4 carries a watch
-chip; Sep 5-11 *Needs more data*; Sep 12-18 *Ongoing gap* (watch from Sep 16); **Act now from Sep 19** to the end. On
-`summer_surge`, replay starts Jun 25 and Monroe turns **Act now on Jul 4** and stays. A rolling window is not used: its
-baseline would drift into the change.
+control) through Sep 3, with a watch chip on Sep 3; it is **out of control every day from Sep 4** to Oct 15: Recent change
+Sep 4-7, then **Act now from Sep 8** (Sep 10: 162 calls, 82.1% on time; Sep 20: 251 calls, 79.3%). On `summer_surge`, replay
+starts Jun 25 and Monroe turns out of control on Jul 2 (Recent change) and **Act now on Jul 5**, and stays. A rolling window
+is not used: its baseline would drift into the change.
 
 ## 7. Measured false alarms and detection power
 
-Reproduce with `PYTHONPATH=. .venv/bin/python data/sensitivity.py` (about 20 s). On the clean `baseline`
-file every Out of control is a false alarm:
+Reproduce with `PYTHONPATH=. .venv/bin/python data/sensitivity.py` (about 75 s). Measured Oct 17 on the H-18 files (0.09 calls per person per year). On the
+clean `baseline` file every Out of control is a false alarm; they are counted here, not hidden:
 
 | Looks (clean file) | Out of control | Notes |
 |---|---|---|
-| counties, red, three non-overlapping 90-day windows ending Oct 15 | 0 of 186 | 47 of 186 are Insufficient baseline; 4 watch chips |
-| counties, yellow, same windows | 1 of 186 (0.5%) | |
-| counties, red / yellow, five overlapping 180-day windows | 3 of 310 / 2 of 310 | windows share calls, so this is one rough estimate |
-| the state, red, eight overlapping 90-day windows | 1 of 8 (4 evaluable) | daily subgroups; day-to-day effects make the state baseline usually unstable |
-| the API test windows (Jul 18-Oct 15, Apr 1-Jun 29, Jan 15-Apr 14), counties, red | 1 of 186 (Oneida, Jan-Apr) | `tests/test_api.py` fails above 10% |
+| counties, red, three non-overlapping 90-day windows ending Oct 15 | 2 of 186 (1.1%) | 35 of 186 are Insufficient baseline; 5 watch chips |
+| counties, yellow, same windows | 3 of 186 (1.6%) | 20 Insufficient baseline; 6 watch chips |
+| counties, red / yellow, five overlapping 180-day windows | 5 of 310 (1.6%) / 5 of 310 (1.6%) | windows share calls, so this is one rough estimate |
+| the state, red / yellow, eight overlapping 90-day windows | 0 of 8 / 0 of 8 (0 and 2 evaluable) | daily subgroups; day-to-day effects make the state baseline usually unstable, so the state chart is rarely evaluable |
+| the API test windows (Jul 18-Oct 15, Apr 1-Jun 29, Jan 15-Apr 14), counties, red | 3 of 186 (1.6%: Erie, Orange, Greene; Greene reads Act now) | `tests/test_api.py` fails above 10% |
+| ZIP areas with 30+ valid red calls, default window | 1 of 807 (11212, Kings, Recent change) | the flagged-ZIP test allows up to 1% such ZIPs on the clean file, never 11368 |
 
 **Detection** (ZIP 11368, red, drive times scaled from Sep 1 in the clean file; status over Sep 1 to Oct 15 and the
 first replay day from Aug 25 that is out of control):
 
 | Change | Status Sep 1-Oct 15 | On time | First out-of-control day |
 |---|---|---|---|
-| none | in control | 95.6% | never |
-| ×1.15 | in control | 89.7% | **never (not detected)** |
-| ×1.25 | in control | 86.8% | **never (not detected)** |
-| ×1.60 (the planted change) | out of control, Act now | 69.1% | Sep 3; stays from Sep 19 |
-| drift +2% per week | in control | 92.6% | **never (not detected)** |
+| none | in control | 91.4% | never |
+| ×1.15 | out of control, Act now | 87.0% | Sep 21, and stays |
+| ×1.25 | out of control, Act now | 83.5% | Sep 7; out of control to the end from Sep 10 |
+| ×1.60 (the planted change) | out of control, Act now | 72.2% | Sep 4, and stays |
+| drift +2% per week | in control | 88.7% | **never (not detected)** |
 
-**Why the smaller changes are missed:** 11368 has about 68 valid red calls in six weeks at this synthetic volume
-(one-eighth of a real system), so its baseline gives monthly subgroups and only two points (Sep, Oct) to judge. A 15-25%
-longer drive raises the late share to 10-13%, which two monthly points cannot separate from chance at p < 0.00135, and
-the on-time interval still includes 90% (Inconclusive). The tool is tuned to rarely cry wolf; the cost is that it only
-sees large changes in a single ZIP. Look at the county, widen the dates, or treat a watch chip as a prompt to keep looking.
+**Why x1.15 and x1.25 are caught, and the drift is not:** before H-16 (0.0198 calls per person per year) they were missed
+too. At the H-18 rate of 0.09, 11368 has 407 valid red calls in Sep 1 to Oct 15 (201 at 0.04, 68 at 0.0198) and 875 in the
+default 90-day window (379 at 0.04), so each monthly point carries enough calls for a 15-25% longer drive to stand out at
+p < 0.00135. A slow drift of +2% per week is still invisible: each month differs little from the one before, and the fixed
+60-day baseline sits just before it. The volume is still only about 60% of a real system's, and smaller ZIPs have far
+fewer calls (median 26 valid red calls per ZIP in the default window, over ZIPs with any calls), so for most ZIPs only large
+changes are visible. The tool is
+tuned to rarely cry wolf; look at the county, widen the dates, or treat a watch chip as a prompt to keep looking.
 
 ## 8. Build status
 
 | Part | Task | Status |
 |---|---|---|
 | Spec, plan, decisions | H-01, H-11, H-13 | done; open dependencies in SPEC section 10 |
-| Test data + codebook + validation | H-02, H-13, H-14 | implemented, tested (`validate.py` 71 PASS; `--reproduce` 75 PASS with identical rebuild; `--messy` 14 PASS) |
-| Statistics (`app/qc.py`) | H-03, H-11, H-13 | implemented, tested (known answers + degenerate cases, 86 tests) |
-| API (FastAPI, read-only) | H-04, H-11, H-13 | implemented, tested (45 API tests incl. acceptance tests AT-1 to AT-10, 31 data tests) |
+| Test data + codebook + validation | H-02, H-13, H-14, H-16, H-18 | implemented, tested (`validate.py` 71 PASS; `--reproduce` 75 PASS with identical rebuild; `--messy` 14 PASS). H-16 (Oct 17): call rate doubled to 0.04 per person per year, files xz-compressed; H-18 (Oct 17): call rate 0.09 (about 60% of a real US rate), files about 22 MB each |
+| Statistics (`app/qc.py`) | H-03, H-11, H-13 | implemented, tested (known answers + degenerate cases, 93 tests) |
+| API (FastAPI, read-only) | H-04, H-11, H-13 | implemented, tested (55 API tests incl. acceptance tests AT-1 to AT-10, 33 data tests) |
 | Dashboard | H-05, H-13 | H-13 page changes (watch chip, flagged ZIP list, stage medians, calls behind a signal, split headline) in progress; `demo/README.md` planned |
 | Targets config + map shapes | H-09, H-13 | done (red targets tiered by area type, NFPA 1720-based placeholders) |
 | Deploy (Posit Connect) | H-06 | planned |
@@ -202,14 +229,15 @@ bash app/testme.sh                             # http://localhost:8000
 Verify:
 
 ```bash
-.venv/bin/python -m pytest tests -q            # 164 passed
-(cd app/frontend && npm test)                  # 52 passed
-.venv/bin/python data/validate.py --reproduce  # 75 PASS, 0 FAIL
+.venv/bin/python -m pytest tests -q            # 181 passed (about 2 minutes: the tests load the data files)
+(cd app/frontend && npm test)                  # 89 passed; 7 failing tests belong to the in-progress UI rewrite (H-15)
+.venv/bin/python data/validate.py              # 71 PASS, 0 FAIL (about 2 minutes)
+.venv/bin/python data/validate.py --reproduce  # 75 PASS, 0 FAIL (rebuilds all four files from the seed; about 15 minutes)
 .venv/bin/python data/validate.py --messy      # 14 PASS, 0 FAIL
 PYTHONPATH=. .venv/bin/python data/sensitivity.py   # the false-alarm and detection tables of section 7
 ```
 
-Rebuild the test data (no key needed): `.venv/bin/python data/generate.py`, then `.venv/bin/python config/build_targets.py`.
+Rebuild the test data (no key needed, about 30 minutes; xz preset 9 is the slow part): `.venv/bin/python data/generate.py`, then `.venv/bin/python config/build_targets.py`.
 Only to rebuild the Census lookups: put `CENSUS_API_KEY=...` in a gitignored `.env`, then `python data/build_lookups.py`.
 
 ## 10. Limitations and open dependencies
@@ -220,10 +248,13 @@ Only to rebuild the Census lookups: put `CENSUS_API_KEY=...` in a gitignored `.e
 - **Seasonality is simulated but not modelled.** Winter roads and summer load are in the data; the tool's defence is the
   60-day baseline just before the period. A baseline that drifts (or contains the start of a change, as Monroe's
   default window shows) is refused by the screen or can mislead; there is no seasonal adjustment.
-- **Small samples.** Sparse ZIP areas are often Inconclusive / Insufficient baseline, and only large changes are
-  detectable in one ZIP (section 7). P95 upper bounds need 59 calls and read "n/a" below that.
-- **Synthetic times are faster than benchmarks** (red median in the clean file: urban 4.65 min, rural 9.08 min, vs roughly 7-10 min
-  in published reports); the generator was tuned to land late shares in bands, not to match a real center.
+- **Small samples.** Synthetic volume is about 60% of a real system's (0.09 vs ~0.15 calls per person per year; raised in
+  H-16 and H-18, capped by the 25 MB file limit). Sparse ZIP areas are often Inconclusive / Insufficient baseline (median 26 valid red
+  calls per ZIP in the default window), and only large changes are detectable in a small ZIP (section 7); a slow drift is
+  not detected at all. P95 upper bounds need 59 calls and read "n/a" below that.
+- **Synthetic times are faster than benchmarks** (red median in the clean file: urban 4.65 min (279 s), rural 9.05 min (543 s), vs roughly
+  7-10 min in published reports); the generator was tuned to land late shares in bands, not to match a real center. Raising
+  the volume (H-16, H-18) changed no duration.
 - **Targets are placeholders.** The red tiers borrow NFPA 1720's demand-zone times, but NFPA 1720 is a fire-service
   standard for volunteer departments with a different clock (dispatch or notification to arrival), our area types come
   from Census density, and remote reuses the rural value. A center must set its own.

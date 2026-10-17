@@ -15,19 +15,19 @@
   "baseline_days": 60
  },
  "scope": "statewide",
- "n_checked": 367,
- "n_flagged": 1,
+ "n_checked": 807,
+ "n_flagged": 2,
  "flagged": [
   {
    "id": "11368",
    "county_fips": "36081",
    "county": "Queens",
-   "calls": 199,
-   "valid": 183,
-   "on_time_pct": 85.2,
+   "calls": 933,
+   "valid": 875,
+   "on_time_pct": 83.9,
    "on_time_ci": [
-    79.4,
-    89.7
+    81.3,
+    86.2
    ],
    "goal_pct": 90.0,
    "spec": "below",
@@ -37,30 +37,59 @@
    "signals": [
     {
      "start": "2026-09-01",
-     "n": 48,
-     "late": 13,
-     "p": 0.2708333333333333,
-     "ucl": 0.23815138076792206,
-     "lcl": 0.0,
-     "p_value": 0.00107
+     "n": 268,
+     "late": 72,
+     "p": 0.26865671641791045,
+     "ucl": 0.09829986730735629,
+     "lcl": 0.013945030651827388,
+     "p_value": 3.68e-29
     },
     {
      "start": "2026-10-01",
-     "n": 20,
-     "late": 8,
-     "p": 0.4,
-     "ucl": 0.3111327075327152,
+     "n": 139,
+     "late": 41,
+     "p": 0.2949640287769784,
+     "ucl": 0.1146876974287137,
      "lcl": 0.0,
-     "p_value": 0.00059
+     "p_value": 6.38e-19
     }
    ],
-   "excess_late": 8.7
+   "excess_late": 53.5
+  },
+  {
+   "id": "11212",
+   "county_fips": "36047",
+   "county": "Kings",
+   "calls": 741,
+   "valid": 696,
+   "on_time_pct": 93.1,
+   "on_time_ci": [
+    91.0,
+    94.8
+   ],
+   "goal_pct": 90.0,
+   "spec": "meets",
+   "control": "out_of_control",
+   "watch": false,
+   "queue": "recent_change",
+   "signals": [
+    {
+     "start": "2026-08-01",
+     "n": 246,
+     "late": 22,
+     "p": 0.08943089430894309,
+     "ucl": 0.0716572910486839,
+     "lcl": 0.0003766072564008391,
+     "p_value": 9.88e-05
+    }
+   ],
+   "excess_late": -21.6
   }
  ],
  "chance_below": {
-  "expected": 12.63,
-  "n_places": 367,
-  "observed_below": 6,
+  "expected": 25.55,
+  "n_places": 807,
+  "observed_below": 95,
   "messages": []
  },
  "messages": [

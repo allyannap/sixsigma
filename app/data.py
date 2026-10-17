@@ -4,7 +4,7 @@ This file only HANDLES data. There are no statistics here (those live in app/qc.
 It is read-only: the three synthetic files are the only incident source (no user logging).
 It does five jobs:
 
-1. load  : read data/incidents_<dataset>.csv.gz once, cache it.
+1. load  : read data/incidents_<dataset>.csv.xz once, cache it.
 2. derive: add the per-call fields defined in docs/api.md "Shared definitions".
 3. select: the calls of one place, one urgency set, one date range.
 4. baseline: the same place and urgency, the days BEFORE the range (60, stretched to 120).
@@ -227,7 +227,7 @@ def load(dataset: str) -> pd.DataFrame:
         raise ValueError(f"unknown dataset '{dataset}'; use one of {list(DATASETS)}")
     with _lock:
         if dataset not in _cache:
-            _cache[dataset] = derive(read_raw(DATA_DIR / f"incidents_{dataset}.csv.gz"))
+            _cache[dataset] = derive(read_raw(DATA_DIR / f"incidents_{dataset}.csv.xz"))
     return _cache[dataset]
 
 

@@ -120,7 +120,7 @@ def detect_problems(df, lookup, codes):
 
 def messy_checks(d, ld, lookup, codes):
     """The messy sample: each injected problem type is detected with exactly the logged count."""
-    path = d / "incidents_messy_sample.csv.gz"
+    path = d / "incidents_messy_sample.csv.xz"
     if not path.exists():
         report(False, f"messy sample: file exists ({path.name})")
         return
@@ -129,7 +129,7 @@ def messy_checks(d, ld, lookup, codes):
     report(list(df.columns) == FILE_COLUMNS, "messy sample: header is exactly the 10 input columns")
     df["valid_time"] = df["valid_time"].astype(str)
     mb = path.stat().st_size / 1e6
-    report(mb < 1 and 2000 <= len(df) <= 5000, f"messy sample: {len(df):,} rows (2,000-5,000), {mb:.2f} MB")
+    report(mb < 1 and 10_000 <= len(df) <= 16_000, f"messy sample: {len(df):,} rows (10,000-16,000), {mb:.2f} MB")
     counts, masks = detect_problems(df, lookup, codes)
     for key, got in counts.items():
         want = m["n_" + key]
@@ -139,7 +139,7 @@ def messy_checks(d, ld, lookup, codes):
     clean = df[~flagged].set_index("incident_id")
     zero, _ = detect_problems(df[~flagged], lookup, codes)
     report(sum(zero.values()) == 0, f"messy sample: detectors find nothing in the {len(clean):,} untouched rows")
-    bpath = d / "incidents_baseline.csv.gz"
+    bpath = d / "incidents_baseline.csv.xz"
     if bpath.exists():
         base = pd.read_csv(bpath, dtype=str, keep_default_na=False, na_values=[""]).set_index("incident_id")
         raw = pd.read_csv(path, dtype=str, keep_default_na=False, na_values=[""])
@@ -181,7 +181,7 @@ def main():
 
     frames, parsed = {}, {}
     for n in NAMES:
-        path = d / f"incidents_{n}.csv.gz"
+        path = d / f"incidents_{n}.csv.xz"
         if not path.exists():
             report(False, f"{n}: file exists ({path.name})")
             continue
@@ -195,7 +195,7 @@ def main():
         parsed[n] = t
         mb = path.stat().st_size / 1e6
         report(mb < 25, f"{n}: file size {mb:.1f} MB < 25 MB")
-        report(len(df) > 0 and 300_000 <= len(df) <= 500_000, f"{n}: about 400,000 calls ({len(df):,})")
+        report(len(df) > 0 and 1_600_000 <= len(df) <= 2_000_000, f"{n}: about 1.8 million calls ({len(df):,})")
         report(df["incident_id"].is_unique, f"{n}: incident_id unique")
         report(bool(t["t_received"].is_monotonic_increasing), f"{n}: sorted by t_received")
         report(times_in_order(t), f"{n}: times in order (received <= assigned <= enroute <= onscene)")
@@ -308,8 +308,8 @@ def main():
             subprocess.run([sys.executable, str(HERE / "generate.py"), "--out", tmp], check=True,
                            stdout=subprocess.DEVNULL)
             for n in NAMES + ["messy_sample"]:
-                a = hashlib.sha256(pd.read_csv(d / f"incidents_{n}.csv.gz", dtype=str).to_csv().encode()).hexdigest()
-                b = hashlib.sha256(pd.read_csv(Path(tmp) / f"incidents_{n}.csv.gz", dtype=str).to_csv().encode()).hexdigest()
+                a = hashlib.sha256(pd.read_csv(d / f"incidents_{n}.csv.xz", dtype=str).to_csv().encode()).hexdigest()
+                b = hashlib.sha256(pd.read_csv(Path(tmp) / f"incidents_{n}.csv.xz", dtype=str).to_csv().encode()).hexdigest()
                 report(a == b, f"{n}: rebuilt from the fixed seed, content identical (sha256 {a[:12]})")
 
     fails = RESULTS.count(False)

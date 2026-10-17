@@ -20,7 +20,7 @@ import { InsightsSection, MetricsSection } from './components/MetricsSection.jsx
 import PlaceHead from './components/PlaceHead.jsx'
 import TopBar from './components/TopBar.jsx'
 import SirenLogo from './components/SirenLogo.jsx'
-import { QUEUE } from './status.js'
+import { QUEUE, legendRows } from './status.js'
 import ReplayBar from './components/ReplayBar.jsx'
 
 // React puts <!-- --> between text pieces; drop them so words can be searched.
@@ -151,8 +151,8 @@ describe('H-13 supervisor data', () => {
   it('the headline splits needs-review and shows the chance-below context', () => {
     const html = map()
     expect(html).toMatch(/\d+ of \d+ counties need review: \d+ with a recent signal \(Act now \+ Recent change\) · \d+ ongoing gaps/)
-    expect(html).toContain('would read Below by chance alone if every place were exactly at the goal (expected, of 60 counties)')
-    expect(html).toContain('About 1.9 would read')
+    expect(html).toContain('would read Below by chance alone if every place were exactly at the goal (expected, of 62 counties)')
+    expect(html).toContain('About 1.8 would read')
   })
   it('the table has an Excess late vs goal column, cancelled/invalid and calls per day', () => {
     const html = map()
@@ -294,12 +294,14 @@ describe('OnScene page (H-14)', () => {
     expect(on).toContain('Replay day Aug 27, 2026')
     expect(on).toMatch(/<select[^>]*disabled/)
   })
-  it('the map legend has the four rows with counts that add queue_counts as Critical, Watch, Stable, gray', () => {
+  it('the map legend has five rows counted from the places on the map, and a Status / Late % switch', () => {
     const html = map()
-    const q = summary.queue_counts
-    const rows = [...html.matchAll(/<span>(Critical|Watch|Stable|Needs data)<\/span><span class="legend-val">(\d+)<\/span>/g)].map((m) => [m[1], Number(m[2])])
-    expect(rows).toEqual([['Critical', q.act_now], ['Watch', q.ongoing_gap + q.recent_change], ['Stable', q.meets_stable], ['Needs data', q.needs_data]])
-    expect(html).toContain('<div class="legend-title">Status</div>')
+    const rows = [...html.matchAll(/<span>(Critical|Watch|Near goal|Stable|Too few calls)<\/span><span class="legend-val">(\d+)<\/span>/g)].map((m) => [m[1], Number(m[2])])
+    const want = legendRows(summary.places).map((r) => [r.label, r.count])
+    expect(rows).toEqual(want)
+    expect(rows.reduce((n, [, c]) => n + c, 0)).toBe(summary.places.length)
+    expect(html).toMatch(/aria-pressed="true"[^>]*>Status</)
+    expect(html).toContain('>Late %</button>')
   })
   it('the map card has a keyboard search combobox, back/reset and a breadcrumb', () => {
     const html = map()

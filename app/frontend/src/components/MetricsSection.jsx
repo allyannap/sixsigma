@@ -1,12 +1,11 @@
 // Key Metrics card (three tiles + a plain Summary) and the "Wait Time Insights" row that holds the two chart cards.
 // Every number is read from /api/summary (totals, or the picked place's own card); this file only formats it.
 import { fmtCi, fmtInt, fmtNum, fmtPct, fmtRange } from '../format.js'
-import { QUEUE, TIERS, URGENCY, URGENCY_KEYS, tierOf } from '../status.js'
+import { QUEUE, TIER_LABEL, URGENCY, URGENCY_KEYS, mapTier } from '../status.js'
 import { placeFor } from './PlaceHead.jsx'
 import InsightsSlider from './InsightsSlider.jsx'
 import { Spinner } from './common.jsx'
 
-const TIER_LABEL = Object.fromEntries(TIERS.map((t) => [t.key, t.label]))
 
 /**
  * The numbers the tiles show. Normally the totals of the area the map is drawn for (the selected place when it is
@@ -60,7 +59,7 @@ function Tiles({ t, note }) {
 /** Plain text from the API's own words: queue label, target reason, control reason, and the queue's "next" hint. */
 function Summary({ place, name, busy }) {
   const q = place ? QUEUE[place.queue] : null
-  const tier = place ? tierOf(place.queue) : null
+  const tier = place ? mapTier(place) : null
   return (
     <div className="summary">
       <div className="summary-head">

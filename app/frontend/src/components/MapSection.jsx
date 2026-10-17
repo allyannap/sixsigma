@@ -1,13 +1,13 @@
 // Left column of the OnScene page: the map card (map, search, back/reset, breadcrumb, NYC borough panel, legend, tooltip)
 // and the collapsible ranked table. Every number comes from /api/summary; this file only draws and formats it.
-// Map fill = the queue label's colour group (status.js tierOf): no statistic is computed here.
+// Map fill = the place's colour group (status.js mapTier) or its late share: no statistic is computed here.
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { geoMercator, geoPath } from 'd3-geo'
 import { getGeo } from '../api.js'
 import { rewindForD3 } from '../geo.js'
-import GlMap from './GlMap.jsx'
+import GlMap, { LATE_STOPS } from './GlMap.jsx'
 import { fmtChanceBelow, fmtCi, fmtDate, fmtInt, fmtNum, fmtOneIn, fmtPct } from '../format.js'
-import { CONTROL, QUEUE, SPEC, attentionSplit, legendRows, rankPlaces, tierOf } from '../status.js'
+import { CONTROL, QUEUE, SPEC, TIER_LABEL, attentionSplit, legendRows, mapTier, rankPlaces } from '../status.js'
 import { Icon, Judgments, Messages, Spinner, StatusBadge, WatchChip } from './common.jsx'
 import { placeFor } from './PlaceHead.jsx'
 
@@ -42,14 +42,14 @@ function project(features, box) {
   return features.map((f) => ({ id: f.properties.GEOID, name: f.properties.NAME, d: path(f) }))
 }
 
-/** The place's colour class: t-critical, t-watch, t-stable or t-nodata (gray, also when it has no calls). */
-const tierClass = (p) => `t-${p ? tierOf(p.queue) : 'nodata'}`
+/** The place's colour class: t-critical, t-watch, t-near, t-stable or t-nodata (gray: under 30 valid calls, or none). */
+const tierClass = (p) => `t-${mapTier(p)}`
 
 function tipText(p, name) {
   if (!p) return { title: name, queue: 'No calls in this selection', line: '' }
   return {
     title: name,
-    queue: QUEUE[p.queue]?.label || p.queue,
+    queue: `${TIER_LABEL[mapTier(p)]} · ${QUEUE[p.queue]?.label || p.queue}`,
     line: `On time ${fmtPct(p.on_time_pct)} · n = ${fmtInt(p.valid)} valid calls`,
   }
 }
@@ -127,7 +127,6 @@ function Shape({ s, p, selected, onPick, setTip, cls, noFocus = false }) {
   )
 }
 
-const TIER_WORD = { critical: 'Critical', watch: 'Watch', stable: 'Stable', nodata: 'Needs more data' }
 // Everyday borough names for the county FIPS codes (Census calls them Bronx, Kings, New York, Queens, Richmond).
 const BOROUGH_NAME = { 36005: 'Bronx', 36047: 'Brooklyn', 36061: 'Manhattan', 36081: 'Queens', 36085: 'Staten Is.' }
 
@@ -159,13 +158,13 @@ function Boroughs({ boroughs, byId, selected, onPick, setTip, busy }) {
           <div className="borough-cols" aria-hidden="true"><span>Borough</span><span>Late Calls</span></div>
           <ul className="borough-list" aria-label="New York City boroughs, most late calls first">
             {rows.map((r) => {
-              const tier = r.p ? tierOf(r.p.queue) : 'nodata'
+              const tier = mapTier(r.p)
               const val = busy ? '…' : r.p ? fmtOneIn(r.p.late, r.p.valid).replace(/ late$/, '') : 'no calls'
               return (
                 <li key={r.id}>
                   <button type="button" className={`borough-row${marked === r.id ? ' is-selected' : ''}`} disabled={!r.p}
                     aria-pressed={selected.id === r.id}
-                    aria-label={`${r.name}: ${TIER_WORD[tier]}, ${r.p ? fmtOneIn(r.p.late, r.p.valid) : 'no calls'}. Open its ZIP areas.`}
+                    aria-label={`${r.name}: ${TIER_LABEL[tier]}, ${r.p ? fmtOneIn(r.p.late, r.p.valid) : 'no calls'}. Open its ZIP areas.`}
                     onMouseEnter={() => setHot(r.id)} onMouseLeave={() => setHot(null)}
                     onFocus={() => setHot(r.id)} onBlur={() => setHot(null)}
                     onClick={() => r.p && onPick(r.p, true)}>
@@ -189,6 +188,7 @@ function MapCard({ summaryState, parent, selected, countyOptions = [], onPick, o
   const counties = useGeo('counties', true)
   const zctas = useGeo('zcta', drillIn || zipWanted)
   const [tip, setTip] = useState(null)
+  const [metric, setMetric] = useState('status') // 'status' = colour groups, 'late' = late share (hot spots)
   const cardRef = useRef(null)
   const s = summaryState.data
   const places = (s && s.places) || []
@@ -224,15 +224,15 @@ function MapCard({ summaryState, parent, selected, countyOptions = [], onPick, o
     return [...countyOptions, ...byZip.values()]
   }, [drillIn, places, parent.id, parent.name, countyOptions, zctas.data])
 
-  const rows = legendRows(s && s.queue_counts)
+  const rows = legendRows(places)
   const rect = cardRef.current ? cardRef.current.getBoundingClientRect() : { left: 0, top: 0 }
 
   return (
     <section className={`mapcard card${summaryState.loading ? ' is-loading' : ''}`} aria-labelledby="map-heading" aria-busy={summaryState.loading} ref={cardRef}>
       <h2 id="map-heading" className="sr-only">{drillIn ? `${parent.name} ZIP area map` : 'New York State county map'}</h2>
       <GlMap counties={rawCounties} zctas={rawZctas} drillIn={drillIn} parentId={parent.id} byId={byId}
-        selectedId={selected.id} label={tipText} onPick={onPick} setTip={setTip} fitKey={fitKey} busy={summaryState.loading}
-        ariaLabel={drillIn ? 'Map of ZIP areas, colored by queue label. Select one to see it on the right. Gray areas outside New York are for orientation only.' : 'Map of New York counties, colored by queue label. Select one to open its ZIP areas. Gray areas outside New York are for orientation only.'} />
+        selectedId={selected.id} label={tipText} onPick={onPick} setTip={setTip} fitKey={fitKey} busy={summaryState.loading} metric={metric}
+        ariaLabel={drillIn ? `Map of ZIP areas, colored by ${metric === 'late' ? 'share of late calls' : 'status group'}. Select one to see it on the right. Gray areas outside New York are for orientation only.` : `Map of New York counties, colored by ${metric === 'late' ? 'share of late calls' : 'status group'}. Select one to open its ZIP areas. Gray areas outside New York are for orientation only.`} />
 
       <SearchBox options={options} onChoose={onSearch} onType={(text) => /^\d/.test(text.trim()) && setZipWanted(true)} />
 
@@ -257,24 +257,35 @@ function MapCard({ summaryState, parent, selected, countyOptions = [], onPick, o
 
       {boroughs.length > 0 && <Boroughs boroughs={boroughs} byId={byId} selected={selected} onPick={onPick} setTip={setTip} busy={summaryState.loading} />}
 
-      <div className="map-legend" aria-label="Status legend">
+      <div className="map-legend" aria-label="Map legend">
         <div className="legend-head">
-          <div className="legend-title">Status</div>
+          <div className="legend-switch" role="group" aria-label="Colour the map by">
+            <button type="button" className={metric === 'status' ? 'is-on' : ''} aria-pressed={metric === 'status'} onClick={() => setMetric('status')}>Status</button>
+            <button type="button" className={metric === 'late' ? 'is-on' : ''} aria-pressed={metric === 'late'} onClick={() => setMetric('late')}>Late %</button>
+          </div>
           <span className="legend-info">
-            <button type="button" className="legend-info-btn" aria-label="What the status colours mean" aria-describedby="legend-def">i</button>
+            <button type="button" className="legend-info-btn" aria-label="What the map colours mean" aria-describedby="legend-def">i</button>
             <span className="legend-tip" id="legend-def" role="tooltip">
-              <span className="tip-line"><strong>Critical</strong> = act now</span>
-              <span className="tip-line"><strong>Watch</strong> = ongoing gap or recent change</span>
-              <span className="tip-line"><strong>Stable</strong> = meets goal</span>
-              <span className="tip-line"><strong>Needs data</strong> = needs more data</span>
+              <span className="tip-line"><strong>Critical</strong> = act now: below target and a recent signal</span>
+              <span className="tip-line"><strong>Watch</strong> = ongoing gap, recent change, or confirmed below target</span>
+              <span className="tip-line"><strong>Near goal</strong> = enough calls, but the on-time interval includes the goal</span>
+              <span className="tip-line"><strong>Stable</strong> = meets the goal</span>
+              <span className="tip-line"><strong>Too few calls</strong> = under 30 valid calls</span>
+              <span className="tip-line"><strong>Late %</strong> = share of valid calls that missed their target; faded = under 30 calls</span>
             </span>
           </span>
         </div>
-        {rows.map((r) => (
+        {metric === 'status' ? rows.map((r) => (
           <div key={r.key} className="legend-row">
             <i className={`dot dot-${r.key}`} aria-hidden="true" /><span>{r.label}</span><span className="legend-val">{summaryState.loading ? '…' : r.count}</span>
           </div>
-        ))}
+        )) : (
+          <div className="legend-ramp">
+            <span className="ramp-bar" aria-hidden="true" style={{ background: `linear-gradient(90deg, ${LATE_STOPS.map(([, c]) => c).join(', ')})` }} />
+            <span className="ramp-labels">{LATE_STOPS.map(([v]) => <span key={v}>{v === LATE_STOPS[LATE_STOPS.length - 1][0] ? `${v}%+` : `${v}%`}</span>)}</span>
+            <span className="ramp-note">Late share. Faded: under 30 calls. Gray: no valid calls.</span>
+          </div>
+        )}
       </div>
 
       {tip && (

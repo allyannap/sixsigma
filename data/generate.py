@@ -1,10 +1,10 @@
 """Generate the three SYNTHETIC EMS incident files and a small messy sample (fixed seed, no Census key needed).
 
-Run from the repo root:   python data/generate.py            (all four files, about 75 seconds)
+Run from the repo root:   python data/generate.py            (all four files, about 3 minutes; check the printed time)
                           python data/generate.py --messy    (only the messy sample, from the baseline file)
 Reads:  data/params.json, data/lookup/zcta_county.csv, data/lookup/counties.csv, config/targets.csv
-Writes: data/incidents_baseline.csv.gz, data/incidents_station_closure.csv.gz,
-        data/incidents_summer_surge.csv.gz, data/incidents_messy_sample.csv.gz
+Writes: data/incidents_baseline.csv.xz, data/incidents_station_closure.csv.xz,
+        data/incidents_summer_surge.csv.xz, data/incidents_messy_sample.csv.xz
 
 Random streams (all fixed by the seed in params.json):
   (seed, zcta)           a ZIP's ordinary calls. A ZIP that no story touches gets exactly the same calls
@@ -243,8 +243,8 @@ def build_file(name, params, lookup, groups, ctx_common, effects, expected_by_co
         "valid_time": cat["valid"],
         "held": cat["held"],
     })[COLUMNS]
-    path = outdir / f"incidents_{name}.csv.gz"
-    df.to_csv(path, index=False, compression="gzip")
+    path = outdir / f"incidents_{name}.csv.xz"
+    df.to_csv(path, index=False, compression={"method": "xz", "preset": 9})
     print(f"wrote {path.name}: {n:,} calls, {path.stat().st_size / 1e6:.1f} MB")
     return df
 
@@ -306,8 +306,8 @@ def build_messy(baseline, lookup, params, outdir):
     conf_copies["t_onscene"] = iso(to_epoch(conf_copies["t_onscene"]) + 45, tz)
     out = pd.concat([df, exact_copies, conf_copies]).sort_values("pos", kind="stable")
     out = out.drop(columns="pos")[COLUMNS]
-    path = outdir / "incidents_messy_sample.csv.gz"
-    out.to_csv(path, index=False, compression="gzip")
+    path = outdir / "incidents_messy_sample.csv.xz"
+    out.to_csv(path, index=False, compression={"method": "xz", "preset": 9})
     print(f"wrote {path.name}: {len(out):,} rows ({len(df):,} calls, {m['county_name']} {m['month']}), "
           f"{path.stat().st_size / 1e3:.0f} KB")
 
@@ -326,7 +326,7 @@ def main():
     if lookup.empty:
         sys.exit("zcta_county.csv is empty. Run: python data/build_lookups.py")
     if args.messy:
-        base = pd.read_csv(outdir / "incidents_baseline.csv.gz", dtype={"zcta": str}, keep_default_na=False)
+        base = pd.read_csv(outdir / "incidents_baseline.csv.xz", dtype={"zcta": str}, keep_default_na=False)
         build_messy(base, lookup, params, outdir)
         return
     targets = pd.read_csv(ROOT / "config" / "targets.csv")

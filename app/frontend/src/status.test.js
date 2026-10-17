@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { QUEUE, WATCH, attentionCount, attentionSplit, fillFor, latePct, legendRows, rankPlaces, tierOf } from './status.js'
+import { QUEUE, WATCH, attentionCount, attentionSplit, fillFor, latePct, legendRows, mapTier, rankPlaces } from './status.js'
 
 describe('status helpers', () => {
   it('ranks by queue label, then confirmed below-target first, then excess late calls (not raw late counts)', () => {
@@ -51,17 +51,28 @@ describe('status helpers', () => {
 })
 
 describe('map colour groups (OnScene legend)', () => {
-  it('maps the five queue labels to Critical, Watch, Stable and gray', () => {
-    expect(tierOf('act_now')).toBe('critical')
-    expect(tierOf('ongoing_gap')).toBe('watch')
-    expect(tierOf('recent_change')).toBe('watch')
-    expect(tierOf('meets_stable')).toBe('stable')
-    expect(tierOf('needs_data')).toBe('nodata')
-    expect(tierOf(undefined)).toBe('nodata')
+  const place = (queue, spec, valid) => ({ queue, spec, valid })
+  it('keeps the confirmed groups from the queue label', () => {
+    expect(mapTier(place('act_now', 'below', 200))).toBe('critical')
+    expect(mapTier(place('ongoing_gap', 'below', 200))).toBe('watch')
+    expect(mapTier(place('recent_change', 'meets', 200))).toBe('watch')
+    expect(mapTier(place('meets_stable', 'meets', 200))).toBe('stable')
   })
-  it('legend rows add Ongoing gap + Recent change into Watch and keep the other counts', () => {
-    const rows = legendRows({ act_now: 1, ongoing_gap: 16, recent_change: 2, meets_stable: 16, needs_data: 29 })
-    expect(rows.map((r) => [r.label, r.count])).toEqual([['Critical', 1], ['Watch', 18], ['Stable', 16], ['Needs data', 29]])
-    expect(legendRows(null).map((r) => r.count)).toEqual([0, 0, 0, 0])
+  it('splits "Needs more data" so gray means only too few calls (the ZIP 10025 cases)', () => {
+    // red calls: 318 valid, 91.8% on time, CI 88.3-94.4 includes the 90% goal, in control -> near goal, not gray
+    expect(mapTier(place('needs_data', 'inconclusive', 318))).toBe('near')
+    // yellow calls: 396 valid, 100% on time, but too few late calls to chart -> meets goal, not gray
+    expect(mapTier(place('needs_data', 'meets', 396))).toBe('stable')
+    // confirmed below target while change cannot be judged -> watch, not gray
+    expect(mapTier(place('needs_data', 'below', 120))).toBe('watch')
+    // genuinely too few calls -> gray
+    expect(mapTier(place('needs_data', 'inconclusive', 29))).toBe('nodata')
+    expect(mapTier(undefined)).toBe('nodata')
+  })
+  it('legend rows count the places in each group, five rows in order', () => {
+    const rows = legendRows([place('act_now', 'below', 90), place('ongoing_gap', 'below', 90), place('needs_data', 'below', 40),
+      place('needs_data', 'inconclusive', 318), place('meets_stable', 'meets', 90), place('needs_data', 'inconclusive', 4)])
+    expect(rows.map((r) => [r.label, r.count])).toEqual([['Critical', 1], ['Watch', 2], ['Near goal', 1], ['Stable', 1], ['Too few calls', 1]])
+    expect(legendRows(null).map((r) => r.count)).toEqual([0, 0, 0, 0, 0])
   })
 })

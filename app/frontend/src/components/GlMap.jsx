@@ -2,9 +2,9 @@
 // hover highlight. Basemap: CARTO Positron when VITE_CARTO_KEY is set in the repo-root .env, otherwise OpenFreeMap's
 // Positron (free, no key), so a fresh clone still works. Neighbouring states, Canada and every place name come from the
 // basemap: gray, for orientation only, never clickable. Our counties or ZIP areas sit under the basemap's labels, in the
-// queue-label colours. MapLibre needs a browser, so it loads inside an effect (the server render and tests get the frame).
+// map colour groups (status.js mapTier), or by late share when the "Late %" view is on. MapLibre needs a browser, so it loads inside an effect (the server render and tests get the frame).
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { tierOf } from '../status.js'
+import { MIN_VALID_CALLS, mapTier } from '../status.js'
 
 const CARTO_KEY = (import.meta.env && import.meta.env.VITE_CARTO_KEY) || ''
 export const BASEMAP_STYLE = CARTO_KEY
@@ -12,7 +12,21 @@ export const BASEMAP_STYLE = CARTO_KEY
   : 'https://tiles.openfreemap.org/styles/positron'
 
 // Same colours as tokens.css (--map-*), so the map matches the legend and the rest of the page.
-const TIER_FILL = { critical: '#dd806d', watch: '#ebc684', stable: '#cfe3d8', nodata: '#d9e0e8' }
+const TIER_FILL = { critical: '#dd806d', watch: '#ebc684', near: '#ddd3ea', stable: '#cfe3d8', nodata: '#d9e0e8' }
+// "Late %" view: share of valid calls that missed their target, light to dark. Places with under 30 valid calls are
+// drawn faded (their share is too unstable to read alone); places with no valid calls stay gray.
+export const LATE_STOPS = [[0, '#f6f1e7'], [10, '#f2c89b'], [20, '#dd806d'], [30, '#a23b2a']]
+
+const STATUS_FILL = ['match', ['get', 'tier'], 'critical', TIER_FILL.critical, 'watch', TIER_FILL.watch, 'near', TIER_FILL.near,
+  'stable', TIER_FILL.stable, TIER_FILL.nodata]
+const LATE_FILL = ['case', ['<', ['get', 'late'], 0], TIER_FILL.nodata,
+  ['interpolate', ['linear'], ['get', 'late'], ...LATE_STOPS.flat()]]
+const HOVERED = ['boolean', ['feature-state', 'hover'], false]
+function fillOpacity(metric, busy) {
+  if (busy) return 0.45
+  if (metric === 'late') return ['case', ['==', ['get', 'few'], 1], ['case', HOVERED, 0.6, 0.38], ['case', HOVERED, 0.97, 0.85]]
+  return ['case', HOVERED, 0.97, 0.82]
+}
 const GHOST_FILL = '#e1e9f2'
 const SELECTED = '#14538f'
 const HOVER = '#0f243d'
@@ -38,9 +52,10 @@ function bbox(features) {
 
 /**
  * props: counties / zctas (raw GeoJSON features), drillIn, parentId, byId (place cards by id), selectedId,
- * label(p, name) -> {title, queue, line}, onPick(p, drill), setTip, fitKey (bump to refit), busy, ariaLabel.
+ * label(p, name) -> {title, queue, line}, onPick(p, drill), setTip, fitKey (bump to refit), busy, ariaLabel,
+ * metric: 'status' (colour groups) or 'late' (late share).
  */
-export default function GlMap({ counties, zctas, drillIn, parentId, byId, selectedId, label, onPick, setTip, fitKey, busy, ariaLabel }) {
+export default function GlMap({ counties, zctas, drillIn, parentId, byId, selectedId, label, onPick, setTip, fitKey, busy, ariaLabel, metric = 'status' }) {
   const boxRef = useRef(null)
   const mapRef = useRef(null)
   const hoverRef = useRef(null)
@@ -51,10 +66,12 @@ export default function GlMap({ counties, zctas, drillIn, parentId, byId, select
   live.current = { onPick, setTip, byId, label }
 
   const active = drillIn ? zctas : counties
-  // Each shape carries its colour group, so the style only reads properties (no statistics here).
+  // Each shape carries its colour group and late share, so the style only reads properties (no statistics here).
   const shapes = useMemo(() => collection(active.map((f) => {
     const p = byId[f.properties.GEOID]
-    return { type: 'Feature', geometry: f.geometry, properties: { id: f.properties.GEOID, tier: p ? tierOf(p.queue) : 'nodata', has: p ? 1 : 0 } }
+    const late = p && p.valid > 0 && p.on_time_pct != null ? 100 - p.on_time_pct : -1
+    const few = p && p.valid < MIN_VALID_CALLS ? 1 : 0
+    return { type: 'Feature', geometry: f.geometry, properties: { id: f.properties.GEOID, tier: mapTier(p), late, few, has: p ? 1 : 0 } }
   })), [active, byId])
   const ghosts = useMemo(() => collection(drillIn ? counties.filter((f) => f.properties.GEOID !== parentId) : []), [drillIn, counties, parentId])
   const outline = useMemo(() => collection(drillIn ? counties.filter((f) => f.properties.GEOID === parentId) : []), [drillIn, counties, parentId])
@@ -92,11 +109,7 @@ export default function GlMap({ counties, zctas, drillIn, parentId, byId, select
         map.addLayer({ id: 'ghost-line', type: 'line', source: 'ghosts', paint: { 'line-color': '#ffffff', 'line-width': 0.8 } }, before)
         map.addLayer({
           id: 'shape-fill', type: 'fill', source: 'shapes',
-          paint: {
-            'fill-color': ['match', ['get', 'tier'], 'critical', TIER_FILL.critical, 'watch', TIER_FILL.watch, 'stable', TIER_FILL.stable, TIER_FILL.nodata],
-            'fill-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 0.97, 0.82],
-            'fill-opacity-transition': { duration: 180 },
-          },
+          paint: { 'fill-color': STATUS_FILL, 'fill-opacity': fillOpacity('status', false), 'fill-opacity-transition': { duration: 180 } },
         }, before)
         map.addLayer({ id: 'shape-line', type: 'line', source: 'shapes', paint: { 'line-color': '#ffffff', 'line-width': ['interpolate', ['linear'], ['zoom'], 5, 0.6, 10, 1.4] } }, before)
         map.addLayer({
@@ -170,8 +183,9 @@ export default function GlMap({ counties, zctas, drillIn, parentId, byId, select
   useEffect(() => {
     const map = mapRef.current
     if (!ready || !map) return
-    map.setPaintProperty('shape-fill', 'fill-opacity', busy ? 0.45 : ['case', ['boolean', ['feature-state', 'hover'], false], 0.97, 0.82])
-  }, [ready, busy])
+    map.setPaintProperty('shape-fill', 'fill-color', metric === 'late' ? LATE_FILL : STATUS_FILL)
+    map.setPaintProperty('shape-fill', 'fill-opacity', fillOpacity(metric, busy))
+  }, [ready, busy, metric])
 
   // Camera: the whole state, or the open county, with a smooth flight. Only when the level changes (or reset).
   useEffect(() => {

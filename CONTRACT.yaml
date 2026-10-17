@@ -306,3 +306,53 @@ tasks:
       scroll at 1440 and 390 px (Playwright screenshots).
     result: ""
 
+
+  - id: H-16
+    title: Double the synthetic call volume (0.04 per person per year) and store data as .csv.xz
+    points: "datasets (5) and valid QC analysis (25) - more calls per ZIP area, files still under 25 MB"
+    status: done
+    owner: "claude + Powerpuff Girls"
+    started_at: "2026-10-17 15:00"
+    owns: ["data/", "config/", "app/data.py", "tests/", "app/frontend/src/fixtures/", "app/frontend/src/controlView.test.js", "app/frontend/src/render.test.js", "README.md", "SPEC.md", "docs/", "app/README.md", "app/frontend/docs/", "CONTRACT.yaml"]
+    notes: >
+      User decision Oct 17. base_rate_per_person_per_year 0.0198 -> 0.04 (no other generator parameter changed, so the
+      planted stories and effect sizes are the same) and xz compression (preset 9) instead of gzip, so each file stays near
+      10 MB. Every measured number was re-run: closure +15% and +25% are now detected; Monroe Sep-Oct is now insufficient
+      baseline (its baseline is the surge); clean-file false alarms 2 of 186 county-windows (red, 90 d).
+    definition_of_done: >
+      validate.py plain, --reproduce and --messy print 0 FAIL; pytest passes; vite build succeeds; every number in the
+      docs matches a re-measured value; each data file is under 25 MB.
+    result: "Rate 0.04 (2x) and .csv.xz files: baseline 807,788 rows, about 10 MB each. validate 71 PASS, --reproduce 75 PASS, --messy 14 PASS; pytest 181 passed; vite build ok (7 vitest failures belong to the in-progress UI rewrite, H-15). Closure +15% and +25% now detected; clean-file false alarms 2 of 186 county-windows; default-window counties 36 ongoing gap, 1 recent change (false alarm), 16 meets, 9 needs more data. Docs updated."
+
+  - id: H-17
+    title: Map colour groups - gray only for too few calls, plus a Late % hot-spot view
+    points: "working tool (25) and demonstration (10) - the ZIP map shows meaningful colour, not gray"
+    status: done
+    owner: "claude + Powerpuff Girls"
+    started_at: "2026-10-17 17:00"
+    owns: ["app/frontend/src/status.js", "app/frontend/src/components/GlMap.jsx", "app/frontend/src/components/MapSection.jsx", "app/frontend/src/components/MetricsSection.jsx", "app/frontend/src/styles.css", "app/frontend/src/tokens.css", "app/frontend/src/status.test.js", "app/frontend/src/render.test.js", "README.md", "SPEC.md", "docs/plan.md", "app/frontend/README.md"]
+    notes: >
+      User decision Oct 17. The map painted every needs_data place gray, including places with plenty of calls near the
+      goal (ZIP 10025: 318 red calls, 91.8% on time). One rule (mapTier) now colours Critical / Watch / Near goal / Stable /
+      gray (under 30 valid calls), used by the map, legend, borough list and metrics card; a Status / Late % switch adds a
+      late-share ramp with sparse areas faded. Display only: queue labels, badges, statistics and API unchanged.
+    definition_of_done: >
+      npm test passes for the map groups and legend; vite build succeeds; the page shows the groups and the switch in a
+      browser; README, SPEC, plan and frontend README describe the rule.
+    result: "mapTier with 5 groups and a Late % view; Manhattan ZIPs 68 gray of 69 -> 30 gray; counties Watch 37, Near goal 6, Stable 18, gray 1; vitest 89 passed (7 pre-existing failures from the H-15 UI rewrite); vite build ok; checked in a browser."
+
+  - id: H-18
+    title: Raise the synthetic call rate to 0.09 per person per year (about 60% of the US rate) within the 25 MB limit
+    points: "datasets (5) and valid QC analysis (25) - more calls per area, closer to real volume"
+    status: done
+    owner: "claude + Powerpuff Girls"
+    started_at: "2026-10-17 17:30"
+    owns: ["data/", "config/", "app/data.py", "tests/", "app/frontend/src/fixtures/", "app/frontend/src/*.test.js", "README.md", "SPEC.md", "docs/", "app/README.md", "app/frontend/docs/", "CONTRACT.yaml"]
+    notes: >
+      User decision Oct 17. base_rate_per_person_per_year 0.04 -> 0.09 (2.25x; no other generator parameter changed, so the
+      planted stories and effect sizes are the same). Estimated file size about 22.5 MB each, under the 25 MB limit; if a
+      file reaches 25 MB the limit is not raised without asking. Every measured number is re-run.
+    definition_of_done: >
+      validate.py plain, --reproduce and --messy print 0 FAIL; every data file under 25 MB; pytest passes; vite build
+      succeeds; every number in the docs matches a re-measured value.
+    result: "Rate 0.09 (about 60% of the US rate): baseline 1,818,312 rows, files about 22 MB each (under 25 MB). validate 71 PASS, --reproduce 75 PASS, --messy 14 PASS; pytest 181 passed; vitest 89 passed (7 pre-existing H-15 UI failures); vite build ok. 11368 Act now (72.2% of 407); Monroe Jul-Aug Act now (10 weekly signals); x1.15 and x1.25 closures detected, drift not; clean-file false alarms 3 of 186 county-windows; map counties Watch 40, Near goal 3, Stable 19, gray 0; ZIPs gray 1,019 of 1,826. Docs updated."

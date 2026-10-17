@@ -26,7 +26,7 @@ default because it is circular for the specification check (every area's on-time
 90% by construction and nearly every place reads "inconclusive").
 
 Reference columns (written in every mode, for context only):
-  1. Read data/incidents_baseline.csv.gz.
+  1. Read data/incidents_baseline.csv.xz.
   2. Keep timed RED calls (urgency codes 0-2): not CANCELLED, t_onscene present, valid_time = Y,
      times in order, received 2025-10-16 to 2026-04-15 inclusive (America/New_York dates).
   3. Join each call's ZCTA to its area type (data/lookup/zcta_county.csv, column urban_rural).
@@ -59,7 +59,7 @@ def round_up_10(x):
 
 def reference_calls():
     """Timed red calls in the reference period, with total_s and urban_rural."""
-    df = pd.read_csv(ROOT / "data" / "incidents_baseline.csv.gz", dtype={"zcta": str},
+    df = pd.read_csv(ROOT / "data" / "incidents_baseline.csv.xz", dtype={"zcta": str},
                      keep_default_na=False, na_values=[""])
     df = df[df["urgency_code"].isin(RED_CODES)].copy()
     for c in ["t_received", "t_assigned", "t_enroute", "t_onscene"]:

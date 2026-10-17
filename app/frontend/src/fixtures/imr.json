@@ -14,21 +14,22 @@
   "baseline_to": "2026-06-30",
   "baseline_days": 60
  },
- "cl_min": 5.18,
- "ucl_min": 16.92,
+ "cl_min": 5.22,
+ "ucl_min": 17.21,
  "lcl_min": 1.58,
- "mr_ucl": 1.4551117264700737,
+ "mr_ucl": 1.4658886795671209,
  "points": [],
- "n_beyond": 44,
+ "n_beyond": 134,
  "assumptions": {
-  "n": 870,
-  "skew": 0.524,
-  "lag1": 0.063
+  "n": 3686,
+  "skew": 0.627,
+  "lag1": 0.095
  },
- "before_median_min": 4.92,
- "after_median_min": 6.42,
+ "before_median_min": 5.02,
+ "after_median_min": 6.25,
  "messages": [
   "FIXTURE DATA: a saved, trimmed API reply for building and testing the page. Not live.",
+  "calls are not independent in time (lag-1 autocorrelation 0.09): I-chart limits may be misleading",
   "secondary chart: only test 1 (a call beyond 3 sigma on the log scale) is marked; other Nelson rules are not used because their false-alarm rate was not validated"
  ]
 }

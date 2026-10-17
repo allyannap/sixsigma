@@ -15,18 +15,18 @@
   "baseline_days": 60
  },
  "now": {
-  "dispatch_s": 86.0,
-  "turnout_s": 50.0,
+  "dispatch_s": 83.0,
+  "turnout_s": 51.0,
   "drive_s": 194.0,
-  "held_pct": 28.4,
-  "n": 1163
+  "held_pct": 26.5,
+  "n": 5285
  },
  "base": {
   "dispatch_s": 42.0,
   "turnout_s": 50.0,
-  "drive_s": 193.0,
-  "held_pct": 2.0,
-  "n": 870
+  "drive_s": 195.0,
+  "held_pct": 1.7,
+  "n": 3686
  },
  "messages": [
   "FIXTURE DATA: a saved, trimmed API reply for building and testing the page. Not live."

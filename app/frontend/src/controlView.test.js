@@ -12,7 +12,7 @@ it('leads with the confirmed finding and pairs the chart with one selectable per
   expect(html).toContain('simple-split control-split')
   expect(html).toContain('Selected period details')
   expect(html).toContain('Review calls')
-  expect(html).toContain('Baseline: 5.6%')
+  expect(html).toContain('Baseline: 6.3%')
   expect(html).toContain('Upper control limit')
   expect(html).toContain('Calls missing target (%)')
   expect(html).not.toContain('>UCL<')
@@ -65,7 +65,8 @@ it('keeps the percent axis at or below 100 and handles a lone point or empty sel
 })
 
 it('explains upper-limit crossings visibly without treating every crossing as a confirmed signal', () => {
-  const points = pchart.points.map((pt) => ({ ...pt, signal: false }))
+  // the selected card opens on the last period: put that one above its limit (the fixture's last, partial week is within limits)
+  const points = pchart.points.map((pt, i, all) => ({ ...pt, signal: false, ...(i === all.length - 1 ? { p: Math.min(1, pt.ucl + 0.05) } : {}) }))
   const html = render({ ...pchart, points, signals: [], control: 'in_control', watch: false })
   expect(html).not.toContain('How to read this chart')
   expect(html).toContain('class="control-limit-label">Upper control limit')

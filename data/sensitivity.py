@@ -2,7 +2,7 @@
 
 Run from the repo root:   python data/sensitivity.py        (about 1 minute)
 
-Table 1, FALSE ALARMS. The clean file (data/incidents_baseline.csv.gz) has no planted change, so every county or
+Table 1, FALSE ALARMS. The clean file (data/incidents_baseline.csv.xz) has no planted change, so every county or
 state window the rule calls "out of control" is a false alarm. A window is a selection [from, to]; its baseline is
 the 60 days before it (stretched to 120), exactly as the dashboard does it. A window needs a full 60-day baseline
 inside the file, so a year of data holds only three non-overlapping 90-day windows and one 180-day window.

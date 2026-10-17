@@ -16,148 +16,147 @@
  },
  "grand_mean_min": 5.43,
  "reference": "call-weighted mean of the places",
- "h": 3.3419,
- "k": 60,
- "N": 24547,
- "F": 136.237,
- "df1": 59,
- "df2": 24487,
+ "h": 3.3507,
+ "k": 62,
+ "N": 112602,
+ "F": 619.437,
+ "df1": 61,
+ "df2": 112540,
  "places": [
   {
    "id": "36001",
    "name": "Albany",
-   "n": 340,
-   "mean_min": 5.39,
+   "n": 1726,
+   "mean_min": 5.22,
    "ci_min": [
-    5.17,
-    5.62
+    5.13,
+    5.32
    ],
-   "lower_min": 5.05,
-   "upper_min": 5.83,
-   "verdict": "inside"
+   "lower_min": 5.26,
+   "upper_min": 5.6,
+   "verdict": "faster"
   },
   {
    "id": "36003",
    "name": "Allegany",
-   "n": 44,
-   "mean_min": 8.74,
+   "n": 259,
+   "mean_min": 10.15,
    "ci_min": [
-    7.77,
-    9.83
+    9.67,
+    10.65
    ],
-   "lower_min": 4.44,
-   "upper_min": 6.63,
+   "lower_min": 5.0,
+   "upper_min": 5.9,
    "verdict": "slower"
   },
   {
    "id": "36005",
    "name": "Bronx",
-   "n": 1826,
-   "mean_min": 4.67,
+   "n": 8158,
+   "mean_min": 4.73,
    "ci_min": [
-    4.58,
-    4.75
+    4.69,
+    4.77
    ],
-   "lower_min": 5.26,
-   "upper_min": 5.59,
+   "lower_min": 5.35,
+   "upper_min": 5.51,
    "verdict": "faster"
   },
   {
    "id": "36007",
    "name": "Broome",
-   "n": 247,
-   "mean_min": 6.06,
+   "n": 1094,
+   "mean_min": 6.18,
    "ci_min": [
-    5.77,
-    6.37
+    6.04,
+    6.33
    ],
-   "lower_min": 4.99,
-   "upper_min": 5.9,
+   "lower_min": 5.21,
+   "upper_min": 5.65,
    "verdict": "slower"
   },
   {
    "id": "36009",
    "name": "Cattaraugus",
-   "n": 99,
-   "mean_min": 9.83,
+   "n": 421,
+   "mean_min": 10.1,
    "ci_min": [
-    9.09,
-    10.64
+    9.72,
+    10.49
    ],
-   "lower_min": 4.75,
-   "upper_min": 6.2,
+   "lower_min": 5.09,
+   "upper_min": 5.79,
    "verdict": "slower"
   },
   {
    "id": "36011",
    "name": "Cayuga",
-   "n": 81,
-   "mean_min": 8.52,
+   "n": 416,
+   "mean_min": 9.05,
    "ci_min": [
-    7.81,
-    9.3
+    8.71,
+    9.4
    ],
-   "lower_min": 4.68,
-   "upper_min": 6.29,
+   "lower_min": 5.09,
+   "upper_min": 5.79,
    "verdict": "slower"
   },
   {
    "id": "36013",
    "name": "Chautauqua",
-   "n": 149,
-   "mean_min": 8.81,
+   "n": 710,
+   "mean_min": 8.87,
    "ci_min": [
-    8.26,
-    9.39
+    8.61,
+    9.13
    ],
-   "lower_min": 4.87,
-   "upper_min": 6.05,
+   "lower_min": 5.16,
+   "upper_min": 5.7,
    "verdict": "slower"
   },
   {
    "id": "36015",
    "name": "Chemung",
-   "n": 88,
-   "mean_min": 7.33,
+   "n": 454,
+   "mean_min": 7.4,
    "ci_min": [
-    6.75,
-    7.97
+    7.13,
+    7.67
    ],
-   "lower_min": 4.71,
-   "upper_min": 6.25,
+   "lower_min": 5.1,
+   "upper_min": 5.78,
    "verdict": "slower"
   },
   {
    "id": "36017",
    "name": "Chenango",
-   "n": 56,
-   "mean_min": 12.72,
+   "n": 229,
+   "mean_min": 9.92,
    "ci_min": [
-    11.45,
-    14.12
+    9.42,
+    10.45
    ],
-   "lower_min": 4.54,
-   "upper_min": 6.48,
+   "lower_min": 4.97,
+   "upper_min": 5.93,
    "verdict": "slower"
   },
   {
    "id": "36019",
    "name": "Clinton",
-   "n": 89,
-   "mean_min": 8.71,
+   "n": 463,
+   "mean_min": 8.75,
    "ci_min": [
-    8.02,
-    9.46
+    8.43,
+    9.07
    ],
-   "lower_min": 4.71,
-   "upper_min": 6.25,
+   "lower_min": 5.1,
+   "upper_min": 5.77,
    "verdict": "slower"
   }
  ],
  "messages": [
   "FIXTURE DATA: a saved, trimmed API reply for building and testing the page. Not live.",
   "compared with the call-weighted average of these places; differences can reflect geography (urban vs rural), not chance",
-  "descriptive comparison within one urgency group; not adjusted for time of day, traffic, call mix or resources, so it is not evidence of unfair service",
-  "2 place(s) with under 30 valid calls left out of ANOM"
+  "descriptive comparison within one urgency group; not adjusted for time of day, traffic, call mix or resources, so it is not evidence of unfair service"
  ]
 }

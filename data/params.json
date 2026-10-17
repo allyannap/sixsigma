@@ -1,15 +1,15 @@
 {
-  "_comment": "Every generator parameter. SYNTHETIC data. Volume is about 0.0198 calls per person per year, roughly one-eighth of a typical US EMS rate (~0.15) so the files stay small. H-13 (Oct 16) added day_effect, lateness_seasonality, hour_of_day, congestion and messy_sample, and moved the surge extra calls to their own random stream.",
+  "_comment": "Every generator parameter. SYNTHETIC data. Volume is about 0.09 calls per person per year (H-18, Oct 17: 2.25x the 0.04 of H-15/H-16, which was 2x the earlier 0.0198). 0.09 is about 60% of a real US EMS rate of ~0.15, so each xz file is about 22 MB, under the 25 MB limit. H-13 (Oct 16) added day_effect, lateness_seasonality, hour_of_day, congestion and messy_sample, and moved the surge extra calls to their own random stream.",
   "seed": 20261016,
   "date_start": "2025-10-16",
   "date_end": "2026-10-15",
   "timezone": "America/New_York",
-  "base_rate_per_person_per_year": 0.0198,
+  "base_rate_per_person_per_year": 0.09,
   "month_factors_jan_to_dec": [0.92, 0.90, 0.94, 0.96, 1.00, 1.10, 1.15, 1.13, 1.00, 0.97, 0.95, 0.98],
   "month_factors_normalized_to_mean_1": true,
   "dow_factors_mon_to_sun": [0.98, 0.97, 0.97, 0.98, 1.03, 1.05, 1.02],
   "urgency_code_probs_0_to_9": [0.04, 0.12, 0.18, 0.12, 0.15, 0.13, 0.10, 0.08, 0.05, 0.03],
-  "tuning_note": "Medians tuned from the starting values (red dispatch 55, turnout 65, eta urban 240 / suburban 330 / rural 780) so the baseline red % late lands in the validate.py bands: urban 5-10, suburban 6-10, rural over 30. Sigmas were not changed.",
+  "tuning_note": "Medians tuned from the starting values (red dispatch 55, turnout 65, eta urban 240 / suburban 330 / rural 780) so the baseline red % late lands in the validate.py bands: urban 5-10, suburban 6-10, rural over 30. Sigmas were not changed. H-16 (Oct 17) doubled only base_rate_per_person_per_year (0.0198 to 0.04) and H-18 (Oct 17) raised it to 0.09; no other parameter was changed, so the planted stories and effect sizes are the same.",
   "dispatch_median_s": {"red": 40, "yellow": 90, "green": 180},
   "dispatch_sigma": 0.5,
   "turnout_median_s": 50,
@@ -50,7 +50,7 @@
     "max_factor": 4
   },
   "messy_sample": {
-    "note": "H-13. data/incidents_messy_sample.csv.gz is built from baseline rows of ONE county and ONE month, then problems are injected into disjoint rows. These counts ARE the injection log: validate.py --messy detects each problem type and must find exactly these numbers. The three main files contain none of this.",
+    "note": "H-13. data/incidents_messy_sample.csv.xz is built from baseline rows of ONE county and ONE month, then problems are injected into disjoint rows. These counts ARE the injection log: validate.py --messy detects each problem type and must find exactly these numbers. The three main files contain none of this.",
     "county_fips": "36103",
     "county_name": "Suffolk",
     "month": "2026-07",

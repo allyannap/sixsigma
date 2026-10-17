@@ -28,7 +28,7 @@ def test_health_lists_three_datasets_with_row_counts_and_the_synthetic_source():
     body = get("/api/health")
     assert body["status"] == "ok" and "Synthetic" in body["source"]
     assert body["datasets"] == ["baseline", "station_closure", "summer_surge"]
-    assert body["rows"] == {"baseline": 399426, "station_closure": 399426, "summer_surge": 400275}
+    assert body["rows"] == {"baseline": 1818312, "station_closure": 1818312, "summer_surge": 1822235}
     for name in body["datasets"]:                      # nothing dropped on loading; untimed calls are counted by reason
         q = body["quality"][name]
         assert q["dropped_total"] == 0 and q["rows_kept"] == body["rows"][name]
@@ -173,18 +173,18 @@ def test_at5_replay_is_read_only_and_labelled_synthetic():
 def test_at5_replay_with_a_fixed_start_turns_the_closure_zip_red_as_september_arrives():
     """The page's replay keeps `from` (and so the baseline) fixed at Aug 25 and moves `to` one day per tick.
 
-    Measured Oct 17 with the H-13 data: in control through Sep 2; Sep 3 is a ONE-DAY out-of-control blip (a lone strong
-    signal from a small month), back in control Sep 4 to Sep 18; out of control from Sep 19 to the last day, Oct 15.
+    Measured Oct 17 with the H-18 data (0.09 calls per person per year): in control through Sep 3 (a watch chip on
+    Sep 3), out of control from Sep 4 to the last day, Oct 15, Act now from Sep 8 (the H-16 file: from Sep 3).
     """
     def at(day):
         return get(f"/api/summary?dataset=station_closure&from=2026-08-25&to={day}&level=zcta&id=11368")["places"][0]
     before, after = at("2026-09-10"), at("2026-09-20")
     assert before["baseline"]["from"] == after["baseline"]["from"] == "2026-06-26"
-    assert before["control"] == "in_control" and before["queue"] == "needs_data"
+    assert before["control"] == "out_of_control" and before["queue"] == "act_now"
     assert after["control"] == "out_of_control" and after["queue"] == "act_now"
-    for day in ("2026-08-25", "2026-09-02", "2026-09-04", "2026-09-18"):
+    for day in ("2026-08-25", "2026-09-02", "2026-09-03"):
         assert at(day)["control"] == "in_control", day
-    for day in ("2026-09-19", "2026-10-01", "2026-10-15"):
+    for day in ("2026-09-04", "2026-09-05", "2026-09-18", "2026-09-19", "2026-10-01", "2026-10-15"):
         assert at(day)["control"] == "out_of_control", day
 
 
@@ -221,8 +221,8 @@ def test_at9_closure_zip_is_act_now_from_september():
     place = get(f"/api/summary?{CLOSURE}&level=zcta&id=11368")["places"][0]
     assert place["spec"] == "below" and place["control"] == "out_of_control" and place["queue"] == "act_now"
     assert place["signals"][0]["start"] == "2026-09-01"
-    # measured Oct 17: 68 valid calls, 69.1% on time (95% CI 57.4-78.8), September and October both signal
-    assert (place["valid"], place["on_time_pct"]) == (68, 69.1) and len(place["signals"]) == 2
+    # measured Oct 17 (H-18 data): 407 valid calls, 72.2% on time (95% CI 67.7-76.4), September and October both signal
+    assert (place["valid"], place["on_time_pct"]) == (407, 72.2) and len(place["signals"]) == 2
     assert place["watch"] is False and place["excess_late"] > 0
 
 
@@ -236,7 +236,9 @@ def test_at9_surge_county_is_flagged_in_july_august_only():
     assert jul["control"] == "out_of_control" and jul["queue"] == "act_now"
     sep = next(p for p in get("/api/summary?dataset=summer_surge&from=2026-09-01&to=2026-10-15")["places"]
                if p["id"] == "36055")
-    assert sep["control"] == "in_control"
+    # measured Oct 17 (H-18 data): not flagged, but the 60-day baseline (Jul 3 to Aug 31) holds the surge and is
+    # overdispersed (chi-square / df = 2.10), so there are no limits: "insufficient baseline", not "in control".
+    assert sep["control"] == "insufficient_baseline" and sep["queue"] == "needs_data" and sep["spec"] == "meets"
     clean = next(p for p in get("/api/summary?dataset=baseline&from=2026-07-01&to=2026-08-31")["places"]
                  if p["id"] == "36055")
     assert clean["control"] == "in_control"
@@ -249,8 +251,9 @@ def test_at9_false_alarms_on_the_clean_file_are_counted_and_rare():
     for frm, to in windows:
         places = get(f"/api/summary?dataset=baseline&from={frm}&to={to}")["places"]
         alarms += sum(p["control"] == "out_of_control" for p in places)
-    # measured Oct 17 with the H-13 data and rules: 0 + 0 + 1 = 1 of 186 county-windows (0.5%); fail above 10%.
-    # (data/sensitivity.py measures more windows: 0 of 186 for red 90-day windows, 1 of 186 for yellow.)
+    # measured Oct 17 with the H-18 data (0.09 calls per person per year) and the H-13 rules: Erie 1 + Orange 1 + Greene 1
+    # = 3 of 186 county-windows (1.6%); fail above 10%. (data/sensitivity.py: 2 of 186 for the red 90-day windows ending
+    # Oct 15, 3 of 186 for yellow.)
     assert alarms <= 0.10 * 62 * len(windows)
 
 
@@ -356,7 +359,8 @@ def test_summary_chance_below_matches_qc_on_the_same_places():
     want = qc.chance_below([p["valid"] for p in body["places"]], body["totals"]["goal_pct"])
     assert cb["expected"] == pytest.approx(want["expected"], abs=0.006) and cb["n_places"] == want["n_places"]
     assert cb["observed_below"] == sum(p["spec"] == "below" for p in body["places"])
-    # measured Oct 17: ~1.7 of 60 counties expected below by chance alone if every county truly met the goal
+    # measured Oct 17 (H-18 data): ~1.75 of 62 counties expected below by chance alone if every county truly met the goal
+    # (39 are Below: the rural gaps are conclusive)
     assert 1.0 < cb["expected"] < 3.0
 
 
@@ -376,7 +380,7 @@ def test_percentile_bounds_may_be_null_when_there_are_too_few_calls():
 
 # ---------------------------------------------------------------- H-13: statewide flagged list
 
-def test_flagged_lists_the_closure_zip_statewide_and_nothing_on_the_clean_file():
+def test_flagged_lists_the_closure_zip_statewide_and_almost_nothing_on_the_clean_file():
     body = get(f"/api/flagged?dataset=station_closure&{LAST_90}")
     assert body["scope"] == "statewide" and body["n_flagged"] == len(body["flagged"])
     hit = next(h for h in body["flagged"] if h["id"] == "11368")
@@ -389,16 +393,19 @@ def test_flagged_lists_the_closure_zip_statewide_and_nothing_on_the_clean_file()
     other = get(f"/api/flagged?dataset=station_closure&{LAST_90}&level=county&id=36055")
     assert [h["id"] for h in other["flagged"]] == [h["id"] for h in body["flagged"]]
     clean = get(f"/api/flagged?dataset=baseline&{LAST_90}")
-    assert clean["flagged"] == [] and clean["n_checked"] > 300      # measured Oct 17: 367 ZIPs with 30+ red calls, none flagged
+    # measured Oct 17 (H-18 data): 807 ZIPs with 30+ red calls, ONE flagged (11212, Kings, Recent change: a false alarm,
+    # 0.12%); the closure file has that ZIP too, plus 11368. So the clean file may flag a few ZIPs by chance, never 11368.
+    assert clean["n_checked"] > 300 and len(clean["flagged"]) <= 0.01 * clean["n_checked"]
+    assert "11368" not in [h["id"] for h in clean["flagged"]]
 
 
 def test_flagged_chance_below_is_counted_over_the_zips_checked():
     body = get(f"/api/flagged?{LAST_90}")
     cb = body["chance_below"]
     assert cb["n_places"] == body["n_checked"] and cb["expected"] > 0
-    # measured Oct 17: 367 ZIPs, ~12.6 expected below by chance if every ZIP truly met the goal; fewer are, because
-    # the ordinary ZIPs are well above the goal
-    assert cb["observed_below"] <= cb["expected"] + 20
+    # measured Oct 17 (H-18 data): 807 ZIPs, ~25.6 expected below by chance if every ZIP truly met the goal; 94 are
+    # Below (the rural and remote ZIPs, by design), 11.6% of the ZIPs checked
+    assert cb["observed_below"] <= 0.15 * cb["n_places"]
 
 
 def test_flagged_is_read_only_and_fast_enough():
@@ -415,7 +422,7 @@ def test_stages_gives_plain_medians_for_the_period_beside_the_baseline():
     body = get(f"/api/stages?{CLOSURE}&level=zcta&id=11368")
     now, base = body["now"], body["base"]
     assert set(now) == {"dispatch_s", "turnout_s", "drive_s", "held_pct", "n"} == set(base)
-    assert now["n"] == 68 and base["n"] > 100
+    assert now["n"] == 407 and base["n"] > 100
     assert now["drive_s"] > 1.5 * base["drive_s"]                    # the planted 60% longer drives
     assert abs(now["dispatch_s"] - base["dispatch_s"]) < 30         # dispatch is untouched
     assert "excess" not in str(body).lower() and "cause" not in str(body).lower()
@@ -440,7 +447,7 @@ def test_signal_calls_are_the_timed_calls_of_the_period_newest_first():
 
 def test_signal_calls_defaults_and_errors():
     whole = get(f"/api/signal_calls?{CLOSURE}&level=zcta&id=11368&limit=500")
-    assert (whole["start"], whole["end"]) == ("2026-09-01", "2026-10-15") and whole["returned"] == whole["valid"] == 68
+    assert (whole["start"], whole["end"]) == ("2026-09-01", "2026-10-15") and whole["returned"] == whole["valid"] == 407
     assert client.get("/api/signal_calls?start=2026-09-10&end=2026-09-01").status_code == 400
     assert client.get("/api/signal_calls?start=yesterday").status_code == 400
     assert client.get("/api/signal_calls?limit=0").status_code == 422
