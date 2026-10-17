@@ -1,8 +1,7 @@
 # Plan: EMS Response Monitor (Powerpuff Girls)
 
 User: a New York State EMS dispatch center's quality supervisor. Question: which state / county / ZIP areas need
-review, are they below the service goal, showing a new statistical change, or both, and which recorded response stage
-deserves investigation. Read-only, synthetic data, simulated replay. Deadline: Sat Oct 17, 1 PM ET.
+review, and are they below the service goal, showing a new statistical change, or both. Read-only, synthetic data, simulated replay. Deadline: Sat Oct 17, 1 PM ET.
 Requirements: [`EMS_RESPONSE_MONITOR_DECISIONS.md`](../EMS_RESPONSE_MONITOR_DECISIONS.md). Formulas and known
 answers: SPEC.md section 4. Function signatures and endpoint JSON: docs/api.md. Roles: docs/roles.md.
 
@@ -16,9 +15,10 @@ Status words: **implemented** (code exists), **tested** (known-answer and degene
 | b | On-time metrics, Wilson intervals | `qc.on_time`, `qc.wilson_ci` | implemented, tested |
 | c | p chart, control status, queue label | `qc.p_chart`, `qc.control_status`, `qc.dispersion_check`, `qc.queue_label` | implemented, tested; false alarms measured 2.7% |
 | d | Map drill-down and filters | `/api/summary`, `MapSection.jsx` | implemented, tested (API + render tests), checked in a browser |
-| e | What Held Up the Call | `qc.stage_excess`, `/api/delays`, `DelaySection.jsx` | implemented, tested |
+| e | What Held Up the Call | – | **removed** Oct 16 (team decision: too much, out of scope) |
 | f | Read-only replay (fixed start and baseline, growing end) | `/api/replay`, `ReplayBar.jsx` | implemented, tested, checked in a browser |
-| g | Secondary: ANOM, I-MR, travel comparison | `qc.anom`, `qc.imr`, `qc.travel_vs_estimate` | implemented, tested; ANOM single urgency only; I-MR test 1 only |
+| g | Secondary: ANOM, I-MR | `qc.anom`, `qc.imr` | implemented, tested; ANOM single urgency only; I-MR test 1 only |
+| – | Travel-time comparison (ambulance vs Google) | – | **removed** Oct 16 with step e |
 | – | Investigation list | `InvestigationSection.jsx` | implemented, render-tested |
 | – | Deploy to Posit Connect (H-06) | `.github/workflows/` | planned (needs the publisher key) |
 | – | Demo walkthrough (`demo/README.md`, H-05) | `demo/` | planned; README section 6 has the walkthrough for now |
@@ -29,8 +29,8 @@ Status words: **implemented** (code exists), **tested** (known-answer and degene
 
 ## Tests (one command each)
 
-- `.venv/bin/python -m pytest tests -q`: 130 tests (stats known answers and degenerates; data rules; API acceptance tests AT-1 to AT-10).
-- `cd app/frontend && npm test`: 28 tests (formatting, status rules, every section renders with the brief's wording).
+- `.venv/bin/python -m pytest tests -q`: 122 tests (stats known answers and degenerates; data rules; API acceptance tests AT-1 to AT-10).
+- `cd app/frontend && npm test`: 26 tests (formatting, status rules, every section renders with the brief's wording).
 - `.venv/bin/python data/validate.py --reproduce`: 55 data checks including identical rebuilds from the seed.
 
 ## Decisions
@@ -46,6 +46,10 @@ Status words: **implemented** (code exists), **tested** (known-answer and degene
   data**, sorted first. Synthetic drives get 1% slow outliers (drawn last, so other draws are unchanged).
 - Oct 16 (after browser testing): **replay keeps the period start and baseline fixed** and grows the end date; a rolling
   window hid both planted stories. Default replay start: From date, else Aug 25 (Jun 25 for summer_surge). Tested (AT-5).
+- Oct 16 (team, after reviewing the dashboard): **remove "What Held Up the Call" and the travel-time comparison**
+  everywhere (page, `/api/delays`, `/api/google`, `qc.stage_excess`, `qc.travel_vs_estimate`, tests): too much for this
+  version and out of the core scope. Overrides the brief's issues 4 and 7. The investigation list keeps its target and
+  control evidence; its stage and topics columns went with the card.
 - The superseded Z-test "changed recently", Cpk-based status, fault tree and what-if were removed from `app/qc.py`.
 
 ## Risks and open items
@@ -55,5 +59,5 @@ Status words: **implemented** (code exists), **tested** (known-answer and degene
 2. **False alarms** of the control rule are about 2.7% per county per 90-day window; more with daily subgroups at the
    state level. Measured, tested (fails above 10%), and stated on the page as "signals to check".
 3. **Seasonality and case mix** are not modelled; the 60-day baseline right before the period limits drift. Dispersion is checked.
-4. **Open dependencies:** `t_received` semantics, authoritative targets, travel-estimate provenance, scope (brief issue 12).
+4. **Open dependencies:** `t_received` semantics, authoritative targets, scope (brief issue 12).
 5. **Deploy** not done yet; keep the bundle small (gzipped data, simplified shapes).

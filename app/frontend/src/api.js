@@ -6,8 +6,6 @@ import summaryCounty from './fixtures/summary_county.json'
 import anom from './fixtures/anom.json'
 import pchart from './fixtures/pchart.json'
 import imr from './fixtures/imr.json'
-import delays from './fixtures/delays.json'
-import google from './fixtures/google.json'
 import replay from './fixtures/replay.json'
 import meta from './fixtures/meta.json'
 import geoCounties from './fixtures/geo_counties.json'
@@ -50,7 +48,7 @@ export async function errorMessage(res) {
   return `${detail || res.statusText || 'Request failed'} (HTTP ${res.status})`
 }
 
-const FIXTURES = { anom, pchart, imr, delays, google, replay, meta }
+const FIXTURES = { anom, pchart, imr, replay, meta }
 
 function fixtureFor(endpoint, params) {
   if (endpoint === 'summary') return params.level === 'county' ? summaryCounty : summaryState

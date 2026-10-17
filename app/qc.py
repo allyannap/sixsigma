@@ -30,7 +30,6 @@ Z95 = 1.645            # one-sided 95% normal quantile used in the Cpk bound
 Z95_TWO_SIDED = NormalDist().inv_cdf(0.975)   # 1.959964, the Wilson interval's z
 VAR_RATIO = 1.64       # variance of MR-bar sigma relative to s (Bissell correction)
 DAYS_PER_UNIT = {"day": 1.0, "week": 7.0, "month": 30.4375}
-STAGES = ("dispatch_s", "turnout_s", "drive_s")   # received -> assigned -> en route -> on scene
 
 
 def _floats(values):
@@ -480,103 +479,7 @@ def queue_label(spec, control):
     return "meets_stable" if spec == "meets" else "needs_data"
 
 
-# ================================================================ 9. What Held Up the Call: stage excess
-
-def _col(calls, key):
-    return np.array([np.nan if c.get(key) is None else c.get(key) for c in calls], dtype=float)
-
-
-def stage_excess(late_calls, base_calls):
-    """Recorded time per response stage for late calls, against the baseline's stage medians.
-
-    Stages: dispatch_s (received -> assigned), turnout_s (assigned -> en route), drive_s (en route -> on scene).
-    For each late call, excess_k = stage_k - baseline median_k (seconds); its largest positive excess names the
-    stage to review ("none" when no stage is above its median). Averages add up exactly:
-        mean total of late calls - sum of baseline stage medians = sum over stages of mean excess,
-    because each call's total is the sum of its three stages. This measures where recorded time went;
-    it does not prove a cause.
-    `held` is counted only where the calls carry it (None when no call has the field).
-    """
-    late_calls, base_calls = list(late_calls), list(base_calls)
-    out = {"n_late": len(late_calls), "base_median": {s: None for s in STAGES},
-           "late_mean": {s: None for s in STAGES}, "mean_excess": {s: None for s in STAGES},
-           "total": {"late_mean": None, "base_median_sum": None, "excess": None},
-           "counts": {**{s: 0 for s in STAGES}, "none": 0}, "per_call": [], "top_stage": None,
-           "held": None, "messages": []}
-    medians = np.full(len(STAGES), np.nan)
-    for i, s in enumerate(STAGES):
-        v = _col(base_calls, s)
-        v = v[np.isfinite(v)]
-        if len(v):
-            medians[i] = float(np.median(v))
-            out["base_median"][s] = medians[i]
-    if not np.isfinite(medians).all():
-        out["messages"].append("no baseline calls with all three stage times: excess not computed")
-    if not late_calls:
-        out["messages"].append("no late calls in the selection")
-        return out
-    if any("held" in c for c in late_calls):
-        out["held"] = int(sum(str(c.get("held")).strip().upper() in ("Y", "TRUE", "1") for c in late_calls))
-    stages = np.column_stack([_col(late_calls, s) for s in STAGES])          # shape (calls, 3)
-    complete = np.isfinite(stages).all(axis=1)
-    if not complete.all():
-        out["messages"].append(f"{int((~complete).sum())} late call(s) lack a stage time and are left out")
-    stages = stages[complete]
-    if len(stages) == 0:
-        return out
-    means = stages.mean(axis=0)
-    out["late_mean"] = {s: float(means[i]) for i, s in enumerate(STAGES)}
-    out["total"]["late_mean"] = float(stages.sum(axis=1).mean())
-    if not np.isfinite(medians).all():
-        return out
-    excess = stages - medians
-    out["mean_excess"] = {s: float(excess[:, i].mean()) for i, s in enumerate(STAGES)}
-    out["total"]["base_median_sum"] = float(medians.sum())
-    out["total"]["excess"] = out["total"]["late_mean"] - out["total"]["base_median_sum"]
-    best = excess.max(axis=1)
-    pick = excess.argmax(axis=1)
-    for i in range(len(stages)):
-        stage = STAGES[pick[i]] if best[i] > 0 else "none"
-        out["per_call"].append(stage)
-        out["counts"][stage] += 1
-    top = max(STAGES, key=lambda s: out["mean_excess"][s])
-    out["top_stage"] = top if out["mean_excess"][top] > 0 else None
-    return out
-
-
-# ================================================================ 10. travel time against the Google estimate
-
-def travel_vs_estimate(diff_s, base_diff_s, min_base=MIN_CALLS):
-    """Actual en-route-to-on-scene seconds minus the Google estimate, now against the baseline.
-
-    "Unusual travel-time difference" = a difference above the baseline's 95th percentile of differences
-    for the same place and urgency, so about 5% of calls are unusual when nothing changed.
-    A positive difference (slower than the estimate) is an investigation clue, not a failure.
-    """
-    d, b = _floats(diff_s), _floats(base_diff_s)
-    d, b = d[np.isfinite(d)], b[np.isfinite(b)]
-    out = {"n": int(len(d)), "median_s": None, "pct_slower": None, "pct_faster": None,
-           "base_n": int(len(b)), "base_median_s": None, "threshold_s": None,
-           "n_unusual": None, "pct_unusual": None, "messages": []}
-    if len(d):
-        out["median_s"] = float(np.median(d))
-        out["pct_slower"] = 100.0 * float((d > 0).mean())
-        out["pct_faster"] = 100.0 * float((d < 0).mean())
-    else:
-        out["messages"].append("no calls with a travel-time estimate in the selection")
-    if len(b):
-        out["base_median_s"] = float(np.median(b))
-    if len(b) < min_base:
-        out["messages"].append(f"fewer than {min_base} baseline calls with an estimate: no 'unusual' threshold")
-        return out
-    out["threshold_s"] = _quantile_sorted(np.sort(b), 0.95)
-    if len(d):
-        out["n_unusual"] = int((d > out["threshold_s"]).sum())
-        out["pct_unusual"] = 100.0 * out["n_unusual"] / len(d)
-    return out
-
-
-# ================================================================ 11. assumption checks for the I chart
+# ================================================================ 9. assumption checks for the I chart
 
 def assumption_checks(x):
     """Skewness and lag-1 autocorrelation of a series (I-chart assumptions: symmetric, independent).

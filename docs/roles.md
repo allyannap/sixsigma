@@ -15,7 +15,7 @@ signatures (Stats ↔ Data) and the JSON each endpoint returns (Data ↔ UI). Ch
 ```mermaid
 flowchart LR
   d["data/*.csv.gz<br>config/targets.csv<br>data/lookup/"] --> dl["app/data.py (Data)<br>load · derive · filter · baseline"]
-  dl --> qc["app/qc.py (Stats)<br>on-time + Wilson CI · p chart + control<br>queue label · P95 · stage excess<br>secondary: I-MR · Cpk · ANOM"]
+  dl --> qc["app/qc.py (Stats)<br>on-time + Wilson CI · p chart + control<br>queue label · median · P95<br>secondary: I-MR · Cpk · ANOM"]
   qc --> api["app/main.py (Data)<br>/api/* endpoints"]
   api --> ui["app/frontend (UI)<br>React page, built to dist/"]
   geo["geo/*.geojson (UI)"] --> ui

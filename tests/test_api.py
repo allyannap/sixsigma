@@ -155,31 +155,15 @@ def test_at5_there_is_no_incident_entry_route():
     assert write_routes == []
 
 
-# ---------------------------------------------------------------- AT-6 What Held Up the Call
+# ---------------------------------------------------------------- AT-6 / AT-7 removed by team decision
 
-def test_at6_delays_interval_arithmetic_and_noncausal_wording():
-    body = get(f"/api/delays?{SURGE}&level=county&id=36055")
-    total = body["total"]
-    assert abs(total["late_mean"] - total["base_median_sum"] - total["excess"]) <= 1
-    assert abs(sum(body["mean_excess"].values()) - total["excess"]) <= 2      # each rounded to 1 s
-    assert sum(body["counts"].values()) == body["late_calls"]
-    assert body["top_stage"] == "dispatch_s" and body["held"] > 0
-    w = body["worst_call"]
-    assert w["dispatch_s"] + w["turnout_s"] + w["drive_s"] == w["total_s"]
-    assert any("not proven causes" in m for m in body["messages"])
-
-
-# ---------------------------------------------------------------- AT-7 Google comparison
-
-def test_at7_google_comparison_is_optional_comparable_and_two_sided():
-    body = get(f"/api/google?{CLOSURE}&level=zcta&id=11368")
-    assert body["available"] and "generated" in body["provenance"]
-    d = body["diff"]
-    assert d["pct_slower"] > 0 and d["pct_faster"] > 0                       # ambulance faster AND slower
-    assert d["threshold_s"] is not None and d["n_unusual"] >= 0
-    assert len(body["hist"]["now"]) == len(body["hist"]["edges_s"]) - 1
-    empty = get("/api/google?level=zcta&id=06390&from=2026-10-15&to=2026-10-15")
-    assert empty["available"] is False and empty["diff"] is None
+def test_at6_at7_stage_and_travel_routes_are_gone():
+    """'What Held Up the Call' and the travel-time comparison were removed (team decision, Oct 16)."""
+    for route in ("/api/delays", "/api/google"):
+        assert client.get(route).status_code == 404
+    assert not hasattr(qc, "stage_excess") and not hasattr(qc, "travel_vs_estimate")
+    place = get(f"/api/summary?{LAST_90}&level=zcta&id=11368")["places"][0]
+    assert "top_stage" not in place
 
 
 # ---------------------------------------------------------------- AT-8 no what-if
@@ -195,12 +179,12 @@ def test_at8_no_whatif_route_remains():
 def test_at9_closure_zip_is_act_now_from_september():
     place = get(f"/api/summary?{CLOSURE}&level=zcta&id=11368")["places"][0]
     assert place["spec"] == "below" and place["control"] == "out_of_control" and place["queue"] == "act_now"
-    assert place["signals"][0]["start"] == "2026-09-01" and place["top_stage"] == "drive_s"
+    assert place["signals"][0]["start"] == "2026-09-01"
 
 
 def test_at9_surge_county_is_flagged_in_july_august_only():
     jul = next(p for p in get(f"/api/summary?{SURGE}")["places"] if p["id"] == "36055")
-    assert jul["control"] == "out_of_control" and jul["queue"] == "act_now" and jul["top_stage"] == "dispatch_s"
+    assert jul["control"] == "out_of_control" and jul["queue"] == "act_now"
     sep = next(p for p in get("/api/summary?dataset=summer_surge&from=2026-09-01&to=2026-10-15")["places"]
                if p["id"] == "36055")
     assert sep["control"] == "in_control"
@@ -222,8 +206,7 @@ def test_at9_false_alarms_on_the_clean_file_are_counted_and_rare():
 
 # ---------------------------------------------------------------- AT-10 synthetic disclosure on every response
 
-@pytest.mark.parametrize("route", ["/api/summary", "/api/anom", "/api/pchart", "/api/imr", "/api/delays",
-                                   "/api/google", "/api/replay"])
+@pytest.mark.parametrize("route", ["/api/summary", "/api/anom", "/api/pchart", "/api/imr", "/api/replay"])
 def test_at10_every_statistics_route_is_labelled_synthetic(route):
     body = get(f"{route}?dataset=station_closure&level=county&id=36081&{LAST_90}")
     assert body["selection"]["source"].startswith("Synthetic") and isinstance(body["messages"], list)

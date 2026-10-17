@@ -10,8 +10,8 @@ No real public EMS extract has been checked against the tool yet (planned, see "
 | File | What it is |
 |---|---|
 | `incidents_baseline.csv.gz` | 12 months (2025-10-16 to 2026-10-15), about 400,000 calls, every New York ZCTA. Normal seasonal pattern (summer peak) and no planted change. Rural and remote ZIPs have long trips, so against the flat 8-minute red target they show **persistent gaps** (Below target, in control: "Ongoing gap"). Control signals here are false alarms; they are counted, not assumed away (about 2.7% of county-windows, see "Expected signals"). |
-| `incidents_station_closure.csv.gz` | Same as baseline, except in ONE urban ZIP (`station_closure.zcta_resolved` in `params.json`: 11368, Corona, Queens, the most populous urban ZCTA) calls received on or after 2026-09-01 have `eta_google_s` x 1.6, **and the actual drive follows it** (drive = estimate x ratio), so observed response times really get longer, not only the estimate. The team first planned +25%; at that size the rules did not flag the ZIP, so it was raised to +60% on Oct 16. Expected: red late share about 8% before, 26% after; Below target and out of control from the month of Sep 1 (window Sep 1 to Oct 15). The largest extra time is in the en-route-to-scene stage. All other ZIPs are identical to baseline. |
-| `incidents_summer_surge.csv.gz` | Same as baseline, except in Monroe County (36055) for calls received 2026-07-01 to 2026-08-31: volume x 1.30, `held = Y` with probability 0.25 (baseline 0.02), `dispatch_s` x 1.6. Normal from Sep 1. Expected: more arrivals and held calls in Jul-Aug, out of control in Jul-Aug only, the largest extra time in the received-to-assigned stage. The tool does not say which intervention is best. |
+| `incidents_station_closure.csv.gz` | Same as baseline, except in ONE urban ZIP (`station_closure.zcta_resolved` in `params.json`: 11368, Corona, Queens, the most populous urban ZCTA) calls received on or after 2026-09-01 have `eta_google_s` x 1.6, **and the actual drive follows it** (drive = estimate x ratio), so observed response times really get longer, not only the estimate. The team first planned +25%; at that size the rules did not flag the ZIP, so it was raised to +60% on Oct 16. Expected: red late share about 8% before, 26% after; Below target and out of control from the month of Sep 1 (window Sep 1 to Oct 15). All other ZIPs are identical to baseline. |
+| `incidents_summer_surge.csv.gz` | Same as baseline, except in Monroe County (36055) for calls received 2026-07-01 to 2026-08-31: volume x 1.30, `held = Y` with probability 0.25 (baseline 0.02), `dispatch_s` x 1.6. Normal from Sep 1. Expected: more arrivals and held calls in Jul-Aug and longer received-to-assigned times, out of control in Jul-Aug only. The tool does not say which intervention is best. |
 | `lookup/zcta_county.csv` | One row per New York ZCTA (ZIP area). Built by `build_lookups.py`. |
 | `lookup/counties.csv` | The 62 New York counties. Built by `build_lookups.py`. |
 | `params.json` | Every generator parameter (see below). |
@@ -41,7 +41,7 @@ Real-world source: NYC "EMS Incident Dispatch Data" (NYC Open Data) field names.
 | `t_onscene` | same, **empty if cancelled** | same | `2026-10-11T22:21:44-04:00` | First ambulance arrives | `first_on_scene_datetime` |
 | `disposition` | text | none | `TRANSPORTED` | `CANCELLED`, `REFUSED`, `TREATED` or `TRANSPORTED` | `incident_disposition_code` |
 | `valid_time` | `Y`/`N` | none | `Y` | `N` means the times are not trusted (counts in volume only) | `valid_incident_rspns_time_indc` |
-| `eta_google_s` | integer, optional | seconds | `312` | Drive estimate with traffic, made at assignment. **Synthetic here** (generated); real data has no ambulance origin coordinates, so never invent it for real incidents | not in NYC data |
+| `eta_google_s` | integer, optional | seconds | `312` | Drive estimate with traffic, made at assignment. Validated, but not used by the dashboard since the travel comparison was removed (Oct 16). **Synthetic here** (generated); real data has no ambulance origin coordinates, so never invent it for real incidents | not in NYC data |
 | `held` | `Y`/`N` | none | `N` | The call waited because no ambulance was free | `held_indicator` |
 
 Always `t_received <= t_assigned <= t_enroute <= t_onscene`. The tool derives
@@ -154,9 +154,9 @@ folder and checks the content is identical (last run Oct 16: 55 PASS, 0 FAIL).
 |---|---|---|
 | baseline, statewide | 3 windows of 90 days | 5 of 186 county-windows out of control (false alarms, 2.7%); the test fails above 10% |
 | baseline, rural counties | any | Below target, in control: Ongoing gap |
-| station_closure, ZIP 11368 | 2026-09-01 to 2026-10-15 | Below target (73.5% on time, 95% CI 62.0-82.6%), out of control in the months of Sep and Oct: Act now; largest extra time en route to scene |
+| station_closure, ZIP 11368 | 2026-09-01 to 2026-10-15 | Below target (73.5% on time, 95% CI 62.0-82.6%), out of control in the months of Sep and Oct: Act now |
 | station_closure, ZIP 11368 | default 90 days | Needs more data: its May-Jul baseline has too few late calls for even a monthly subgroup (n x p-bar < 5). Honest, not tuned away |
-| summer_surge, Monroe | 2026-07-01 to 2026-08-31 | Below target, 8 weekly signals: Act now; largest extra time received to assigned; held calls common |
+| summer_surge, Monroe | 2026-07-01 to 2026-08-31 | Below target, 8 weekly signals: Act now |
 | station_closure, ZIP 11368, replay | from 2026-08-25 (fixed baseline Jun 26 to Aug 24), to Sep 10 / to Sep 20 | in control (Needs more data) / Act now |
 | summer_surge, Monroe | 2026-09-01 to 2026-10-15 | in control again (Ongoing gap: Monroe is below the flat target anyway) |
 

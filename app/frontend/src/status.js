@@ -10,7 +10,7 @@ export const QUEUE = {
     help: 'Below the on-time goal, and the late share rose above its control limit.',
     bg: '#B42318',
     fg: '#FFFFFF',
-    next: 'Check Section 2 for the dates of the signal, then Section 3 for the stage that took the extra time.',
+    next: 'Check Section 2 for the dates of the signal, then review the calls from those periods.',
   },
   ongoing_gap: {
     label: 'Ongoing gap',
@@ -18,7 +18,7 @@ export const QUEUE = {
     help: 'Below the on-time goal, but no change from its own baseline: a long-running gap.',
     bg: '#FBF1C7',
     fg: '#6B5300',
-    next: 'A planning question: Section 3 shows which stage takes the time.',
+    next: 'A planning question (for example, where units are posted), not a sudden change.',
   },
   recent_change: {
     label: 'Recent process change: investigate',
@@ -62,27 +62,6 @@ export const CONTROL = {
   in_control: { label: 'In control', bg: '#E4ECF5', fg: '#1F3A5F' },
   insufficient_baseline: { label: 'Insufficient baseline', bg: '#EEF0EC', fg: '#3D4842' },
 }
-
-// "What Held Up the Call": stage names and the topics a supervisor might review.
-// These are possible contributors to check, never a confirmed cause.
-export const STAGES = {
-  dispatch_s: {
-    label: 'Received to assigned',
-    who: '911 center / unit availability',
-    topics: ['call processing time at the 911 center', 'whether no unit was free (held calls)', 'call volume and staffing that day'],
-  },
-  turnout_s: {
-    label: 'Assigned to en route',
-    who: 'crew turnout',
-    topics: ['crew turnout practice', 'where units were waiting when assigned', 'notification delays'],
-  },
-  drive_s: {
-    label: 'En route to on scene',
-    who: 'travel',
-    topics: ['travel distance from where units are posted', 'road closures or detours', 'address or location problems'],
-  },
-}
-export const STAGE_KEYS = ['dispatch_s', 'turnout_s', 'drive_s']
 
 export const URGENCY = {
   red: { label: 'Red (most urgent)', light: '#FBE3E0', dark: '#8F1D14', chip: '#B42318' },

@@ -447,69 +447,7 @@ def test_queue_label_never_calls_inconclusive_a_success():
         qc.queue_label("on_track", "in_control")
 
 
-# ---------------------------------------------------------------- 9. What Held Up the Call
-
-STAGE_BASE = [{"dispatch_s": d, "turnout_s": t, "drive_s": v, "held": "N"}
-              for d, t, v in [(50, 60, 250), (60, 70, 300), (70, 80, 350)]]   # medians 60, 70, 300
-STAGE_LATE = [{"dispatch_s": 120, "turnout_s": 75, "drive_s": 330, "held": "Y"},   # excess 60, 5, 30 -> dispatch
-              {"dispatch_s": 55, "turnout_s": 65, "drive_s": 500, "held": "N"},    # excess -5, -5, 200 -> drive
-              {"dispatch_s": 50, "turnout_s": 60, "drive_s": 290, "held": "N"}]    # all <= 0 -> none
-
-
-def test_stage_excess_known_answer():
-    r = qc.stage_excess(STAGE_LATE, STAGE_BASE)
-    assert r["base_median"] == {"dispatch_s": 60, "turnout_s": 70, "drive_s": 300}
-    assert r["per_call"] == ["dispatch_s", "drive_s", "none"]
-    assert r["counts"] == {"dispatch_s": 1, "turnout_s": 0, "drive_s": 1, "none": 1}
-    # means of late calls: 225 / 3 = 75, 200 / 3 = 66.667, 1120 / 3 = 373.333; excess 15, -3.333, 73.333
-    assert r["late_mean"]["dispatch_s"] == approx(75) and r["late_mean"]["drive_s"] == approx(373.333)
-    assert r["mean_excess"] == {"dispatch_s": approx(15), "turnout_s": approx(-3.3333), "drive_s": approx(73.3333)}
-    assert r["top_stage"] == "drive_s" and r["held"] == 1
-    no_bad_numbers(r)
-
-
-def test_stage_excess_arithmetic_adds_up():
-    # mean total 515 - sum of medians 430 = 85 = 15 - 3.333 + 73.333
-    r = qc.stage_excess(STAGE_LATE, STAGE_BASE)
-    assert r["total"] == {"late_mean": approx(515), "base_median_sum": approx(430), "excess": approx(85)}
-    assert sum(r["mean_excess"].values()) == approx(r["total"]["excess"])
-
-
-def test_stage_excess_held_only_when_recorded_and_degenerate_inputs():
-    no_held = [{k: v for k, v in c.items() if k != "held"} for c in STAGE_LATE]
-    assert qc.stage_excess(no_held, STAGE_BASE)["held"] is None
-    empty = qc.stage_excess([], STAGE_BASE)
-    assert empty["top_stage"] is None and empty["messages"] and sum(empty["counts"].values()) == 0
-    nobase = qc.stage_excess(STAGE_LATE, [])
-    assert nobase["per_call"] == [] and nobase["mean_excess"]["dispatch_s"] is None and nobase["messages"]
-    assert nobase["late_mean"]["dispatch_s"] == approx(75)
-    gap = qc.stage_excess([{"dispatch_s": 60, "turnout_s": None, "drive_s": 300}], STAGE_BASE)
-    assert gap["messages"] and gap["per_call"] == []
-    for r in (empty, nobase, gap):
-        no_bad_numbers(r)
-
-
-# ---------------------------------------------------------------- 10. travel time against the estimate
-
-def test_travel_vs_estimate_known_answer_faster_and_slower():
-    # baseline differences -50 .. 49 s: P95 = -50 + 0.95 x 99 = 44.05 s.
-    r = qc.travel_vs_estimate([-30, 10, 45, 60, -5], list(range(-50, 50)))
-    assert r["threshold_s"] == approx(44.05)
-    assert r["median_s"] == 10.0 and r["pct_slower"] == 60.0 and r["pct_faster"] == 40.0
-    assert r["n_unusual"] == 2 and r["pct_unusual"] == 40.0
-    no_bad_numbers(r)
-
-
-def test_travel_vs_estimate_degenerate():
-    short = qc.travel_vs_estimate([10, 20], [1, 2, 3])
-    assert short["threshold_s"] is None and short["n_unusual"] is None and short["messages"]
-    empty = qc.travel_vs_estimate([], list(range(100)))
-    assert empty["median_s"] is None and empty["threshold_s"] is not None and empty["messages"]
-    nan = qc.travel_vs_estimate([float("nan"), None, 5], list(range(100)))
-    assert nan["n"] == 1
-
-
-# ---------------------------------------------------------------- 11. I-chart assumption checks
+# ---------------------------------------------------------------- 9. I-chart assumption checks
 
 def test_assumption_checks_known_answer_and_degenerate():
     # alternating 1, 2: deviations +-0.5, sum of neighbour products 39 x -0.25 = -9.75, sum of squares 10: lag-1 -0.975

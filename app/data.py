@@ -131,7 +131,6 @@ def derive(raw: pd.DataFrame, targets: pd.DataFrame | None = None,
     df["drive_s"] = secs["t_onscene"] - secs["t_enroute"]
     df["dispatch_to_scene_s"] = secs["t_onscene"] - secs["t_assigned"]
     df["total_s"] = secs["t_onscene"] - secs["t_received"]
-    df["vs_google_s"] = df["drive_s"] - df["eta_google_s"]
 
     # Timed call: not cancelled, has t_onscene, valid_time = Y, and the times are in order.
     in_order = ((df["dispatch_s"] >= 0) & (df["turnout_s"] >= 0)

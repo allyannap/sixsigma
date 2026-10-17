@@ -1,8 +1,7 @@
 # EMS Response Monitor
 
 **A read-only quality-control dashboard that shows a New York State EMS dispatch center's quality supervisor which
-counties and ZIP areas need review, whether each is below the on-time goal, shows a new statistical change, or both,
-and which recorded response stage deserves investigation.**
+counties and ZIP areas need review, and whether each is below the on-time goal, shows a new statistical change, or both.**
 
 Team **Powerpuff Girls** · Cornell Six Sigma Hackathon 2026, on-campus track ·
 Prompt: *Health Systems: Emergency Response*
@@ -24,9 +23,10 @@ hides the late calls, cannot say **where** they happen, and cannot separate a lo
 
 - **User:** the dispatch center's **quality supervisor**. Not the dispatcher assigning an ambulance, not the public.
 - **Decision:** which areas need review; for each, two separate questions: **is it meeting the service goal?** and
-  **has its process changed from its own history?**; and which recorded stage of late calls took the extra time.
+  **has its process changed from its own history?**
 - **What it does not do:** no incident entry or logging forms, no ambulance assignment or ranking of people, no
-  what-if or "best fix" (deferred), no time-of-day analysis, no causal or fairness claims.
+  what-if or "best fix" (deferred), no stage-by-stage delay breakdown or travel-time comparison (removed), no
+  time-of-day analysis, no causal or fairness claims.
 
 ## 3. What you see (one page, top to bottom)
 
@@ -37,10 +37,8 @@ hides the late calls, cannot say **where** they happen, and cannot separate a lo
 | – | **Summary** | areas needing review, counts by decision status, on-time k of n with 95% CI vs the goal, median and P95 with intervals | Wilson interval, bootstrap / order-statistic intervals |
 | 1 | **Map** state → county → ZIP area, with a back button, and a ranked table | Where? For each area: n, on-time rate + CI, **Target** badge, **Control** badge, queue label, P95 + CI | on-time rate, p chart, P95 |
 | 2 | **Has the process changed?** | late share by day / week / month against the baseline; evidence for each signal | p chart with varying limits; dispersion check; optional I chart |
-| 3 | **What Held Up the Call** | which recorded stage of late calls took the extra time; possible contributors to review | stage time minus baseline stage median |
-| 3 | **Unusual travel-time difference** | are drives slower than the stored estimate more often than usual? | difference above the baseline's P95 |
-| 4 | **Investigation list** | every flagged area with its target evidence, SPC signal dates, n, stage and topics to investigate | none new |
-| 5 | **Geographic comparison** (secondary) | within one urgency group, which places have longer typical waits | ANOM on ln(minutes), descriptive only |
+| 3 | **Investigation list** | every flagged area with its target evidence, SPC signal dates, n and baseline window | none new |
+| 4 | **Geographic comparison** (secondary) | within one urgency group, which places have longer typical waits | ANOM on ln(minutes), descriptive only |
 
 **Two badges, one queue label.** The **Target** badge (Meets / Below / Inconclusive) and the **Control** badge
 (In control / Out of control / Insufficient baseline) are always shown. The queue label combines them:
@@ -68,10 +66,6 @@ in volume only. Each call's **total wait** is `t_onscene − t_received` (provis
   120 days if under 30 valid calls). Limits p̄ ± 3·√(p̄(1 − p̄)/nᵢ), clipped to [0, 1], so they widen for small subgroups.
   Subgroups are days, weeks or months: the shortest with n·p̄ ≥ 5 in the baseline. **Out of control** = a subgroup above
   its UCL. A Pearson chi-square check tests whether late counts vary more than binomial.
-- **What Held Up the Call:** for each late call, stage time minus the baseline median for that stage; the stage with the
-  largest positive excess. Averages add up exactly: mean total − Σ medians = Σ mean stage excess.
-- **Travel-time difference:** actual en-route-to-scene seconds minus the stored estimate; "unusual" = above the baseline's
-  95th percentile (about 5% when nothing changed).
 - **Secondary, never set a status:** I chart on ln(minutes) (only "beyond 3 sigma" is marked), one-sided Cpk with the
   Bissell bound (assumes lognormal times), ANOM within one urgency group (descriptive).
 
@@ -84,8 +78,8 @@ flowchart LR
   csv["data/incidents_*.csv.gz<br>(SYNTHETIC, fixed seed)"] --> dl["app/data.py<br>valid calls · select · baseline"]
   tg["config/targets.csv<br>(placeholders)"] --> dl
   lk["data/lookup/<br>ZCTA → county"] --> dl
-  dl --> qc["app/qc.py<br>on-time + Wilson CI · p chart + control<br>queue label · P95 · stage excess<br>secondary: I-MR · Cpk · ANOM"]
-  qc --> api["FastAPI, read-only GET<br>/summary /pchart /delays /google<br>/replay /imr /anom /meta"]
+  dl --> qc["app/qc.py<br>on-time + Wilson CI · p chart + control<br>queue label · median · P95<br>secondary: I-MR · Cpk · ANOM"]
+  qc --> api["FastAPI, read-only GET<br>/summary /pchart /replay<br>/imr /anom /meta"]
   api --> ui["React dashboard<br>map · charts · investigation list<br>Simulation / Replay"]
 ```
 
@@ -101,7 +95,7 @@ flowchart LR
 | `t_received`, `t_assigned`, `t_enroute`, `t_onscene` | yes (`t_onscene` empty if cancelled) | ISO 8601 times with the New York offset |
 | `disposition` | yes | TRANSPORTED / TREATED / REFUSED / CANCELLED |
 | `valid_time` | yes | Y/N: the times are trustworthy |
-| `eta_google_s` | optional | travel estimate at assignment, seconds (unlocks the travel comparison; **generated** in these files) |
+| `eta_google_s` | optional | travel estimate at assignment, seconds (**generated** in these files; checked by `validate.py` but not used by the dashboard) |
 | `held` | optional | Y/N: the call waited because no unit was free |
 
 **Filters on every request:** `dataset`, `from`, `to`, `urgency`, `level` (state / county / zcta), `id`, `baseline_days`.
@@ -116,8 +110,8 @@ by a fixed-seed generator from 2020 Census populations at about one-eighth of a 
 | Dataset | Planted scenario | Try this (red calls) | What the tool shows |
 |---|---|---|---|
 | `baseline` | seasonal pattern only; rural long trips | default (last 90 days) | 51 of 62 counties need review, mostly **Ongoing gap** (rural counties below the 8-minute target, in control); 3 counties out of control (false alarms, counted) |
-| `station_closure` | from Sep 1, 2026, travel estimates **and actual drives** in ZIP 11368 (Corona, Queens) +60% | Queens → ZIP 11368, dates 2026-09-01 to 2026-10-15 | **Act now**: 73.5% on time (95% CI 62.0-82.6%), out of control in the months of Sep and Oct; largest extra time "en route to on scene". With the default 90 days it reads **Needs more data** (too few late calls in its May-Jul baseline) |
-| `summer_surge` | Jul-Aug 2026, Monroe County volume +30%, held calls common | Monroe, dates 2026-07-01 to 2026-08-31 | **Act now**, 8 weekly signals; largest extra time "received to assigned"; many late calls marked held. Sep-Oct: back in control |
+| `station_closure` | from Sep 1, 2026, travel estimates **and actual drives** in ZIP 11368 (Corona, Queens) +60% | Queens → ZIP 11368, dates 2026-09-01 to 2026-10-15 | **Act now**: 73.5% on time (95% CI 62.0-82.6%), out of control in the months of Sep and Oct. With the default 90 days it reads **Needs more data** (too few late calls in its May-Jul baseline) |
+| `summer_surge` | Jul-Aug 2026, Monroe County volume +30%, held calls common | Monroe, dates 2026-07-01 to 2026-08-31 | **Act now**, 8 weekly signals. Sep-Oct: back in control |
 
 **Replay:** choose `station_closure`, click Queens, then ZIP 11368, and press **Start replay**. The period starts Aug 25, and its
 baseline (Jun 26 to Aug 24) stays fixed while the simulated day advances: 11368 reads *Needs more data* (in control)
@@ -150,8 +144,8 @@ bash app/testme.sh                             # http://localhost:8000
 Verify:
 
 ```bash
-.venv/bin/python -m pytest tests -q            # 130 passed
-(cd app/frontend && npm test)                  # 28 passed
+.venv/bin/python -m pytest tests -q            # 122 passed
+(cd app/frontend && npm test)                  # 26 passed
 .venv/bin/python data/validate.py --reproduce  # 55 PASS, 0 FAIL
 ```
 
@@ -163,12 +157,12 @@ Only to rebuild the Census lookups: put `CENSUS_API_KEY=...` in a gitignored `.e
 - **Response-time start is provisional:** `t_received` could mean the original 911 call or the EMS CAD incident creation.
   It must be confirmed against the source before real use.
 - **Targets are placeholders** until a center or authority sets them.
-- **Travel estimates are generated** here; real data has no ambulance origin coordinates, so none should be invented.
 - **Sparse ZIP areas** are often Inconclusive / Insufficient baseline; widen the dates or look at the county.
-- **No causal or fairness claims:** stage times are evidence to review; urgency filters do not control for traffic,
+- **No causal or fairness claims:** urgency filters do not control for traffic,
   shift, season, call complexity or resources. Seasonality and case-mix changes are not modelled beyond the dispersion check.
 - **Not in scope:** ambulance assignment, ranking people, route optimization, patient outcomes, what-if optimization,
-  incident logging, a live CAD connection, time-of-day filters.
+  incident logging, a live CAD connection, time-of-day filters, and (removed Oct 16 as too much for this version) the
+  "What Held Up the Call" stage breakdown and the ambulance-vs-Google travel comparison.
 
 ## 10. Sources
 

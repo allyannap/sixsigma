@@ -7,7 +7,7 @@ There is no route that accepts or edits incidents.
 
 | File | Job |
 |---|---|
-| `qc.py` | every statistic: on-time rate + Wilson interval, p chart + control status, queue label, percentiles, stage excess, travel comparison, secondary I-MR / Cpk / ANOM |
+| `qc.py` | every statistic: on-time rate + Wilson interval, p chart + control status, queue label, percentiles, secondary I-MR / Cpk / ANOM |
 | `data.py` | load the files once, derive per-call fields, `select`, `baseline` (60 → 120 days, 30-call minimum, always before `from`), `children`, `subgroups`, `day_events` (replay) |
 | `main.py` | the `GET` routes under `/api/*`, `/geo/*`, and the built page at `/` |
 | `testme.sh` | run locally on port 8000 |
@@ -44,10 +44,8 @@ There is no time-of-day filter or adjustment. Bad values give HTTP 400 `{"detail
 |---|---|
 | `GET /api/health` | status, source label, dataset names, row counts |
 | `GET /api/meta` | date range, default window, 62 counties, the 40 target rows |
-| `GET /api/summary` | totals for the place, its own card, one card per child place (spec, control, queue, n, on-time rate + CI, P95 + CI, signals, top stage), queue counts |
+| `GET /api/summary` | totals for the place, its own card, one card per child place (spec, control, queue, n, on-time rate + CI, P95 + CI, signals), queue counts |
 | `GET /api/pchart` | p-chart points with varying limits, control status and the evidence, baseline window, dispersion check |
-| `GET /api/delays` | "What Held Up the Call": stage medians (baseline) vs late-call averages, excess per stage, counts, held, longest call |
-| `GET /api/google` | unusual travel-time difference (actual en-route-to-scene minus estimate), provenance, histogram |
 | `GET /api/replay?day=YYYY-MM-DD` | the calls the synthetic file holds for one day, newest first (simulated replay) |
 | `GET /api/imr` | secondary I chart on ln(minutes); only test 1 marked; assumption checks |
 | `GET /api/anom` | secondary, descriptive ANOM within one urgency group |
@@ -59,6 +57,5 @@ There is no time-of-day filter or adjustment. Bad values give HTTP 400 `{"detail
 curl localhost:8000/api/health
 curl "localhost:8000/api/summary?dataset=station_closure&level=zcta&id=11368&from=2026-09-01&to=2026-10-15"
 curl "localhost:8000/api/pchart?dataset=summer_surge&level=county&id=36055&from=2026-07-01&to=2026-08-31"
-curl "localhost:8000/api/delays?dataset=summer_surge&level=county&id=36055&from=2026-07-01&to=2026-08-31"
 curl "localhost:8000/api/replay?dataset=station_closure&day=2026-09-02&limit=5"
 ```

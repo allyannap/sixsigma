@@ -7,13 +7,10 @@ import summary from './fixtures/summary_state.json'
 import anom from './fixtures/anom.json'
 import pchart from './fixtures/pchart.json'
 import imr from './fixtures/imr.json'
-import delays from './fixtures/delays.json'
-import google from './fixtures/google.json'
 import replay from './fixtures/replay.json'
 import App from './App.jsx'
 import AnomSection from './components/AnomSection.jsx'
 import ChangeSection from './components/ChangeSection.jsx'
-import DelaySection from './components/DelaySection.jsx'
 import InvestigationSection, { investigationRows } from './components/InvestigationSection.jsx'
 import MapSection from './components/MapSection.jsx'
 import ReplayBar from './components/ReplayBar.jsx'
@@ -58,27 +55,14 @@ describe('sections render from fixtures', () => {
     expect(html).toContain('Insufficient baseline')
     expect(html).not.toContain('p chart, limits vary with n')
   })
-  it('section 3 keeps the exact title and uses noncausal wording', () => {
-    const html = plain(renderToString(h(DelaySection, { delaysState: ok(delays), googleState: ok(google), selectedName: 'Monroe' })))
-    expect(html).toContain('What Held Up the Call')
-    expect(html).toContain('Possible contributors to review')
-    expect(html).toContain('not proven causes')
-    expect(html).toContain('Unusual travel-time difference')
-    expect(html).toContain('Interpret cautiously')
-    expect(html).not.toMatch(/beat Google|root cause|caused by/i)
-  })
-  it('Google part says "Comparison unavailable" when there is no estimate', () => {
-    const html = plain(renderToString(h(DelaySection, { delaysState: ok(delays), googleState: ok({ ...google, available: false, diff: null, messages: [] }), selectedName: 'X' })))
-    expect(html).toContain('Comparison unavailable')
-    expect(html).not.toContain('Every drive compared')
-  })
-  it('section 4 lists flagged areas with topics, never a chosen fix', () => {
+  it('section 3 lists flagged areas with their evidence, never a chosen fix', () => {
     const html = plain(renderToString(h(InvestigationSection, { summaryState: ok(summary), onPick() {} })))
-    expect(html).toContain('Topics to investigate')
-    expect(html).toContain('not a chosen fix')
+    expect(html).toContain('Target evidence')
+    expect(html).toContain('Control evidence')
+    expect(html).toContain('does not choose or rank interventions')
     expect(investigationRows(summary.places).every((p) => ['act_now', 'ongoing_gap', 'recent_change'].includes(p.queue) || p.spec === 'below')).toBe(true)
   })
-  it('section 5 ANOM is secondary and descriptive', () => {
+  it('section 4 ANOM is secondary and descriptive', () => {
     const html = plain(renderToString(h(AnomSection, { anomState: ok(anom) })))
     expect(html).toContain('Secondary, descriptive')
     expect(html).toContain('not evidence of unfair service')
@@ -97,6 +81,7 @@ describe('sections render from fixtures', () => {
     const html = plain(renderToString(h(App)))
     expect(html).toContain('SYNTHETIC DATA')
     expect(html).not.toMatch(/which fix|what-if|helps most|add an ambulance|POST/i)
+    expect(html).not.toMatch(/What Held Up the Call|travel-time difference|Google/i)
     expect(html).not.toMatch(/<textarea/)
     expect([...html.matchAll(/<input[^>]*type="([^"]+)"/g)].map((m) => m[1])).toEqual(['date', 'date'])
   })

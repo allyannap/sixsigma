@@ -146,8 +146,7 @@
    16.25
   ],
   "cpk": 0.146,
-  "cpk_upper": 0.164,
-  "top_stage": "dispatch_s"
+  "cpk_upper": 0.164
  },
  "queue_counts": {
   "act_now": 0,
@@ -194,8 +193,7 @@
     24.72
    ],
    "cpk": null,
-   "cpk_upper": null,
-   "top_stage": "drive_s"
+   "cpk_upper": null
   },
   {
    "id": "14468",
@@ -233,8 +231,7 @@
     24.17
    ],
    "cpk": -0.317,
-   "cpk_upper": -0.194,
-   "top_stage": "dispatch_s"
+   "cpk_upper": -0.194
   },
   {
    "id": "14428",
@@ -272,8 +269,7 @@
     26.1
    ],
    "cpk": null,
-   "cpk_upper": null,
-   "top_stage": "dispatch_s"
+   "cpk_upper": null
   },
   {
    "id": "14445",
@@ -311,8 +307,7 @@
     12.15
    ],
    "cpk": null,
-   "cpk_upper": null,
-   "top_stage": "dispatch_s"
+   "cpk_upper": null
   },
   {
    "id": "14450",
@@ -350,8 +345,7 @@
     13.52
    ],
    "cpk": 0.308,
-   "cpk_upper": 0.396,
-   "top_stage": "dispatch_s"
+   "cpk_upper": 0.396
   },
   {
    "id": "14464",
@@ -389,8 +383,7 @@
     19.07
    ],
    "cpk": null,
-   "cpk_upper": null,
-   "top_stage": "dispatch_s"
+   "cpk_upper": null
   },
   {
    "id": "14467",
@@ -428,8 +421,7 @@
     8.62
    ],
    "cpk": null,
-   "cpk_upper": null,
-   "top_stage": "dispatch_s"
+   "cpk_upper": null
   },
   {
    "id": "14472",
@@ -467,8 +459,7 @@
     17.0
    ],
    "cpk": null,
-   "cpk_upper": null,
-   "top_stage": "dispatch_s"
+   "cpk_upper": null
   }
  ],
  "calls_by_county": [

@@ -5,7 +5,6 @@ import { QUEUE_ORDER, URGENCY, URGENCY_KEYS, attentionCount } from './status.js'
 import { useEndpoint } from './useApi.js'
 import AnomSection from './components/AnomSection.jsx'
 import ChangeSection from './components/ChangeSection.jsx'
-import DelaySection from './components/DelaySection.jsx'
 import InvestigationSection from './components/InvestigationSection.jsx'
 import MapSection from './components/MapSection.jsx'
 import ReplayBar from './components/ReplayBar.jsx'
@@ -30,7 +29,7 @@ export default function App() {
   const [from, setFrom] = useState('')
   const [to, setTo] = useState('')
   // parent = what the map draws children of (state -> counties, county -> its ZIP areas).
-  // selected = the place sections 2 and 3 describe.
+  // selected = the place section 2 describes.
   const [parent, setParent] = useState(STATE)
   const [selected, setSelected] = useState({ ...STATE, place: null })
   const [replay, setReplay] = useState({ on: false, playing: false, start: '', day: '' })
@@ -49,8 +48,6 @@ export default function App() {
   const anom = useEndpoint('anom', parentParams)
   const pchart = useEndpoint('pchart', selParams)
   const imr = useEndpoint('imr', selParams)
-  const delays = useEndpoint('delays', selParams)
-  const google = useEndpoint('google', selParams)
   const feed = useEndpoint('replay', { ...parentParams, day: replay.day, limit: 12 }, { skip: !replay.on })
 
   useEffect(() => {
@@ -89,8 +86,8 @@ export default function App() {
             <h1>New York State EMS response quality</h1>
             <p className="lede">
               <strong>1</strong> which areas need review, and whether they miss the on-time goal, show a recent change, or both;
-              {' '}<strong>2</strong> the control chart behind a change; <strong>3</strong> What Held Up the Call;
-              {' '}<strong>4</strong> the investigation list; <strong>5</strong> a descriptive comparison between places.
+              {' '}<strong>2</strong> the control chart behind a change; <strong>3</strong> the investigation list;
+              {' '}<strong>4</strong> a descriptive comparison between places.
             </p>
           </div>
           <div className="header-tags">
@@ -163,7 +160,6 @@ export default function App() {
       <MapSection summaryState={summary} parent={parent} urgency={urgency} selected={selected}
         onPick={pick} onDrill={drill} onBack={resetScope} />
       <ChangeSection pState={pchart} imrState={imr} selectedName={selectedName} />
-      <DelaySection delaysState={delays} googleState={google} selectedName={selectedName} />
       <InvestigationSection summaryState={summary} onPick={pick} />
       <AnomSection anomState={anom} />
 

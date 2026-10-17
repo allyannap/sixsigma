@@ -222,3 +222,20 @@ tasks:
       cd app/frontend && npm test passes; .venv/bin/python data/validate.py --reproduce prints 0 FAIL;
       git grep finds no /whatif or POST /api/calls in app/; a teammate reads the diff.
     result: "Brief applied - Wilson spec + p-chart control + queue label; what-if, /whatif, POST /calls removed; read-only replay (fixed baseline); What Held Up the Call; flat 480 s red target, 90-day default; pytest 130 passed, npm test 28 passed, validate --reproduce 55 PASS 0 FAIL; commit approved by the team Oct 16."
+
+  - id: H-12
+    title: Remove "What Held Up the Call" and the travel-time comparison (team decision)
+    points: "protects working tool (25) and documentation (10) - a smaller, core-focused dashboard"
+    status: done
+    owner: "claude + Powerpuff Girls"
+    started_at: "2026-10-16 23:10"
+    owns: ["app/qc.py", "app/main.py", "app/data.py", "app/README.md", "app/frontend/", "tests/", "README.md", "SPEC.md", "docs/plan.md", "docs/api.md", "docs/roles.md", "data/README.md"]
+    notes: >
+      User instruction Oct 16 after reviewing the dashboard - "too much, and out of scope". Remove both parts of
+      Section 3 everywhere (page, /api/delays, /api/google, qc.stage_excess, qc.travel_vs_estimate, tests,
+      docs) without changing the other cards. Overrides the brief's issues 4 and 7. Data files keep held and
+      eta_google_s.
+    definition_of_done: >
+      pytest tests passes; npm test passes; /api/delays and /api/google answer 404; the page renders sections 1-4
+      on live data with no console errors; git grep finds no stage_excess, travel_vs_estimate or top_stage in app/.
+    result: "Section 3 removed everywhere; investigation list keeps target + control evidence; pytest 122 passed, npm test 26 passed, delays/google 404, page checked in a browser (sections 1-4, 0 console errors)."

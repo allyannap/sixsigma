@@ -81,8 +81,7 @@
    12.78
   ],
   "cpk": 0.301,
-  "cpk_upper": 0.305,
-  "top_stage": "drive_s"
+  "cpk_upper": 0.305
  },
  "queue_counts": {
   "act_now": 1,
@@ -129,8 +128,7 @@
     12.77
    ],
    "cpk": 0.323,
-   "cpk_upper": 0.363,
-   "top_stage": "drive_s"
+   "cpk_upper": 0.363
   },
   {
    "id": "36005",
@@ -168,8 +166,7 @@
     8.38
    ],
    "cpk": 0.554,
-   "cpk_upper": 0.578,
-   "top_stage": "drive_s"
+   "cpk_upper": 0.578
   },
   {
    "id": "36041",
@@ -207,8 +204,7 @@
     37.62
    ],
    "cpk": null,
-   "cpk_upper": null,
-   "top_stage": "drive_s"
+   "cpk_upper": null
   },
   {
    "id": "36055",
@@ -311,8 +307,7 @@
     16.25
    ],
    "cpk": 0.146,
-   "cpk_upper": 0.164,
-   "top_stage": "dispatch_s"
+   "cpk_upper": 0.164
   },
   {
    "id": "36003",
@@ -350,8 +345,7 @@
     17.34
    ],
    "cpk": -0.046,
-   "cpk_upper": 0.037,
-   "top_stage": "drive_s"
+   "cpk_upper": 0.037
   },
   {
    "id": "36007",
@@ -389,8 +383,7 @@
     16.65
    ],
    "cpk": 0.168,
-   "cpk_upper": 0.206,
-   "top_stage": "drive_s"
+   "cpk_upper": 0.206
   },
   {
    "id": "36009",
@@ -428,8 +421,7 @@
     23.11
    ],
    "cpk": -0.178,
-   "cpk_upper": -0.117,
-   "top_stage": "drive_s"
+   "cpk_upper": -0.117
   },
   {
    "id": "36011",
@@ -467,8 +459,7 @@
     16.2
    ],
    "cpk": -0.028,
-   "cpk_upper": 0.033,
-   "top_stage": "drive_s"
+   "cpk_upper": 0.033
   }
  ],
  "calls_by_county": [

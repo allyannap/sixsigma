@@ -59,7 +59,7 @@ function AnomChart({ d }) {
 
 export default function AnomSection({ anomState }) {
   return (
-    <Section num={5} id="section-5" title="Geographic comparison within one urgency group" tag="Secondary, descriptive"
+    <Section num={4} id="section-4" title="Geographic comparison within one urgency group" tag="Secondary, descriptive"
       intro="Which places have typically longer waits than the others, for the same urgency group. This is descriptive: it is not adjusted for time of day, traffic, distance, call mix or resources, so a slower place is not evidence of unfair service. The on-time rate in Section 1 is the main measure.">
       <Async state={anomState}>
         {(d) => {

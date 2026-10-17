@@ -12,7 +12,7 @@ The team's design sources, in priority order: **[`EMS_RESPONSE_MONITOR_DECISIONS
 (the approved decisions brief, Oct 16, 2026) is the requirement and overrides everything below it**; then the data schema
 (`ref/EMS Response Monitor Data Schema.md`) for files and columns; then the mockup ("EMS Statistical Analysis Card") for
 look and wording. Where the schema or mockup still describe Cpk status, a fault tree, what-if or `POST /calls`, they are
-superseded. Two choices the brief left open were decided by the team on Oct 16 (section 10).
+superseded. The team later removed the brief's "What Held Up the Call" and travel-time comparison (section 10). Two choices the brief left open were decided by the team on Oct 16 (section 10).
 
 ## 1. Team and prompt
 - **Team name:** Powerpuff Girls
@@ -23,9 +23,9 @@ superseded. Two choices the brief left open were decided by the team on Oct 16 (
 
 ## 2. User and use case (rubric: scope 5, user and use case 5)
 - **User:** a New York State EMS dispatch center's quality supervisor (not the dispatcher assigning an ambulance, not the public).
-- **Decision the tool helps them make, and when:** at the start of a review, for New York State, a county or one ZIP code area (ZCTA): which areas need review; whether each is **below the service goal**, shows a **new statistical change** from its own history, or both; and which **recorded response stage** (received → assigned, assigned → en route, en route → on scene) deserves investigation.
+- **Decision the tool helps them make, and when:** at the start of a review, for New York State, a county or one ZIP code area (ZCTA): which areas need review; whether each is **below the service goal**, shows a **new statistical change** from its own history, or both.
 - **Read-only.** The tool reads preloaded synthetic incidents from the back end and can replay them as a simulated stream. No user-entered incidents, no logging forms, no ambulance assignment, no ranking of people, no what-if or intervention ranking.
-- **Why this matches the prompt:** it replaces the monthly average with an on-time rate and its uncertainty per place, a control chart against each place's own baseline, tail percentiles, and a stage-by-stage breakdown of late calls, so the places and the recorded stages behind the failures are visible.
+- **Why this matches the prompt:** it replaces the monthly average with an on-time rate and its uncertainty per place, a control chart against each place's own baseline, and tail percentiles, so the places behind the failures, and whether they are chronic or new, are visible.
 
 ## 3. Inputs (rubric: minimal inputs 5)
 Only what this user can actually measure or already knows. Fewer is better; every input a user
@@ -34,7 +34,7 @@ cannot measure costs points.
 | Input | Type and units | Where the user gets it |
 |---|---|---|
 | `incidents.csv`, one row per EMS call. Required: `incident_id`, `zcta`, `urgency_code`, `t_received`, `t_assigned`, `t_enroute`, `t_onscene` (empty if cancelled), `disposition`, `valid_time` | text IDs; 5-digit ZIP area; integer 0-9; ISO 8601 datetimes with the New York offset; Y/N | the dispatch center's computer-aided dispatch (CAD) export; columns follow NYC's public EMS Incident Dispatch Data. In this project the three files are **synthetic** |
-| Optional: `eta_google_s` (travel estimate at assignment), `held` (call waited because no unit was free) | integer seconds; Y/N | `held` is in CAD today; `eta_google_s` needs a routing API call at assignment and is not in public data (here it is generated) |
+| Optional: `eta_google_s` (travel estimate at assignment), `held` (call waited because no unit was free) | integer seconds; Y/N | `held` is in CAD today; `eta_google_s` needs a routing API call at assignment and is not in public data (here it is generated). Neither is used by the dashboard since the stage and travel cards were removed; they stay in the files and are validated |
 | `config/targets.csv`: per urgency code and area type, `urgency_group`, `target_s`, `goal_on_time_pct` | seconds; percent | **placeholders: red 480 s, yellow 900 s, green 1800 s, 90% on time**, configurable per center; not certified statewide standards |
 | Filters: `from`, `to`, `urgency`, `level` (state/county/zcta), `id`, `baseline_days` | dates; red/yellow/green; FIPS or ZCTA; days | picked on screen (no time-of-day filter) |
 
@@ -69,13 +69,6 @@ Every formula is one function in `app/qc.py`; the known answers below are tests 
   recent signal**; Below + In → **Ongoing gap**; Meets or Inconclusive + Out → **Recent process change: investigate**;
   Meets + In → **Meets goal; statistically stable**; anything with Insufficient baseline, and Inconclusive + In →
   **Needs more data / Inconclusive** (places confirmed Below target sort first inside it). "Needs review" = the first three.
-- **What Held Up the Call.** For late calls, each stage's recorded time minus the baseline median for that stage
-  (received → assigned, assigned → en route, en route → on scene). The stage with the largest positive excess is reported
-  per call and on average; `held` is shown only where present. Arithmetic: mean total − Σ stage medians = Σ mean stage excess.
-  Wording: possible contributors to review, not causes.
-- **Unusual travel-time difference** (optional, only where `eta_google_s` exists): `drive_s − eta_google_s`; "unusual" =
-  above the baseline's 95th percentile of the difference (about 5% when nothing changed). Faster and slower are both shown;
-  slower is a clue, not a failure. Provenance is stated (synthetic here).
 - **Secondary (never set a status):** I chart on ln(minutes) with baseline limits (sigma = MR̄ / 1.128), only test 1 marked,
   with skewness and lag-1 autocorrelation reported; one-sided Cpk on ln(total_s / target_s) with the Bissell bound (assumes
   lognormal times); ANOM on ln(minutes) within one urgency group, descriptive only (not adjusted for time of day, traffic,
@@ -91,10 +84,8 @@ Every formula is one function in `app/qc.py`; the known answers below are tests 
   - p chart: 5 days, n = 20, late 2, 3, 1, 4, 10, p̄ = 0.20: UCL 0.4683, LCL 0; only day 5 (p = 0.50) is above → Out of control with that day as evidence. Varying n with p̄ = 0.10: n = 10 → UCL 0.3846; n = 100 → 0.19 (LCL 0.01); n = 1000 → 0.12846.
   - Dispersion: n = 100 x 4, late 0, 20, 0, 20 → chi-square 44.44, df 3, ratio 14.81, overdispersed.
   - Queue: all 9 combinations of A and B.
-  - Stage excess: baseline medians 60, 70, 300 s; late calls (120, 75, 330), (55, 65, 500), (50, 60, 290) → largest excess dispatch, drive, none; mean excess +15, −3.33, +73.33 s; total 515 − 430 = 85 s.
-  - Travel: baseline differences −50..49 s → threshold 44.05 s; now −30, 10, 45, 60, −5 → 60% slower, 40% faster, 2 unusual.
   - Percentiles: 1..20 → median 10.5, P90 18.1, P95 19.05. I-MR: 1.0, 1.2, 0.9, 1.1, 1.3 → CL 1.1, UCL 1.6984, LCL 0.5016. Cpk (target 8 min) 1.6368, bound 2.8803. ANOM groups A/B/C → h 2.9333, F 26.0.
-  - Degenerate: n = 0, n = 1, constant data, p̄ = 0 or 1, no baseline, missing stage times, too few baseline estimates: each returns None or a status of Inconclusive / Insufficient baseline with a message, never inf or a pass.
+  - Degenerate: n = 0, n = 1, constant data, p̄ = 0 or 1, no baseline: each returns None or a status of Inconclusive / Insufficient baseline with a message, never inf or a pass.
 
 Fixed for every team:
 - The statistic lives in **one plain, tested function** (`app/qc.py` or `app/qc.R`). The API, app or
@@ -103,7 +94,7 @@ Fixed for every team:
 - You can explain every number the tool prints. If you cannot, it is not done.
 
 ## 5. Delivery (rubric: working tool 25)
-- **Stack:** dashboard: FastAPI (Python) back end, read-only `GET` routes `/api/summary`, `/pchart`, `/delays`, `/google`, `/replay`, `/imr`, `/anom`, `/meta`, `/health` (docs/api.md), with a React front end. Every statistic is in `app/qc.py`.
+- **Stack:** dashboard: FastAPI (Python) back end, read-only `GET` routes `/api/summary`, `/pchart`, `/replay`, `/imr`, `/anom`, `/meta`, `/health` (docs/api.md), with a React front end. Every statistic is in `app/qc.py`.
 - **Starting demo:** `demos/fastapi/`, plus `demos/reactfront/` as `app/frontend/`.
 
 Fixed for every team:
@@ -115,7 +106,7 @@ Fixed for every team:
 - A small tool that runs beats a large tool that does not.
 
 ## 6. Outputs
-- **What the user sees** (one page, labelled "SYNTHETIC DATA" and "Simulation / Replay"): filters (dataset, urgency, dates; no time-of-day), a replay bar (starts at the From date or a week before the dataset's planted change: Aug 25, or Jun 25 for the surge; fixed baseline; one simulated day every 3 s; shows that day's calls read-only), summary (areas needing review, counts by queue label, on-time k of n with CI against the goal, median and P95 with intervals, very-late count); (1) state → county → ZCTA map with a back button, filled by late share (gray under 30 valid calls), flagged by queue label, and a ranked table with n, on-time rate + CI, Target and Control badges, queue label, P95 + CI, and secondary Cpk; (2) the p chart with baseline window, signal evidence and the dispersion check, plus an optional I chart; (3) "What Held Up the Call" and the unusual travel-time difference; (4) an investigation list of flagged areas with evidence and topics to investigate; (5) a secondary, descriptive geographic comparison (ANOM).
+- **What the user sees** (one page, labelled "SYNTHETIC DATA" and "Simulation / Replay"): filters (dataset, urgency, dates; no time-of-day), a replay bar (starts at the From date or a week before the dataset's planted change: Aug 25, or Jun 25 for the surge; fixed baseline; one simulated day every 3 s; shows that day's calls read-only), summary (areas needing review, counts by queue label, on-time k of n with CI against the goal, median and P95 with intervals, very-late count); (1) state → county → ZCTA map with a back button, filled by late share (gray under 30 valid calls), flagged by queue label, and a ranked table with n, on-time rate + CI, Target and Control badges, queue label, P95 + CI, and secondary Cpk; (2) the p chart with baseline window, signal evidence and the dispersion check, plus an optional I chart; (3) an investigation list of flagged areas with their target and control evidence; (4) a secondary, descriptive geographic comparison (ANOM).
 
 ## 7. Test datasets and codebook (rubric: demo 10, datasets 5, codebook 5)
 `data/README.md` is the codebook: every file, every column with units, source or synthetic origin, generation assumptions,
@@ -131,10 +122,11 @@ the rebuild command, expected signals, and what it would take to collect this da
 ## 9. Out of scope
 What we will NOT build, so nobody (human or agent) builds it by accident.
 - Default: logins, databases, real customer data, a second statistic before the first one is tested.
-- Actual ambulance assignment or unit recommendation; ranking individual ambulances, crews or dispatchers (no `unit_id` or dispatcher IDs, by design); route optimization; patient outcomes; a what-if or intervention optimizer (deferred, consider later); user-entered incident logging; a live CAD or FDNY connection; time-of-day filters or time-of-day-adjusted analysis.
-- No causal attribution (stage times are evidence to review, not blame) and no fairness claim (urgency stratification does not control for traffic, shift, season, call complexity or resources).
+- Actual ambulance assignment or unit recommendation; ranking individual ambulances, crews or dispatchers (no `unit_id` or dispatcher IDs, by design); route optimization; patient outcomes; a what-if or intervention optimizer (deferred, consider later); user-entered incident logging; a live CAD or FDNY connection; time-of-day filters or time-of-day-adjusted analysis; a stage-by-stage delay breakdown ("What Held Up the Call") and an ambulance-vs-estimate travel comparison (removed Oct 16, see section 10).
+- No causal attribution or blame, and no fairness claim (urgency stratification does not control for traffic, shift, season, call complexity or resources).
 
 ## 10. Decisions and open items (Oct 16, 2026)
+- **Removed by the team (Oct 16, after the first build):** "What Held Up the Call" (stage excess per late call) and the "Unusual travel-time difference" (actual drive minus the Google estimate), with their API routes (`/api/delays`, `/api/google`), statistics and tests. Reason: too much for this version and out of the core scope (spec + control). This overrides the brief's issues 4 and 7 and items 7-8 of its section 4; the data files still carry `held` and `eta_google_s`, so either card could return later.
 - **Replay design (Oct 16, after testing):** fixed start + fixed baseline, growing end date. A rolling 90-day window was tried first and hid both planted stories (11368 never flagged; Monroe's surge absorbed into its own baseline). Tested: from Aug 25, 11368 is in control through Sep 10 and Act now by Sep 20.
 - **Decided by the team after the brief:** red target flat 480 s (the brief's placeholder) instead of the history-based tiers of H-10, because tiers made the on-time check circular (60 of 62 counties Inconclusive on the baseline file); default window 90 days (counties under 30 red calls drop from 23 to 2); a place confirmed Below target but with Insufficient baseline is queued "Needs more data" and sorted first, as the brief's table says.
-- **Open dependencies (documented, not assumed):** the meaning of `t_received` (911 receipt vs CAD creation); authoritative service targets; the provenance of any real travel estimate (no origin coordinates in public data); the overall 24-hour scope (brief issue 12); a real-data compatibility check; seasonality and case-mix change checks beyond the dispersion test.
+- **Open dependencies (documented, not assumed):** the meaning of `t_received` (911 receipt vs CAD creation); authoritative service targets; the overall 24-hour scope (brief issue 12); a real-data compatibility check; seasonality and case-mix change checks beyond the dispersion test.

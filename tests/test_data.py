@@ -28,7 +28,6 @@ def test_step_durations_known_answer(three):
     assert a["drive_s"] == 1312           # 22:38:41 - 22:16:49 = 21 min 52 s
     assert a["total_s"] == 1476           # 24 min 36 s
     assert a["dispatch_to_scene_s"] == 1406
-    assert a["vs_google_s"] == 312        # 1312 - 1000
     assert a["minutes"] == pytest.approx(24.6)
     assert a["ln_min"] == pytest.approx(3.2027, abs=1e-4)
 

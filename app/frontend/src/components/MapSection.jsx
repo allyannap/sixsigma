@@ -3,7 +3,7 @@ import { geoMercator, geoPath } from 'd3-geo'
 import { getGeo } from '../api.js'
 import { rewindForD3 } from '../geo.js'
 import { fmtCi, fmtDate, fmtInt, fmtMin, fmtNum, fmtPct } from '../format.js'
-import { QUEUE, SPEC, CONTROL, STAGES, URGENCY, attentionCount, fillFor, latePct, rankPlaces } from '../status.js'
+import { QUEUE, SPEC, CONTROL, URGENCY, attentionCount, fillFor, latePct, rankPlaces } from '../status.js'
 import { Async, Judgments, Messages, Section, StatusBadge, StatusIcon, StatusLegend } from './common.jsx'
 
 const MIN_N = 30 // under this many valid calls a place is drawn gray (insufficient data)
@@ -161,13 +161,12 @@ function SelectedPanel({ summary, selected, parent, onDrill }) {
           {p.signals && p.signals.length > 0 && <> Signals: {p.signals.slice(0, 4).map((s) => `${p.unit} of ${fmtDate(s.start)} (${fmtPct(100 * s.p)} late, limit ${fmtPct(100 * s.ucl)})`).join('; ')}{p.signals.length > 4 ? '; ...' : ''}.</>}
         </li>
         {p.baseline && <li><strong>Baseline:</strong> {fmtDate(p.baseline.from)} to {fmtDate(p.baseline.to)} ({p.baseline.days} days, {fmtInt(p.baseline.valid)} valid calls{p.baseline.stretched ? ', stretched from 60 days' : ''}).</li>}
-        {p.top_stage && <li><strong>Stage with the most extra time in late calls:</strong> {STAGES[p.top_stage].label} ({STAGES[p.top_stage].who}).</li>}
       </ul>
       <p><strong>Next step:</strong> {q?.next}</p>
       {!isParent && selected.level === 'county' && (
         <button type="button" className="btn" onClick={() => onDrill(selected.place)}>Show this county's ZIP areas</button>
       )}
-      <p className="small"><a href="#section-2">Sections 2 to 4 below look at {name}.</a></p>
+      <p className="small"><a href="#section-2">Section 2 below looks at {name}.</a></p>
     </aside>
   )
 }
