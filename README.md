@@ -12,6 +12,41 @@ Hackathon's Health Systems: Emergency Response prompt.
 > real, but no patient, ambulance, dispatcher, or live CAD record is used.
 > Replay is a simulation, not a live feed.
 
+## Hackathon prompt
+
+**Health Systems: Emergency Response**
+
+The team's recorded challenge statement:
+
+> Ambulance dispatch to on-scene times are varying wildly across city zones,
+> but the 911 center only looks at monthly averages, missing fatal outliers,
+> not where or why these failures occur. Design a statistical tool to help
+> manage dispatchers, response time logging in real-time, generate analyzes,
+> and flag zones that are in need of resolution.
+
+## Why OnScene is useful
+
+Monthly averages can conceal a poor on-time rate in one area or a small
+number of very long waits. OnScene helps a quality supervisor:
+
+- **Find where to look:** the map and Investigate panel identify counties
+  and ZIP areas with service gaps, alongside call counts and response-time
+  tails rather than a statewide average alone.
+- **Distinguish chronic from new:** a 90% on-time goal measures service
+  performance, while a p chart compares each place with its own earlier
+  pattern. This separates an ongoing gap from a recent deterioration.
+- **Avoid false certainty:** confidence intervals, minimum call counts,
+  and baseline checks make inconclusive or unstable results visible
+  instead of silently treating them as good performance.
+- **Review evidence:** period-level signals, underlying synthetic calls,
+  and descriptive stage times give the supervisor a starting point for
+  investigation, without pretending to prove a cause or recommend a
+  dispatch action.
+
+OnScene addresses the prompt's monitoring and area-flagging need. It is
+**not** a live response-logging or dispatcher-management system; those
+functions are outside this read-only demonstration.
+
 ## What you can do
 
 1. Choose a synthetic dataset and one urgency priority. The initial view
