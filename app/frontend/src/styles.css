@@ -71,8 +71,6 @@ svg:not(.od-icon) { display: block; }
 .tb-btn:hover:not(:disabled) { background: #1f2630; }
 .tb-btn[aria-pressed="true"] { background: #1b2a3c; border-color: #35506e; }
 .topbar :focus-visible { outline-color: #7db4e6; }
-.sample-pill { display: inline-flex; align-items: center; gap: 7px; height: 30px; padding: 0 11px; border-radius: 999px; background: #2b2214; color: #e7c37c; font-size: var(--fs-sm); font-weight: 700; white-space: nowrap; }
-.sample-pill .dot { width: 7px; height: 7px; border-radius: 50%; background: #dca94b; box-shadow: 0 0 0 3px rgba(220, 169, 75, 0.16); }
 .fixture-flag { padding: 4px 10px; border-radius: 8px; background: #fdf1e4; color: #8a3a00; font-weight: 700; font-size: var(--fs-sm); border: 2px dashed #8a3a00; }
 .user { display: flex; align-items: center; gap: 10px; padding-left: 16px; border-left: 1px solid #242a33; white-space: nowrap; }
 .avatar { width: 34px; height: 34px; border-radius: 50%; background: #1b2430; color: #cfe1f2; display: grid; place-items: center; font-size: var(--fs-sm); font-weight: 800; flex: none; }
@@ -336,7 +334,7 @@ footer.small { padding: 0 4px; }
 
 /* ---------- responsive: one column under 1024 px ---------- */
 @media (max-width: 1400px) { .metric-value { font-size: 26px; } }
-@media (max-width: 1230px) { .brand-sub { display: none; } }
+@media (max-width: 1230px) { .brand-sub-place { display: none; } } /* "Simulated data" stays visible */
 @media (max-width: 1023px) {
   .topbar { padding: 8px 16px; }
   .app { width: auto; max-width: none; margin: 8px 10px 10px; padding: 12px; }

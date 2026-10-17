@@ -308,10 +308,10 @@ describe('OnScene page (H-14)', () => {
     expect(plain(renderToString(h(SirenLogo)))).toContain('icon-siren')
     expect(html).not.toMatch(/Sentinel/)
   })
-  it('the top bar has the simulated-data pill, the dataset picker from /api/meta, the user chip and no clock', () => {
+  it('the top bar says the data is simulated in the brand subtitle (no pill), the dataset picker from /api/meta, the user chip and no clock', () => {
     const html = topbar()
-    expect(html).toContain('SYNTHETIC DATA: ')
-    expect(html).toContain('Simulated service data')
+    expect(html).not.toContain('sample-pill')
+    expect(html).toMatch(/class="brand-sub">[\s\S]*SYNTHETIC DATA: <\/span>Simulated data/)
     for (const d of ['baseline', 'station_closure', 'summer_surge']) expect(html).toContain(`<option value="${d}"`)
     expect(html).toContain('Team Powerpuff Girls')
     expect(html).not.toMatch(/FIXTURE DATA/)

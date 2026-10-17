@@ -535,3 +535,19 @@ tasks:
       goal); pytest tests/test_ai_summary.py passes; vite build succeeds; in a browser the guide opens on the first visit
       only, steps Next / Back / Start, closes on Escape and reopens from "How it works".
     result: "Target table 8/10/14/14, 15, 30 min and goal 90% match config/targets.csv (40 of 40 rows); labels say goal everywhere; vitest 118 passed; pytest test_ai_summary 42 passed; vite build ok; guide checked in a browser (first visit only, Next/Back/Start, Escape, reopen)."
+
+  - id: H-28
+    title: Remove the "Simulated service data" pill; say "Simulated data" in the brand subtitle
+    points: "demonstration (10) - less clutter in the top bar, the synthetic-data notice kept"
+    status: done
+    owner: "claude + Powerpuff Girls"
+    started_at: "2026-10-17 23:55"
+    owns: ["app/frontend/src/components/TopBar.jsx", "app/frontend/src/styles.css", "app/frontend/src/render.test.js"]
+    notes: >
+      User request Oct 17. The amber pill read as noise and was removed. The page must still say the data is synthetic
+      (CLAUDE.md hard rule; SPEC section 6), so the brand subtitle ends with "Simulated data" (tooltip and screen-reader
+      text "SYNTHETIC DATA"), and it stays visible when narrow screens hide the rest of the subtitle. The Investigate edge
+      tab was already red (teammate commit e139616).
+    definition_of_done: >
+      npm test passes (no pill; subtitle says SYNTHETIC DATA / Simulated data); vite build succeeds; checked in a browser.
+    result: "Pill removed; subtitle reads 'New York State · EMS response quality · Simulated data'; vitest 118 passed; vite build ok; checked in a browser."
