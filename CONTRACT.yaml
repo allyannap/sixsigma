@@ -493,3 +493,19 @@ tasks:
     definition_of_done: >
       npm test passes; vite build succeeds; in a browser the icon's centre sits on the button's centre.
     result: "Icon centred (0 px offset both ways in a 34 px circle); vitest 111 passed; vite build ok."
+
+  - id: H-26
+    title: Map and right side at equal widths (50 / 50)
+    points: "demonstration (10) - layout"
+    status: done
+    owner: "claude + Powerpuff Girls"
+    started_at: "2026-10-17 23:30"
+    owns: ["app/frontend/src/styles.css", "app/frontend/src/rail.css"]
+    notes: >
+      User request Oct 17. The workspace columns were 1.06 : 0.94, so the map was slightly wider than the right side.
+      Both are now 1fr; the Investigate panel width (0.47 -> 0.5 of the row) and the map's slide when it opens
+      (0.94 / 1.06 of its width -> 100%) follow the same split. The narrow-screen layout (one column) is unchanged.
+    definition_of_done: >
+      npm test passes; vite build succeeds; in a browser the map and the right side (and the open panel) have the same
+      width.
+    result: "Map 710 px, right side 710 px, open panel 710 px with the 14 px gap kept (1490 px window); vitest 112 passed; vite build ok."

@@ -84,7 +84,7 @@ svg:not(.od-icon) { display: block; }
   border: 2px solid var(--frame-edge); border-radius: 28px; box-shadow: 0 24px 60px -30px rgba(0, 0, 0, 0.65);
   display: flex; flex-direction: column; gap: 20px; min-width: 0;
 }
-.workspace { display: grid; grid-template-columns: minmax(0, 1.06fr) minmax(0, 0.94fr); gap: var(--gap); min-width: 0; }
+.workspace { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--gap); min-width: 0; }
 .left-col, .right-col { display: flex; flex-direction: column; gap: var(--gap); min-width: 0; }
 .below { display: flex; flex-direction: column; gap: 20px; min-width: 0; padding: 0 2px 8px; }
 
