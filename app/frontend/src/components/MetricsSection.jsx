@@ -21,7 +21,10 @@ export function metricsSource(summary, selected, parent) {
 
 const dash = (v, digits = 1) => (v == null || Number.isNaN(v) ? '—' : fmtNum(v, digits))
 
-/** Three tiles: On time (k of n, 95% CI, goal), Median wait, P95 wait. A missing value shows "—" and the API's note. */
+/**
+ * Three tiles, all built the same way so the big numbers line up: a one-line label, the number, one plain sentence of
+ * what it means, then the fine print (counts and intervals). A missing value shows "—" and the API's note.
+ */
 function Tiles({ t, note }) {
   if (!t) {
     return (
@@ -37,20 +40,21 @@ function Tiles({ t, note }) {
       <div className="metric" aria-label="On time">
         <span className="metric-label">On time</span>
         <div className="metric-value"><span>{t.on_time_pct == null ? '—' : fmtPct(t.on_time_pct)}</span></div>
+        <div className="metric-meaning">Within target · goal {fmtPct(t.goal_pct, 0)}</div>
         <div className="metric-foot">
-          {t.on_time_pct == null
-            ? note
-            : `${fmtInt(t.on_time)} of ${fmtInt(t.valid)} valid calls · 95% CI ${fmtCi(t.on_time_ci, '%')} · goal ${fmtPct(t.goal_pct, 0)}`}
+          {t.on_time_pct == null ? note : `${fmtInt(t.on_time)} of ${fmtInt(t.valid)} valid calls · 95% CI ${fmtCi(t.on_time_ci, '%')}`}
         </div>
       </div>
       <div className="metric" aria-label="Median wait">
-        <span className="metric-label">Median wait <span className="metric-sub">call received to on scene</span></span>
+        <span className="metric-label">Median wait</span>
         <div className="metric-value"><span>{dash(t.median_min)}</span>{t.median_min != null && <span className="unit">min</span>}</div>
-        <div className="metric-foot">{t.median_min == null ? note : `95% CI ${fmtCi(t.median_ci)} min`}</div>
+        <div className="metric-meaning">Half of calls arrive sooner</div>
+        <div className="metric-foot">{t.median_min == null ? note : `call received to on scene · 95% CI ${fmtCi(t.median_ci)} min`}</div>
       </div>
       <div className="metric" aria-label="P95 wait">
-        <span className="metric-label">P95 wait <span className="metric-sub">1 call in 20 waited longer</span></span>
+        <span className="metric-label">P95 wait</span>
         <div className="metric-value"><span>{dash(t.p95_min)}</span>{t.p95_min != null && <span className="unit">min</span>}</div>
+        <div className="metric-meaning">1 call in 20 waits longer</div>
         <div className="metric-foot">{t.p95_min == null ? note : `95% CI ${fmtCi(t.p95_ci)} min · P90 ${t.p90_min == null ? 'n/a' : `${fmtNum(t.p90_min)} min`}`}</div>
       </div>
     </div>
@@ -125,7 +129,7 @@ export function MetricsSection({ summaryState, selected, parent, urgency, onTogg
                 </button>
               ))}
             </span>
-            <span className="filter-hint" id="urgency-hint">Click to choose which calls the map and metrics analyse</span>
+            <span className="sr-only" id="urgency-hint">Click to choose which calls the map and metrics analyse</span>
           </div>
         </div>
 

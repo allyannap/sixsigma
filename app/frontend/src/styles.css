@@ -217,7 +217,7 @@ svg:not(.od-icon) { display: block; }
 .place-meta .site { color: var(--ink-2); font-weight: 700; }
 .place-badges { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; }
 .place-evidence { margin: 0; font-size: 12px; color: var(--ink-2); line-height: 1.5; }
-.daterange { display: flex; align-items: flex-end; gap: 7px; flex-wrap: wrap; justify-content: flex-end; max-width: 360px; }
+.daterange { display: flex; align-items: flex-end; gap: 7px; flex-wrap: nowrap; justify-content: flex-end; } /* From, To and Search on one line */
 .date-field { display: block; }
 .date-label { display: block; margin-bottom: 3px; font-size: 9.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 .date-field input { width: 118px; height: 34px; padding: 0 7px; border: 1px solid var(--line-strong); border-radius: 10px; background: var(--surface); font-size: var(--fs-sm); font-weight: 600; color: var(--ink-2); }
@@ -254,7 +254,7 @@ svg:not(.od-icon) { display: block; }
 .metrics-body { display: grid; grid-template-columns: minmax(0, 1.08fr) 1px minmax(0, 0.92fr); gap: 15px; align-items: stretch; }
 .vdivider { background: var(--line); border-radius: 1px; }
 .metric-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; min-width: 0; }
-.metric { display: flex; flex-direction: column; justify-content: space-between; gap: 4px; padding: 11px 11px 10px; border: 1px solid rgba(21, 26, 33, 0.1); border-radius: 14px; background: rgba(255, 255, 255, 0.62); min-width: 0; }
+.metric { display: flex; flex-direction: column; justify-content: flex-start; gap: 4px; padding: 11px 11px 10px; border: 1px solid rgba(21, 26, 33, 0.1); border-radius: 14px; background: rgba(255, 255, 255, 0.62); min-width: 0; }
 .metric.is-placeholder { border-style: dashed; }
 .metric-label { font-size: 9.5px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); line-height: 1.35; }
 .metric-value { display: flex; align-items: baseline; gap: 3px; font-size: 28px; font-weight: 800; letter-spacing: -0.035em; line-height: 1.05; color: var(--ink); }
@@ -359,7 +359,7 @@ footer.small { padding: 0 4px; }
   .date-field input { height: 44px; }
   .app { padding: 10px; margin: 6px 8px 8px; }
   .place-name { font-size: 23px; }
-  .daterange { width: 100%; justify-content: stretch; max-width: none; }
+  .daterange { width: 100%; justify-content: stretch; max-width: none; flex-wrap: wrap; }
   .date-field { flex: 1; }
   .date-field input { width: 100%; }
   .date-trigger { height: 44px; width: 100%; }
@@ -746,3 +746,7 @@ table.places.narrow { min-width: 420px; }
 .dp-day.is-selected { background: var(--brand); color: #fff; }
 .dp-day:disabled { color: var(--muted); opacity: 0.35; cursor: default; }
 .dp-range { margin: 6px 0 0; font-size: 11px; color: var(--muted); }
+
+/* Key Metrics tiles: same rows in every tile (label, number, meaning, fine print), so the big numbers line up */
+.metric-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.metric-meaning { font-size: 11px; font-weight: 700; line-height: 1.35; min-height: 2.7em; color: var(--ink-2); } /* 2 lines, so the fine print starts level */

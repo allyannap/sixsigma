@@ -432,3 +432,21 @@ tasks:
       pytest passes; validate plain and --messy print 0 FAIL; the parser gives identical results to the old one on the
       real files; restart-to-first-data time measured before and after.
     result: "derive 26.4 s -> 9.8 s per dataset; restart to /api/meta ~100 s -> 16 s, to first page data ~19 s; pytest 211 passed (142 s -> 100 s); validate 74 PASS (3 new date checks), --messy 14 PASS; vitest 115 passed."
+
+  - id: H-23
+    title: Key Metrics and date row layout - aligned tiles, plain meanings, Search on the date line
+    points: "working tool (25) and demonstration (10) - easier to read, more room for the charts"
+    status: done
+    owner: "claude + Powerpuff Girls"
+    started_at: "2026-10-17 21:30"
+    owns: ["app/frontend/src/components/MetricsSection.jsx", "app/frontend/src/styles.css", "app/frontend/src/render.test.js"]
+    notes: >
+      User requests Oct 17. The From / To / Search row wrapped (360 px cap) and now stays on one line on desktop
+      (wraps only under 720 px). The Key Metrics tiles share the same rows (one-line label, number, a two-line meaning
+      row, fine print) so the big numbers and the fine print line up; meanings in plain words ("Within target · goal
+      90%", "Half of calls arrive sooner", "1 call in 20 waits longer"). The call-urgency hint is kept for screen readers
+      only.
+    definition_of_done: >
+      npm test passes (meaning lines, no metric-sub, hint is screen-reader only); vite build succeeds; checked in a
+      browser at 1490 and 1280 px.
+    result: "Search on the date line; tiles aligned with plain meanings; vitest 115 passed; vite build ok; checked in a browser."
