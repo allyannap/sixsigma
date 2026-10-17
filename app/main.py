@@ -508,11 +508,11 @@ def replay(day: str | None = None, limit: int = Query(25, ge=1, le=200), c: Ctx 
     recent = rows.iloc[::-1].head(limit)
     events = [{"incident_id": r.incident_id, "t_received": r.t_received.isoformat(), "zcta": str(r.zcta),
                "county": names.get(str(r.county_fips), ""), "urgency_group": str(r.urgency_group),
-               "disposition": r.disposition, "valid": bool(r.timed),
+               "cancelled": bool(r.cancelled), "valid": bool(r.timed),
                "total_s": num(r.total_s, 0) if r.timed else None, "late": bool(r.late),
                "held": bool(r.held)} for r in recent.itertuples()]
     return c.reply({"source": SOURCE, "day": d.isoformat(), "received": len(rows), "valid": len(timed),
-                    "late": int(timed["late"].sum()), "cancelled": int((rows["disposition"] == "CANCELLED").sum()),
+                    "late": int(timed["late"].sum()), "cancelled": int(rows["cancelled"].sum()),
                     "events": events})
 
 

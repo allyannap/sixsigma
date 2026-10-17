@@ -261,3 +261,24 @@ tasks:
       pytest tests passes; npm test passes; data/validate.py --reproduce prints 0 FAIL; the planted stories are
       still detected and the clean-file false-alarm rate is re-measured and documented; docs match the numbers.
     result: "Review fixes applied - exact-binomial signals + 2-signal/Bonferroni rule + baseline screen, exact percentile CIs, chance_below, excess-late ranking, flagged-ZIP list, stage medians, calls behind a signal, messy-input handling, realistic synthetic variation, NFPA 1720 tiered targets; pytest 162 passed, npm test 52 passed, validate --reproduce 74 PASS, --messy 13 PASS; clean-file red county false alarms 0 of 186 (90 d); both planted stories detected; +15%/+25%/drift closure not detected (documented)."
+
+  - id: H-14
+    title: Minimal input contract - drop eta_google_s, reduce disposition to a cancelled flag
+    points: "minimal inputs (5) and reproducible in real life - every input must be collectable from a dispatch center"
+    status: done
+    owner: "claude + Powerpuff Girls"
+    started_at: "2026-10-17 10:30"
+    owns: ["data/", "app/", "tests/", "app/frontend/src/", "README.md", "SPEC.md", "docs/", "CONTRACT.yaml"]
+    notes: >
+      User decision Oct 17 after the input review. eta_google_s is not collectable (needs a paid routing call at
+      assignment plus ambulance origin, which no center stores) and no output uses it. disposition is reduced to
+      cancelled Y/N (the only value any output uses). Verified before the decision: derived timed flags, late
+      flags, total and stage times are identical with and without the eta column. The synthetic generator keeps
+      its internal travel-estimate model, so drive times, the planted closure and every measured number stay the
+      same. Dashboard outputs must match the snapshot taken before the change (differences only in the raw
+      replay field name).
+    definition_of_done: >
+      pytest tests passes; npm test passes; validate --reproduce and --messy pass; the API snapshot compares
+      identical to the pre-change snapshot except the replay event field; no file mentions eta_google_s as an
+      input, and docs list the minimal input set.
+    result: "Incident file is now 10 columns (no travel-estimate column; disposition replaced by cancelled Y/N). Verified: every dashboard response identical to the pre-change snapshot except the replay field name. pytest 164 passed; npm test 52 passed; validate 71 PASS, --reproduce 75 PASS, --messy 14 PASS. Docs updated (README, SPEC, data/README, api.md, plan)."
