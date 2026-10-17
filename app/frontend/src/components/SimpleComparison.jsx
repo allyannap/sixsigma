@@ -4,7 +4,7 @@ import { fmtInt, fmtMin, fmtPct, fmtCi } from '../format.js'
 const LABELS = { below: 'Below goal', meets: 'Meets goal', inconclusive: 'Uncertain' }
 const COLORS = { below: '#C2410C', inconclusive: '#A3AAB1', meets: '#0072B2' }
 const STACK = ['below', 'inconclusive', 'meets']
-const W = 520, PAD = 12, TOP = 22, PLOT = 170, BIN = 10
+const W = 520, PAD = 12, TOP = 40, PLOT = 170, BIN = 10
 
 export function goalGap(p) {
   if (p.on_time_pct == null || p.goal_pct == null) return 'No valid rate'
@@ -73,8 +73,8 @@ function Histogram({ bins, goal, selected, openBin, onOpen }) {
     <line x1={PAD} x2={W - PAD} y1={base} y2={base} stroke="#9AA1A8" />
     {bins.map((b) => <text key={b.from} x={x(b.from)} y={base + 14} textAnchor="middle" className="hist-tick">{b.from}%</text>)}
     <text x={x(100)} y={base + 14} textAnchor="end" className="hist-tick">100%</text>
-    <line x1={x(goal)} x2={x(goal)} y1={TOP - 14} y2={base + 2} stroke="#1F2933" strokeWidth="2" strokeDasharray="5 3" />
-    <text x={x(goal) - 5} y={TOP - 6} textAnchor="end" className="hist-goal">Goal {fmtPct(goal, 0)}</text>
+    <line x1={x(goal)} x2={x(goal)} y1={TOP - 24} y2={base + 2} stroke="#1F2933" strokeWidth="2" strokeDasharray="5 3" />
+    <text x={x(goal)} y={TOP - 30} textAnchor="middle" className="hist-goal">Goal {fmtPct(goal, 0)}</text>
     <path d={`M${x(selected.on_time_pct)} ${base + 20} l-6 9 h12 z`} fill="#1F2933" />
   </svg>
 }
@@ -175,7 +175,7 @@ export default function SimpleComparison({ d }) {
         <datalist id="simple-area-names">{[...areas].sort((a, b) => a.name.localeCompare(b.name)).map((p) => <option key={p.id} value={p.name} />)}</datalist>
         {listing && bin
           ? <BinList bin={bin} selectedId={selected.id} onPick={pick} onClose={() => openList(null)} />
-          : <AreaCard p={selected} areas={areas} deadline={deadline} goal={goal} from={bin} onBack={() => setListing(true)} />}
+          : <div className="card-scroll"><AreaCard p={selected} areas={areas} deadline={deadline} goal={goal} from={bin} onBack={() => setListing(true)} /></div>}
       </section>
     </div>
     <details className="simple-more">

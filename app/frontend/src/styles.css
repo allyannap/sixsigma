@@ -223,7 +223,7 @@ table.places caption { caption-side: top; text-align: left; padding: 4px 0 6px; 
 .simple-key > span { display: inline-flex; align-items: center; gap: 5px; }
 .k { width: 10px; height: 10px; border-radius: 2px; display: inline-block; flex: none; }
 .k-below { background: #C2410C; } .k-inconclusive { background: #A3AAB1; } .k-meets { background: #0072B2; }
-.simple-card { aspect-ratio: 1 / 1; min-height: 0; background: #F5F7FA; border: 1px solid var(--line); border-top: 4px solid #C9CED3; border-radius: 16px; padding: 14px 18px 16px; display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
+.simple-card { height: 500px; min-height: 0; background: #F5F7FA; border: 1px solid var(--line); border-top: 4px solid #C9CED3; border-radius: 16px; padding: 14px 18px 16px; display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
 .simple-card.card-below { border-top-color: #C2410C; } .simple-card.card-meets { border-top-color: #0072B2; } .simple-card.card-inconclusive { border-top-color: #A3AAB1; }
 .card-search { font: inherit; font-size: 13px; width: 100%; min-height: 34px; padding: 0 10px; border: 1px solid var(--line); border-radius: 8px; background: white; }
 .card-back { font: inherit; font-size: 12px; color: var(--blue); background: none; border: 0; padding: 0; text-align: left; cursor: pointer; }
@@ -241,11 +241,11 @@ table.places caption { caption-side: top; text-align: left; padding: 4px 0 6px; 
 .card-pair strong { display: block; font-size: 24px; letter-spacing: -.02em; color: var(--ink); }
 .card-pair span { font-size: 12px; color: var(--muted); }
 .card-caution { background: #FCEFD9; color: #6B4A00 !important; border-radius: 8px; padding: 6px 8px; font-size: 12px !important; }
-.bin-list { list-style: none; margin: 0; padding: 0; overflow-y: auto; flex: 1; border-top: 1px solid var(--line); }
+.bin-list { list-style: none; margin: 0; padding: 0; overflow-y: auto; flex: 1 1 auto; min-height: 0; border-top: 1px solid var(--line); }
 .bin-list button { font: inherit; width: 100%; display: flex; align-items: center; gap: 8px; padding: 7px 4px; border: 0; border-bottom: 1px solid var(--line); background: none; color: var(--ink); cursor: pointer; text-align: left; font-size: 13px; }
 .bin-list button:hover, .bin-list .bin-on { background: #EDF4FC; }
 .bin-list span { flex: 1; } .bin-list small { color: var(--muted); }
-@media (max-width: 760px) { .simple-split { grid-template-columns: 1fr; } .simple-card { aspect-ratio: auto; min-height: 340px; } }
+@media (max-width: 760px) { .simple-split { grid-template-columns: 1fr; } .simple-card { height: 460px; } }
 .simple-proof { font-size: 12px; color: var(--ink2); margin: 8px 0 12px; }
 .simple-more > summary { font-size: 12px; color: var(--blue); min-height: 44px; align-content: center; cursor: pointer; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
@@ -258,7 +258,8 @@ table.places caption { caption-side: top; text-align: left; padding: 4px 0 6px; 
 .info-btn[aria-expanded="true"] { background: #1F2933; color: white; border-color: #1F2933; }
 .info-pop { position: absolute; top: 26px; left: 0; right: 0; z-index: 2; background: #1F2933; color: white !important; font-size: 12px !important; line-height: 1.45; padding: 10px 12px; border-radius: 8px; box-shadow: 0 6px 18px rgba(0,0,0,.18); }
 
-.simple-card { aspect-ratio: auto; overflow: visible; min-height: 0; }
+.simple-card { height: 500px; overflow: hidden; min-height: 0; }
+.simple-card > .card-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding-right: 4px; }
 /* H-13: watch chip, denominators, flagged list, stage table, signal calls */
 .chip-watch { background: #FFF4CC; color: #5C4600; border: 1px dashed #8A6A00; cursor: help; }
 .kpi-sub + .kpi-sub { margin-top: 2px; }
