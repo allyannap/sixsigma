@@ -27,7 +27,9 @@ def evidence():
 def provider(monkeypatch, calls):
     def post(url, **kwargs):
         calls.append((url, kwargs))
-        return httpx.Response(200, json={'done': True, 'message': {'content': 'Selected-period briefing.'}},
+        return httpx.Response(200, json={'done': True, 'message': {'content': json.dumps({
+            'finding': 'Selected-period **briefing**.', 'next_step': "Review the selected area's flagged periods and call records.",
+            'full_briefing': 'This expanded briefing adds context about the selected evidence. It does not change the statistical status.'})}},
                               request=httpx.Request('POST', url))
     monkeypatch.setattr(ai.httpx, 'post', post)
 
@@ -41,7 +43,13 @@ def test_exact_evidence_and_credential_go_only_to_ollama(monkeypatch, evidence):
     assert kwargs['headers'] == {'Authorization': 'Bearer test-ollama-key'}
     assert json.loads(kwargs['json']['messages'][-1]['content']) == evidence
     assert kwargs['json']['stream'] is False
-    assert result['text'] == 'Selected-period briefing.'
+    assert 'format' not in kwargs['json']  # Ollama Cloud does not support structured output mode.
+    assert result['text'] == "Selected-period **briefing**. Review the selected area's flagged periods and call records."
+    assert result['finding'] == 'Selected-period **briefing**.'
+    assert result['next_step'] == "Review the selected area's flagged periods and call records."
+    assert result['full_briefing'].startswith('This expanded briefing')
+    assert result['label'] == 'Watch'
+    assert result['tone'] == 'watch'
     assert 'test-ollama-key' not in json.dumps(result)
 
 
@@ -90,7 +98,50 @@ def test_openai_named_alias_and_missing_key(monkeypatch, evidence):
 def test_no_calls_never_contact_provider(monkeypatch, evidence):
     monkeypatch.setattr(ai.httpx, 'post', lambda *a, **k: pytest.fail('must not contact provider'))
     evidence['place']['valid'] = 0
-    assert ai.generate_summary(evidence)['status'] == 'no_data'
+    evidence['place']['spec'] = 'inconclusive'
+    result = ai.generate_summary(evidence)
+    assert result['status'] == 'no_data'
+    assert (result['label'], result['tone']) == ('Too few calls', 'nodata')
+    assert result['next_step']
+
+
+@pytest.mark.parametrize(('queue', 'spec', 'valid', 'label', 'tone'), [
+    ('act_now', 'below', 100, 'Critical', 'critical'),
+    ('ongoing_gap', 'below', 100, 'Watch', 'watch'),
+    ('recent_change', 'inconclusive', 100, 'Watch', 'watch'),
+    ('meets_stable', 'meets', 100, 'Stable', 'stable'),
+    ('needs_data', 'inconclusive', 318, 'Near goal', 'near'),
+    ('needs_data', 'meets', 318, 'Stable', 'stable'),
+    ('needs_data', 'below', 318, 'Watch', 'watch'),
+    ('needs_data', 'inconclusive', 29, 'Too few calls', 'nodata'),
+])
+def test_status_color_matches_map_legend(monkeypatch, evidence, queue, spec, valid, label, tone):
+    evidence['place']['queue'] = queue
+    evidence['place']['spec'] = spec
+    evidence['place']['valid'] = valid
+    calls = []
+    provider(monkeypatch, calls)
+    result = ai.generate_summary(evidence)
+    assert (result['label'], result['tone']) == (label, tone)
+
+
+@pytest.mark.parametrize('content', [
+    'plain text response',
+    '{"finding":"Too many words", "next_step":"Review", "extra":"ignored"}',
+    json.dumps({'finding': ' '.join(['word'] * 33), 'next_step': 'Review this area carefully with its supervisors today.',
+                'full_briefing': 'The expanded information supports this finding. It remains evidence based.'}),
+    json.dumps({'finding': 'No emphasis in this finding.', 'next_step': 'Review the periods and call records together.',
+                'full_briefing': 'The expanded information supports this finding. It remains evidence based.'}),
+    json.dumps({'finding': 'This **finding** is concise.', 'next_step': 'Review the periods and call records together.',
+                'full_briefing': ' '.join(['detail'] * 76)}),
+])
+def test_invalid_structured_summary_is_rejected(monkeypatch, evidence, content):
+    monkeypatch.setattr(ai.httpx, 'post', lambda url, **kw: httpx.Response(
+        200, json={'done': True, 'message': {'content': content}},
+        request=httpx.Request('POST', url)))
+    with pytest.raises(ai.SummaryUnavailable):
+        ai.generate_summary(evidence)
+    assert not ai._cache
 
 
 @pytest.mark.parametrize('status', [401, 403, 429, 500])
@@ -104,8 +155,8 @@ def test_provider_errors_hide_internals(monkeypatch, evidence, status):
 
 
 @pytest.mark.parametrize('body', [{}, {'done': True, 'message': {'content': ''}},
-    {'done': False, 'message': {'content': 'Partial'}},
-    {'done': True, 'done_reason': 'length', 'message': {'content': 'Truncated'}}])
+    {'done': False, 'message': {'content': '{"finding":"Partial","next_step":"Review this area."}'}},
+    {'done': True, 'done_reason': 'length', 'message': {'content': '{"finding":"Truncated","next_step":"Review this area."}'}}])
 def test_invalid_or_incomplete_output_is_not_cached(monkeypatch, evidence, body):
     monkeypatch.setattr(ai.httpx, 'post', lambda url, **kw: httpx.Response(
         200, json=body, request=httpx.Request('POST', url)))

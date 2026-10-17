@@ -434,7 +434,7 @@ describe('OnScene page (H-14)', () => {
     expect(html).toContain('Wait Time Insights')
     expect(html).toContain('Toggle table for map')
     expect(html).not.toContain('Sentinel')
-    expect(html).toContain('AI summary')
+    expect(html).toContain('>Summary<')
   })
 })
 

@@ -323,6 +323,10 @@ tasks:
       Use existing aggregate statistics and judgments for the selected dates, area, priority and dataset.
       Keep the single-priority UI and current investigation layout. No new statistics, patient-outcome
       claims, causal attribution, operational commands or unrelated heat/hospital/transit tools.
+      Follow-up requested Oct 17: keep the AI card compact and consistently structured, align its status
+      and color with the map legend, and have Ollama write the finding and evidence-review next step.
+      User then requested the full briefing expand control back: preserve the short card, add a separately
+      generated supporting explanation in the evidence drawer, and keep the next step visible in both.
     definition_of_done: >
       .venv/bin/python -m pytest tests/test_ai_summary.py -q passes; npm --prefix app/frontend run build
       succeeds; targeted frontend summary tests pass; live provider call and browser checks confirm
