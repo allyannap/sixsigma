@@ -22,16 +22,9 @@ function DateForm({ from, to, disabled, min, max, onApply }) {
         <input type="date" id="date-from" value={a} min={min} max={max} disabled={disabled} onChange={(e) => setA(e.target.value)} />
       </label>
       <span className="date-sep" aria-hidden="true">&ndash;</span>
-      <div className="date-field">
-        <div className="date-label">
-          <label htmlFor="date-to">To</label>
-          <span className="legend-info">
-            <button type="button" className="legend-info-btn" aria-label="What a blank date means" aria-describedby="date-blank-tip">i</button>
-            <span className="legend-tip" id="date-blank-tip" role="tooltip">Blank dates use the last 90 days of the dataset. The boxes start empty on purpose; that period already has calls.</span>
-          </span>
-        </div>
+      <label className="date-field" htmlFor="date-to"><span className="date-label">To</span>
         <input type="date" id="date-to" value={b} min={min} max={max} disabled={disabled} onChange={(e) => setB(e.target.value)} />
-      </div>
+      </label>
       <button className="btn-primary" type="submit" disabled={disabled}><Icon name="search" size={14} />Search</button>
       {error && <span className="range-error" role="alert">{error}</span>}
       {disabled && <span className="range-hint" id="range-hint">Dates are fixed while the replay runs.</span>}

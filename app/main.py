@@ -349,11 +349,15 @@ def summary(c: Ctx = Depends(common)):
     key = data.child_key(c.level)
     sel_groups = {k: g for k, g in c.sel.groupby(key, observed=True)}
     base_groups = data.child_baselines(c.df, c.level, c.id, c.groups, c.from_, c.baseline_days)
+    # Calls in every urgency group, whatever the urgency filter: how busy each place is and how severe its calls are.
+    every = data.select(c.df, c.level, c.id, list(data.GROUPS), c.from_, c.to)
+    by_urgency = every.groupby([key, "urgency_group"], observed=True).size().to_dict()
     places = []
     for kid in data.children(c.level, c.id):
         rows = sel_groups.get(kid["id"], c.sel.iloc[:0])
         b_rows, b_info = base_groups[kid["id"]]
-        places.append({"id": kid["id"], "name": kid["name"], **place_card(qc, rows, b_rows, b_info, c.days)})
+        places.append({"id": kid["id"], "name": kid["name"], **place_card(qc, rows, b_rows, b_info, c.days),
+                       "calls_by_urgency": {g: int(by_urgency.get((kid["id"], g), 0)) for g in data.GROUPS}})
 
     per_county = data.select(c.df, "state", None, c.groups, c.from_, c.to)["county_fips"].value_counts()
     names = data.lookups()["county_names"]

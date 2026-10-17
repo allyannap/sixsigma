@@ -1,6 +1,6 @@
 // Key Metrics card (three tiles + a plain Summary) and the "Wait Time Insights" row that holds the two chart cards.
 // Every number is read from /api/summary (totals, or the picked place's own card); this file only formats it.
-import { fmtCi, fmtInt, fmtNum, fmtPct, fmtRange } from '../format.js'
+import { fmtCi, fmtInt, fmtNum, fmtPct } from '../format.js'
 import { QUEUE, TIERS, URGENCY, URGENCY_KEYS, tierOf } from '../status.js'
 import { placeFor } from './PlaceHead.jsx'
 import InsightsSlider from './InsightsSlider.jsx'
@@ -89,7 +89,7 @@ function Summary({ place, name, busy }) {
   )
 }
 
-export function MetricsSection({ summaryState, selected, parent, urgency, onToggleUrgency, selection, dataset }) {
+export function MetricsSection({ summaryState, selected, parent, urgency, onToggleUrgency }) {
   const s = summaryState.data
   const t = metricsSource(s, selected, parent)
   const place = placeFor(s, selected, parent)
@@ -100,7 +100,6 @@ export function MetricsSection({ summaryState, selected, parent, urgency, onTogg
     <section className="metrics-section" aria-labelledby="metrics-heading">
       <div className="sec-head">
         <h2 id="metrics-heading">Key Metrics</h2>
-        <span className="section-note">{dataset}{selection ? ` · ${fmtRange(selection)}` : ''}</span>
       </div>
       <div className="card metrics-card">
         <div className="filterbar">
@@ -114,8 +113,6 @@ export function MetricsSection({ summaryState, selected, parent, urgency, onTogg
               ))}
             </span>
           </div>
-          <span className="filter-spacer" />
-          <span className="filter-state">At least one group stays on. Pick one for a clean control chart. No time-of-day filter.</span>
         </div>
 
         <div className="metrics-body" aria-busy={summaryState.loading}>
@@ -135,12 +132,11 @@ export function MetricsSection({ summaryState, selected, parent, urgency, onTogg
 }
 
 /** "<Place> Wait Time Insights": the two chart cards go in as children and show one at a time in a slide card. */
-export function InsightsSection({ placeName, selection, dataset, children }) {
+export function InsightsSection({ placeName, children }) {
   return (
     <section className="insights" aria-labelledby="insights-title">
       <div className="sec-head">
         <h2 className="insights-title" id="insights-title">{placeName} Wait Time Insights</h2>
-        <span className="section-note">{dataset}{selection ? ` · ${fmtRange(selection)}` : ''}</span>
       </div>
       <InsightsSlider>{children}</InsightsSlider>
     </section>

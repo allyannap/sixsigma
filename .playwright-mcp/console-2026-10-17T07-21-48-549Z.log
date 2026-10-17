@@ -1,0 +1,1124 @@
+[ 1994978ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=96a95b07:21608
+[ 1995032ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Outdated Optimize Dep) @ http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=204b6742:0
+[ 1995036ms] Failed to fetch dynamically imported module: http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=204b6742
+[ 1995036ms] Failed to fetch dynamically imported module: http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=204b6742
+[ 1995048ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=red%2Cyellow%2Cgreen:0
+[ 1995048ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=red%2Cyellow%2Cgreen&level=state:0
+[ 2002936ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=96a95b07:21608
+[ 2002965ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Outdated Optimize Dep) @ http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=204b6742:0
+[ 2002971ms] Failed to fetch dynamically imported module: http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=204b6742
+[ 2002971ms] Failed to fetch dynamically imported module: http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=204b6742
+[ 2002979ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=red%2Cyellow%2Cgreen:0
+[ 2002980ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=red%2Cyellow%2Cgreen&level=state:0
+[ 2069718ms] [LOG] [vite] server connection lost. Polling for restart... @ http://localhost:5173/@vite/client:914
+[ 2069721ms] [ERROR] WebSocket connection to 'ws://localhost:5173/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:5173/@vite/client:986
+[ 2070724ms] [ERROR] WebSocket connection to 'ws://localhost:5173/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:5173/@vite/client:986
+[ 2071730ms] [ERROR] WebSocket connection to 'ws://localhost:5173/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:5173/@vite/client:986
+[ 2073261ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:21608
+[ 2073512ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=red%2Cyellow%2Cgreen:0
+[ 2073575ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=red%2Cyellow%2Cgreen&level=state:0
+[ 2152104ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:21608
+[ 2152197ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=red%2Cyellow%2Cgreen&level=state:0
+[ 2152197ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=red%2Cyellow%2Cgreen:0
+[ 2191739ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=red%2Cgreen&level=state:0
+[ 2191739ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=red%2Cgreen:0
+[ 2197903ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=red%2Cyellow%2Cgreen&level=state:0
+[ 2197904ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=red%2Cyellow%2Cgreen:0
+[ 2202132ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=red%2Cgreen&level=state:0
+[ 2202135ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=red%2Cgreen:0
+[ 2205149ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=red&level=state:0
+[ 2205151ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=red:0
+[ 2208669ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=red%2Cyellow:0
+[ 2208672ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=red%2Cyellow&level=state:0
+[ 2211187ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=red%2Cyellow%2Cgreen:0
+[ 2211191ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=red%2Cyellow%2Cgreen&level=state:0
+[ 2216466ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=red%2Cgreen:0
+[ 2216471ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=red%2Cgreen&level=state:0
+[ 2219687ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=red%2Cyellow%2Cgreen&level=state:0
+[ 2219688ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=red%2Cyellow%2Cgreen:0
+[ 2222764ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=yellow%2Cgreen&level=state:0
+[ 2222766ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=yellow%2Cgreen:0
+[ 2226379ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=green:0
+[ 2226382ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=green&level=state:0
+[ 2230733ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=yellow%2Cgreen&level=state:0
+[ 2230736ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=yellow%2Cgreen:0
+[ 2231506ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=red%2Cyellow%2Cgreen&level=state:0
+[ 2231508ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=red%2Cyellow%2Cgreen:0
+[ 2238937ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=red%2Cgreen&level=state:0
+[ 2238937ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=red%2Cgreen:0
+[ 2276779ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:21608
+[ 2276832ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=red%2Cyellow%2Cgreen:0
+[ 2276872ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=red%2Cyellow%2Cgreen&level=state:0
+[ 2277902ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:21608
+[ 2278312ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=red%2Cyellow%2Cgreen&level=state:0
+[ 2278316ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=red%2Cyellow%2Cgreen:0
+[ 2293886ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:21608
+[ 2293972ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=red%2Cyellow%2Cgreen:0
+[ 2294016ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=red%2Cyellow%2Cgreen&level=state:0
+[ 2294126ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:21608
+[ 2294229ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=red%2Cyellow%2Cgreen&level=state:0
+[ 2294250ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=red%2Cyellow%2Cgreen:0
+[ 2349294ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=red%2Cgreen&level=state:0
+[ 2349310ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=red%2Cgreen:0
+[ 2365683ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:21608
+[ 2365735ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=red%2Cyellow%2Cgreen&level=state:0
+[ 2365735ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=red%2Cyellow%2Cgreen:0
+[ 2487675ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:21608
+[ 2487798ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=red%2Cyellow%2Cgreen&level=state:0
+[ 2487798ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=red%2Cyellow%2Cgreen:0
+[ 2531453ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=red%2Cgreen&level=state:0
+[ 2531453ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=red%2Cgreen:0
+[ 2532463ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=red%2Cyellow%2Cgreen&level=state:0
+[ 2532465ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=red%2Cyellow%2Cgreen:0
+[ 2534436ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=red%2Cyellow%2Cgreen:0
+[ 2534437ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=red%2Cyellow%2Cgreen&level=state:0
+[ 2549311ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=red%2Cyellow%2Cgreen&level=state:0
+[ 2549322ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=red%2Cyellow%2Cgreen:0
+[ 2557744ms] ReferenceError: tipText is not defined
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224266217:421:16)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at updateFunctionComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14630:28)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15972:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2557765ms] ReferenceError: tipText is not defined
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224266217:421:16)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at updateFunctionComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14630:28)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15972:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2557792ms] [ERROR] The above error occurred in the <MapCard> component:
+
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224266217:369:20)
+    at MapSection (http://localhost:5173/src/components/MapSection.jsx?t=1792224266217:1088:61)
+    at div
+    at main
+    at div
+    at div
+    at App (http://localhost:5173/src/App.jsx?t=1792224266217:38:33)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14079
+[ 2557830ms] ReferenceError: tipText is not defined
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224266217:421:16)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at updateFunctionComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14630:28)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15972:22)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19806:22)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+    at renderRootSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19169:15)
+    at recoverFromConcurrentError (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:18786:28)
+    at performSyncWorkOnRoot (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:18932:28)
+[ 2560063ms] ReferenceError: tipText is not defined
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224268533:421:16)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2560065ms] ReferenceError: tipText is not defined
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224268533:421:16)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2560065ms] [ERROR] The above error occurred in the <MapCard> component:
+
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224268533:369:20)
+    at MapSection (http://localhost:5173/src/components/MapSection.jsx?t=1792224268533:1088:61)
+    at div
+    at main
+    at div
+    at div
+    at App (http://localhost:5173/src/App.jsx?t=1792224268533:38:33)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14079
+[ 2560065ms] ReferenceError: tipText is not defined
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224268533:421:16)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19806:22)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+    at renderRootSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19169:15)
+    at recoverFromConcurrentError (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:18786:28)
+    at performSyncWorkOnRoot (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:18932:28)
+[ 2562217ms] ReferenceError: tipText is not defined
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224270705:421:16)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2562220ms] ReferenceError: tipText is not defined
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224270705:421:16)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2562221ms] [ERROR] The above error occurred in the <MapCard> component:
+
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224270705:369:20)
+    at MapSection (http://localhost:5173/src/components/MapSection.jsx?t=1792224270705:1088:61)
+    at div
+    at main
+    at div
+    at div
+    at App (http://localhost:5173/src/App.jsx?t=1792224270705:38:33)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14079
+[ 2562221ms] ReferenceError: tipText is not defined
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224270705:421:16)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19806:22)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+    at renderRootSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19169:15)
+    at recoverFromConcurrentError (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:18786:28)
+    at performSyncWorkOnRoot (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:18932:28)
+[ 2563509ms] ReferenceError: tipText is not defined
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224271960:421:16)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2563511ms] ReferenceError: tipText is not defined
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224271960:421:16)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2563512ms] [ERROR] The above error occurred in the <MapCard> component:
+
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224271960:369:20)
+    at MapSection (http://localhost:5173/src/components/MapSection.jsx?t=1792224271960:1088:61)
+    at div
+    at main
+    at div
+    at div
+    at App (http://localhost:5173/src/App.jsx?t=1792224271960:38:33)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14079
+[ 2563513ms] ReferenceError: tipText is not defined
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224271960:421:16)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19806:22)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+    at renderRootSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19169:15)
+    at recoverFromConcurrentError (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:18786:28)
+    at performSyncWorkOnRoot (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:18932:28)
+[ 2563579ms] ReferenceError: tipText is not defined
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224272061:421:16)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2563581ms] ReferenceError: tipText is not defined
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224272061:421:16)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2563582ms] [ERROR] The above error occurred in the <MapCard> component:
+
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224272061:369:20)
+    at MapSection (http://localhost:5173/src/components/MapSection.jsx?t=1792224272061:1088:61)
+    at div
+    at main
+    at div
+    at div
+    at App (http://localhost:5173/src/App.jsx?t=1792224272061:38:33)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14079
+[ 2563583ms] ReferenceError: tipText is not defined
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224272061:421:16)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19806:22)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+    at renderRootSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19169:15)
+    at recoverFromConcurrentError (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:18786:28)
+    at performSyncWorkOnRoot (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:18932:28)
+[ 2564939ms] ReferenceError: tipText is not defined
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224273424:421:16)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2564941ms] ReferenceError: tipText is not defined
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224273424:421:16)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2564942ms] [ERROR] The above error occurred in the <MapCard> component:
+
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224273424:369:20)
+    at MapSection (http://localhost:5173/src/components/MapSection.jsx?t=1792224273424:1088:61)
+    at div
+    at main
+    at div
+    at div
+    at App (http://localhost:5173/src/App.jsx?t=1792224273424:38:33)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14079
+[ 2564942ms] ReferenceError: tipText is not defined
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224273424:421:16)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19806:22)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+    at renderRootSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19169:15)
+    at recoverFromConcurrentError (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:18786:28)
+    at performSyncWorkOnRoot (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:18932:28)
+[ 2566454ms] ReferenceError: tipText is not defined
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224274930:422:16)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2566456ms] ReferenceError: tipText is not defined
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224274930:422:16)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2566458ms] [ERROR] The above error occurred in the <MapCard> component:
+
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224274930:369:20)
+    at MapSection (http://localhost:5173/src/components/MapSection.jsx?t=1792224274930:1089:61)
+    at div
+    at main
+    at div
+    at div
+    at App (http://localhost:5173/src/App.jsx?t=1792224274930:38:33)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14079
+[ 2566459ms] ReferenceError: tipText is not defined
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224274930:422:16)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19806:22)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+    at renderRootSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19169:15)
+    at recoverFromConcurrentError (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:18786:28)
+    at performSyncWorkOnRoot (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:18932:28)
+[ 2566537ms] ReferenceError: tipText is not defined
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224275030:422:16)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2566540ms] ReferenceError: tipText is not defined
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224275030:422:16)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2566541ms] [ERROR] The above error occurred in the <MapCard> component:
+
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224275030:369:20)
+    at MapSection (http://localhost:5173/src/components/MapSection.jsx?t=1792224275030:1089:61)
+    at div
+    at main
+    at div
+    at div
+    at App (http://localhost:5173/src/App.jsx?t=1792224275030:38:33)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14079
+[ 2566542ms] ReferenceError: tipText is not defined
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224275030:422:16)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19806:22)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+    at renderRootSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19169:15)
+    at recoverFromConcurrentError (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:18786:28)
+    at performSyncWorkOnRoot (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:18932:28)
+[ 2567944ms] TypeError: tipFor is not a function
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224276279:217:15)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2567945ms] TypeError: tipFor is not a function
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224276279:217:15)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2567945ms] TypeError: tipFor is not a function
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224276279:217:15)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2567945ms] TypeError: tipFor is not a function
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224276279:217:15)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2567945ms] TypeError: tipFor is not a function
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224276279:217:15)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2567946ms] TypeError: tipFor is not a function
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224276279:217:15)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2567946ms] TypeError: tipFor is not a function
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224276279:217:15)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2567946ms] TypeError: tipFor is not a function
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224276279:217:15)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2567946ms] TypeError: tipFor is not a function
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224276279:217:15)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2567946ms] TypeError: tipFor is not a function
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224276279:217:15)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2567942ms] [ERROR] The above error occurred in the <Shape> component:
+
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224276279:216:18)
+    at svg
+    at div
+    at div
+    at Boroughs (http://localhost:5173/src/components/MapSection.jsx?t=1792224276279:252:21)
+    at section
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224276279:369:20)
+    at MapSection (http://localhost:5173/src/components/MapSection.jsx?t=1792224276279:1089:61)
+    at div
+    at main
+    at div
+    at div
+    at App (http://localhost:5173/src/App.jsx?t=1792224276279:38:33)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14079
+[ 2567943ms] [ERROR] The above error occurred in the <Shape> component:
+
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224276279:216:18)
+    at svg
+    at div
+    at div
+    at Boroughs (http://localhost:5173/src/components/MapSection.jsx?t=1792224276279:252:21)
+    at section
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224276279:369:20)
+    at MapSection (http://localhost:5173/src/components/MapSection.jsx?t=1792224276279:1089:61)
+    at div
+    at main
+    at div
+    at div
+    at App (http://localhost:5173/src/App.jsx?t=1792224276279:38:33)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14079
+[ 2567943ms] [ERROR] The above error occurred in the <Shape> component:
+
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224276279:216:18)
+    at svg
+    at div
+    at div
+    at Boroughs (http://localhost:5173/src/components/MapSection.jsx?t=1792224276279:252:21)
+    at section
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224276279:369:20)
+    at MapSection (http://localhost:5173/src/components/MapSection.jsx?t=1792224276279:1089:61)
+    at div
+    at main
+    at div
+    at div
+    at App (http://localhost:5173/src/App.jsx?t=1792224276279:38:33)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14079
+[ 2567943ms] [ERROR] The above error occurred in the <Shape> component:
+
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224276279:216:18)
+    at svg
+    at div
+    at div
+    at Boroughs (http://localhost:5173/src/components/MapSection.jsx?t=1792224276279:252:21)
+    at section
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224276279:369:20)
+    at MapSection (http://localhost:5173/src/components/MapSection.jsx?t=1792224276279:1089:61)
+    at div
+    at main
+    at div
+    at div
+    at App (http://localhost:5173/src/App.jsx?t=1792224276279:38:33)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14079
+[ 2567943ms] [ERROR] The above error occurred in the <Shape> component:
+
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224276279:216:18)
+    at svg
+    at div
+    at div
+    at Boroughs (http://localhost:5173/src/components/MapSection.jsx?t=1792224276279:252:21)
+    at section
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224276279:369:20)
+    at MapSection (http://localhost:5173/src/components/MapSection.jsx?t=1792224276279:1089:61)
+    at div
+    at main
+    at div
+    at div
+    at App (http://localhost:5173/src/App.jsx?t=1792224276279:38:33)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14079
+[ 2567946ms] TypeError: tipFor is not a function
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224276279:217:15)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19806:22)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+    at renderRootSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19169:15)
+    at recoverFromConcurrentError (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:18786:28)
+    at performConcurrentWorkOnRoot (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:18734:30)
+[ 2570582ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=red%2Cyellow%2Cgreen:0
+[ 2570586ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=red%2Cyellow%2Cgreen&level=state:0
+[ 2570822ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=red%2Cyellow%2Cgreen:0
+[ 2570838ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=red%2Cyellow%2Cgreen&level=state:0
+[ 2609973ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:21608
+[ 2610058ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=red%2Cyellow%2Cgreen:0
+[ 2610058ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=red%2Cyellow%2Cgreen&level=state:0
+[ 2648202ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:21608
+[ 2648250ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=red%2Cyellow%2Cgreen:0
+[ 2648251ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=red%2Cyellow%2Cgreen&level=state:0
+[ 2750438ms] TypeError: Cannot read properties of undefined (reading 'join')
+    at http://localhost:5173/src/components/GlMap.jsx?t=1792224281684:198:171
+    at Array.map (<anonymous>)
+    at GlMap (http://localhost:5173/src/components/GlMap.jsx?t=1792224281684:196:190)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at updateFunctionComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14630:28)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15972:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+[ 2750440ms] TypeError: Cannot read properties of undefined (reading 'join')
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224458898:336:44)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at updateFunctionComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14630:28)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15972:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2750441ms] TypeError: Cannot read properties of undefined (reading 'join')
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224458898:336:44)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at updateFunctionComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14630:28)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15972:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2750441ms] TypeError: Cannot read properties of undefined (reading 'join')
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224458898:336:44)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at updateFunctionComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14630:28)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15972:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2750441ms] TypeError: Cannot read properties of undefined (reading 'join')
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224458898:336:44)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at updateFunctionComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14630:28)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15972:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2750441ms] TypeError: Cannot read properties of undefined (reading 'join')
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224458898:336:44)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at updateFunctionComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14630:28)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15972:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2750465ms] TypeError: Cannot read properties of undefined (reading 'join')
+    at http://localhost:5173/src/components/GlMap.jsx?t=1792224281684:198:171
+    at Array.map (<anonymous>)
+    at GlMap (http://localhost:5173/src/components/GlMap.jsx?t=1792224281684:196:190)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at updateFunctionComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14630:28)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15972:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+[ 2750466ms] TypeError: Cannot read properties of undefined (reading 'join')
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224458898:336:44)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at updateFunctionComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14630:28)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15972:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2750466ms] TypeError: Cannot read properties of undefined (reading 'join')
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224458898:336:44)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at updateFunctionComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14630:28)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15972:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2750466ms] TypeError: Cannot read properties of undefined (reading 'join')
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224458898:336:44)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at updateFunctionComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14630:28)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15972:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2750466ms] TypeError: Cannot read properties of undefined (reading 'join')
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224458898:336:44)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at updateFunctionComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14630:28)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15972:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2750466ms] TypeError: Cannot read properties of undefined (reading 'join')
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224458898:336:44)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at updateFunctionComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14630:28)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15972:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2750487ms] [ERROR] The above error occurred in the <GlMap> component:
+
+    at GlMap (http://localhost:5173/src/components/GlMap.jsx?t=1792224281684:41:33)
+    at section
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224458898:487:20)
+    at MapSection (http://localhost:5173/src/components/MapSection.jsx?t=1792224458898:1202:61)
+    at div
+    at main
+    at div
+    at div
+    at App (http://localhost:5173/src/App.jsx?t=1792224458898:38:33)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14079
+[ 2750487ms] [ERROR] The above error occurred in the <Shape> component:
+
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224458898:334:18)
+    at svg
+    at div
+    at div
+    at Boroughs (http://localhost:5173/src/components/MapSection.jsx?t=1792224458898:370:21)
+    at section
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224458898:487:20)
+    at MapSection (http://localhost:5173/src/components/MapSection.jsx?t=1792224458898:1202:61)
+    at div
+    at main
+    at div
+    at div
+    at App (http://localhost:5173/src/App.jsx?t=1792224458898:38:33)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14079
+[ 2750487ms] [ERROR] The above error occurred in the <Shape> component:
+
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224458898:334:18)
+    at svg
+    at div
+    at div
+    at Boroughs (http://localhost:5173/src/components/MapSection.jsx?t=1792224458898:370:21)
+    at section
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224458898:487:20)
+    at MapSection (http://localhost:5173/src/components/MapSection.jsx?t=1792224458898:1202:61)
+    at div
+    at main
+    at div
+    at div
+    at App (http://localhost:5173/src/App.jsx?t=1792224458898:38:33)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14079
+[ 2750487ms] [ERROR] The above error occurred in the <Shape> component:
+
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224458898:334:18)
+    at svg
+    at div
+    at div
+    at Boroughs (http://localhost:5173/src/components/MapSection.jsx?t=1792224458898:370:21)
+    at section
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224458898:487:20)
+    at MapSection (http://localhost:5173/src/components/MapSection.jsx?t=1792224458898:1202:61)
+    at div
+    at main
+    at div
+    at div
+    at App (http://localhost:5173/src/App.jsx?t=1792224458898:38:33)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14079
+[ 2750487ms] [ERROR] The above error occurred in the <Shape> component:
+
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224458898:334:18)
+    at svg
+    at div
+    at div
+    at Boroughs (http://localhost:5173/src/components/MapSection.jsx?t=1792224458898:370:21)
+    at section
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224458898:487:20)
+    at MapSection (http://localhost:5173/src/components/MapSection.jsx?t=1792224458898:1202:61)
+    at div
+    at main
+    at div
+    at div
+    at App (http://localhost:5173/src/App.jsx?t=1792224458898:38:33)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14079
+[ 2750487ms] [ERROR] The above error occurred in the <Shape> component:
+
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224458898:334:18)
+    at svg
+    at div
+    at div
+    at Boroughs (http://localhost:5173/src/components/MapSection.jsx?t=1792224458898:370:21)
+    at section
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224458898:487:20)
+    at MapSection (http://localhost:5173/src/components/MapSection.jsx?t=1792224458898:1202:61)
+    at div
+    at main
+    at div
+    at div
+    at App (http://localhost:5173/src/App.jsx?t=1792224458898:38:33)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14079
+[ 2750509ms] TypeError: Cannot read properties of undefined (reading 'join')
+    at http://localhost:5173/src/components/GlMap.jsx?t=1792224281684:198:171
+    at Array.map (<anonymous>)
+    at GlMap (http://localhost:5173/src/components/GlMap.jsx?t=1792224281684:196:190)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at updateFunctionComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14630:28)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15972:22)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19806:22)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+    at renderRootSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19169:15)
+[ 2751502ms] TypeError: Cannot read properties of undefined (reading 'join')
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224459931:336:44)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2751504ms] TypeError: Cannot read properties of undefined (reading 'join')
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224459931:336:44)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2751506ms] TypeError: Cannot read properties of undefined (reading 'join')
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224459931:336:44)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2751506ms] TypeError: Cannot read properties of undefined (reading 'join')
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224459931:336:44)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2751506ms] TypeError: Cannot read properties of undefined (reading 'join')
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224459931:336:44)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2751510ms] TypeError: Cannot read properties of undefined (reading 'join')
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224459931:336:44)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2751510ms] TypeError: Cannot read properties of undefined (reading 'join')
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224459931:336:44)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2751510ms] TypeError: Cannot read properties of undefined (reading 'join')
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224459931:336:44)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2751510ms] TypeError: Cannot read properties of undefined (reading 'join')
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224459931:336:44)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2751511ms] TypeError: Cannot read properties of undefined (reading 'join')
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224459931:336:44)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+[ 2751510ms] [ERROR] The above error occurred in the <Shape> component:
+
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224459931:334:18)
+    at svg
+    at div
+    at div
+    at Boroughs (http://localhost:5173/src/components/MapSection.jsx?t=1792224459931:370:21)
+    at section
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224459931:487:20)
+    at MapSection (http://localhost:5173/src/components/MapSection.jsx?t=1792224459931:1195:61)
+    at div
+    at main
+    at div
+    at div
+    at App (http://localhost:5173/src/App.jsx?t=1792224459931:38:33)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14079
+[ 2751510ms] [ERROR] The above error occurred in the <Shape> component:
+
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224459931:334:18)
+    at svg
+    at div
+    at div
+    at Boroughs (http://localhost:5173/src/components/MapSection.jsx?t=1792224459931:370:21)
+    at section
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224459931:487:20)
+    at MapSection (http://localhost:5173/src/components/MapSection.jsx?t=1792224459931:1195:61)
+    at div
+    at main
+    at div
+    at div
+    at App (http://localhost:5173/src/App.jsx?t=1792224459931:38:33)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14079
+[ 2751510ms] [ERROR] The above error occurred in the <Shape> component:
+
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224459931:334:18)
+    at svg
+    at div
+    at div
+    at Boroughs (http://localhost:5173/src/components/MapSection.jsx?t=1792224459931:370:21)
+    at section
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224459931:487:20)
+    at MapSection (http://localhost:5173/src/components/MapSection.jsx?t=1792224459931:1195:61)
+    at div
+    at main
+    at div
+    at div
+    at App (http://localhost:5173/src/App.jsx?t=1792224459931:38:33)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14079
+[ 2751510ms] [ERROR] The above error occurred in the <Shape> component:
+
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224459931:334:18)
+    at svg
+    at div
+    at div
+    at Boroughs (http://localhost:5173/src/components/MapSection.jsx?t=1792224459931:370:21)
+    at section
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224459931:487:20)
+    at MapSection (http://localhost:5173/src/components/MapSection.jsx?t=1792224459931:1195:61)
+    at div
+    at main
+    at div
+    at div
+    at App (http://localhost:5173/src/App.jsx?t=1792224459931:38:33)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14079
+[ 2751510ms] [ERROR] The above error occurred in the <Shape> component:
+
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224459931:334:18)
+    at svg
+    at div
+    at div
+    at Boroughs (http://localhost:5173/src/components/MapSection.jsx?t=1792224459931:370:21)
+    at section
+    at MapCard (http://localhost:5173/src/components/MapSection.jsx?t=1792224459931:487:20)
+    at MapSection (http://localhost:5173/src/components/MapSection.jsx?t=1792224459931:1195:61)
+    at div
+    at main
+    at div
+    at div
+    at App (http://localhost:5173/src/App.jsx?t=1792224459931:38:33)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14079
+[ 2751511ms] TypeError: Cannot read properties of undefined (reading 'join')
+    at Shape (http://localhost:5173/src/components/MapSection.jsx?t=1792224459931:336:44)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:15962:22)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19806:22)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19190:13)
+    at renderRootSync (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:19169:15)
+    at recoverFromConcurrentError (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:18786:28)
+    at performConcurrentWorkOnRoot (http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:18734:30)
+[ 2752955ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=red%2Cyellow%2Cgreen&level=state:0
+[ 2752963ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=red%2Cyellow%2Cgreen:0
+[ 2754815ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=red%2Cyellow%2Cgreen:0
+[ 2755162ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=red%2Cyellow%2Cgreen&level=state:0
+[ 2762185ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=red%2Cyellow%2Cgreen:0
+[ 2762217ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=red%2Cyellow%2Cgreen&level=state:0
+[ 2796383ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-KVMAXHTM.js?v=c12bf58f:21608
+[ 2796484ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/stages?dataset=baseline&urgency=red%2Cyellow%2Cgreen&level=state:0
+[ 2796494ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/flagged?dataset=baseline&urgency=red%2Cyellow%2Cgreen:0
