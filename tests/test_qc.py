@@ -3,6 +3,7 @@
 Run from the repo root:  .venv/bin/python -m pytest tests/test_qc.py -v
 """
 import math
+from statistics import NormalDist
 
 import numpy as np
 import pytest
@@ -33,15 +34,44 @@ IMR_X = [1.0, 1.2, 0.9, 1.1, 1.3]
 
 # ---------------------------------------------------------------- 1. p chart
 
+# Hand work, n = 20 per day, baseline 20 late of 100 so p-bar = 0.20:
+#   UCL = 0.2 + 3 sqrt(0.2 x 0.8 / 20) = 0.2 + 3 x 0.08944 = 0.4683; LCL = 0.2 - 0.2683 < 0, floored at 0.
+#   Day 5 with 12 late: p = 0.60 > UCL. Exact tail P(X >= 12 | 20, 0.2) = sum over k = 12..20 of C(20,k) 0.2^k 0.8^(20-k)
+#   = 125970 x 4.096e-9 x 0.16777 (8.66e-5) + 77520 x 8.192e-10 x 0.20972 (1.33e-5) + 1.67e-6 + 1.7e-7 + ... = 1.017e-4,
+#   under 0.00135: a signal.
 def test_p_chart_known_answer():
-    r = qc.p_chart([20] * 5, [2, 3, 1, 4, 10], 100, 20)
+    r = qc.p_chart([20] * 5, [2, 3, 1, 4, 12], 100, 20)
     assert r["p_bar"] == approx(0.20)
     assert [p["signal"] for p in r["points"]] == [False, False, False, False, True]
-    assert r["points"][4]["p"] == approx(0.5)
+    assert r["points"][4]["p"] == approx(0.6)
+    assert r["points"][4]["p_value"] == pytest.approx(1.0173e-4, abs=1e-7)
     assert r["points"][0]["ucl"] == approx(0.4683)
     assert r["points"][0]["lcl"] == 0.0           # 0.2 - 3 x 0.08944 is negative: floored at 0
     assert r["run_signal"] is False
     no_bad_numbers(r)
+
+
+def test_p_chart_above_ucl_but_exact_tail_too_large_is_not_a_signal():
+    # Day 5 with 10 late: p = 0.50 > UCL 0.4683, but P(X >= 10 | 20, 0.2) = 0.00259 > 0.00135: not a signal.
+    r = qc.p_chart([20] * 5, [2, 3, 1, 4, 10], 100, 20)
+    last = r["points"][4]
+    assert last["p"] > last["ucl"]
+    assert last["p_value"] == pytest.approx(0.0025948, abs=1e-6)
+    assert last["signal"] is False
+
+
+def test_p_chart_tiny_period_cannot_signal_on_normal_approximation_error():
+    # p-bar 0.10, n = 5 (n p-bar = 0.5): UCL = 0.1 + 3 sqrt(0.09 / 5) = 0.5024; 3 late of 5 is p = 0.6 > UCL.
+    # Exact: P(X >= 3) = C(5,3) 0.1^3 0.9^2 + C(5,4) 0.1^4 0.9 + 0.1^5 = 0.0081 + 0.00045 + 0.00001 = 0.00856 > 0.00135.
+    r = qc.p_chart([5], [3], 100, 10)
+    pt = r["points"][0]
+    assert pt["p"] > pt["ucl"] and pt["signal"] is False
+    assert pt["p_value"] == pytest.approx(0.00856, abs=1e-8)
+
+
+def test_p_chart_empty_period_has_no_p_value_and_no_signal():
+    r = qc.p_chart([0, 20], [0, 2], 100, 20)
+    assert r["points"][0]["p_value"] is None and r["points"][0]["signal"] is False
 
 
 def test_p_chart_ucl_is_capped_at_one():
@@ -190,7 +220,7 @@ def test_capability_known_answer():
     assert r["upper"] == approx(2.8803)
     assert r["bar"] == approx(0.4272)
     assert r["n"] == 5
-    assert r["too_slow"] is False
+    assert "too_slow" not in r                               # the removed status is gone
     no_bad_numbers(r)
 
 
@@ -200,15 +230,9 @@ def test_capability_uses_supplied_sigma():
     assert r["cpk"] == approx(1.6368)
 
 
-def test_capability_too_slow_when_upper_bound_below_bar():
-    x = [3.0, 3.2, 2.9, 3.1, 3.3] * 20                       # mean ln 3.1 is above ln 8 = 2.08: Cpk negative
-    r = qc.capability(x, math.log(8), 90)
-    assert r["cpk"] < 0 and r["too_slow"] is True
-
-
 def test_capability_constant_data_is_undefined():
     r = qc.capability([1.0] * 10, math.log(8), 90)
-    assert r["cpk"] is None and r["upper"] is None and r["too_slow"] is False
+    assert r["cpk"] is None and r["upper"] is None
     assert "no variation: Cpk undefined" in r["messages"]
     no_bad_numbers(r)
 
@@ -224,57 +248,99 @@ def test_capability_bad_goal():
     assert r["cpk"] is None and r["messages"]
 
 
-def test_cpk_bound_equal_to_bar_is_not_too_slow():
-    # capability(): upper exactly equal to the bar must not be called too slow. Use a stub value through the rule.
-    assert qc.is_too_slow(0.4272, 0.4272) is False
-    assert qc.is_too_slow(0.4271, 0.4272) is True
-    assert qc.is_too_slow(None, 0.4272) is False
+# ---------------------------------------------------------------- 4. percentiles with exact intervals
 
-
-
-# ---------------------------------------------------------------- 4. P95
-
-def test_p95_known_answer():
-    r = qc.p95_boot(list(range(1, 21)))
+# Hand work, values 1..20 (linear interpolation, k = q (n - 1) = 19 q):
+#   median: k = 9.5 -> 10.5;  P90: k = 17.1 -> 1 + 17.1 = 18.1;  P95: k = 18.05 -> 1 + 18.05 = 19.05.
+# Median interval, B ~ Binomial(20, 0.5): P(B <= 5) = (1 + 20 + 190 + 1140 + 4845 + 15504) / 2^20 = 21700 / 1048576 = 0.020695,
+#   and by symmetry P(B <= 14) = 0.979305. Ranks l = 6, u = 15 cover P(6 <= B <= 14) = 0.958610 >= 0.95
+#   (the next narrower pairs (6, 14) and (7, 15) give 0.9216). So the interval is [x_6, x_15] = [6, 15].
+# P95 interval: B ~ Binomial(20, 0.95). The widest interval [x_1, x_20] covers 1 - 0.95^20 - 0.05^20 = 0.642 < 0.95,
+#   so no upper rank exists: the upper bound is None. Lower bound alone (2.5% tail): with F = number of failures
+#   ~ Binomial(20, 0.05), P(B <= 16) = P(F >= 4) = 1 - (0.3585 + 0.3774 + 0.1887 + 0.0596) = 0.0159 <= 0.025 but
+#   P(B <= 17) = P(F >= 3) = 0.0755 > 0.025, so the largest lower rank is l = 17 and the bound is x_17 = 17.
+def test_percentiles_known_answer():
+    r = qc.percentiles(list(range(1, 21)))
+    assert r["n"] == 20
     assert r["p95"] == approx(19.05)
-    assert r["p90"] == approx(18.1)                          # 1 + 0.9 x 19
+    assert r["p90"] == approx(18.1)
     assert r["median"] == approx(10.5)
     assert r["spread"] == approx(8.55)
-    lo, hi = r["ci"]
-    assert 1 <= lo <= r["p95"] <= hi <= 20
-    mlo, mhi = r["median_ci"]
-    assert 1 <= mlo <= 10.5 <= mhi <= 20
+    assert r["median_ci"] == [6.0, 15.0]
+    assert r["p95_ci"] == [17.0, None]
+    assert "P95 upper bound not estimable under 59 calls" in r["messages"]
+    assert not any("median" in m for m in r["messages"])
+    no_bad_numbers(r)
 
 
-def test_p95_is_reproducible_with_fixed_seed():
-    x = list(np.random.default_rng(1).lognormal(2, 0.4, 300))
-    assert qc.p95_boot(x)["ci"] == qc.p95_boot(x)["ci"]
+def _binom_cdf(k, n, q):
+    """P(B <= k) for B ~ Binomial(n, q), summed term by term (independent of scipy)."""
+    return sum(math.comb(n, i) * q ** i * (1 - q) ** (n - i) for i in range(0, k + 1))
 
 
-def test_p95_constant_and_single_value_give_point_interval():
-    assert qc.p95_boot([7.0] * 50)["ci"] == [7.0, 7.0]
-    r = qc.p95_boot([4.0])
-    assert r["ci"] == [4.0, 4.0] and r["p95"] == 4.0 and r["spread"] == 0.0 and r["median_ci"] == [4.0, 4.0]
+def test_percentile_interval_coverage_matches_the_binomial_formula():
+    # n = 60, P95: the returned ranks (values 1..60 so value = rank) must cover with probability >= 0.95.
+    r = qc.percentiles(list(range(1, 61)))
+    lo, hi = r["p95_ci"]
+    assert lo is not None and hi is not None
+    coverage = _binom_cdf(int(hi) - 1, 60, 0.95) - _binom_cdf(int(lo) - 1, 60, 0.95)   # P(l <= B < u)
+    assert coverage >= 0.95
+    assert not r["messages"]
 
 
-def test_p95_empty():
-    r = qc.p95_boot([])
-    assert r["p95"] is None and r["ci"] == [None, None] and r["median_ci"] == [None, None] and r["messages"]
+def test_percentile_interval_exists_from_59_calls_for_p95_and_6_for_the_median():
+    # Widest interval [x_1, x_n] covers 1 - q^n - (1 - q)^n: P95 at n = 58 is 1 - 0.0510 = 0.949 (no), at 59 0.9515 (yes).
+    assert qc.percentiles(list(range(1, 59)))["p95_ci"][1] is None
+    assert None not in qc.percentiles(list(range(1, 60)))["p95_ci"]
+    # Median: n = 5 gives 1 - 2 x 0.5^5 = 0.9375 (no); n = 6 gives 1 - 2 x 0.5^6 = 0.96875 (yes), interval [x_1, x_6].
+    assert qc.percentiles(list(range(1, 6)))["median_ci"] == [None, None]
+    assert qc.percentiles(list(range(1, 7)))["median_ci"] == [1.0, 6.0]
 
 
-def test_p95_ignores_missing_values():
-    r = qc.p95_boot([1, 2, 3, None, float("nan")])
-    assert r["p95"] == approx(2.9)
+def test_percentile_ci_simulated_coverage_of_the_true_p95():
+    rng = np.random.default_rng(12345)                       # fixed seed
+    true_p95 = math.exp(2.0 + 0.4 * NormalDist().inv_cdf(0.95))
+    true_median = math.exp(2.0)
+    hit95 = hit50 = 0
+    reps = 400
+    for _ in range(reps):
+        r = qc.percentiles(rng.lognormal(2.0, 0.4, 60))
+        lo, hi = r["p95_ci"]
+        hit95 += lo is not None and hi is not None and lo <= true_p95 <= hi
+        hit50 += r["median_ci"][0] <= true_median <= r["median_ci"][1]
+    assert hit95 / reps >= 0.92
+    assert hit50 / reps >= 0.92
 
 
-def test_p95_large_n_uses_order_statistic_interval():
+def test_percentiles_constant_and_single_value():
+    r = qc.percentiles([7.0] * 50)
+    assert r["median_ci"] == [7.0, 7.0] and r["p95_ci"][0] == 7.0 and r["spread"] == 0.0
+    one = qc.percentiles([4.0])
+    assert one["p95"] == 4.0 and one["median"] == 4.0
+    assert one["median_ci"] == [None, None] and one["p95_ci"] == [None, None]
+    assert "median interval not estimable under 6 calls" in one["messages"]
+    assert "P95 interval not estimable under 59 calls" in one["messages"]
+
+
+def test_percentiles_empty():
+    r = qc.percentiles([])
+    assert r["p95"] is None and r["p95_ci"] == [None, None] and r["median_ci"] == [None, None] and r["messages"]
+    assert r["n"] == 0
+
+
+def test_percentiles_ignore_missing_values():
+    r = qc.percentiles([1, 2, 3, None, float("nan")])
+    assert r["n"] == 3 and r["p95"] == approx(2.9)           # 1 + 0.95 x 2 = 2.9 on the three real values
+
+
+def test_percentiles_large_n_interval_is_tight_and_covers():
     x = np.random.default_rng(2).lognormal(2, 0.4, 20000)
-    r = qc.p95_boot(x)
+    r = qc.percentiles(x)
     true = float(np.percentile(x, 95))
-    assert r["ci"][0] <= true <= r["ci"][1]
-    assert r["ci"][1] - r["ci"][0] < 0.5                      # tight at n = 20,000
+    assert r["p95_ci"][0] <= true <= r["p95_ci"][1]
+    assert r["p95_ci"][1] - r["p95_ci"][0] < 0.5
     assert r["median_ci"][0] <= float(np.median(x)) <= r["median_ci"][1]
-    assert any("order statistics" in m for m in r["messages"])
+    assert r["messages"] == []
 
 
 # ---------------------------------------------------------------- 5. ANOM
@@ -294,6 +360,10 @@ def test_anom_known_answer():
     assert (g["A"]["verdict"], g["B"]["verdict"], g["C"]["verdict"]) == ("faster", "inside", "slower")
     assert g["A"]["mean"] == approx(2.0) and g["C"]["mean"] == approx(6.0)
     assert g["A"]["n"] == 4 and len(g["A"]["ci"]) == 2
+    assert r["reference"] == "call-weighted mean of the places"
+    assert any("call-weighted average of these places" in m and "geography" in m for m in r["messages"])
+    # grand mean is call-weighted: (1 + 2 + 10 + 11 + 12 + 13) / 6 = 49 / 6 = 8.1667, not the mean of the place means (1.5 + 11.5) / 2 = 6.5
+    assert qc.anom({"A": [1.0, 2.0], "B": [10.0, 11.0, 12.0, 13.0]})["grand_mean"] == approx(49 / 6)
     no_bad_numbers(r)
 
 
@@ -383,13 +453,51 @@ def test_p_chart_limits_follow_subgroup_size():
     assert [p["lcl"] for p in pts] == [0.0, approx(0.01), approx(0.07154)]
 
 
+# Day 5 with 12 late of 20 (p-bar 0.20): exact tail 1.017e-4. m = 5 points, Bonferroni level 0.00135 / 5 = 0.00027.
+# 1.017e-4 < 0.00027: one such signal is strong enough alone -> out of control.
 def test_control_status_known_answer_out_of_control_with_evidence():
-    r = qc.p_chart([20] * 5, [2, 3, 1, 4, 10], 100, 20)               # SPEC known answer: day 5 above its UCL
+    r = qc.p_chart([20] * 5, [2, 3, 1, 4, 12], 100, 20)
     c = qc.control_status(dated(r["points"]), r["p_bar"], True, "day")
-    assert c["status"] == "out_of_control"
-    assert c["signals"] == [{"start": "2026-08-05", "n": 20, "late": 10, "p": approx(0.5),
-                             "ucl": approx(0.4683), "lcl": 0.0}]
+    assert c["status"] == "out_of_control" and c["watch"] is False and c["m"] == 5
+    assert len(c["signals"]) == 1
+    sig = c["signals"][0]
+    assert (sig["start"], sig["n"], sig["late"]) == ("2026-08-05", 20, 12)
+    assert sig["p"] == approx(0.6) and sig["ucl"] == approx(0.4683) and sig["lcl"] == 0.0
+    assert sig["p_value"] == pytest.approx(1.0173e-4, abs=1e-7)
     assert "1 day(s) above" in c["reason"]
+
+
+# Day 5 with 11 late: exact tail 5.63e-4 < 0.00135 (a signal) but not < 0.00027: only one, not strong -> watch, in control.
+def test_control_status_single_weak_signal_is_a_watch_not_out_of_control():
+    r = qc.p_chart([20] * 5, [2, 3, 1, 4, 11], 100, 20)
+    assert r["points"][4]["signal"] is True
+    assert r["points"][4]["p_value"] == pytest.approx(5.634e-4, abs=1e-7)
+    c = qc.control_status(dated(r["points"]), r["p_bar"], True, "day")
+    assert c["status"] == "in_control" and c["watch"] is True and len(c["signals"]) == 1
+    assert c["reason"] == "1 period above the limit, not confirmed (needs 2, or a stronger single signal)"
+
+
+def test_control_status_two_signals_are_out_of_control_even_if_each_is_weak():
+    r = qc.p_chart([20] * 5, [11, 3, 1, 11, 2], 100, 20)       # two days at 5.63e-4 each
+    c = qc.control_status(dated(r["points"]), r["p_bar"], True, "day")
+    assert c["status"] == "out_of_control" and len(c["signals"]) == 2 and c["watch"] is False
+    assert "2 day(s) above" in c["reason"]
+
+
+def test_control_status_above_ucl_without_exact_signal_is_plain_in_control():
+    r = qc.p_chart([20] * 5, [2, 3, 1, 4, 10], 100, 20)         # 10 late: above UCL, exact tail 0.0026
+    c = qc.control_status(dated(r["points"]), r["p_bar"], True, "day")
+    assert c["status"] == "in_control" and c["watch"] is False and c["signals"] == []
+    assert c["reason"] == "no day above the upper control limit"
+
+
+def test_control_status_unstable_baseline_is_insufficient():
+    r = qc.p_chart([20] * 5, [2, 3, 1, 4, 12], 100, 20)
+    shaky = {"stable": False, "reasons": ["2 of 10 baseline periods were unusual (more than 10%)"]}
+    c = qc.control_status(dated(r["points"]), r["p_bar"], True, "day", baseline=shaky)
+    assert c["status"] == "insufficient_baseline" and "more than 10%" in c["reason"] and c["signals"] == []
+    fine = qc.control_status(dated(r["points"]), r["p_bar"], True, "day", baseline={"stable": True, "reasons": []})
+    assert fine["status"] == "out_of_control"
 
 
 def test_control_status_in_control_and_improvement_is_not_a_signal():
@@ -409,6 +517,7 @@ def test_control_status_in_control_and_improvement_is_not_a_signal():
 def test_control_status_insufficient_baseline(p_bar, enough, unit, points):
     c = qc.control_status(points, p_bar, enough, unit)
     assert c["status"] == "insufficient_baseline" and c["reason"]
+    assert c["watch"] is False and c["m"] == len(points)
 
 
 def test_dispersion_check_known_answer_and_degenerate():
@@ -456,3 +565,130 @@ def test_assumption_checks_known_answer_and_degenerate():
     flat = qc.assumption_checks([3.0] * 40)
     assert flat["lag1"] is None and flat["messages"]
     assert qc.assumption_checks([1.0, 2.0])["skew"] is None
+
+
+# ---------------------------------------------------------------- 10. Phase I baseline screen
+
+# Hand work, 10 baseline days of n = 100. Late: 20 on nine days and 40 on the tenth.
+#   p0 = 220 / 1000 = 0.22. Tenth day: P(X >= 40 | 100, 0.22) = 3.8e-5 < 0.00135: flagged and dropped.
+#   New p-bar = 180 / 900 = 0.20. The rest are all exactly 20 (no flag, chi-square 0, no run on one side).
+#   1 of 10 dropped is 10%, not more than 10%: stable.
+def test_baseline_screen_drops_one_unusual_period_and_stays_stable():
+    r = qc.baseline_screen([100] * 10, [20] * 9 + [40])
+    assert r["removed"] == [9] and r["m"] == 10
+    assert r["p_bar"] == approx(0.20)
+    assert r["n"] == [100] * 9 and r["late"] == [20] * 9
+    assert r["stable"] is True and r["checked"] is True and r["reasons"] == []
+    assert r["dispersion"]["overdispersed"] is False and r["dispersion"]["ratio"] == approx(0.0)
+    no_bad_numbers(r)
+
+
+def test_baseline_screen_more_than_ten_percent_dropped_is_unstable():
+    # Two of ten days at 45 late: p0 = 0.226; P(X >= 45 | 100, 0.2) = 1e-8 < 0.00135. 2 / 10 = 20% > 10%.
+    r = qc.baseline_screen([100] * 10, [20] * 8 + [45, 45])
+    assert r["removed"] == [8, 9] and r["stable"] is False
+    assert any("more than 10%" in x for x in r["reasons"])
+
+
+def test_baseline_screen_run_of_eight_on_one_side_is_unstable():
+    # p-bar = (8 x 23 + 2 x 17) / 1000 = 0.218; eight days at 0.23 are all above it, no day is extreme.
+    r = qc.baseline_screen([100] * 10, [23] * 8 + [17] * 2)
+    assert r["removed"] == [] and r["p_bar"] == approx(0.218)
+    assert r["stable"] is False and any("8 baseline periods in a row" in x for x in r["reasons"])
+    seven = qc.baseline_screen([100] * 10, [23] * 7 + [17] * 3)          # seven in a row is allowed
+    assert seven["stable"] is True
+
+
+def test_baseline_screen_overdispersion_is_unstable():
+    # Late alternates 12 and 30 of 100: p-bar 0.21, no single day extreme (tails near 0.02-0.04).
+    # Pearson chi-square = 10 x 9^2 / (100 x 0.21 x 0.79) = 48.8 on df 9: ratio 5.42, p-value 1.8e-7.
+    r = qc.baseline_screen([100] * 10, [12, 30] * 5)
+    assert r["removed"] == [] and r["dispersion"]["overdispersed"] is True
+    assert r["dispersion"]["ratio"] == pytest.approx(5.4250, abs=1e-3)
+    assert r["stable"] is False and any("vary more than chance" in x for x in r["reasons"])
+
+
+def test_baseline_screen_flags_a_low_period_too():
+    # Nine days at 20 and one at 0 of 100: P(X <= 0 | 100, 0.18) is tiny, so the low day is dropped too.
+    r = qc.baseline_screen([100] * 10, [20] * 9 + [0])
+    assert r["removed"] == [9]
+
+
+def test_baseline_screen_too_few_periods_is_not_checked():
+    r = qc.baseline_screen([100, 100, 100], [10, 40, 90])
+    assert r["stable"] is True and r["checked"] is False and r["removed"] == []
+    assert "too few baseline periods to check stability" in r["messages"]
+    assert r["p_bar"] == approx(140 / 300)
+
+
+def test_baseline_screen_degenerate_inputs():
+    empty = qc.baseline_screen([], [])
+    assert empty["p_bar"] is None and empty["checked"] is False and empty["messages"]
+    zero = qc.baseline_screen([100] * 5, [0] * 5)
+    assert zero["p_bar"] == 0.0 and zero["checked"] is False and zero["stable"] is True and zero["messages"]
+    no_calls = qc.baseline_screen([0, 0, 0, 0], [0, 0, 0, 0])
+    assert no_calls["p_bar"] is None and no_calls["checked"] is False
+    for r in (empty, zero, no_calls):
+        no_bad_numbers(r)
+
+
+# ---------------------------------------------------------------- 11. places that read "below" by chance
+
+# n = 30, goal 90%. Wilson upper bound of k / 30 on time:
+#   k = 23: p = 0.76667, centre (0.76667 + 0.06402) / 1.12805 = 0.73638, half 1.95996 sqrt(0.005963 + 0.001067) / 1.12805 = 0.14568,
+#           upper 0.8821 < 0.90: below.
+#   k = 24: p = 0.8, centre 0.76597, half 1.95996 x 0.08 / 1.12805 = 0.13900, upper 0.9050 >= 0.90: not below.
+# The "below" values are k = 0..23, so the chance = P(X <= 23 | 30, 0.9) = 1 - P(X >= 24) = 0.025827.
+def test_chance_below_known_answer():
+    r = qc.chance_below([30], 90)
+    by_hand = sum(math.comb(30, k) * 0.9 ** k * 0.1 ** (30 - k) for k in range(0, 24))
+    assert r["expected"] == pytest.approx(by_hand, abs=1e-9)
+    assert r["expected"] == pytest.approx(0.025827, abs=1e-6)
+    assert qc.wilson_ci(23, 30)[1] < 0.9 <= qc.wilson_ci(24, 30)[1]
+    assert r["n_places"] == 1
+
+
+def test_chance_below_adds_places_and_skips_small_ones():
+    one = qc.chance_below([30], 90)["expected"]
+    r = qc.chance_below([30, 30, 29, 5], 90)                 # 29 and 5 calls can never read "below"
+    assert r["n_places"] == 2 and r["expected"] == pytest.approx(2 * one, abs=1e-12)
+
+
+def test_chance_below_degenerate():
+    for ns, goal in (([], 90), ([10, 20], 90), (None, 90)):
+        r = qc.chance_below(ns, goal)
+        assert r["expected"] is None and r["n_places"] == 0 and r["messages"]
+    bad = qc.chance_below([30], 100)
+    assert bad["expected"] is None and bad["messages"]
+    no_bad_numbers(bad)
+
+
+# ---------------------------------------------------------------- 12. excess late calls
+
+def test_excess_late_known_answer_and_degenerate():
+    assert qc.excess_late(200, 30, 90) == approx(10.0)       # goal allows 0.10 x 200 = 20 late; 30 - 20 = 10
+    assert qc.excess_late(200, 10, 90) == approx(-10.0)      # 10 - 20
+    assert qc.excess_late(0, 0, 90) is None
+    assert qc.excess_late(None, 0, 90) is None
+    assert qc.excess_late(200, 30, 100) is None and qc.excess_late(200, 30, None) is None
+
+
+# ---------------------------------------------------------------- 13. plain stage medians
+
+def test_stage_summary_known_answer():
+    now = {"dispatch_s": [10, 20, 30, None], "turnout_s": [60, 90], "drive_s": [300], "held": [True, False, False, None]}
+    base = {"dispatch_s": [5, 15], "turnout_s": [40], "drive_s": [200, 400, float("nan")], "held": [False, False]}
+    r = qc.stage_summary(now, base)
+    # dispatch median of 10, 20, 30 = 20; turnout (60 + 90) / 2 = 75; held 1 of 3 known = 33.33%; n = 4 rows
+    assert r["now"] == {"dispatch_s": 20.0, "turnout_s": 75.0, "drive_s": 300.0, "held_pct": approx(100 / 3), "n": 4}
+    assert r["base"] == {"dispatch_s": 10.0, "turnout_s": 40.0, "drive_s": 300.0, "held_pct": 0.0, "n": 2}
+    assert r["messages"] == []
+    no_bad_numbers(r)
+
+
+def test_stage_summary_degenerate():
+    r = qc.stage_summary({"dispatch_s": [], "turnout_s": [], "drive_s": [], "held": []}, {})
+    empty = {"dispatch_s": None, "turnout_s": None, "drive_s": None, "held_pct": None, "n": 0}
+    assert r["now"] == empty and r["base"] == empty and len(r["messages"]) == 2
+    no_held = qc.stage_summary({"dispatch_s": [10], "turnout_s": [5], "drive_s": [7], "held": [None]}, {})
+    assert no_held["now"]["held_pct"] is None and no_held["now"]["dispatch_s"] == 10.0

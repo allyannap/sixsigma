@@ -14,8 +14,12 @@ The two judgments of the approved decisions brief are kept apart:
 
 Sources: Montgomery, Introduction to Statistical Quality Control (I-MR, p chart, Nelson tests);
 Wilson (1927) and Brown, Cai & DasGupta (2001) for the binomial interval; Bissell (1990) for the
-Cpk confidence bound; Nelson (1971) and Bonferroni limits for ANOM; the SYSEN 5300 textbook
-(https://timothyfraser.com/sigma/).
+Cpk confidence bound; Ott (1967) and Nelson (1982) for the analysis of means (ANOM);
+Hahn & Meeker (1991), Statistical Intervals, for the distribution-free order-statistic interval
+of a percentile; the SYSEN 5300 textbook (https://timothyfraser.com/sigma/).
+
+The "exact" signals use the binomial distribution itself (scipy.stats.binom), not the normal
+approximation behind the 3-sigma limits, so a tiny period cannot signal on approximation error.
 """
 import math
 from statistics import NormalDist
@@ -30,6 +34,10 @@ Z95 = 1.645            # one-sided 95% normal quantile used in the Cpk bound
 Z95_TWO_SIDED = NormalDist().inv_cdf(0.975)   # 1.959964, the Wilson interval's z
 VAR_RATIO = 1.64       # variance of MR-bar sigma relative to s (Bissell correction)
 DAYS_PER_UNIT = {"day": 1.0, "week": 7.0, "month": 30.4375}
+ALPHA_POINT = 0.00135  # one-sided tail probability of a 3-sigma point (normal curve): the exact signal level
+MIN_BASELINE_SUBGROUPS = 4   # fewer baseline subgroups than this cannot be screened for stability
+MAX_DROP_SHARE = 0.10        # more than this share of baseline subgroups dropped = unstable baseline
+BASELINE_RUN = 8             # this many baseline subgroups in a row on one side of p-bar = a shift
 
 
 def _floats(values):
@@ -43,7 +51,7 @@ def _round(v, digits=10):
 
 
 def _mr_sigma(x):
-    """Within (short-term) sigma from the moving range: MR-bar / 1.128. Returns (mr_bar, sigma)."""
+    """Sigma from the moving range of values in the order given: MR-bar / 1.128. Returns (mr_bar, sigma)."""
     if len(x) < 2:
         return None, None
     mr_bar = float(np.mean(np.abs(np.diff(x))))
@@ -71,7 +79,10 @@ def p_chart(n, late, base_n, base_late):
     """p chart of the fraction late. Centre line and limits come from the BASELINE.
 
     CL = p-bar = base_late / base_n. Limits p-bar +/- 3 sqrt(p-bar (1 - p-bar) / n_i), LCL >= 0, UCL <= 1.
-    signal = point above its UCL (the one rule that sets control_status).
+    p_value = exact binomial upper tail P(X >= late_i | n_i, p-bar): how surprising this many late calls is.
+    signal = point above its UCL AND p_value < ALPHA_POINT (0.00135, the tail of a 3-sigma point).
+      The second condition stops a tiny period (n_i p-bar under 5) from signalling because the normal
+      approximation behind the 3-sigma limit is poor there.
     run_signal = 9 points in a row above the CL (shown for information only; it does not set the status).
     """
     messages = []
@@ -83,16 +94,21 @@ def p_chart(n, late, base_n, base_late):
     p = np.divide(late_arr, n_arr, out=np.zeros_like(late_arr), where=n_arr > 0)
     width = 3 * np.sqrt(p_bar * (1 - p_bar) / np.where(n_arr > 0, n_arr, 1))
     ucl, lcl = np.minimum(1.0, p_bar + width), np.maximum(0.0, p_bar - width)
+    p_value = [None] * len(p)
     if p_bar <= 0 or p_bar >= 1:
         messages.append("every baseline call was " + ("on time" if p_bar <= 0 else "late")
                         + ": the p chart has no spread, so no points are marked")
         signal, run_signal = np.zeros(len(p), dtype=bool), False
     else:
-        signal = (p > ucl) & (n_arr > 0)
+        for i in range(len(p)):
+            if n_arr[i] > 0:
+                p_value[i] = float(sps.binom.sf(late_arr[i] - 1, n_arr[i], p_bar))
+        exact = np.array([v is not None and v < ALPHA_POINT for v in p_value], dtype=bool)
+        signal = (p > ucl) & (n_arr > 0) & exact
         above = (p > p_bar).astype(int)
         run_signal = bool(len(above) >= 9 and (_window_sum(above, 9) == 9).any())
     points = [{"n": int(n_arr[i]), "late": int(late_arr[i]), "p": float(p[i]), "ucl": float(ucl[i]),
-               "lcl": float(lcl[i]), "signal": bool(signal[i])} for i in range(len(p))]
+               "lcl": float(lcl[i]), "p_value": p_value[i], "signal": bool(signal[i])} for i in range(len(p))]
     return {"p_bar": float(p_bar), "points": points, "run_signal": run_signal, "messages": messages}
 
 
@@ -179,25 +195,21 @@ def imr(x, base_x):
 
 # ================================================================ 3. one-sided Cpk
 
-def is_too_slow(upper, bar):
-    """Too slow overall = the Cpk upper 95% bound is strictly below the bar (equal is NOT too slow)."""
-    if upper is None or bar is None:
-        return False
-    return _round(upper) < _round(bar)
-
-
 def capability(x, usl, goal_pct, sigma=None):
-    """SECONDARY. One-sided Cpk on ln(minutes): (USL - mean) / (3 sigma), sigma = MR-bar / 1.128 (within sigma).
+    """SECONDARY. One-sided Cpk on x = ln(total_s / target_s), upper spec limit USL = 0: (USL - mean) / (3 sigma).
 
-    Assumes ln(minutes) is normal; it is shown beside the on-time rate and never sets a status.
+    sigma = MR-bar / 1.128, the moving range of calls taken in time order across ALL the places and
+    days of the selection. That mixes between-place and between-day variation into sigma, so it is
+    effectively an overall (Ppk-like) sigma, not a within-subgroup (Cpk) one. Read the number as a
+    rough summary, never as a status. Assumes x is normal; it is shown beside the on-time rate.
 
     upper = Bissell (1990) bound, corrected for the lower efficiency of MR-bar:
         Cpk + 1.645 sqrt(1/(9n) + 1.64 Cpk^2 / (2(n - 1)))
-    bar = z(goal) / 3. too_slow = upper < bar.
+    bar = z(goal) / 3, the Cpk a process needs to reach the on-time goal.
     """
     x = _floats(x)
     n = len(x)
-    result = {"cpk": None, "upper": None, "bar": None, "n": n, "too_slow": False, "messages": []}
+    result = {"cpk": None, "upper": None, "bar": None, "n": n, "messages": []}
     if not 0 < goal_pct < 100:
         result["messages"].append("the on-time goal must be between 0 and 100 percent")
         return result
@@ -213,7 +225,6 @@ def capability(x, usl, goal_pct, sigma=None):
     cpk = (usl - float(x.mean())) / (3.0 * sigma)
     se = math.sqrt(1.0 / (9 * n) + VAR_RATIO * cpk ** 2 / (2 * (n - 1)))
     result["cpk"], result["upper"] = cpk, cpk + Z95 * se
-    result["too_slow"] = is_too_slow(result["upper"], result["bar"])
     return result
 
 
@@ -226,53 +237,81 @@ def _quantile_sorted(sorted_x, q):
     return float(sorted_x[lo] + (k - lo) * (sorted_x[hi] - sorted_x[lo]))
 
 
+CI_LEVEL = 0.95   # coverage of the distribution-free interval for a percentile
+
+
+def _min_calls_for_ci(q):
+    """Smallest n for which ANY pair of ranks (1, n) covers the q quantile with probability >= 95%.
+
+    The widest possible interval is [smallest value, largest value]; it covers the q quantile with
+    probability 1 - q^n - (1 - q)^n. Below this n no exact 95% interval exists.
+    """
+    n = 2
+    while 1 - q ** n - (1 - q) ** n < CI_LEVEL - 1e-12:
+        n += 1
+    return n
+
+
 def _order_stat_ci(sorted_x, q):
-    """Distribution-free 95% interval for the q quantile: ranks n q +/- 1.96 sqrt(n q (1 - q))."""
+    """Exact distribution-free 95% interval for the q quantile (Hahn & Meeker 1991; Conover).
+
+    Let B = the number of observations at or below the true quantile; B ~ Binomial(n, q).
+    The interval [x_(l), x_(u)] (1-based ranks, l < u) covers the quantile exactly when l <= B < u, so
+        coverage = P(l <= B < u) = F(u - 1) - F(l - 1),  F = the Binomial(n, q) cdf.
+    Step 1: among the pairs with coverage >= 95% take the narrowest (fewest ranks apart); on a tie the
+            pair whose two tail probabilities are closest to equal.
+    Step 2: if no pair reaches 95% (small n), look at each side alone with a 2.5% tail: the lower rank is
+            the largest l with F(l - 1) <= 0.025, the upper the smallest u <= n with 1 - F(u - 1) <= 0.025.
+            A rank that does not exist gives None for that bound.
+    Returns [lower, upper] with None for a bound that cannot be estimated.
+    """
     n = len(sorted_x)
-    half = 1.96 * math.sqrt(n * q * (1 - q))
-    lo_rank = max(1, int(math.floor(n * q - half)))
-    hi_rank = min(n, int(math.ceil(n * q + half)))
-    return [float(sorted_x[lo_rank - 1]), float(sorted_x[hi_rank - 1])]
+    cdf = sps.binom.cdf(np.arange(n + 1), n, q)            # cdf[j] = P(B <= j)
+    tail = (1 - CI_LEVEL) / 2
+    eps = 1e-12
+    low_p = cdf[:n]                                         # low_p[l - 1] = P(B < l) for l = 1..n
+    j = np.searchsorted(cdf, CI_LEVEL + low_p - eps, side="left")   # first j with cdf[j] >= 95% + P(B < l)
+    l_all = np.arange(1, n + 1)
+    u_all = j + 1                                           # rank u = j + 1
+    ok = (u_all <= n) & (u_all > l_all)
+    if ok.any():
+        l_ok, u_ok = l_all[ok], u_all[ok]
+        imbalance = np.abs(low_p[l_ok - 1] - (1 - cdf[u_ok - 1]))
+        k = np.lexsort((imbalance, u_ok - l_ok))[0]         # narrowest first, then the most balanced tails
+        return [float(sorted_x[l_ok[k] - 1]), float(sorted_x[u_ok[k] - 1])]
+    lows = [l for l in range(1, n + 1) if cdf[l - 1] <= tail + eps]
+    ups = [u for u in range(1, n + 1) if 1 - cdf[u - 1] <= tail + eps]
+    return [float(sorted_x[max(lows) - 1]) if lows else None,
+            float(sorted_x[min(ups) - 1]) if ups else None]
 
 
-def p95_boot(values, n_boot=2000, seed=0):
-    """Median, P90, P95 and spread (P95 - median) of minutes, with 95% intervals for the median and the P95.
+def percentiles(values):
+    """Median, P90, P95 and spread (P95 - median) of minutes, with exact 95% intervals for the median and the P95.
 
-    n <= 5,000: percentile bootstrap (n_boot resamples, fixed seed), one set of resamples for both intervals.
-    n > 5,000: order-statistic intervals, ranks n q +/- 1.96 sqrt(n q (1 - q)).
+    Point estimates use linear interpolation (numpy's default). Intervals are the distribution-free
+    order-statistic intervals of _order_stat_ci at every n: no bootstrap, no normal approximation.
+    A bound that needs more calls than there are is None, with a message (P95 needs 59 calls for any
+    interval, the median 6).
     """
     x = _floats(values)
     x = np.sort(x[np.isfinite(x)])
     n = len(x)
+    out = {"n": n, "median": None, "median_ci": [None, None], "p90": None, "p95": None,
+           "p95_ci": [None, None], "spread": None, "messages": []}
     if n == 0:
-        return {"p95": None, "p90": None, "median": None, "spread": None, "ci": [None, None],
-                "median_ci": [None, None], "n": 0, "messages": ["no timed calls: percentiles undefined"]}
-    p95, p90, median = _quantile_sorted(x, 0.95), _quantile_sorted(x, 0.90), _quantile_sorted(x, 0.5)
-    out = {"p95": p95, "p90": p90, "median": median, "spread": p95 - median, "ci": [p95, p95],
-           "median_ci": [median, median], "n": n, "messages": []}
-    if n == 1 or x[0] == x[-1]:
-        out["messages"].append("only one value or no variation: the intervals are single points")
+        out["messages"].append("no timed calls: percentiles undefined")
         return out
-    if n > 5000:
-        out["ci"], out["median_ci"] = _order_stat_ci(x, 0.95), _order_stat_ci(x, 0.5)
-        out["messages"].append("intervals from order statistics (more than 5,000 calls)")
-        return out
-    rng = np.random.default_rng(seed)
-    k95, k50 = 0.95 * (n - 1), 0.5 * (n - 1)
-    idx = sorted({int(math.floor(k95)), int(math.ceil(k95)), int(math.floor(k50)), int(math.ceil(k50))})
-    boot95, boot50 = np.empty(n_boot), np.empty(n_boot)
-
-    def interp(part, k):
-        lo, hi = int(math.floor(k)), int(math.ceil(k))
-        return part[:, lo] + (k - lo) * (part[:, hi] - part[:, lo])
-
-    step = max(1, 2_000_000 // n)                      # resamples per chunk keeps memory small
-    for start in range(0, n_boot, step):
-        m = min(step, n_boot - start)
-        part = np.partition(x[rng.integers(0, n, size=(m, n))], idx, axis=1)
-        boot95[start:start + m], boot50[start:start + m] = interp(part, k95), interp(part, k50)
-    out["ci"] = [float(np.percentile(boot95, 2.5)), float(np.percentile(boot95, 97.5))]
-    out["median_ci"] = [float(np.percentile(boot50, 2.5)), float(np.percentile(boot50, 97.5))]
+    out["median"], out["p90"], out["p95"] = _quantile_sorted(x, 0.5), _quantile_sorted(x, 0.90), _quantile_sorted(x, 0.95)
+    out["spread"] = out["p95"] - out["median"]
+    out["median_ci"], out["p95_ci"] = _order_stat_ci(x, 0.5), _order_stat_ci(x, 0.95)
+    for label, key, q in (("median", "median_ci", 0.5), ("P95", "p95_ci", 0.95)):
+        lo, hi = out[key]
+        if lo is None and hi is None:
+            out["messages"].append(f"{label} interval not estimable under {_min_calls_for_ci(q)} calls")
+        elif lo is None:
+            out["messages"].append(f"{label} lower bound not estimable under {_min_calls_for_ci(q)} calls")
+        elif hi is None:
+            out["messages"].append(f"{label} upper bound not estimable under {_min_calls_for_ci(q)} calls")
     return out
 
 
@@ -283,6 +322,8 @@ def anom(groups, alpha=0.05):
 
     Decision limits: grand mean +/- h sigma_p sqrt((N - n_i) / (N n_i)), h = t(1 - alpha/(2k), N - k) (Bonferroni).
     sigma_p = pooled within-place sd. verdict: "slower" above the upper limit, "faster" below the lower.
+    The reference line (grand_mean) is the call-weighted mean of the places (sum of all values / N), so a
+    big place pulls it toward itself. Method: Ott (1967); Nelson (1982) for unequal group sizes.
     """
     data = {key: _floats(v) for key, v in groups.items()}
     data = {key: v[np.isfinite(v)] for key, v in data.items()}
@@ -317,8 +358,11 @@ def anom(groups, alpha=0.05):
         out_groups[key] = {"n": int(ns[i]), "mean": float(means[i]),
                            "ci": [float(means[i] - t_ci * se), float(means[i] + t_ci * se)],
                            "lower": float(lower), "upper": float(upper), "verdict": verdict}
+    messages.append("compared with the call-weighted average of these places; differences can reflect "
+                    "geography (urban vs rural), not chance")
     return {"grand_mean": grand, "sigma_p": sigma_p, "h": h, "k": k, "N": N,
-            "F": (ssb / df1) / (ssw / df2), "df1": df1, "df2": df2, "groups": out_groups, "messages": messages}
+            "F": (ssb / df1) / (ssw / df2), "df1": df1, "df2": df2, "groups": out_groups,
+            "reference": "call-weighted mean of the places", "messages": messages}
 
 
 # ================================================================ 6. A. specification: on-time rate against the goal
@@ -394,34 +438,54 @@ def on_time(n_valid, n_on_time, goal_pct, min_n=MIN_CALLS):
 CONTROL_STATUSES = ("in_control", "out_of_control", "insufficient_baseline")
 
 
-def control_status(points, p_bar, baseline_enough, unit):
+def control_status(points, p_bar, baseline_enough, unit, baseline=None):
     """B. Statistical control: has the late share changed relative to its own baseline?
 
-    out_of_control: at least one subgroup above its p-chart UCL (Shewhart rule 1, upper side only, because
-                    the question is deterioration; points below the LCL are listed as improvements).
-    in_control:     the baseline is adequate and no subgroup is above its UCL.
+    A "signal" is a p_chart() point above its UCL whose exact binomial tail p_value is under ALPHA_POINT.
+    out_of_control: at least 2 signals, OR one signal with p_value < ALPHA_POINT / m (Bonferroni, m = number
+                    of points: the chance of a false alarm anywhere in the chart stays near 0.00135).
+                    Only the upper side counts, because the question is deterioration; points below
+                    the LCL are listed as improvements.
+    in_control:     the baseline is adequate and the signals are not enough for out_of_control.
+                    Exactly one signal that is not strong enough sets watch = True (still in_control).
     insufficient_baseline: under 30 baseline calls (after the 120-day stretch), no subgroup size gives
-                    5 expected late calls (unit None), p-bar of 0 or 1, or no subgroups in the selection.
+                    5 expected late calls (unit None), p-bar of 0 or 1, no subgroups in the selection,
+                    or `baseline` (the baseline_screen() dict) has stable == False.
     `points` are p_chart() points, optionally with a "start" date each. Being in control does not mean the
     service is good; that is the specification judgment's job.
     """
-    out = {"status": "insufficient_baseline", "reason": "", "signals": [], "improvements": [], "messages": []}
+    m = len(points)
+    out = {"status": "insufficient_baseline", "reason": "", "signals": [], "improvements": [], "watch": False,
+           "m": m, "messages": []}
     if not baseline_enough:
         out["reason"] = f"fewer than {MIN_CALLS} baseline calls, even after stretching to 120 days"
     elif unit is None:
         out["reason"] = "low volume: no subgroup size gives 5 expected late calls"
     elif p_bar is None or p_bar <= 0 or p_bar >= 1:
         out["reason"] = "baseline late share is 0 or 1: no spread to set limits"
+    elif baseline is not None and baseline.get("stable") is False:
+        out["reason"] = "baseline is not stable: " + "; ".join(baseline.get("reasons") or ["unspecified"])
     elif not points:
         out["reason"] = "no subgroups in the selected period"
     else:
-        keep = ("start", "n", "late", "p", "ucl", "lcl")
+        keep = ("start", "n", "late", "p", "ucl", "lcl", "p_value")
         out["signals"] = [{k: p.get(k) for k in keep} for p in points if p.get("signal")]
         out["improvements"] = [{k: p.get(k) for k in keep} for p in points
                                if p.get("n") and p.get("p") is not None and p["p"] < p["lcl"]]
-        out["status"] = "out_of_control" if out["signals"] else "in_control"
-        out["reason"] = (f"{len(out['signals'])} {unit}(s) above the upper control limit" if out["signals"]
-                         else f"no {unit} above the upper control limit")
+        k = len(out["signals"])
+        strong = k == 1 and out["signals"][0]["p_value"] is not None and out["signals"][0]["p_value"] < ALPHA_POINT / m
+        if k >= 2 or strong:
+            out["status"] = "out_of_control"
+            out["reason"] = (f"{k} {unit}(s) above the upper control limit" if k >= 2 else
+                             f"1 {unit}(s) above the upper control limit, strong enough on its own "
+                             f"(exact p = {out['signals'][0]['p_value']:.2g})")
+        else:
+            out["status"] = "in_control"
+            if k == 1:
+                out["watch"] = True
+                out["reason"] = "1 period above the limit, not confirmed (needs 2, or a stronger single signal)"
+            else:
+                out["reason"] = f"no {unit} above the upper control limit"
     return out
 
 
@@ -451,6 +515,76 @@ def dispersion_check(n, late, p_bar=None, alpha=0.01):
     if out["overdispersed"]:
         out["messages"].append(f"baseline late counts vary more than binomial (chi-square / df = {out['ratio']:.2f}): "
                                "p-chart limits may be too narrow, so treat signals with caution")
+    return out
+
+
+def _extreme(n_arr, late_arr, p):
+    """Exact binomial tail of each subgroup: the smaller of P(X >= late) and P(X <= late) given p."""
+    upper = sps.binom.sf(late_arr - 1, n_arr, p)
+    lower = sps.binom.cdf(late_arr, n_arr, p)
+    return np.minimum(upper, lower)
+
+
+def baseline_screen(n, late):
+    """Phase I check that the baseline subgroups are stable enough to set limits.
+
+    p0 = total late / total calls. A subgroup is flagged when its exact tail (P(X >= late) or P(X <= late),
+    X ~ Binomial(n_i, p0)) is under ALPHA_POINT. Flagged subgroups are dropped ONCE and p-bar is recomputed.
+    stable = False when, after dropping, any subgroup still flags; or more than 10% of the subgroups were
+    dropped; or 8 or more subgroups in a row lie on one side of p-bar; or dispersion_check() finds the rest
+    overdispersed. With fewer than 4 subgroups nothing is checked (stable True, checked False).
+    n, late and p_bar in the result describe the subgroups KEPT (empty subgroups, n = 0, are ignored);
+    `removed` holds the positions of the dropped subgroups in the input lists.
+    """
+    n_arr, late_arr = _floats(n), _floats(late)
+    keep = n_arr > 0
+    pos = np.flatnonzero(keep)                              # positions in the input
+    n_arr, late_arr = n_arr[keep], late_arr[keep]
+    m = int(len(n_arr))
+    disp_empty = {"ratio": None, "p_value": None, "overdispersed": False}
+    out = {"p_bar": None, "n": [int(v) for v in n_arr], "late": [int(v) for v in late_arr], "m": m,
+           "removed": [], "stable": True, "checked": False, "reasons": [], "dispersion": disp_empty,
+           "messages": []}
+    if m:
+        out["p_bar"] = float(late_arr.sum() / n_arr.sum())
+    if m < MIN_BASELINE_SUBGROUPS:
+        out["messages"].append("too few baseline periods to check stability")
+        return out
+    p0 = out["p_bar"]
+    if p0 <= 0 or p0 >= 1:
+        out["messages"].append("baseline late share is 0 or 1: stability not checked")
+        return out
+    out["checked"] = True
+    flagged = _extreme(n_arr, late_arr, p0) < ALPHA_POINT
+    out["removed"] = [int(v) for v in pos[flagged]]
+    n_arr, late_arr = n_arr[~flagged], late_arr[~flagged]
+    out["n"], out["late"] = [int(v) for v in n_arr], [int(v) for v in late_arr]
+    if len(out["removed"]) > 0:
+        out["messages"].append(f"{len(out['removed'])} baseline period(s) were unusually high or low and were dropped once")
+    if len(n_arr) == 0:
+        out["p_bar"], out["stable"] = None, False
+        out["reasons"].append("every baseline period was unusual")
+        return out
+    p_bar = float(late_arr.sum() / n_arr.sum())
+    out["p_bar"] = p_bar
+    if 0 < p_bar < 1 and (_extreme(n_arr, late_arr, p_bar) < ALPHA_POINT).any():
+        out["reasons"].append("after dropping unusual periods, others are still unusual")
+    if len(out["removed"]) / m > MAX_DROP_SHARE:
+        out["reasons"].append(f"{len(out['removed'])} of {m} baseline periods were unusual (more than 10%)")
+    share = late_arr / n_arr
+    for side in (share > p_bar, share < p_bar):
+        run = longest = 0
+        for flag in side:
+            run = run + 1 if flag else 0
+            longest = max(longest, run)
+        if longest >= BASELINE_RUN:
+            out["reasons"].append(f"{longest} baseline periods in a row on one side of the average (a shift)")
+            break
+    disp = dispersion_check(n_arr, late_arr)
+    out["dispersion"] = {"ratio": disp["ratio"], "p_value": disp["p_value"], "overdispersed": disp["overdispersed"]}
+    if disp["overdispersed"]:
+        out["reasons"].append(f"baseline counts vary more than chance (chi-square / df = {disp['ratio']:.2f})")
+    out["stable"] = not out["reasons"]
     return out
 
 
@@ -502,4 +636,85 @@ def assumption_checks(x):
                                    "I-chart limits may be misleading")
         if abs(out["skew"]) > 1:
             out["messages"].append(f"log times are still skewed (skew {out['skew']:.2f}): I-chart tail marks are approximate")
+    return out
+
+
+# ================================================================ 10. places that read "below" by chance
+
+def chance_below(ns, goal_pct):
+    """How many places would be called "Below target" purely by chance if every place truly met the goal.
+
+    For a place with n calls and true on-time rate exactly g = goal_pct / 100, the observed count of on-time
+    calls is X ~ Binomial(n, g). The place reads "below" when the Wilson upper bound of X / n is under g.
+    P(below) = the sum of the binomial pmf over the k with wilson_ci(k, n)[1] < g. The expected number is
+    the sum of P(below) over the places with at least MIN_CALLS calls (smaller ones are never "below").
+    The upper bound rises with k, so the "below" values are k = 0 .. k_max; the sum is the binomial cdf at k_max.
+    Returns {expected, n_places, messages}; expected is None when it cannot be computed.
+    """
+    out = {"expected": None, "n_places": 0, "messages": []}
+    if goal_pct is None or not 0 < goal_pct < 100:
+        out["messages"].append("the on-time goal must be between 0 and 100 percent")
+        return out
+    g = goal_pct / 100.0
+    sizes = [int(v) for v in (ns or []) if v is not None and v >= MIN_CALLS]
+    out["n_places"] = len(sizes)
+    if not sizes:
+        out["messages"].append(f"no place has at least {MIN_CALLS} calls")
+        return out
+    cache = {}
+    for size in sizes:
+        if size not in cache:
+            k_max = -1
+            for k in range(size + 1):          # the first k whose upper bound reaches g ends the "below" values
+                if _round(wilson_ci(k, size)[1]) < _round(g):
+                    k_max = k
+                else:
+                    break
+            cache[size] = float(sps.binom.cdf(k_max, size, g)) if k_max >= 0 else 0.0
+    out["expected"] = float(sum(cache[size] for size in sizes))
+    return out
+
+
+# ================================================================ 11. excess late calls (for ranking)
+
+def excess_late(n_valid, n_late, goal_pct):
+    """Late calls beyond what the goal allows: n_late - (1 - g) n_valid, with g = goal_pct / 100.
+
+    Example: 200 valid calls, goal 90% allows 20 late calls; 30 late is 10 more than allowed.
+    Negative = fewer late calls than the goal allows. None when n_valid is 0 or the goal is invalid.
+    Used to rank places so a big place with a modest gap outranks a tiny place with a large rate.
+    """
+    if not n_valid or n_valid <= 0 or goal_pct is None or not 0 < goal_pct < 100:
+        return None
+    return _round(n_late - (100.0 - goal_pct) / 100.0 * n_valid)
+
+
+# ================================================================ 12. plain stage medians
+
+def _median_or_none(values):
+    x = _floats(values)
+    x = x[np.isfinite(x)]
+    return float(np.median(x)) if len(x) else None
+
+
+def _stage_block(data):
+    held = [h for h in (data.get("held") or []) if h is not None]
+    return {"dispatch_s": _median_or_none(data.get("dispatch_s")),
+            "turnout_s": _median_or_none(data.get("turnout_s")),
+            "drive_s": _median_or_none(data.get("drive_s")),
+            "held_pct": 100.0 * sum(bool(h) for h in held) / len(held) if held else None,
+            "n": len(data.get("dispatch_s") or [])}
+
+
+def stage_summary(now, base):
+    """Descriptive only: the median of each stage (seconds) and the percent held, now vs the baseline.
+
+    now and base are {"dispatch_s": [...], "turnout_s": [...], "drive_s": [...], "held": [bool or None, ...]}.
+    Missing values (None, NaN) are ignored; a stage with no values is None. No excess, no cause, no ranking.
+    """
+    out = {"now": _stage_block(now or {}), "base": _stage_block(base or {}), "messages": []}
+    if out["now"]["n"] == 0:
+        out["messages"].append("no calls in the selected period")
+    if out["base"]["n"] == 0:
+        out["messages"].append("no calls in the baseline period")
     return out

@@ -10,6 +10,12 @@ describe('query building', () => {
     expect(apiUrl('summary', { level: 'county', id: '36061' })).toBe('/api/summary?level=county&id=36061')
     expect(apiUrl('anom')).toBe('/api/anom')
   })
+  it('builds the URLs of the new read-only routes', () => {
+    expect(apiUrl('flagged', { dataset: 'baseline', urgency: ['red'] })).toBe('/api/flagged?dataset=baseline&urgency=red')
+    expect(apiUrl('signal_calls', { level: 'county', id: '36055', start: '2026-07-06', end: '2026-07-12', limit: 50 }))
+      .toBe('/api/signal_calls?level=county&id=36055&start=2026-07-06&end=2026-07-12&limit=50')
+    expect(apiUrl('stages', { level: 'zcta', id: '11368' })).toBe('/api/stages?level=zcta&id=11368')
+  })
   it('only uses fixtures with ?fixtures=1', () => {
     expect(isFixtureMode('?fixtures=1')).toBe(true)
     expect(isFixtureMode('')).toBe(false)

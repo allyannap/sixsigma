@@ -1,0 +1,34 @@
+{
+ "selection": {
+  "dataset": "summer_surge",
+  "source": "Synthetic - simulated replay",
+  "level": "county",
+  "id": "36055",
+  "name": "Monroe (fixture)",
+  "from": "2026-07-01",
+  "to": "2026-08-31",
+  "urgency": [
+   "red"
+  ],
+  "baseline_from": "2026-05-02",
+  "baseline_to": "2026-06-30",
+  "baseline_days": 60
+ },
+ "now": {
+  "dispatch_s": 86.0,
+  "turnout_s": 50.0,
+  "drive_s": 194.0,
+  "held_pct": 28.4,
+  "n": 1163
+ },
+ "base": {
+  "dispatch_s": 42.0,
+  "turnout_s": 50.0,
+  "drive_s": 193.0,
+  "held_pct": 2.0,
+  "n": 870
+ },
+ "messages": [
+  "FIXTURE DATA: a saved, trimmed API reply for building and testing the page. Not live."
+ ]
+}

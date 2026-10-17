@@ -38,34 +38,34 @@
    "urgency_group": "red",
    "target_s": 480,
    "goal_on_time_pct": 90,
-   "reference_p90_s": 430.0,
+   "reference_p90_s": 461.0,
    "n_reference": 37242.0
   },
   {
    "urgency_code": 0,
    "urban_rural": "suburban",
    "urgency_group": "red",
-   "target_s": 480,
+   "target_s": 600,
    "goal_on_time_pct": 90,
-   "reference_p90_s": 453.0,
+   "reference_p90_s": 483.0,
    "n_reference": 11627.0
   },
   {
    "urgency_code": 0,
    "urban_rural": "rural",
    "urgency_group": "red",
-   "target_s": 480,
+   "target_s": 840,
    "goal_on_time_pct": 90,
-   "reference_p90_s": 906.0,
+   "reference_p90_s": 974.0,
    "n_reference": 9018.0
   },
   {
    "urgency_code": 0,
    "urban_rural": "remote",
    "urgency_group": "red",
-   "target_s": 480,
+   "target_s": 840,
    "goal_on_time_pct": 90,
-   "reference_p90_s": 1273.0,
+   "reference_p90_s": 1389.0,
    "n_reference": 1572.0
   },
   {
@@ -74,34 +74,34 @@
    "urgency_group": "red",
    "target_s": 480,
    "goal_on_time_pct": 90,
-   "reference_p90_s": 430.0,
+   "reference_p90_s": 461.0,
    "n_reference": 37242.0
   },
   {
    "urgency_code": 1,
    "urban_rural": "suburban",
    "urgency_group": "red",
-   "target_s": 480,
+   "target_s": 600,
    "goal_on_time_pct": 90,
-   "reference_p90_s": 453.0,
+   "reference_p90_s": 483.0,
    "n_reference": 11627.0
   },
   {
    "urgency_code": 1,
    "urban_rural": "rural",
    "urgency_group": "red",
-   "target_s": 480,
+   "target_s": 840,
    "goal_on_time_pct": 90,
-   "reference_p90_s": 906.0,
+   "reference_p90_s": 974.0,
    "n_reference": 9018.0
   },
   {
    "urgency_code": 1,
    "urban_rural": "remote",
    "urgency_group": "red",
-   "target_s": 480,
+   "target_s": 840,
    "goal_on_time_pct": 90,
-   "reference_p90_s": 1273.0,
+   "reference_p90_s": 1389.0,
    "n_reference": 1572.0
   },
   {
@@ -110,34 +110,34 @@
    "urgency_group": "red",
    "target_s": 480,
    "goal_on_time_pct": 90,
-   "reference_p90_s": 430.0,
+   "reference_p90_s": 461.0,
    "n_reference": 37242.0
   },
   {
    "urgency_code": 2,
    "urban_rural": "suburban",
    "urgency_group": "red",
-   "target_s": 480,
+   "target_s": 600,
    "goal_on_time_pct": 90,
-   "reference_p90_s": 453.0,
+   "reference_p90_s": 483.0,
    "n_reference": 11627.0
   },
   {
    "urgency_code": 2,
    "urban_rural": "rural",
    "urgency_group": "red",
-   "target_s": 480,
+   "target_s": 840,
    "goal_on_time_pct": 90,
-   "reference_p90_s": 906.0,
+   "reference_p90_s": 974.0,
    "n_reference": 9018.0
   },
   {
    "urgency_code": 2,
    "urban_rural": "remote",
    "urgency_group": "red",
-   "target_s": 480,
+   "target_s": 840,
    "goal_on_time_pct": 90,
-   "reference_p90_s": 1273.0,
+   "reference_p90_s": 1389.0,
    "n_reference": 1572.0
   },
   {

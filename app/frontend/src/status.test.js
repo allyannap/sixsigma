@@ -1,16 +1,37 @@
 import { describe, expect, it } from 'vitest'
-import { QUEUE, attentionCount, fillFor, latePct, rankPlaces } from './status.js'
+import { QUEUE, WATCH, attentionCount, attentionSplit, fillFor, latePct, rankPlaces } from './status.js'
 
 describe('status helpers', () => {
-  it('ranks by queue label, then confirmed below-target first, then late calls', () => {
+  it('ranks by queue label, then confirmed below-target first, then excess late calls (not raw late counts)', () => {
     const out = rankPlaces([
-      { id: 'a', queue: 'meets_stable', spec: 'meets', late: 99 },
-      { id: 'b', queue: 'act_now', spec: 'below', late: 1 },
-      { id: 'c', queue: 'act_now', spec: 'below', late: 5 },
-      { id: 'd', queue: 'needs_data', spec: 'inconclusive', late: 50 },
-      { id: 'e', queue: 'needs_data', spec: 'below', late: 2 },
+      { id: 'a', queue: 'meets_stable', spec: 'meets', late: 99, excess_late: -5 },
+      { id: 'b', queue: 'act_now', spec: 'below', late: 40, excess_late: 2 },
+      { id: 'c', queue: 'act_now', spec: 'below', late: 5, excess_late: 30 },
+      { id: 'd', queue: 'needs_data', spec: 'inconclusive', late: 50, excess_late: 40 },
+      { id: 'e', queue: 'needs_data', spec: 'below', late: 2, excess_late: 1 },
     ])
+    // b has far more late calls than c, but c has more late calls beyond what the goal allows
     expect(out.map((p) => p.id)).toEqual(['c', 'b', 'e', 'd', 'a'])
+  })
+  it('a missing excess_late sorts last inside its group and does not break the sort', () => {
+    const out = rankPlaces([
+      { id: 'x', queue: 'ongoing_gap', spec: 'below', excess_late: null },
+      { id: 'y', queue: 'ongoing_gap', spec: 'below', excess_late: 3 },
+      { id: 'z', queue: 'ongoing_gap', spec: 'below' },
+    ])
+    expect(out[0].id).toBe('y')
+    expect(rankPlaces(undefined)).toEqual([])
+  })
+  it('splits needs-review into recent signal (Act now + Recent change) and ongoing gaps', () => {
+    expect(attentionSplit({ queue_counts: { act_now: 1, recent_change: 2, ongoing_gap: 16, needs_data: 9 } })).toEqual({ recent: 3, ongoing: 16, total: 19 })
+    expect(attentionSplit({ places: [{ queue: 'act_now' }, { queue: 'ongoing_gap' }, { queue: 'ongoing_gap' }, { queue: 'needs_data' }] })).toEqual({ recent: 1, ongoing: 2, total: 3 })
+    expect(attentionSplit(null).total).toBe(0)
+  })
+  it('wording: no "statistically stable" claim, watch is not confirmed, needs_data mentions too little baseline', () => {
+    expect(QUEUE.meets_stable.label).toBe('Meets goal; no change signal')
+    expect(JSON.stringify(QUEUE)).not.toMatch(/statistically stable/i)
+    expect(QUEUE.needs_data.help).toContain('or confirmed below target but too little baseline to judge change')
+    expect(WATCH.tip).toBe('1 period above the limit, not confirmed')
   })
   it('uses needs_attention (an int), and counts places only if it is missing', () => {
     expect(attentionCount({ needs_attention: 3 })).toBe(3)

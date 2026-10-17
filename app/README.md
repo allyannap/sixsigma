@@ -7,8 +7,8 @@ There is no route that accepts or edits incidents.
 
 | File | Job |
 |---|---|
-| `qc.py` | every statistic: on-time rate + Wilson interval, p chart + control status, queue label, percentiles, secondary I-MR / Cpk / ANOM |
-| `data.py` | load the files once, derive per-call fields, `select`, `baseline` (60 → 120 days, 30-call minimum, always before `from`), `children`, `subgroups`, `day_events` (replay) |
+| `qc.py` | every statistic: on-time rate + Wilson interval, chance Below count, p chart with exact binomial signals + baseline screen + control status, queue label, excess late calls, exact percentile intervals, plain stage medians, secondary I-MR / Cpk / ANOM |
+| `data.py` | load the files once (dropping and counting duplicate IDs, unreadable `t_received`, unknown ZIPs and urgency codes), derive per-call fields, `select`, `baseline` (60 → 120 days, 30-call minimum, always before `from`), `children`, `subgroups`, `day_events` (replay), `quality` |
 | `main.py` | the `GET` routes under `/api/*`, `/geo/*`, and the built page at `/` |
 | `testme.sh` | run locally on port 8000 |
 | `manifestme.sh`, `deployme.sh` | Posit Connect (bundle root is the repo root; `deployme.sh` reads `CONNECT_SERVER` and `CONNECT_API_KEY` from your environment) |
@@ -22,9 +22,10 @@ bash app/testme.sh                             # http://localhost:8000 (page), h
 .venv/bin/python -m pytest tests -q
 ```
 
-The first start reads and derives the three files (about 5 s each, in a background thread); after that a
-state-level summary takes about 1.3 s and a county about 0.6 s. If `app/qc.py` is missing, the statistics routes
-answer HTTP 503.
+The first start reads and derives the three files in a background thread (17.6 s for all three, measured Oct 17 on
+the development machine). Once loaded, measured with FastAPI's TestClient on the same machine: state summary about 0.5 s
+(1.2 s on the very first call), a county summary about 0.2 s, `/api/flagged` about 0.9 s, `/api/pchart`, `/api/stages`,
+`/api/anom` and `/api/imr` under 0.1 s. If `app/qc.py` is missing, the statistics routes answer HTTP 503.
 
 ## Parameters (every GET except health and meta)
 
@@ -42,10 +43,13 @@ There is no time-of-day filter or adjustment. Bad values give HTTP 400 `{"detail
 
 | Endpoint | Returns |
 |---|---|
-| `GET /api/health` | status, source label, dataset names, row counts |
+| `GET /api/health` | status, source label, dataset names, row counts, data-quality counts (rows dropped by reason, untimed calls by reason) |
 | `GET /api/meta` | date range, default window, 62 counties, the 40 target rows |
-| `GET /api/summary` | totals for the place, its own card, one card per child place (spec, control, queue, n, on-time rate + CI, P95 + CI, signals), queue counts |
-| `GET /api/pchart` | p-chart points with varying limits, control status and the evidence, baseline window, dispersion check |
+| `GET /api/summary` | totals for the place, its own card, one card per child place (spec, control, watch, queue, excess late, n, on-time rate + CI, P95 + CI, signals with exact p-values, volume, baseline stability), queue counts, Below labels expected by chance |
+| `GET /api/flagged` | statewide list of ZIP areas (30+ valid calls) reading Act now or Recent change, whatever place is selected |
+| `GET /api/pchart` | p-chart points with varying limits and exact p-values, control status and the evidence, the screened baseline, dispersion check |
+| `GET /api/stages` | plain stage medians (received → assigned → en route → on scene) and % held, period vs baseline; descriptive |
+| `GET /api/signal_calls?start=&end=` | the valid calls behind a signal (selected place and urgency, newest first) |
 | `GET /api/replay?day=YYYY-MM-DD` | the calls the synthetic file holds for one day, newest first (simulated replay) |
 | `GET /api/imr` | secondary I chart on ln(minutes); only test 1 marked; assumption checks |
 | `GET /api/anom` | secondary, descriptive ANOM within one urgency group |
@@ -57,5 +61,7 @@ There is no time-of-day filter or adjustment. Bad values give HTTP 400 `{"detail
 curl localhost:8000/api/health
 curl "localhost:8000/api/summary?dataset=station_closure&level=zcta&id=11368&from=2026-09-01&to=2026-10-15"
 curl "localhost:8000/api/pchart?dataset=summer_surge&level=county&id=36055&from=2026-07-01&to=2026-08-31"
+curl "localhost:8000/api/flagged?dataset=station_closure"
+curl "localhost:8000/api/stages?dataset=summer_surge&level=county&id=36055&from=2026-07-01&to=2026-08-31"
 curl "localhost:8000/api/replay?dataset=station_closure&day=2026-09-02&limit=5"
 ```

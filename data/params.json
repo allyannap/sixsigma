@@ -1,5 +1,5 @@
 {
-  "_comment": "Every generator parameter. SYNTHETIC data. Volume is about 0.0198 calls per person per year, roughly one-eighth of a typical US EMS rate (~0.15) so the files stay small.",
+  "_comment": "Every generator parameter. SYNTHETIC data. Volume is about 0.0198 calls per person per year, roughly one-eighth of a typical US EMS rate (~0.15) so the files stay small. H-13 (Oct 16) added day_effect, lateness_seasonality, hour_of_day, congestion and messy_sample, and moved the surge extra calls to their own random stream.",
   "seed": 20261016,
   "date_start": "2025-10-16",
   "date_end": "2026-10-15",
@@ -27,6 +27,44 @@
   "held_extra_dispatch_sigma": 0.6,
   "disposition_probs": {"CANCELLED": 0.06, "REFUSED": 0.08, "TREATED": 0.10, "TRANSPORTED": 0.76},
   "valid_time_N_probability": 0.01,
+  "day_effect": {
+    "note": "H-13. Each (county, day) gets two lognormal(0, sigma) multipliers shared by every ZIP in the county: one on the drive estimate (weather, traffic) and one on the dispatch time (staffing, system load). Seeded from (seed, county_fips), so independent of ZIP order. This makes late counts overdispersed (calls on the same day are not independent). Sigma 0.15 is a tuning choice, not an estimate from real data.",
+    "sigma_eta": 0.15,
+    "sigma_dispatch": 0.15
+  },
+  "lateness_seasonality": {
+    "note": "H-13. Month multipliers on the MEDIAN drive estimate (winter roads, Dec-Feb x1.10, shoulder months x1.03) and on the median dispatch time (summer x1.05). Not normalized: they multiply the medians directly. Volume month factors above are unchanged.",
+    "eta_month_factors_jan_to_dec": [1.10, 1.10, 1.03, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.03, 1.10],
+    "dispatch_month_factors_jan_to_dec": [1.00, 1.00, 1.00, 1.00, 1.00, 1.03, 1.05, 1.05, 1.03, 1.00, 1.00, 1.00]
+  },
+  "hour_of_day": {
+    "note": "H-13. Relative arrival rate for local hours 0 to 23 (normalized to mean 1 by the generator): overnight trough about 0.5, afternoon peak about 1.4. A call's time inside its local day is drawn from this profile as a fraction of the day, so 23- and 25-hour daylight-saving days work. dispatch_hour_exponent: dispatch median is also multiplied by weight^exponent (mild: busiest hours +7%, quietest -13%). The profile is invented, not measured.",
+    "arrival_weights_0_to_23": [0.70, 0.60, 0.55, 0.50, 0.50, 0.55, 0.70, 0.90, 1.10, 1.25, 1.30, 1.35, 1.35, 1.35, 1.40, 1.40, 1.40, 1.40, 1.35, 1.30, 1.20, 1.05, 0.90, 0.80],
+    "dispatch_hour_exponent": 0.2
+  },
+  "congestion": {
+    "note": "H-13. Held probability rises with the county-day volume: p_held = held_probability x clip(((count + shrink) / (expected + shrink))^exponent, min, max), where count is that county-day's calls and expected is its calls with no random variation and no surge. shrink_calls keeps tiny counties from reading one extra call as overload. In the surge, the planted extra (summer_surge.held_probability minus held_probability) is added on top.",
+    "shrink_calls": 5,
+    "exponent": 2,
+    "min_factor": 0.5,
+    "max_factor": 4
+  },
+  "messy_sample": {
+    "note": "H-13. data/incidents_messy_sample.csv.gz is built from baseline rows of ONE county and ONE month, then problems are injected into disjoint rows. These counts ARE the injection log: validate.py --messy detects each problem type and must find exactly these numbers. The three main files contain none of this.",
+    "county_fips": "36103",
+    "county_name": "Suffolk",
+    "month": "2026-07",
+    "n_missing_t_received": 8,
+    "n_missing_t_assigned": 8,
+    "n_out_of_order": 10,
+    "n_exact_duplicate_rows": 12,
+    "n_duplicate_id_different_content": 6,
+    "n_unknown_zcta": 5,
+    "n_unknown_urgency_code": 5,
+    "n_valid_time_N_with_bad_times": 8,
+    "unknown_zcta_value": "99999",
+    "unknown_urgency_code_values": [10, 99]
+  },
   "station_closure": {
     "zcta": "auto: most populous urban ZCTA in data/lookup/zcta_county.csv",
     "zcta_resolved": "11368",
@@ -40,6 +78,7 @@
     "to_date": "2026-08-31",
     "volume_multiplier": 1.30,
     "held_probability": 0.25,
-    "dispatch_multiplier": 1.6
+    "dispatch_multiplier": 1.6,
+    "note": "H-13. volume_multiplier m: the extra calls are an additional Poisson(expected x (m - 1)) per ZIP and surge day, drawn from a SEPARATE random stream (seed, zcta, 2), so the ordinary calls are drawn exactly as in the baseline and Monroe outside Jul 1 - Aug 31 is identical to baseline. held_probability is the planted level at normal volume; congestion adds a little more."
   }
 }
