@@ -161,11 +161,11 @@ export default function SimpleComparison({ d }) {
   }
   return <div className="simple-comparison">
     <p className="simple-goal"><strong>Goal: {fmtPct(goal, 0)} of calls arrive within {deadline} of call receipt.</strong></p>
-    <p className="simple-overview" role="status"><strong>{missing} of {areas.length} areas</strong> miss the {fmtPct(goal, 0)} goal ({below} confirmed) · the typical area: {fmtPct(median(areas.map((p) => p.on_time_pct)), 0)} on time</p>
+    <p className="simple-overview" role="status"><strong>{below} of {areas.length} areas</strong> are confirmed below goal.</p>
     <div className="simple-split">
       <div className="simple-chart">
         <Histogram bins={bins} goal={goal} selected={selected} openBin={openBin} onOpen={openList} />
-        <p className="simple-key"><span><i className="k k-below" />Below goal</span><span><i className="k k-inconclusive" />Uncertain</span><span><i className="k k-meets" />Meets goal</span><span>▲ selected area · click a bar to see its areas</span></p>
+        <p className="simple-key"><span><i className="k k-below" />Below goal</span><span><i className="k k-inconclusive" />Uncertain</span><span><i className="k k-meets" />Meets goal</span><span>▲ selected area · tap a bar to see its areas</span></p>
         {top.length > 0 && <p className="hist-worst"><strong>Furthest below:</strong>{top.map((p) => <button type="button" key={p.id} className={`chip chip-below ${p.id === selected.id ? 'chip-on' : ''}`} aria-pressed={p.id === selected.id} aria-controls="simple-selected" onClick={() => { pick(p.id); setOpenBin(null) }}>{p.name} {fmtPct(p.on_time_pct, 0)}</button>)}</p>}
       </div>
       <section id="simple-selected" className={`simple-card ${listing && bin ? '' : `card-${selected.spec}`}`} aria-live="polite">

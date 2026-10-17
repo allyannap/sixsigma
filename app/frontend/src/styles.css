@@ -257,3 +257,5 @@ table.places caption { caption-side: top; text-align: left; padding: 4px 0 6px; 
 .info-btn { font: italic 700 12px Georgia, serif; width: 20px; height: 20px; border-radius: 50%; border: 1px solid #9AA1A8; background: white; color: #3D454D; cursor: pointer; padding: 0; line-height: 1; }
 .info-btn[aria-expanded="true"] { background: #1F2933; color: white; border-color: #1F2933; }
 .info-pop { position: absolute; top: 26px; left: 0; right: 0; z-index: 2; background: #1F2933; color: white !important; font-size: 12px !important; line-height: 1.45; padding: 10px 12px; border-radius: 8px; box-shadow: 0 6px 18px rgba(0,0,0,.18); }
+
+.simple-card { aspect-ratio: auto; overflow: visible; min-height: 0; }

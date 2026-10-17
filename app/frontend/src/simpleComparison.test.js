@@ -7,16 +7,18 @@ import summary from './fixtures/summary_state.json'
 const render = (d) => renderToString(h(SimpleComparison, { d })).replace(/<!-- -->/g, '')
 const a = (id, pct, spec = 'below', low_n = false) => ({ id, name: id, on_time_pct: pct, spec, response_profile: { n: low_n ? 5 : 100, low_n } })
 
-it('defines the goal and draws one histogram beside one area card with name search', () => {
+it('defines the goal and shows the histogram as the main view beside one area card', () => {
   const html = render(summary)
   expect(html).toContain('Goal: 90% of calls arrive within 8 min of call receipt.')
   const areas = comparisonAreas(summary.places)
   const selected = extremes(areas)[0] || areas[0]
   expect((html.match(/id="simple-selected"/g) || []).length).toBe(1)
   expect((html.match(/class="hist"/g) || []).length).toBe(1)
+  expect(html).not.toContain('area-dot')
+  expect(html).not.toContain('Grouped distribution (histogram)')
   expect(html).toContain(goalGap(selected))
   expect(html).toContain(`${ordinal(areas.indexOf(selected) + 1)} worst of ${areas.length}`)
-  expect(html).toContain(`${areas.filter((p) => p.on_time_pct < selected.goal_pct).length} of ${areas.length} areas`)
+  expect(html).toContain(`${areas.filter((p) => p.spec === 'below').length} of ${areas.length} areas`)
   for (const p of areas) expect(html).toContain(`<option value="${p.name}">`)
   expect(html).toContain('Search an area')
   expect(html).toContain('95% on-time uncertainty interval')
