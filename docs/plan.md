@@ -34,7 +34,7 @@ Roles and file ownership: docs/roles.md. Function signatures and endpoint JSON: 
 ## Decisions (Oct 16)
 - Schema is the source of truth; the mockup sets look and wording; ANOM is core; no shift filter.
 - Geography: New York State, 62 counties, then ZIP areas (Census ZCTAs) assigned to the county holding most residents.
-- Data: about 400k calls per file, gzipped; synthetic, fixed seed; volume about 2% of a realistic rate, stated in the README.
+- Data: about 400k calls per file, gzipped; synthetic, fixed seed; volume 0.0198 calls per person per year, about one-eighth of a typical real rate (~0.15), stated in the README.
 - Census: 2020 counts through a free API key kept in the gitignored `.env` (`CENSUS_API_KEY`).
 - Lookups in `data/lookup/`; new task H-09 owns `config/` and `geo/`.
 - Baseline: the 60 days before the range (120 if under 30 calls); headline measure `total_s`; late = `total_s > target_s`.

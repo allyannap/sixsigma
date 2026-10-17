@@ -15,6 +15,8 @@ import FixSection from './components/FixSection.jsx'
 import MapSection from './components/MapSection.jsx'
 import MinutesSection from './components/MinutesSection.jsx'
 
+// React puts <!-- --> between text pieces; drop them so words can be searched.
+const plain = (html) => html.replace(/<!-- -->/g, '')
 const ok = (data) => ({ data, loading: false, error: null, reload() {} })
 
 describe('sections render from fixtures', () => {
@@ -32,6 +34,38 @@ describe('sections render from fixtures', () => {
     expect(renderToString(h(ChangeSection, { pState: ok(pchart), imrState: ok(imr), selectedName: 'X' }))).toContain('p chart')
     expect(renderToString(h(MinutesSection, { delaysState: ok(delays), googleState: ok(google), selectedName: 'X' }))).toContain('Ambulance vs Google')
     expect(renderToString(h(FixSection, { whatifState: ok(whatif), fix: 'closer', pct: 25, onFix() {}, onPct() {}, selectedName: 'X' }))).toContain('Late calls avoided')
+  })
+  it('wording: status is the shift test, red points are only bad days and calls', () => {
+    const html = plain(renderToString(h(MapSection, {
+      summaryState: ok(summary), parent: { level: 'state', name: 'New York State' }, urgency: ['red'],
+      selected: { level: 'state', place: null }, onPick() {}, onBack() {}, onDrill() {},
+    })))
+    expect(html).toContain('Change vs before (z)')
+    expect(html).toContain('Spread (P95 - median)')
+    expect(html).toContain('tick at 10%')
+    expect(html).toContain('Z &gt; 3')
+    const sel = plain(renderToString(h(MapSection, {
+      summaryState: ok(summary), parent: { level: 'state', name: 'New York State' }, urgency: ['red'],
+      selected: { level: 'county', id: summary.places[0].id, name: 'A', place: summary.places[0] }, onPick() {}, onBack() {}, onDrill() {},
+    })))
+    expect(sel).toContain('&gt; 3 = real change')
+    const change = plain(renderToString(h(ChangeSection, { pState: ok(pchart), imrState: ok(imr), selectedName: 'X' })))
+    expect(change).toContain('do not set the place&#x27;s status')
+    expect(change).toContain('%')
+  })
+  it('p chart with unit null shows the low-volume note, not a chart', () => {
+    const html = plain(renderToString(h(ChangeSection, { pState: ok({ ...pchart, unit: null, points: [] }), imrState: ok(imr), selectedName: 'X' })))
+    expect(html).toContain('Low volume: too few late calls per period for a p chart')
+  })
+  it('p chart shows fractions as percents (p_bar 0.12 = 12.0%)', () => {
+    const html = plain(renderToString(h(ChangeSection, { pState: ok({ ...pchart, unit: 'month' }), imrState: ok(imr), selectedName: 'X' })))
+    expect(html).toContain('12.0% late')
+    expect(html).toContain('by month')
+  })
+  it('fault tree shows the typical-late cause and the plain rule', () => {
+    const html = plain(renderToString(h(MinutesSection, { delaysState: ok({ ...delays, causes: { ...delays.causes, typical_late: 7 } }), googleState: ok(google), selectedName: 'X' })))
+    expect(html).toContain('Typical call is already late (long distance)')
+    expect(html).toContain('most unusual for this place')
   })
   it('hides the Google part when it is not available, and shows API errors', () => {
     const html = renderToString(h(MinutesSection, { delaysState: ok(delays), googleState: ok({ ...google, available: false, messages: [] }), selectedName: 'X' }))

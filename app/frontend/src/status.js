@@ -4,17 +4,17 @@
 export const STATUS = {
   act_now: {
     label: 'Act now',
-    help: 'Getting worse, and too slow overall.',
+    help: 'Clearly slower than the 60 days before it, and too slow overall.',
     bg: '#B42318',
     fg: '#FFFFFF',
     next: 'Open Section 3 to confirm the change is real, then Sections 4 and 5 for the cause and the fix.',
   },
   recent_change: {
     label: 'Recent change',
-    help: 'Usually fine, but something changed lately.',
+    help: 'The selected range is clearly slower than the 60 days before it (a shift test, Z > 3).',
     bg: '#FDE7D3',
     fg: '#8A3A00',
-    next: 'Watch it. Section 3 shows when the change started.',
+    next: 'Watch it. Section 3 shows the bad days and bad calls to look at.',
   },
   ongoing_gap: {
     label: 'Ongoing gap',
@@ -76,10 +76,9 @@ export function rankPlaces(places) {
   return [...(places || [])].sort((a, b) => rank(a) - rank(b) || (b.late || 0) - (a.late || 0))
 }
 
-/** needs_attention may arrive as a number or a list: return a count. */
+/** needs_attention is an int (act_now + recent_change + ongoing_gap). Counts the places only if it is missing. */
 export function attentionCount(summary) {
   const n = summary && summary.needs_attention
-  if (Array.isArray(n)) return n.length
   if (typeof n === 'number') return n
   return (summary && summary.places ? summary.places : []).filter((p) => ATTENTION.includes(p.status)).length
 }

@@ -184,7 +184,8 @@ def main():
     targets = pd.read_csv(ROOT / "config" / "targets.csv")
     gmap = {"red": 0, "yellow": 1, "green": 2}
     groups = np.zeros(10, dtype=int)
-    for r in targets.itertuples():
+    # targets.csv has one row per (code, area type); the group is the same in every area type
+    for r in targets.drop_duplicates("urgency_code").itertuples():
         groups[int(r.urgency_code)] = gmap[r.urgency_group]
 
     # Resolve the closure ZIP: most populous urban ZCTA (ties broken by smaller ZIP code).

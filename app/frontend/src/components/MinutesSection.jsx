@@ -61,7 +61,7 @@ function Causes({ d }) {
   return (
     <div className="stack grow">
       <strong className="h3">What held up each of the {fmtInt(d.late_calls)} late calls?</strong>
-      <div className="caption">For each late call, we find the part that ran furthest over its normal and count it there.</div>
+      <div className="caption">Each late call is assigned to the step that was most unusual for this place.</div>
       <div className="eyebrow">The trip itself</div>
       {bar('Long trip (Google expected longer)', c.long_trip, '#B42318')}
       {bar('Drive slower than Google', c.slow_drive, '#B45309')}
@@ -69,6 +69,8 @@ function Causes({ d }) {
       {bar('911 center took longer', c.dispatch, '#4A6E99')}
       {bar('Crew took longer to roll', c.turnout, '#4A6E99')}
       {bar('No ambulance was free', c.held, '#4A6E99')}
+      <div className="eyebrow">No single step stands out</div>
+      {bar('Typical call is already late (long distance)', c.typical_late || 0, '#7A857E')}
     </div>
   )
 }

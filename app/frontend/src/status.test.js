@@ -11,9 +11,9 @@ describe('status helpers', () => {
     ])
     expect(out.map((p) => p.id)).toEqual(['c', 'b', 'a', 'd'])
   })
-  it('counts places needing attention from a number or a list', () => {
+  it('uses needs_attention (an int), and counts places only if it is missing', () => {
     expect(attentionCount({ needs_attention: 3 })).toBe(3)
-    expect(attentionCount({ needs_attention: ['a', 'b'] })).toBe(2)
+    expect(attentionCount({ needs_attention: 0 })).toBe(0)
     expect(attentionCount({ places: [{ status: 'act_now' }, { status: 'on_track' }] })).toBe(1)
   })
   it('darker fill for more late', () => {

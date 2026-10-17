@@ -39,6 +39,16 @@ export function fmtDate(iso) {
   return `${MONTHS[Number(m) - 1]} ${Number(d)}`
 }
 
+/** Z score: 7.4 -> "7.4"; missing -> "n/a". */
+export function fmtZ(z) {
+  return fmtNum(z, 1)
+}
+
+/** goal_pct = the on-time goal (90 means 90% on time), so the late goal is 100 - goal_pct; missing -> null. */
+export function lateGoalPct(goalPct) {
+  return missing(goalPct) ? null : 100 - goalPct
+}
+
 /** selection{from,to} -> "Sep 16 to Oct 15, 2026". */
 export function fmtRange(sel) {
   if (!sel || !sel.from || !sel.to) return ''

@@ -35,7 +35,8 @@
   "dispatch": 22,
   "turnout": 15,
   "long_trip": 301,
-  "slow_drive": 48
+  "slow_drive": 48,
+  "typical_late": 0
  },
  "worst_call": {
   "incident_id": "FX-1083",

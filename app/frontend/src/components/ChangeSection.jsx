@@ -8,8 +8,8 @@ const R = 704
 function PChart({ d }) {
   const pts = d.points || []
   if (!pts.length) return <p>No days in this selection.</p>
-  // The API may send fractions (0.12) or percents (12); show percents either way.
-  const k = Math.max(d.p_bar, ...pts.map((p) => p.ucl)) > 1 ? 1 : 100
+  // The API sends fractions 0-1 (docs/api.md); the chart shows percents.
+  const k = 100
   const top = Math.max(...pts.map((p) => Math.max(p.ucl, p.p))) * k * 1.1
   const H = 280
   const x = (i) => L + ((R - L) * (pts.length < 2 ? 0.5 : i / (pts.length - 1)))
@@ -18,7 +18,7 @@ function PChart({ d }) {
   const signals = pts.filter((p) => p.signal).length
   return (
     <svg viewBox={`0 0 720 ${H}`} className="chart" role="img"
-      aria-label={`p chart of the percent of calls that were late, per ${d.unit}. ${signals} ${d.unit}s are above the upper limit.`}>
+      aria-label={`p chart of the percent of calls that were late, per ${d.unit}. ${signals} bad ${d.unit}s are above the upper limit.`}>
       {ticks.map((t) => (
         <g key={t}><line x1={L} x2={R} y1={y(t)} y2={y(t)} stroke="#E3E6E1" /><text x={L - 6} y={y(t) + 4} fontSize="11" textAnchor="end" fill="#56615B">{t.toFixed(0)}%</text></g>
       ))}
@@ -108,14 +108,14 @@ function ImrCharts({ d, sel }) {
           </div>
           <div className="grow">
             <strong>Special-cause tests (I chart)</strong>
-            <div className="small muted">All 8 run. Only tests marked "alerts" count toward a recent-change flag.</div>
+            <div className="small muted">All 8 run. They are shown for your review and do not set the status.</div>
             <ul className="tests">
               {(d.tests || []).map((t) => (
                 <li key={t.id}>
                   <span className="mono muted">{t.id}</span>
                   <span className="grow">{t.rule}</span>
                   <span className={`chip ${t.fired ? (t.alert ? 'chip-bad' : 'chip-warn') : 'chip-ok'}`}>
-                    {t.fired ? (t.alert ? 'Fired: alerts' : 'Fired') : 'Clear'}
+                    {t.fired ? 'Fired' : 'Clear'}
                   </span>
                 </li>
               ))}
@@ -135,21 +135,30 @@ export default function ChangeSection({ pState, imrState, selectedName }) {
           const signals = (p.points || []).filter((q) => q.signal).length
           return (
             <>
+              {p.unit == null ? (
+                <p className="callout green" role="status">
+                  <strong>Low volume: too few late calls per period for a p chart.</strong> Use the call-by-call chart below.
+                </p>
+              ) : (
+              <>
               <p className={`callout ${signals || p.run_signal ? 'orange' : 'green'}`} role="status">
                 {signals || p.run_signal
-                  ? <><strong>The late share rose beyond what chance explains.</strong> {signals} {p.unit}{signals === 1 ? '' : 's'} above the upper limit{p.run_signal ? ', and a run of 9 in a row above the center line' : ''}.</>
-                  : <><strong>No clear change.</strong> No {p.unit} is above its limit and there is no long run above the center line.</>}
+                  ? <><strong>Some bad {p.unit}s to look at.</strong> {signals} {p.unit}{signals === 1 ? '' : 's'} above the upper limit{p.run_signal ? ', and a run of 9 in a row above the center line' : ''}.</>
+                  : <><strong>No bad {p.unit}s.</strong> No {p.unit} is above its limit and there is no long run above the center line.</>}
               </p>
               <figure className="figure">
                 <figcaption>
                   <strong>Share of urgent calls that were late, by {p.unit}</strong> <code className="analyst">p chart, varying limits</code>
                   <span className="caption">
-                    The solid line is the baseline average ({(Math.max(p.p_bar, 0) * (p.p_bar > 1 ? 1 : 100)).toFixed(1)}% late, from {fmtInt(p.base_n)} calls). Dashed lines are the limits;
+                    The solid line is the baseline average ({(p.p_bar * 100).toFixed(1)}% late, from {fmtInt(p.base_n)} calls). Dashed lines are the limits;
                     they move with the number of calls in each {p.unit}. <strong className="red">Red squares</strong> are {p.unit}s above the upper limit.
                   </span>
                 </figcaption>
                 <PChart d={p} />
+                <p className="small muted">Red squares are bad {p.unit}s to look at. They do not set the place's status; the change test in Section 1 does.</p>
               </figure>
+              </>
+              )}
               <Messages messages={p.messages} />
             </>
           )
@@ -167,6 +176,7 @@ export default function ChangeSection({ pState, imrState, selectedName }) {
                 </span>
               </figcaption>
               <ImrCharts d={d} sel={d.selection} />
+              <p className="small muted">Red dots are bad calls to look at. They do not set the place's status; the change test in Section 1 does.</p>
             </figure>
             <Messages messages={d.messages} />
           </>

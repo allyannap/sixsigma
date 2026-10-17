@@ -105,6 +105,9 @@ export default function App() {
           </label>
           <span className="small muted filter-note">Blank dates = the dataset's last 30 days.</span>
         </form>
+        <p className="small muted honest">
+          Manages the 911 center's dispatch step, not individual dispatchers. Real-time logging: replay / POST /api/calls, not a live CAD feed.
+        </p>
 
         {summary.error ? (
           <div className="error" role="alert">
@@ -116,7 +119,10 @@ export default function App() {
             <Kpi label="Places needing attention" sub={s ? sel.name : ''}>{s ? <>{attentionCount(s)} <small>of {(s.places || []).length}</small></> : '...'}</Kpi>
             <Kpi label="Urgent calls in range">{t ? fmtInt(t.calls) : '...'}</Kpi>
             <Kpi label="Arrived after the target">{t ? <>{fmtInt(t.late)} <small>&middot; {fmtPct(t.pct_late)}</small></> : '...'}</Kpi>
-            <Kpi label="Longest waits (P95)" sub={t && t.p95_ci ? `95% CI ${fmtNum(t.p95_ci[0])} to ${fmtNum(t.p95_ci[1])} min` : ''}>{t ? fmtMin(t.p95_min) : '...'}</Kpi>
+            <Kpi label="Very late (over 2x the goal time)" sub="the fatal-outlier count">{t ? <>{fmtInt(t.very_late)} <small>&middot; {fmtPct(t.very_late != null && t.timed ? (100 * t.very_late) / t.timed : null)}</small></> : '...'}</Kpi>
+            <Kpi label="P95 (call to scene)" sub={t && t.p95_ci ? `95% CI ${fmtNum(t.p95_ci[0])} to ${fmtNum(t.p95_ci[1])} min` : ''}>{t ? fmtMin(t.p95_min) : '...'}</Kpi>
+            <Kpi label="P95 (dispatch to scene, the prompt's measure)" sub={t && t.p95_dispatch_to_scene_ci ? `95% CI ${fmtNum(t.p95_dispatch_to_scene_ci[0])} to ${fmtNum(t.p95_dispatch_to_scene_ci[1])} min` : ''}>{t ? fmtMin(t.p95_dispatch_to_scene_min) : '...'}</Kpi>
+            <Kpi label="Spread (P95 - median)" sub="how much waits vary">{t ? fmtMin(t.spread_min) : '...'}</Kpi>
             <Kpi label="Median wait / median dispatch to scene">{t ? <>{fmtMin(t.median_min)} <small>/ {fmtMin(t.median_dispatch_to_scene_min)}</small></> : '...'}</Kpi>
           </div>
         )}
@@ -132,6 +138,7 @@ export default function App() {
 
       <footer className="small muted">
         Every number on this page is computed by the API (<code>/api/*</code>); the page only draws and formats it.
+        {' '}Manages the 911 center's dispatch step, not individual dispatchers. Real-time logging: replay / POST /api/calls, not a live CAD feed.
       </footer>
     </div>
   )

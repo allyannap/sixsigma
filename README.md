@@ -113,7 +113,7 @@ privacy and keeps the tool from blaming individuals.
 
 There are three synthetic 12-month files (Oct 16, 2025 to Oct 15, 2026), each covering every New York
 ZIP area with about 400,000 calls. A fixed-seed generator builds them from 2020 Census populations, at
-about 2% of a realistic call rate. Each file plants one story with a known answer:
+about one-eighth of a typical real call rate (0.0198 calls per person per year, against roughly 0.15 for US EMS). Each file plants one story with a known answer:
 
 | File | Planted story | The tool should show |
 |---|---|---|

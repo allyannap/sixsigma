@@ -23,9 +23,10 @@ def test_health_lists_three_datasets_with_row_counts():
     assert body["rows"]["summer_surge"] == 400270
 
 
-def test_meta_has_62_counties_and_10_targets():
+def test_meta_has_62_counties_and_40_targets():
     body = client.get("/api/meta").json()
-    assert len(body["counties"]) == 62 and len(body["targets"]) == 10
+    assert len(body["counties"]) == 62 and len(body["targets"]) == 40
+    assert {"urgency_code", "urban_rural", "target_s"} <= set(body["targets"][0])
     assert body["date_min"] == "2025-10-16" and body["date_max"] == "2026-10-15"
     assert {"county_fips", "county_name"} <= set(body["counties"][0])
 
@@ -106,3 +107,32 @@ def test_unknown_fix_and_pct_give_400():
     if QC_READY:
         assert client.get("/api/whatif?fix=magic").status_code == 400
         assert client.get("/api/whatif?fix=closer&pct=500").status_code == 400
+
+
+@pytest.mark.skipif(not QC_READY, reason="app/qc.py not written yet (H-03)")
+def test_route_numbers_are_qcs_numbers():
+    """Definition of done: the route's Cpk for ZIP 11368 equals qc.capability run directly on its ln-minutes."""
+    import math
+    from app import data, qc
+    body = client.get(f"/api/summary?dataset=station_closure&level=county&id=36081&{SINCE}").json()
+    place = next(p for p in body["places"] if p["id"] == "11368")
+    df = data.load("station_closure")
+    sel = data.select(df, "zcta", "11368", "red", "2026-09-16", "2026-10-15")
+    timed = sel[sel["timed"]]
+    # Cpk is on ln(total_s / target_s) with USL 0 and the call-weighted goal (H-10)
+    cap = qc.capability(timed["ln_ratio"].tolist(), 0, data.weighted_goal(timed))
+    assert place["cpk"] == round(cap["cpk"], 3) and place["cpk_upper"] == round(cap["upper"], 3)
+    assert place["status"] == "act_now" and place["z_loc"] > 3
+
+
+@pytest.mark.skipif(not QC_READY, reason="app/qc.py not written yet (H-03)")
+def test_low_volume_pchart_has_null_unit_and_no_points():
+    b = client.get("/api/pchart?level=zcta&id=06390").json()
+    assert b["unit"] is None and b["points"] == []
+
+
+@pytest.mark.skipif(not QC_READY, reason="app/qc.py not written yet (H-03)")
+def test_surge_county_is_flagged_changed():
+    body = client.get("/api/summary?dataset=summer_surge&from=2026-07-01&to=2026-08-31").json()
+    monroe = next(p for p in body["places"] if p["id"] == "36055")
+    assert monroe["changed"] and isinstance(body["needs_attention"], int)

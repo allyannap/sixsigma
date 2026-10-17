@@ -34,8 +34,8 @@ def test_step_durations_known_answer(three):
 
 
 def test_late_flag_uses_the_urgency_target(three):
-    a = three.loc["T-001"]                # red, target 480 s, took 1476 s
-    assert a["urgency_group"] == "red" and a["target_s"] == 480 and a["late"]
+    a = three.loc["T-001"]                # red in urban ZIP 10001: urban red target 430 s, took 1476 s
+    assert a["urgency_group"] == "red" and a["target_s"] == 430 and a["late"]
     b = three.loc["T-002"]                # green, target 1800 s, took 600 s
     assert b["urgency_group"] == "green" and b["target_s"] == 1800 and not b["late"]
     assert b["held"]
@@ -163,3 +163,52 @@ def test_real_file_row_count_and_speed():
     sel = data.select(df, "county", "36081", "red", "2026-09-16", "2026-10-15")
     base, info = data.baseline(df, "county", "36081", "red", "2026-09-16", 60)
     assert time.time() - t < 2 and len(sel) > 0 and info["enough"]
+
+
+# ---------------------------------------------------------------- H-10: area types and targets
+
+def test_remote_zcta_call_gets_the_remote_red_target():
+    # Find one real remote ZCTA and one urban ZCTA in the lookup; same red call in each.
+    lk = data.lookups()["zcta_county"]
+    remote = lk.loc[lk["urban_rural"] == "remote", "zcta"].iloc[0]
+    urban = lk.loc[lk["urban_rural"] == "urban", "zcta"].iloc[0]
+    raw = pd.read_csv(FIX / "three_calls.csv", dtype=str).iloc[[0, 0]].copy()
+    raw["incident_id"] = ["R-1", "U-1"]
+    raw["zcta"] = [remote, urban]
+    got = data.derive(raw).set_index("incident_id")
+    t = data.lookups()["targets"].set_index(["urgency_code", "urban_rural"])["target_s"]
+    assert got.loc["R-1", "target_s"] == t[(0, "remote")]
+    assert got.loc["U-1", "target_s"] == t[(0, "urban")]
+    assert t[(0, "remote")] > t[(0, "rural")] > t[(0, "suburban")] > t[(0, "urban")]
+
+
+def test_area_type_boundaries():
+    sys_path_fix = Path(__file__).resolve().parent.parent / "data"
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("build_lookups", sys_path_fix / "build_lookups.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    assert mod.urban_rural(3000) == "urban" and mod.urban_rural(2999.9) == "suburban"
+    assert mod.urban_rural(500) == "suburban" and mod.urban_rural(499.9) == "rural"
+    assert mod.urban_rural(50) == "rural" and mod.urban_rural(49.9) == "remote"
+    assert mod.urban_rural(0) == "remote"
+
+
+def test_ln_ratio_known_answer_and_untimed_is_nan():
+    # T-001: total 1476 s against a target of 840 s: ln(1476 / 840) = 0.5637 (above 0 = late)
+    raw = pd.read_csv(FIX / "three_calls.csv", dtype=str)
+    t = pd.DataFrame({"urgency_code": range(10), "urban_rural": "urban",
+                      "urgency_group": ["red"] * 3 + ["yellow"] * 3 + ["green"] * 4,
+                      "target_s": 840, "goal_on_time_pct": 90})
+    area = {"10001": "urban", "10002": "urban"}
+    got = data.derive(raw, targets=t, zcta_to_county={"10001": "36061", "10002": "36061"},
+                      zcta_to_area=area).set_index("incident_id")
+    assert got.loc["T-001", "ln_ratio"] == pytest.approx(0.5637, abs=5e-4)
+    assert got.loc["T-001", "late"]
+    assert pd.isna(got.loc["T-003", "ln_ratio"])          # cancelled: not timed
+
+
+def test_weighted_goal_is_the_mean_goal_of_timed_calls():
+    df = load_fixture("three_calls.csv")
+    assert data.weighted_goal(df[df["timed"]]) == 90.0
+    assert data.weighted_goal(df.iloc[:0]) is None

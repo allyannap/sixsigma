@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
 import { geoMercator, geoPath } from 'd3-geo'
 import { getGeo } from '../api.js'
-import { fmtInt, fmtMin, fmtNum, fmtPct } from '../format.js'
+import { rewindForD3 } from '../geo.js'
+import { fmtInt, fmtMin, fmtNum, fmtPct, fmtZ, lateGoalPct } from '../format.js'
 import { STATUS, URGENCY, attentionCount, fillFor, rankPlaces } from '../status.js'
 import { Async, Messages, Section, StatusBadge, StatusIcon, StatusLegend } from './common.jsx'
 
+const BAR_MAX = 25 // the table's % late bar runs 0 to 25%
 const W = 640
 const H = 440
 
@@ -38,7 +40,8 @@ function PlaceMap({ parent, places, urgency, selected, onPick, onBack }) {
   const features = useMemo(() => {
     if (!geo.data) return []
     const all = geo.data.features
-    return drillIn ? all.filter((f) => f.properties.county_fips === parent.id) : all
+    const picked = drillIn ? all.filter((f) => f.properties.county_fips === parent.id) : all
+    return picked.map(rewindForD3)
   }, [geo.data, drillIn, parent.id])
 
   const byId = useMemo(() => Object.fromEntries((places || []).map((p) => [p.id, p])), [places])
@@ -137,6 +140,10 @@ function SelectedPanel({ summary, selected, parent, onDrill }) {
   const p95 = p ? p.p95_min : totals?.p95_min
   const ci = p ? p.p95_ci : totals?.p95_ci
   const status = p ? p.status : null
+  const veryLate = p ? p.very_late : totals?.very_late
+  const spread = p ? p.spread_min : totals?.spread_min
+  const zLoc = p ? p.z_loc : null
+  const zP = p ? p.z_p : null
   return (
     <aside className="selected" aria-label="Selected place">
       <div className="eyebrow">Selected place</div>
@@ -151,7 +158,14 @@ function SelectedPanel({ summary, selected, parent, onDrill }) {
       <div className="mini-grid">
         <div className="mini"><div className="mini-label">Late calls</div><div className="mini-sub">{fmtInt(late)} of {fmtInt(calls)}</div><div className="mini-value">{fmtPct(pct)}</div></div>
         <div className="mini"><div className="mini-label">Longest waits (P95)</div><div className="mini-value">{fmtMin(p95)}</div><div className="mini-sub">{ci ? `95% CI ${fmtNum(ci[0])} to ${fmtNum(ci[1])}` : '1 in 20 waited longer'}</div></div>
+        <div className="mini"><div className="mini-label">Very late (over 2x goal time)</div><div className="mini-value">{fmtInt(veryLate)}</div></div>
+        <div className="mini"><div className="mini-label">Spread (P95 - median)</div><div className="mini-value">{fmtMin(spread)}</div></div>
       </div>
+      {p && (
+        <p className="small" data-testid="change-z">
+          <strong>Change vs before (z):</strong> time {fmtZ(zLoc)}, share late {fmtZ(zP)}. <strong>&gt; 3 = real change.</strong>
+        </p>
+      )}
       {status && <p><strong>Next step:</strong> {STATUS[status]?.next}</p>}
       {!isParent && selected.level === 'county' && (
         <button type="button" className="btn" onClick={() => onDrill(p)}>Show this county's ZIP areas</button>
@@ -161,7 +175,8 @@ function SelectedPanel({ summary, selected, parent, onDrill }) {
   )
 }
 
-function PlaceTable({ places, selected, onPick }) {
+function PlaceTable({ places, selected, onPick, goalPct }) {
+  const lateGoal = lateGoalPct(goalPct)
   const ranked = rankPlaces(places)
   return (
     <div className="table-scroll" tabIndex={0} role="region" aria-label="Ranked places (scrolls sideways on small screens)">
@@ -169,7 +184,7 @@ function PlaceTable({ places, selected, onPick }) {
         <thead>
           <tr>
             <th scope="col">#</th><th scope="col">Place</th><th scope="col">Calls</th><th scope="col">Late</th>
-            <th scope="col">% late</th><th scope="col">P95 [95% CI]</th><th scope="col">Cpk [upper]</th><th scope="col">Status</th>
+            <th scope="col">Very late</th><th scope="col">% late</th><th scope="col">P95 [95% CI]</th><th scope="col">Spread (P95 - median)</th><th scope="col">Cpk [upper]</th><th scope="col">Change vs before (z)</th><th scope="col">Status</th>
           </tr>
         </thead>
         <tbody>
@@ -182,15 +197,20 @@ function PlaceTable({ places, selected, onPick }) {
               </th>
               <td className="mono">{fmtInt(p.calls)}</td>
               <td className="mono">{fmtInt(p.late)}</td>
+              <td className="mono">{fmtInt(p.very_late)}</td>
               <td>
                 <div className="pct-cell">
-                  <div className="pct-bar" aria-hidden="true"><div style={{ width: `${Math.min(100, (p.pct_late || 0) * 4)}%` }} /><i /></div>
+                  <div className="pct-bar" aria-hidden="true"><div style={{ width: `${Math.min(100, ((p.pct_late || 0) / BAR_MAX) * 100)}%` }} />{lateGoal != null && <i style={{ left: `${(lateGoal / BAR_MAX) * 100}%` }} />}</div>
                   <span className="mono">{fmtPct(p.pct_late)}</span>
                 </div>
               </td>
               <td className="mono">{p.p95_min == null ? 'n/a' : fmtNum(p.p95_min)}{p.p95_ci && <span className="muted"> [{fmtNum(p.p95_ci[0])}, {fmtNum(p.p95_ci[1])}]</span>}</td>
+              <td className="mono">{fmtNum(p.spread_min)}</td>
               <td className="mono" title={p.cpk == null ? 'Cpk undefined (not enough calls or no spread)' : ''}>
                 {p.cpk == null ? 'n/a' : fmtNum(p.cpk, 2)}{p.cpk_upper != null && <span className="muted"> [{fmtNum(p.cpk_upper, 2)}]</span>}
+              </td>
+              <td className="mono" title="Time z / share-late z. Above 3 = real change.">
+                {fmtZ(p.z_loc)}<span className="muted"> / {fmtZ(p.z_p)}</span>
               </td>
               <td><StatusBadge status={p.status} /></td>
             </tr>
@@ -218,10 +238,11 @@ export default function MapSection({ summaryState, parent, urgency, selected, on
                 <SelectedPanel summary={s} selected={selected} parent={parent} onDrill={onDrill} />
               </div>
               <StatusLegend />
-              <PlaceTable places={s.places} selected={selected} onPick={onPick} />
+              <PlaceTable places={s.places} selected={selected} onPick={onPick} goalPct={s.totals?.goal_pct} />
               <p className="small muted">
                 Fill color is the urgency you picked; darker means more late. Status is shown by the flag and outline, not by a second color.
-                Table bar: 0 to 25% late, tick at 10% (the placeholder goal of 90% on time).
+                Table bar: 0 to 25% late{s.totals?.goal_pct != null ? `, tick at ${fmtNum(lateGoalPct(s.totals.goal_pct), 0)}% (the center's goal of ${fmtNum(s.totals.goal_pct, 0)}% on time)` : ''}.
+                "Change vs before (z)" compares the selected range with the 60 days before it (time z / share-late z); above 3 = a real change, and it is what sets Recent change and Act now.
                 "Too slow overall" means Cpk (on log minutes) is confidently below the bar for the center's goal.
               </p>
               <Messages messages={s.messages} />

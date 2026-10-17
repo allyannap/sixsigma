@@ -26,7 +26,15 @@
   "p95_ci": [
    18.2,
    21.5
-  ]
+  ],
+  "very_late": 31,
+  "p95_dispatch_to_scene_min": 17.7,
+  "p95_dispatch_to_scene_ci": [
+   16.1,
+   19.4
+  ],
+  "spread_min": 12.2,
+  "goal_pct": 90
  },
  "needs_attention": 2,
  "places": [
@@ -43,10 +51,17 @@
    "too_slow": true,
    "changed": true,
    "reasons": [
-    "p chart above its limit",
-    "I chart test 1 fired"
+    "Slower than the 60 days before: Z = 8.0 (above 3 = real change)"
    ],
-   "status": "act_now"
+   "status": "act_now",
+   "very_late": 30,
+   "p95_ci": [
+    19.6,
+    23.4
+   ],
+   "spread_min": 12.6,
+   "z_loc": 8.0,
+   "z_p": 5.2
   },
   {
    "id": "99902",
@@ -61,7 +76,15 @@
    "too_slow": false,
    "changed": false,
    "reasons": [],
-   "status": "on_track"
+   "status": "on_track",
+   "very_late": 2,
+   "p95_ci": [
+    10.1,
+    12.0
+   ],
+   "spread_min": 4.4,
+   "z_loc": 0.2,
+   "z_p": -0.1
   },
   {
    "id": "99903",
@@ -76,9 +99,17 @@
    "too_slow": false,
    "changed": true,
    "reasons": [
-    "I chart test 2 fired"
+    "Slower than the 60 days before: Z = 3.3 (above 3 = real change)"
    ],
-   "status": "recent_change"
+   "status": "recent_change",
+   "very_late": 6,
+   "p95_ci": [
+    11.5,
+    14.4
+   ],
+   "spread_min": 5.0,
+   "z_loc": 3.3,
+   "z_p": 2.1
   },
   {
    "id": "99904",
@@ -95,7 +126,12 @@
    "reasons": [
     "Fewer than 30 timed calls"
    ],
-   "status": "not_enough"
+   "status": "not_enough",
+   "very_late": 0,
+   "p95_ci": null,
+   "spread_min": null,
+   "z_loc": null,
+   "z_p": null
   }
  ],
  "urgent_by_county": []

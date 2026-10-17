@@ -1,5 +1,5 @@
 {
-  "_comment": "Every generator parameter. SYNTHETIC data. Volume is about 2% of a realistic EMS rate (about 0.0198 calls per person per year) so the files stay small.",
+  "_comment": "Every generator parameter. SYNTHETIC data. Volume is about 0.0198 calls per person per year, roughly one-eighth of a typical US EMS rate (~0.15) so the files stay small.",
   "seed": 20261016,
   "date_start": "2025-10-16",
   "date_end": "2026-10-15",
@@ -14,7 +14,7 @@
   "dispatch_sigma": 0.5,
   "turnout_median_s": 50,
   "turnout_sigma": 0.35,
-  "eta_median_s": {"urban": 200, "suburban": 215, "rural": 500},
+  "eta_median_s": {"urban": 200, "suburban": 215, "rural": 500, "remote": 750},
   "eta_sigma": 0.45,
   "drive_ratio_median": {"red": 0.85, "yellow": 0.95, "green": 1.05},
   "drive_ratio_sigma": 0.15,

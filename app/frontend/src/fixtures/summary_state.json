@@ -26,7 +26,15 @@
   "p95_ci": [
    14.1,
    15.6
-  ]
+  ],
+  "very_late": 112,
+  "p95_dispatch_to_scene_min": 12.7,
+  "p95_dispatch_to_scene_ci": [
+   12.0,
+   13.5
+  ],
+  "spread_min": 7.9,
+  "goal_pct": 90
  },
  "needs_attention": 3,
  "places": [
@@ -43,9 +51,17 @@
    "too_slow": true,
    "changed": true,
    "reasons": [
-    "p chart: 6 days above the upper limit since Oct 3"
+    "Slower than the 60 days before: Z = 7.4 (above 3 = real change)"
    ],
-   "status": "act_now"
+   "status": "act_now",
+   "very_late": 41,
+   "p95_ci": [
+    18.4,
+    21.3
+   ],
+   "spread_min": 11.9,
+   "z_loc": 7.4,
+   "z_p": 4.1
   },
   {
    "id": "36902",
@@ -60,9 +76,17 @@
    "too_slow": false,
    "changed": true,
    "reasons": [
-    "I chart test 1 fired on Oct 11"
+    "Slower than the 60 days before: Z = 3.6 (above 3 = real change)"
    ],
-   "status": "recent_change"
+   "status": "recent_change",
+   "very_late": 9,
+   "p95_ci": [
+    11.2,
+    14.1
+   ],
+   "spread_min": 5.2,
+   "z_loc": 3.6,
+   "z_p": 1.9
   },
   {
    "id": "36903",
@@ -79,7 +103,15 @@
    "reasons": [
     "Cpk upper bound 0.35 is below the bar 0.43"
    ],
-   "status": "ongoing_gap"
+   "status": "ongoing_gap",
+   "very_late": 33,
+   "p95_ci": [
+    13.9,
+    16.4
+   ],
+   "spread_min": 8.0,
+   "z_loc": 0.8,
+   "z_p": 0.4
   },
   {
    "id": "36904",
@@ -94,7 +126,15 @@
    "too_slow": false,
    "changed": false,
    "reasons": [],
-   "status": "on_track"
+   "status": "on_track",
+   "very_late": 4,
+   "p95_ci": [
+    9.3,
+    11.2
+   ],
+   "spread_min": 3.7,
+   "z_loc": -0.3,
+   "z_p": 0.2
   },
   {
    "id": "36905",
@@ -111,7 +151,12 @@
    "reasons": [
     "Fewer than 30 timed calls"
    ],
-   "status": "not_enough"
+   "status": "not_enough",
+   "very_late": 0,
+   "p95_ci": null,
+   "spread_min": null,
+   "z_loc": null,
+   "z_p": null
   }
  ],
  "urgent_by_county": [

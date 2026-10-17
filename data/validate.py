@@ -14,6 +14,7 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 NAMES = ["baseline", "station_closure", "summer_surge"]
 TIME_COLS = ["t_received", "t_assigned", "t_enroute", "t_onscene"]
+RED_REF_S = 480  # the bands below judge every red call against 480 s (NFPA-style), not the tier target
 RESULTS = []  # (ok, text)
 
 
@@ -50,7 +51,9 @@ def self_test():
 
 def red_late(df, lookup, targets):
     """Red calls that count for time statistics, with total_s and late; urban_rural attached."""
-    t = df.merge(targets[["urgency_code", "urgency_group", "target_s"]], on="urgency_code")
+    groups = targets.drop_duplicates("urgency_code")[["urgency_code", "urgency_group"]]
+    t = df.merge(groups, on="urgency_code")
+    t["target_s"] = RED_REF_S
     t = t[(t.urgency_group == "red") & t["t_onscene"].notna() & (t["valid_time"] == "Y")].copy()
     t["total_s"] = (t["t_onscene"] - t["t_received"]).dt.total_seconds()
     t["late"] = t["total_s"] > t["target_s"]
@@ -122,8 +125,11 @@ def main():
         n_calls = r.groupby("urban_rural").size()
         for grp, lo, hi in [("urban", 5, 10), ("suburban", 6, 10), ("rural", 30, 100)]:
             v = g.get(grp, float("nan"))
-            report(lo <= v <= hi, f"baseline red % late, {grp}: {v:.2f}% (band {lo}-{hi}%, "
+            report(lo <= v <= hi, f"baseline red % late at {RED_REF_S} s, {grp}: {v:.2f}% (band {lo}-{hi}%, "
                                   f"{int(n_calls.get(grp, 0)):,} calls)")
+        rem, rur = g.get("remote", float("nan")), g.get("rural", float("nan"))
+        report(rem > rur, f"baseline red % late at {RED_REF_S} s, remote > rural: remote {rem:.2f}% vs "
+                          f"rural {rur:.2f}% ({int(n_calls.get('remote', 0)):,} remote calls)")
 
     # Planted story 1: station closure
     if "station_closure" in parsed and "baseline" in parsed:

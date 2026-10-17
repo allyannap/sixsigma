@@ -5,7 +5,7 @@ Needs a free Census API key in the repo-root .env file, one line:  CENSUS_API_KE
 (.env is gitignored. This script never prints the key and never writes it anywhere.)
 
 Writes:
-  data/lookup/zcta_county.csv  zcta, county_fips, population, urban_rural, land_sqmi
+  data/lookup/zcta_county.csv  zcta, county_fips, population, urban_rural (urban/suburban/rural/remote), land_sqmi
   data/lookup/counties.csv     county_fips, county_name, population
 
 Method (also in data/README.md):
@@ -67,11 +67,17 @@ def api_table(params, key):
 
 
 def urban_rural(density):
+    """Area type from density (people per square mile of land). Column name kept as urban_rural.
+
+    urban >= 3000, suburban 500 to < 3000, rural 50 to < 500, remote < 50.
+    """
     if density >= 3000:
         return "urban"
     if density >= 500:
         return "suburban"
-    return "rural"
+    if density >= 50:
+        return "rural"
+    return "remote"
 
 
 def main():
@@ -133,7 +139,7 @@ def main():
         print(f"note: dropping {len(dropped)} ZCTAs with no tract overlap in the relationship file")
     out = out.dropna(subset=["county_fips", "land_sqmi"])
     out["density"] = out["population"] / out["land_sqmi"].where(out["land_sqmi"] > 0)
-    out["urban_rural"] = out["density"].apply(lambda d: "rural" if pd.isna(d) else urban_rural(d))
+    out["urban_rural"] = out["density"].apply(lambda d: "remote" if pd.isna(d) else urban_rural(d))
     out["land_sqmi"] = out["land_sqmi"].round(3)
     out = out[["zcta", "county_fips", "population", "urban_rural", "land_sqmi"]].sort_values("zcta")
 

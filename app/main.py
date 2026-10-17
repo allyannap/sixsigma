@@ -156,36 +156,40 @@ def common(dataset: str = "baseline",
     return Ctx(dataset, from_, to, urgency, level, id, baseline_days)
 
 
-def usl_and_goal(timed: pd.DataFrame) -> tuple[float | None, float | None, str | None]:
-    """ln(target in minutes) and goal % for Cpk. With several urgency groups, uses the first."""
-    if len(timed) == 0:
-        return None, None, None
-    groups = timed["urgency_group"].cat.remove_unused_categories().cat.categories
-    first = timed[timed["urgency_group"] == groups[0]].iloc[0]
-    msg = None
-    if len(groups) > 1:
-        msg = f"several urgency groups selected: Cpk uses the {groups[0]} target"
-    return math.log(first["target_s"] / 60.0), float(first["goal_on_time_pct"]), msg
+USL_LN_RATIO = 0.0   # Cpk is on x = ln(total_s / target_s); late means x > 0, so USL = 0
 
 
-def place_card(qc, sel_timed, n_calls, base_timed, base_info, usl, goal, n_boot=50) -> dict:
-    """Run the statistics for ONE place and return the fields of a summary row."""
-    card = {"calls": n_calls, "timed": len(sel_timed), "late": int(sel_timed["late"].sum())}
-    card["pct_late"] = pct(card["late"], card["timed"])
-    card.update(p95_min=None, cpk=None, cpk_upper=None, too_slow=False, changed=False, reasons=[])
-    if card["timed"] < data.MIN_CALLS or not base_info["enough"]:
-        card["status"] = "not_enough"
+def very_late_count(timed: pd.DataFrame) -> int:
+    """Very late = total_s above twice the target."""
+    return int((timed["total_s"] > 2 * timed["target_s"]).sum())
+
+
+def place_card(qc, sel_timed, n_calls, base_timed, base_info) -> dict:
+    """Run the statistics for ONE place and return the fields of a summary row.
+
+    Needs only capability + changed_recently + p95_boot (no I-MR chart per place).
+    """
+    n_sel, n_base = len(sel_timed), len(base_timed)
+    card = {"calls": n_calls, "timed": n_sel, "late": int(sel_timed["late"].sum()),
+            "very_late": very_late_count(sel_timed)}
+    card["pct_late"] = pct(card["late"], n_sel)
+    card.update(p95_min=None, p95_ci=[None, None], spread_min=None, cpk=None, cpk_upper=None,
+                too_slow=False, z_loc=None, z_p=None, changed=False, reasons=[])
+    if n_sel:
+        boot = qc.p95_boot(sel_timed["minutes"].tolist())
+        card["p95_min"], card["p95_ci"], card["spread_min"] = num(boot["p95"]), minutes_list(boot["ci"]), num(boot["spread"])
+    if n_sel < data.MIN_CALLS or n_base < data.MIN_CALLS:
+        card["status"] = qc.status(False, False, n_sel, n_base)   # not_enough
         return card
-    unit = qc.subgroup_unit(data.calls_per_day(base_info))
-    sel_sg, base_n, base_late = data.subgroups(sel_timed, unit), len(base_timed), int(base_timed["late"].sum())
-    pc = qc.p_chart(sel_sg["n"], sel_sg["late"], base_n, base_late)
-    imr = qc.imr(sel_timed["ln_min"].tolist(), base_timed["ln_min"].tolist())
-    cap = qc.capability(sel_timed["ln_min"].tolist(), usl, goal, sigma=imr.get("sigma"))
-    ch = qc.changed_recently(pc, imr)
-    card["p95_min"] = num(qc.p95_boot(sel_timed["minutes"].tolist(), n_boot=n_boot)["p95"])
+    sel_x, base_x = sel_timed["ln_min"].tolist(), base_timed["ln_min"].tolist()
+    ch = qc.changed_recently(sel_x, base_x, card["late"], n_sel, int(base_timed["late"].sum()), n_base)
+    # Cpk on each call's log ratio to its own target, USL 0, goal = this place's call-weighted goal
+    cap = qc.capability(sel_timed["ln_ratio"].tolist(), USL_LN_RATIO, data.weighted_goal(sel_timed))
     card["cpk"], card["cpk_upper"] = num(cap["cpk"], 3), num(cap["upper"], 3)
-    card["too_slow"], card["changed"], card["reasons"] = bool(cap["too_slow"]), bool(ch["changed"]), ch["reasons"]
-    card["status"] = qc.status(card["too_slow"], card["changed"], card["timed"])
+    card["too_slow"] = bool(cap["too_slow"])
+    card["z_loc"], card["z_p"] = num(ch["z_loc"]), num(ch["z_p"])
+    card["changed"], card["reasons"] = bool(ch["changed"]), ch["reasons"]
+    card["status"] = qc.status(card["too_slow"], card["changed"], n_sel, n_base)
     return card
 
 
@@ -211,7 +215,7 @@ def meta():
         "date_max": max(r[1] for r in ranges).isoformat(),
         "counties": [{"county_fips": f, "county_name": n}
                      for f, n in zip(counties["county_fips"], counties["county_name"])],
-        "targets": lk["targets"].to_dict("records"),
+        "targets": records(lk["targets"], list(lk["targets"].columns)),
     }
 
 
@@ -245,15 +249,21 @@ def post_call(call: Call):
 def summary(c: Ctx = Depends(common)):
     qc = get_qc()
     sel_t, base_t = c.timed, c.base_timed
-    usl, goal, note = usl_and_goal(sel_t)
+    goal = data.weighted_goal(sel_t)
 
-    totals = {"calls": len(c.sel), "timed": len(sel_t), "late": int(sel_t["late"].sum())}
+    totals = {"calls": len(c.sel), "timed": len(sel_t), "late": int(sel_t["late"].sum()),
+              "very_late": very_late_count(sel_t)}
     totals["pct_late"] = pct(totals["late"], totals["timed"])
     totals["median_min"] = num(sel_t["minutes"].median()) if len(sel_t) else None
     totals["median_dispatch_to_scene_min"] = (num(sel_t["dispatch_to_scene_s"].median() / 60)
                                               if len(sel_t) else None)
-    boot = qc.p95_boot(sel_t["minutes"].tolist()) if len(sel_t) else {"p95": None, "ci": [None, None]}
+    boot = qc.p95_boot(sel_t["minutes"].tolist())
     totals["p95_min"], totals["p95_ci"] = num(boot["p95"]), minutes_list(boot["ci"])
+    d2s = qc.p95_boot((sel_t["dispatch_to_scene_s"] / 60.0).tolist())
+    totals["p95_dispatch_to_scene_min"] = num(d2s["p95"])
+    totals["p95_dispatch_to_scene_ci"] = minutes_list(d2s["ci"])
+    totals["spread_min"] = num(boot["spread"])
+    totals["goal_pct"] = goal
 
     key = data.child_key(c.level)
     kids = data.children(c.level, c.id)
@@ -264,7 +274,7 @@ def summary(c: Ctx = Depends(common)):
         rows = sel_groups.get(kid["id"], c.sel.iloc[:0])
         timed = rows[rows["timed"].to_numpy()]
         b_rows, b_info = base_groups[kid["id"]]
-        card = place_card(qc, timed, len(rows), b_rows[b_rows["timed"].to_numpy()], b_info, usl, goal)
+        card = place_card(qc, timed, len(rows), b_rows[b_rows["timed"].to_numpy()], b_info)
         places.append({"id": kid["id"], "name": kid["name"], **card})
 
     per_county = data.select(c.df, "state", None, c.groups, c.from_, c.to)["county_fips"].value_counts()
@@ -272,8 +282,9 @@ def summary(c: Ctx = Depends(common)):
     urgent_by_county = [{"county_fips": f, "name": names[f], "calls": int(per_county.get(f, 0))}
                         for f in sorted(names)]
     attention = sum(p["status"] in ("act_now", "recent_change", "ongoing_gap") for p in places)
-    return c.reply({"totals": totals, "needs_attention": attention, "places": places,
-                    "urgent_by_county": urgent_by_county}, [note])
+    msgs = boot["messages"]
+    return c.reply({"totals": totals, "needs_attention": int(attention), "places": places,
+                    "urgent_by_county": urgent_by_county}, msgs)
 
 
 @app.get("/api/anom")
@@ -281,12 +292,14 @@ def anom(c: Ctx = Depends(common)):
     qc = get_qc()
     key = data.child_key(c.level)
     names = {k["id"]: k["name"] for k in data.children(c.level, c.id)}
-    groups = {k: g["ln_min"].tolist() for k, g in c.timed.groupby(key, observed=True) if len(g) >= 2}
-    msgs = []
+    all_groups = {k: g["ln_min"].tolist() for k, g in c.timed.groupby(key, observed=True)}
+    groups = {k: v for k, v in all_groups.items() if len(v) >= data.MIN_CALLS}
+    msgs = [f"{names.get(k, k)}: only {len(v)} timed calls (under {data.MIN_CALLS}), left out of ANOM"
+            for k, v in all_groups.items() if len(v) < data.MIN_CALLS]
     if len(groups) < 2:
         return c.reply({"grand_mean_min": None, "h": None, "k": len(groups), "N": None, "F": None,
                         "df1": None, "df2": None, "places": []},
-                       ["ANOM needs at least 2 places with 2 or more timed calls"])
+                       msgs + ["ANOM needs at least 2 places with 30 or more timed calls"])
     r = qc.anom(groups)
     places = []
     for pid, g in r["groups"].items():
@@ -303,10 +316,15 @@ def anom(c: Ctx = Depends(common)):
 @app.get("/api/pchart")
 def pchart(c: Ctx = Depends(common)):
     qc = get_qc()
-    unit = qc.subgroup_unit(data.calls_per_day(c.info))
-    sg = data.subgroups(c.timed, unit)
     base_t = c.base_timed
-    r = qc.p_chart(sg["n"], sg["late"], len(base_t), int(base_t["late"].sum()))
+    base_n, base_late = len(base_t), int(base_t["late"].sum())
+    p_bar = base_late / base_n if base_n else None
+    unit = qc.subgroup_unit(data.calls_per_day(c.info), p_bar)
+    if unit is None:   # low volume: no marks, but p_bar is still shown
+        return c.reply({"unit": None, "p_bar": num(p_bar, 4), "base_n": base_n, "points": [],
+                        "run_signal": False}, ["low volume: too few late calls per month in the baseline, no chart marks"])
+    sg = data.subgroups(c.timed, unit)
+    r = qc.p_chart(sg["n"], sg["late"], base_n, base_late)
     points = [{"start": s, **{k: p[k] for k in ("n", "late", "p", "ucl", "lcl", "signal")}}
               for s, p in zip(sg["start"], r["points"])]
     return c.reply({"unit": unit, "p_bar": r["p_bar"], "base_n": len(base_t), "points": points,
@@ -341,7 +359,7 @@ def delays(c: Ctx = Depends(common)):
     t, b = c.timed, c.base_timed
     late = t[t["late"].to_numpy()]
     cols = ["dispatch_s", "turnout_s", "eta_google_s", "drive_s", "held"]
-    r = qc.fault_tree(records(late, cols), data.step_medians(b))
+    r = qc.fault_tree(records(late, cols), records(b, cols))
     worst = None
     if len(late):
         w = late.loc[late["total_s"].idxmax()]
@@ -386,7 +404,10 @@ def whatif(fix: str = "closer", pct_: float = Query(20, alias="pct"), c: Ctx = D
     qc = get_qc()
     t = c.timed
     cols = ["dispatch_s", "turnout_s", "drive_s", "eta_google_s", "total_s", "held", "target_s"]
-    r = qc.whatif(records(t, cols), fix, pct_, data.step_medians(c.base_timed))
+    b = c.base_timed
+    nonheld = b.loc[~b["held"].to_numpy(), "dispatch_s"]
+    base_median = float(nonheld.median()) if len(nonheld) else None
+    r = qc.whatif(records(t, cols), fix, pct_, base_median)
     return c.reply({"fix": fix, "pct": pct_, "now": r["now"], "with_fix": r["with_fix"],
                     "avoided": r["avoided"], "n": len(t)}, r.get("messages", []))
 

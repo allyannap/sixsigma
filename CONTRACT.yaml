@@ -65,9 +65,9 @@ tasks:
   - id: H-03
     title: Core QC statistic as one plain, tested function
     points: "25 - Tool Implementation: valid analyses relevant to quality control in R or Python"
-    status: todo
-    owner: ""
-    started_at: ""
+    status: done
+    owner: "agent (role 2: Stats)"
+    started_at: "2026-10-16 20:50"
     owns: ["app/qc.py", "tests/test_qc.py"]
     notes: >
       Load the stats-first-steering skill before writing any statistics. Plain
@@ -76,12 +76,12 @@ tasks:
       pytest tests (Python) or Rscript -e "testthat::test_dir('tests')" (R)
       passes, including one test that reproduces the SPEC section 4
       known-answer check and one degenerate case (constant data or n = 1).
-    result: ""
+    result: "app/qc.py - every SPEC 4 statistic; tests/test_qc.py 67 passed; stats-reviewer PASS (all known answers, degenerates, 8 Nelson tests; real data - 0 of 62 counties changed on the clean file, 11368 act_now, Monroe act_now in Jul-Aug)."
 
   - id: H-04
     title: Working tool - one demo copied to app/ and wired to the H-03 function
     points: "25 - Tool Implementation: an effective, working tool (does it run?)"
-    status: in_progress
+    status: done
     owner: "agent (role 3: Data)"
     started_at: "2026-10-16 19:21"
     owns: ["app/main.py", "app/data.py", "app/requirements.txt", "app/testme.sh", "app/manifestme.sh", "app/deployme.sh", "app/README.md", "tests/test_data.py", "tests/test_api.py", "docs/api.md"]
@@ -94,7 +94,7 @@ tasks:
       The testme script in app/ starts the tool with one command, and a call
       on one data/ file (endpoint, function call or app upload) returns the
       same numbers as the H-03 known-answer test.
-    result: ""
+    result: "app/data.py + app/main.py serve every docs/api.md route on the real data; pytest tests 106 passed; test_route_numbers_are_qcs_numbers matches qc.capability; state summary 1.4-2.0 s."
 
   - id: H-05
     title: Demonstration of the tool on every test dataset
@@ -167,7 +167,7 @@ tasks:
   - id: H-09
     title: Urgency targets config and New York map shapes
     points: "supports H-04 and H-05 - the late flag, the colors and the county to ZIP map"
-    status: in_progress
+    status: done
     owner: "claude + Powerpuff Girls"
     started_at: "2026-10-16 18:41"
     owns: ["config/", "geo/"]
@@ -181,4 +181,24 @@ tasks:
       target_s and goal_on_time_pct; geo/ny_counties.geojson has 62
       features; every zcta in data/lookup/zcta_county.csv matches a GEOID in
       geo/ny_zcta.geojson; each geojson is under 10 MB.
-    result: ""
+    result: "config/targets.csv 10 codes; geo/ny_counties.geojson 62 features (108 KB), geo/ny_zcta.geojson 1,826 of 1,826 lookup ZCTAs matched (908 KB); check_geo.py exit 0."
+
+  - id: H-10
+    title: Density tiers (urban, suburban, rural, remote) and history-based red targets
+    points: "protects valid QC analysis (25) and minimal inputs (5) - each place judged against its own area type's history"
+    status: done
+    owner: "agent (H-10)"
+    started_at: "2026-10-16 21:10"
+    owns: ["config/", "data/build_lookups.py", "data/lookup/", "data/params.json", "data/generate.py", "data/validate.py", "data/README.md", "data/*.csv.gz", "app/data.py", "app/main.py", "tests/test_data.py", "tests/test_api.py", "docs/api.md"]
+    notes: >
+      Team decision Oct 16 - area type from 2020 density (urban >= 3000, suburban 500-3000,
+      rural 50-500, remote < 50 per sq mi); regenerate with longer remote trips; red target per
+      area type = 90th percentile of red total_s over Oct 16 2025 - Apr 15 2026 (baseline file),
+      rounded up to 10 s, goal 90%; Cpk on ln(total_s / target_s) with USL 0 (SPEC section 4).
+    definition_of_done: >
+      config/targets.csv has 40 rows (10 codes x 4 area types) and python config/build_targets.py
+      reproduces it exactly; python data/validate.py prints 0 FAIL; pytest tests passes; and on the
+      live API the clean baseline file flags 0 counties changed while ZIP 11368 (closure) and
+      Monroe (summer surge, Jul-Aug) are still flagged changed.
+    result: "4 area types by 2020 density; red targets = tier P90 Oct 2025-Apr 2026 (urban 430 s, suburban 460, rural 910, remote 1280), 40 rows, rebuild identical; validate 43 PASS 0 FAIL; pytest 110 passed; clean file 0 counties changed, 11368 and Monroe act_now; hand-computed Cpk for 11368 matches the API."
+

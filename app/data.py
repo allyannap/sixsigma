@@ -49,13 +49,13 @@ _lookups_cache: dict = {}
 
 
 def read_targets(path: Path = TARGETS_CSV) -> pd.DataFrame:
-    """config/targets.csv. Fails loudly on a missing file or a malformed table."""
+    """config/targets.csv: one row per (urgency_code, urban_rural). Fails loudly on a missing file or a malformed table."""
     t = pd.read_csv(path)
-    need = {"urgency_code", "urgency_group", "target_s", "goal_on_time_pct"}
+    need = {"urgency_code", "urban_rural", "urgency_group", "target_s", "goal_on_time_pct"}
     if not need.issubset(t.columns):
         raise ValueError(f"{path} must have columns {sorted(need)}")
-    if t["urgency_code"].duplicated().any():
-        raise ValueError(f"{path} has a duplicated urgency_code")
+    if t.duplicated(["urgency_code", "urban_rural"]).any():
+        raise ValueError(f"{path} has a duplicated (urgency_code, urban_rural) pair")
     return t
 
 
@@ -69,6 +69,7 @@ def lookups() -> dict:
             zcta_county=zc,
             counties=co,
             zcta_to_county=dict(zip(zc["zcta"], zc["county_fips"])),
+            zcta_to_area=dict(zip(zc["zcta"], zc["urban_rural"])),
             county_names=dict(zip(co["county_fips"], co["county_name"])),
         )
     return _lookups_cache
@@ -77,15 +78,17 @@ def lookups() -> dict:
 # ---------------------------------------------------------------- derive
 
 def derive(raw: pd.DataFrame, targets: pd.DataFrame | None = None,
-           zcta_to_county: dict | None = None) -> pd.DataFrame:
+           zcta_to_county: dict | None = None,
+           zcta_to_area: dict | None = None) -> pd.DataFrame:
     """Add every derived field of docs/api.md to a raw incidents table.
 
     `raw` has the incidents.csv columns (times as ISO 8601 text with the New York offset).
     Returns a new table sorted by t_received.
     """
-    lk = lookups() if (targets is None or zcta_to_county is None) else None
+    lk = lookups() if (targets is None or zcta_to_county is None or zcta_to_area is None) else None
     targets = lk["targets"] if targets is None else targets
     zcta_to_county = lk["zcta_to_county"] if zcta_to_county is None else zcta_to_county
+    zcta_to_area = lk["zcta_to_area"] if zcta_to_area is None else zcta_to_area
 
     missing = [c for c in REQUIRED_COLUMNS if c not in raw.columns]
     if missing:
@@ -138,16 +141,23 @@ def derive(raw: pd.DataFrame, targets: pd.DataFrame | None = None,
     df["minutes"] = np.where(df["timed"], df["total_s"] / 60.0, np.nan)
     df["ln_min"] = np.log(df["minutes"])  # NaN stays NaN; minutes > 0 whenever timed
 
-    # Targets (per urgency code) and place (zcta -> county).
-    t = targets.set_index("urgency_code")
-    unknown = sorted(set(df["urgency_code"]) - set(t.index))
-    if unknown:
-        raise ValueError(f"urgency_code not in config/targets.csv: {unknown}")
-    df["urgency_group"] = pd.Categorical(df["urgency_code"].map(t["urgency_group"]), categories=list(GROUPS))
-    df["target_s"] = df["urgency_code"].map(t["target_s"]).astype(float)
-    df["goal_on_time_pct"] = df["urgency_code"].map(t["goal_on_time_pct"]).astype(float)
-    df["late"] = (df["timed"] & (df["total_s"] > df["target_s"])).to_numpy()
+    # Place (zcta -> county, area type) and targets (per urgency code AND area type).
     df["county_fips"] = pd.Categorical(df["zcta"].map(zcta_to_county))
+    area = df["zcta"].map(zcta_to_area)
+    t = targets.set_index(["urgency_code", "urban_rural"])
+    keys = pd.MultiIndex.from_arrays([df["urgency_code"], area])
+    missing_keys = sorted({k for k in keys[t.index.get_indexer(keys) < 0] if not pd.isna(k[1])})
+    if missing_keys or area.isna().any():
+        codes = sorted(set(df["urgency_code"]) - set(targets["urgency_code"]))
+        raise ValueError(f"urgency_code / area type not in config/targets.csv: {codes or missing_keys}; "
+                         "also check every zcta is in data/lookup/zcta_county.csv")
+    pos = t.index.get_indexer(keys)
+    df["urgency_group"] = pd.Categorical(t["urgency_group"].to_numpy()[pos], categories=list(GROUPS))
+    df["target_s"] = t["target_s"].to_numpy(dtype=float)[pos]
+    df["goal_on_time_pct"] = t["goal_on_time_pct"].to_numpy(dtype=float)[pos]
+    df["late"] = (df["timed"] & (df["total_s"] > df["target_s"])).to_numpy()
+    # Cpk input: ln(total_s / target_s) for timed calls; USL = 0 (late means above 0).
+    df["ln_ratio"] = np.where(df["timed"], np.log(df["total_s"] / df["target_s"]), np.nan)
     df["zcta"] = pd.Categorical(df["zcta"])
 
     df = df.sort_values("t_received", kind="stable").reset_index(drop=True)
@@ -379,14 +389,20 @@ def subgroups(timed: pd.DataFrame, unit: str) -> dict:
     """Timed calls per subgroup, in time order: {start: [dates], n: [...], late: [...]}.
 
     unit "day": one subgroup per New York calendar day.
-    unit "week": one per ISO week (Monday start). Subgroups with no timed call are left out.
+    unit "week": one per ISO week (Monday start). unit "month": one per calendar month. Subgroups with no timed call are left out.
     """
-    if unit not in ("day", "week"):
-        raise ValueError("unit must be 'day' or 'week'")
+    if unit not in ("day", "week", "month"):
+        raise ValueError("unit must be 'day', 'week' or 'month'")
     if len(timed) == 0:
         return {"start": [], "n": [], "late": []}
     t = timed[timed["timed"]]
-    key = t["day"] if unit == "day" else t["day"] - ((t["day"] + 3) % 7)  # 1970-01-01 was a Thursday
+    if unit == "day":
+        key = t["day"]
+    elif unit == "week":
+        key = t["day"] - ((t["day"] + 3) % 7)  # 1970-01-01 was a Thursday
+    else:  # calendar month: first day of the month, as a day number
+        key = pd.Series(t["date"].to_numpy().astype("datetime64[M]").astype("datetime64[D]").astype("int64"),
+                        index=t.index)
     g = t.groupby(key.to_numpy()).agg(n=("late", "size"), late=("late", "sum"))
     starts = [(date(1970, 1, 1) + timedelta(days=int(k))).isoformat() for k in g.index]
     return {"start": starts, "n": [int(v) for v in g["n"]], "late": [int(v) for v in g["late"]]}
@@ -399,3 +415,10 @@ def step_medians(timed: pd.DataFrame) -> dict:
         return None if pd.isna(v) else float(v)
     return {"dispatch_s": med("dispatch_s"), "turnout_s": med("turnout_s"),
             "eta_google_s": med("eta_google_s"), "vs_google_s": med("vs_google_s")}
+
+
+def weighted_goal(timed: pd.DataFrame) -> float | None:
+    """Call-weighted goal %: the mean of goal_on_time_pct over the timed calls (None if none)."""
+    if len(timed) == 0:
+        return None
+    return float(timed["goal_on_time_pct"].mean())
