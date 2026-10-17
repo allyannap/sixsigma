@@ -653,3 +653,37 @@ table.places.narrow { min-width: 420px; }
   font-size: 11.5px; font-weight: 700; white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity var(--t-fast) var(--ease), transform var(--t-fast) var(--ease); box-shadow: 0 6px 16px -8px rgba(15, 22, 32, 0.6); }
 .tool-tip::before { content: ''; position: absolute; bottom: 100%; left: 50%; margin-left: -4px; border: 4px solid transparent; border-bottom-color: var(--ink); }
 .map-tool.has-tip:hover .tool-tip, .map-tool.has-tip:focus-visible .tool-tip { opacity: 1; transform: translate(-50%, 0); transition-delay: 0.15s; }
+
+/* ---------- one screen: the whole dashboard fits the window on load (desktop) ----------
+   --ws-h = window height minus the top bar (58), the frame's margins (8 + 12), padding (2 x 14) and border (4).
+   Both columns are exactly that tall: the map shrinks to fit above the table toggle; on the right the header and
+   Key Metrics keep their size and the chart card takes the rest, scrolling inside itself if a chart is taller.
+   Below 1024 px wide or 620 px tall the page scrolls as before. */
+@media (min-width: 1024px) and (min-height: 620px) {
+  :root { --ws-h: calc(100vh - 110px); }
+  .app { margin-bottom: 12px; }
+  .workspace { height: var(--ws-h); }
+  .left-col, .right-col { height: var(--ws-h); min-height: 0; }
+  .left-col .mapcard { flex: 1 1 0; height: auto; min-height: 260px; }
+  .left-col .tablecard { flex: none; }
+  .left-col .table-wrap { max-height: 38vh; }
+  /* compact table card: labels, headline and toggle in less height */
+  .tablecard .table-badges { padding: 8px 14px 0; }
+  .tablecard .table-headline { padding: 6px 14px 0; }
+  .tablecard .table-headline p { font-size: 12px; margin-bottom: 2px; }
+  .tablecard .table-headline p.small { font-size: 11px; }
+  .table-toggle { height: 46px; }
+  /* compact right column */
+  .right-col { gap: 10px; }
+  .place-name { font-size: 22px; }
+  .sec-head { margin-bottom: 6px; }
+  .metrics-card { padding: 10px 14px 12px; gap: 9px; }
+  .metric { padding: 8px 10px; gap: 3px; }
+  .metric-value { font-size: 24px; }
+  .summary-text { font-size: 13px; line-height: 1.45; }
+  .place-block, .metrics-section { flex: none; }
+  .insights { flex: 1 1 0; min-height: 0; }
+  .insights-slider { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; padding-top: 8px; padding-bottom: 10px; }
+  .insights-slider .slider-track { flex: 1 1 0; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+  .insights-slider .slider-arrow { top: 50%; }
+}

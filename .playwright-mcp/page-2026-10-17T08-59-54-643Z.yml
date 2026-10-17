@@ -1,0 +1,376 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e30] [cursor=pointer]:
+      - generic [ref=e31]: OnScene
+      - generic [ref=e32]: New York State · EMS response quality
+    - generic [ref=e33]:
+      - generic [ref=e34]:
+        - generic [ref=e35]: Dataset
+        - combobox "Dataset" [ref=e36]:
+          - option "baseline" [selected]
+          - option "station_closure"
+          - option "summer_surge"
+      - button "Start replay" [ref=e37] [cursor=pointer]
+    - generic [ref=e38]:
+      - 'generic "SYNTHETIC DATA: invented calls on real 2020 Census geography. Not real patients, not live CAD." [ref=e39]':
+        - generic [ref=e41]:
+          - generic [ref=e42]: "SYNTHETIC DATA:"
+          - text: Simulated service data
+      - generic [ref=e43]:
+        - img "Team Powerpuff Girls" [ref=e44]
+        - generic [aria-hidden] [ref=e45]: Team Powerpuff Girls
+  - status [ref=e46]
+  - generic [ref=e48]:
+    - main [ref=e49]:
+      - generic [ref=e50]:
+        - region [ref=e51]:
+          - heading "New York State county map" [level=2] [ref=e52]
+          - img "Map of New York counties, colored by queue label. Select one to open its ZIP areas. Gray areas outside New York are for orientation only." [ref=e53]:
+            - generic:
+              - region "Map" [ref=e54]
+              - generic [aria-hidden]:
+                - generic: Use ⌘ + scroll to zoom the map
+            - generic:
+              - generic [ref=e55]:
+                - button "Zoom in" [ref=e56] [cursor=pointer]
+                - button "Zoom out" [ref=e58] [cursor=pointer]
+              - group [ref=e222]:
+                - generic "Toggle attribution" [ref=e223] [cursor=pointer]
+          - navigation "Counties on the map":
+            - list:
+              - listitem:
+                - 'button "Queens County: Meets goal, no signal; Late red calls 1 in 14 (goal 1 in 10); Typical wait 4:34 (state 5:03); calls Red 4,244, Yellow 4,926, Green 3,269" [ref=e224] [cursor=pointer]'
+              - listitem:
+                - 'button "Cayuga County: Needs more data; Late red calls 1 in 7 (goal 1 in 10); Typical wait 8:56 (state 5:03); calls Red 111, Yellow 163, Green 96" [ref=e225] [cursor=pointer]'
+              - listitem:
+                - 'button "Delaware County: Ongoing gap; Late red calls 1 in 3 (goal 1 in 10); Typical wait 11:48 (state 5:03); calls Red 81, Yellow 86, Green 55" [ref=e226] [cursor=pointer]'
+              - listitem:
+                - 'button "Washington County: Ongoing gap; Late red calls 1 in 4 (goal 1 in 10); Typical wait 9:05 (state 5:03); calls Red 87, Yellow 139, Green 105" [ref=e227] [cursor=pointer]'
+              - listitem:
+                - 'button "Kings County: Meets goal, no signal; Late red calls 1 in 16 (goal 1 in 10); Typical wait 4:34 (state 5:03); calls Red 4,685, Yellow 5,744, Green 3,776" [ref=e228] [cursor=pointer]'
+              - listitem:
+                - 'button "Bronx County: Meets goal, no signal; Late red calls 1 in 14 (goal 1 in 10); Typical wait 4:38 (state 5:03); calls Red 2,562, Yellow 3,002, Green 2,012" [ref=e229] [cursor=pointer]'
+              - listitem:
+                - 'button "Westchester County: Meets goal, no signal; Late red calls 1 in 16 (goal 1 in 10); Typical wait 4:41 (state 5:03); calls Red 1,807, Yellow 2,111, Green 1,261" [ref=e230] [cursor=pointer]'
+              - listitem:
+                - 'button "Orange County: Meets goal, no signal; Late red calls 1 in 15 (goal 1 in 10); Typical wait 5:40 (state 5:03); calls Red 680, Yellow 838, Green 563" [ref=e231] [cursor=pointer]'
+              - listitem:
+                - 'button "Oswego County: Ongoing gap; Late red calls 1 in 4 (goal 1 in 10); Typical wait 9:38 (state 5:03); calls Red 210, Yellow 244, Green 165" [ref=e232] [cursor=pointer]'
+              - listitem:
+                - 'button "Ontario County: Ongoing gap; Late red calls 1 in 7 (goal 1 in 10); Typical wait 8:42 (state 5:03); calls Red 210, Yellow 238, Green 152" [ref=e233] [cursor=pointer]'
+              - listitem:
+                - 'button "Wayne County: Needs more data; Late red calls 1 in 9 (goal 1 in 10); Typical wait 9:06 (state 5:03); calls Red 156, Yellow 178, Green 125" [ref=e234] [cursor=pointer]'
+              - listitem:
+                - 'button "Livingston County: Needs more data; Late red calls 1 in 8 (goal 1 in 10); Typical wait 8:30 (state 5:03); calls Red 119, Yellow 127, Green 97" [ref=e235] [cursor=pointer]'
+              - listitem:
+                - 'button "Dutchess County: Meets goal, no signal; Late red calls 1 in 14 (goal 1 in 10); Typical wait 5:33 (state 5:03); calls Red 508, Yellow 603, Green 414" [ref=e236] [cursor=pointer]'
+              - listitem:
+                - 'button "Otsego County: Ongoing gap; Late red calls 1 in 4 (goal 1 in 10); Typical wait 10:57 (state 5:03); calls Red 76, Yellow 122, Green 77" [ref=e237] [cursor=pointer]'
+              - listitem:
+                - 'button "Warren County: Needs more data; Late red calls 1 in 7 (goal 1 in 10); Typical wait 6:05 (state 5:03); calls Red 100, Yellow 159, Green 79" [ref=e238] [cursor=pointer]'
+              - listitem:
+                - 'button "Cattaraugus County: Needs more data; Late red calls 1 in 7 (goal 1 in 10); Typical wait 9:19 (state 5:03); calls Red 138, Yellow 163, Green 91" [ref=e239] [cursor=pointer]'
+              - listitem:
+                - 'button "Chautauqua County: Ongoing gap; Late red calls 1 in 5 (goal 1 in 10); Typical wait 8:20 (state 5:03); calls Red 220, Yellow 278, Green 179" [ref=e240] [cursor=pointer]'
+              - listitem:
+                - 'button "Chenango County: Ongoing gap; Late red calls 1 in 3 (goal 1 in 10); Typical wait 11:34 (state 5:03); calls Red 92, Yellow 94, Green 62" [ref=e241] [cursor=pointer]'
+              - listitem:
+                - 'button "Madison County: Ongoing gap; Late red calls 1 in 5 (goal 1 in 10); Typical wait 9:18 (state 5:03); calls Red 151, Yellow 141, Green 117" [ref=e242] [cursor=pointer]'
+              - listitem:
+                - 'button "Erie County: Meets goal, no signal; Late red calls 1 in 16 (goal 1 in 10); Typical wait 5:03 (state 5:03); calls Red 1,764, Yellow 1,966, Green 1,254" [ref=e243] [cursor=pointer]'
+              - listitem:
+                - 'button "Suffolk County: Needs more data; Late red calls 1 in 18 (goal 1 in 10); Typical wait 4:52 (state 5:03); calls Red 2,620, Yellow 3,042, Green 1,991" [ref=e244] [cursor=pointer]'
+              - listitem:
+                - 'button "Oneida County: Ongoing gap; Late red calls 1 in 7 (goal 1 in 10); Typical wait 6:31 (state 5:03); calls Red 423, Yellow 490, Green 312" [ref=e245] [cursor=pointer]'
+              - listitem:
+                - 'button "Jefferson County: Ongoing gap; Late red calls 1 in 5 (goal 1 in 10); Typical wait 9:14 (state 5:03); calls Red 208, Yellow 251, Green 167" [ref=e246] [cursor=pointer]'
+              - listitem:
+                - 'button "Sullivan County: Ongoing gap; Late red calls 1 in 5 (goal 1 in 10); Typical wait 9:37 (state 5:03); calls Red 158, Yellow 156, Green 110" [ref=e247] [cursor=pointer]'
+              - listitem:
+                - 'button "Essex County: Ongoing gap; Late red calls 1 in 3 (goal 1 in 10); Typical wait 11:00 (state 5:03); calls Red 91, Yellow 85, Green 74" [ref=e248] [cursor=pointer]'
+              - listitem:
+                - 'button "Tioga County: Needs more data; Late red calls 1 in 4 (goal 1 in 10); Typical wait 9:43 (state 5:03); calls Red 80, Yellow 113, Green 72" [ref=e249] [cursor=pointer]'
+              - listitem:
+                - 'button "Herkimer County: Ongoing gap; Late red calls 1 in 6 (goal 1 in 10); Typical wait 9:23 (state 5:03); calls Red 102, Yellow 119, Green 64" [ref=e250] [cursor=pointer]'
+              - listitem:
+                - 'button "Clinton County: Needs more data; Late red calls 1 in 8 (goal 1 in 10); Typical wait 7:58 (state 5:03); calls Red 113, Yellow 158, Green 101" [ref=e251] [cursor=pointer]'
+              - listitem:
+                - 'button "Richmond County: Meets goal, no signal; Late red calls 1 in 14 (goal 1 in 10); Typical wait 4:29 (state 5:03); calls Red 899, Yellow 1,022, Green 719" [ref=e252] [cursor=pointer]'
+              - listitem:
+                - 'button "Onondaga County: Meets goal, no signal; Late red calls 1 in 15 (goal 1 in 10); Typical wait 5:00 (state 5:03); calls Red 879, Yellow 971, Green 639" [ref=e253] [cursor=pointer]'
+              - listitem:
+                - 'button "Monroe County: Meets goal, no signal; Late red calls 1 in 15 (goal 1 in 10); Typical wait 4:58 (state 5:03); calls Red 1,290, Yellow 1,581, Green 982" [ref=e254] [cursor=pointer]'
+              - listitem:
+                - 'button "Niagara County: Meets goal, no signal; Late red calls 1 in 19 (goal 1 in 10); Typical wait 5:45 (state 5:03); calls Red 389, Yellow 451, Green 261" [ref=e255] [cursor=pointer]'
+              - listitem:
+                - 'button "Saratoga County: Needs more data; Late red calls 1 in 13 (goal 1 in 10); Typical wait 6:25 (state 5:03); calls Red 414, Yellow 479, Green 295" [ref=e256] [cursor=pointer]'
+              - listitem:
+                - 'button "Steuben County: Ongoing gap; Late red calls 1 in 6 (goal 1 in 10); Typical wait 9:06 (state 5:03); calls Red 165, Yellow 173, Green 105" [ref=e257] [cursor=pointer]'
+              - listitem:
+                - 'button "Albany County: Meets goal, no signal; Late red calls 1 in 17 (goal 1 in 10); Typical wait 5:09 (state 5:03); calls Red 484, Yellow 616, Green 392" [ref=e258] [cursor=pointer]'
+              - listitem:
+                - 'button "Genesee County: Needs more data; Late red calls 1 in 10 (goal 1 in 10); Typical wait 8:23 (state 5:03); calls Red 112, Yellow 113, Green 69" [ref=e259] [cursor=pointer]'
+              - listitem:
+                - 'button "Lewis County: Ongoing gap; Late red calls 1 in 3 (goal 1 in 10); Typical wait 12:03 (state 5:03); calls Red 52, Yellow 48, Green 28" [ref=e260] [cursor=pointer]'
+              - listitem:
+                - 'button "Fulton County: Needs more data; Late red calls 1 in 6 (goal 1 in 10); Typical wait 8:41 (state 5:03); calls Red 91, Yellow 99, Green 62" [ref=e261] [cursor=pointer]'
+              - listitem:
+                - 'button "Broome County: Needs more data; Late red calls 1 in 14 (goal 1 in 10); Typical wait 5:46 (state 5:03); calls Red 358, Yellow 437, Green 263" [ref=e262] [cursor=pointer]'
+              - listitem:
+                - 'button "Hamilton County: Needs more data; Late red calls too few calls; Typical wait 13:00 (state 5:03); calls Red 8, Yellow 10, Green 10" [ref=e263] [cursor=pointer]'
+              - listitem:
+                - 'button "Schoharie County: Needs more data; Late red calls 1 in 6 (goal 1 in 10); Typical wait 9:10 (state 5:03); calls Red 47, Yellow 54, Green 39" [ref=e264] [cursor=pointer]'
+              - listitem:
+                - 'button "Wyoming County: Needs more data; Late red calls 1 in 9 (goal 1 in 10); Typical wait 8:59 (state 5:03); calls Red 67, Yellow 85, Green 71" [ref=e265] [cursor=pointer]'
+              - listitem:
+                - 'button "Schuyler County: Needs more data; Late red calls too few calls; Typical wait 9:30 (state 5:03); calls Red 27, Yellow 36, Green 20" [ref=e266] [cursor=pointer]'
+              - listitem:
+                - 'button "Tompkins County: Needs more data; Late red calls 1 in 12 (goal 1 in 10); Typical wait 5:46 (state 5:03); calls Red 188, Yellow 215, Green 154" [ref=e267] [cursor=pointer]'
+              - listitem:
+                - 'button "Chemung County: Needs more data; Late red calls 1 in 8 (goal 1 in 10); Typical wait 7:17 (state 5:03); calls Red 132, Yellow 158, Green 123" [ref=e268] [cursor=pointer]'
+              - listitem:
+                - 'button "Ulster County: Ongoing gap; Late red calls 1 in 6 (goal 1 in 10); Typical wait 8:18 (state 5:03); calls Red 328, Yellow 328, Green 222" [ref=e269] [cursor=pointer]'
+              - listitem:
+                - 'button "Yates County: Needs more data; Late red calls 1 in 6 (goal 1 in 10); Typical wait 10:37 (state 5:03); calls Red 46, Yellow 52, Green 33" [ref=e270] [cursor=pointer]'
+              - listitem:
+                - 'button "Greene County: Needs more data; Late red calls 1 in 5 (goal 1 in 10); Typical wait 9:30 (state 5:03); calls Red 90, Yellow 93, Green 72" [ref=e271] [cursor=pointer]'
+              - listitem:
+                - 'button "Columbia County: Needs more data; Late red calls 1 in 11 (goal 1 in 10); Typical wait 8:44 (state 5:03); calls Red 99, Yellow 126, Green 80" [ref=e272] [cursor=pointer]'
+              - listitem:
+                - 'button "Seneca County: Needs more data; Late red calls 1 in 6 (goal 1 in 10); Typical wait 8:16 (state 5:03); calls Red 45, Yellow 63, Green 41" [ref=e273] [cursor=pointer]'
+              - listitem:
+                - 'button "Putnam County: Needs more data; Late red calls 1 in 10 (goal 1 in 10); Typical wait 7:29 (state 5:03); calls Red 168, Yellow 198, Green 112" [ref=e274] [cursor=pointer]'
+              - listitem:
+                - 'button "Schenectady County: Meets goal, no signal; Late red calls 1 in 26 (goal 1 in 10); Typical wait 4:53 (state 5:03); calls Red 271, Yellow 363, Green 240" [ref=e275] [cursor=pointer]'
+              - listitem:
+                - 'button "St. Lawrence County: Ongoing gap; Late red calls 1 in 4 (goal 1 in 10); Typical wait 10:51 (state 5:03); calls Red 198, Yellow 220, Green 153" [ref=e276] [cursor=pointer]'
+              - listitem:
+                - 'button "Orleans County: Needs more data; Late red calls 1 in 15 (goal 1 in 10); Typical wait 8:29 (state 5:03); calls Red 79, Yellow 96, Green 54" [ref=e277] [cursor=pointer]'
+              - listitem:
+                - 'button "Allegany County: Needs more data; Late red calls 1 in 5 (goal 1 in 10); Typical wait 9:16 (state 5:03); calls Red 70, Yellow 101, Green 59" [ref=e278] [cursor=pointer]'
+              - listitem:
+                - 'button "New York County: Meets goal, no signal; Late red calls 1 in 12 (goal 1 in 10); Typical wait 4:37 (state 5:03); calls Red 2,969, Yellow 3,491, Green 2,296" [ref=e279] [cursor=pointer]'
+              - listitem:
+                - 'button "Montgomery County: Needs more data; Late red calls 1 in 8 (goal 1 in 10); Typical wait 7:53 (state 5:03); calls Red 104, Yellow 111, Green 74" [ref=e280] [cursor=pointer]'
+              - listitem:
+                - 'button "Nassau County: Meets goal, no signal; Late red calls 1 in 16 (goal 1 in 10); Typical wait 4:31 (state 5:03); calls Red 2,467, Yellow 2,967, Green 1,986" [ref=e281] [cursor=pointer]'
+              - listitem:
+                - 'button "Rockland County: Meets goal, no signal; Late red calls 1 in 13 (goal 1 in 10); Typical wait 4:47 (state 5:03); calls Red 575, Yellow 697, Green 432" [ref=e282] [cursor=pointer]'
+              - listitem:
+                - 'button "Rensselaer County: Needs more data; Late red calls 1 in 9 (goal 1 in 10); Typical wait 5:56 (state 5:03); calls Red 263, Yellow 369, Green 187" [ref=e283] [cursor=pointer]'
+              - listitem:
+                - 'button "Cortland County: Ongoing gap; Late red calls 1 in 6 (goal 1 in 10); Typical wait 9:59 (state 5:03); calls Red 83, Yellow 99, Green 59" [ref=e284] [cursor=pointer]'
+              - listitem:
+                - 'button "Franklin County: Ongoing gap; Late red calls 1 in 3 (goal 1 in 10); Typical wait 11:01 (state 5:03); calls Red 59, Yellow 113, Green 48" [ref=e285] [cursor=pointer]'
+          - button "Open the investigation list, 19 need review" [ref=e286] [cursor=pointer]:
+            - generic [aria-hidden] [ref=e61]: ›
+            - generic [aria-hidden] [ref=e62]: Investigate
+            - generic [aria-hidden] [ref=e287]: "19"
+          - combobox "Search for a New York ZIP code or county" [ref=e68]
+          - button "Reset map to New York State" [ref=e70] [cursor=pointer]:
+            - generic [aria-hidden]: Reset
+          - generic [ref=e74]:
+            - generic [ref=e75]: New York City
+            - generic [ref=e76]:
+              - img [aria-hidden] [ref=e77]:
+                - generic [ref=e78] [cursor=pointer]
+                - generic [ref=e79] [cursor=pointer]
+                - generic [ref=e80] [cursor=pointer]
+                - generic [ref=e81] [cursor=pointer]
+                - generic [ref=e82] [cursor=pointer]
+              - generic [ref=e83]:
+                - generic [aria-hidden] [ref=e84]:
+                  - generic [ref=e85]: Borough
+                  - generic [ref=e86]: Late Calls
+                - list "New York City boroughs, most late calls first" [ref=e87]:
+                  - listitem [ref=e108]:
+                    - 'button "Manhattan: Stable, 1 in 12 late. Open its ZIP areas." [ref=e288] [cursor=pointer]':
+                      - generic [ref=e111]: Manhattan
+                      - generic [ref=e112]: 1 in 12
+                  - listitem [ref=e98]:
+                    - 'button "Bronx: Stable, 1 in 14 late. Open its ZIP areas." [ref=e289] [cursor=pointer]':
+                      - generic [ref=e101]: Bronx
+                      - generic [ref=e102]: 1 in 14
+                  - listitem [ref=e88]:
+                    - 'button "Queens: Stable, 1 in 14 late. Open its ZIP areas." [ref=e290] [cursor=pointer]':
+                      - generic [ref=e91]: Queens
+                      - generic [ref=e92]: 1 in 14
+                  - listitem [ref=e103]:
+                    - 'button "Staten Is.: Stable, 1 in 14 late. Open its ZIP areas." [ref=e291] [cursor=pointer]':
+                      - generic [ref=e106]: Staten Is.
+                      - generic [ref=e107]: 1 in 14
+                  - listitem [ref=e93]:
+                    - 'button "Brooklyn: Stable, 1 in 16 late. Open its ZIP areas." [ref=e292] [cursor=pointer]':
+                      - generic [ref=e96]: Brooklyn
+                      - generic [ref=e97]: 1 in 16
+          - generic "Status legend":
+            - generic:
+              - generic: Status
+              - button "What the status colours mean" [ref=e114]: i
+            - generic:
+              - generic: Critical
+              - generic: "0"
+            - generic:
+              - generic: Watch
+              - generic: "19"
+            - generic:
+              - generic: Stable
+              - generic: "16"
+            - generic:
+              - generic: Needs data
+              - generic: "27"
+        - generic [ref=e117]:
+          - generic "Labels for New York State" [ref=e293]:
+            - generic [ref=e294]: "New York State:"
+            - generic [ref=e295]: "Recent process change: investigate"
+            - generic [ref=e298]:
+              - 'generic "Target: Meets target" [ref=e299]':
+                - generic [ref=e300]: "Target:"
+                - text: Meets target
+              - 'generic "Control: Out of control" [ref=e301]':
+                - generic [ref=e302]: "Control:"
+                - text: Out of control
+          - generic [ref=e303]:
+            - status [ref=e304]: "19 of 62 counties need review: 0 with a recent signal (Act now + Recent change) · 19 ongoing gaps. Start at the top of the table."
+            - note [ref=e305]: About 1.7 would read Below by chance alone if every place were exactly at the goal (expected, of 60 counties); 23 read Below here.
+          - button "Toggle table for map Ranked by queue label, then late calls beyond the goal 62 counties" [ref=e306] [cursor=pointer]:
+            - generic [ref=e122]:
+              - generic [ref=e123]: Toggle table for map
+              - generic [ref=e124]: Ranked by queue label, then late calls beyond the goal
+            - generic [ref=e307]: 62 counties
+      - generic [ref=e125]:
+        - generic [ref=e127]:
+          - generic [ref=e128]:
+            - generic [ref=e129]: Selected place
+            - heading "New York State" [level=1] [ref=e130]
+            - generic [ref=e131]:
+              - generic [ref=e132]: Statewide
+              - generic [aria-hidden] [ref=e308]: ·
+              - generic [ref=e309]: 62 counties
+          - form "Date range" [ref=e133]:
+            - generic [ref=e134]:
+              - generic [ref=e135]: From
+              - textbox "From" [ref=e136]: 2026-07-18
+            - generic [aria-hidden] [ref=e137]: –
+            - generic [ref=e138]:
+              - generic [ref=e139]: To
+              - textbox "To" [ref=e140]: 2026-10-15
+            - button "Search" [ref=e141] [cursor=pointer]
+        - region [ref=e145]:
+          - heading "Key Metrics" [level=2] [ref=e147]
+          - generic [ref=e148]:
+            - group "Priority (urgency)" [ref=e150]:
+              - text: Priority
+              - generic [ref=e151]:
+                - button "Red (most urgent)" [pressed] [ref=e152] [cursor=pointer]
+                - button "Yellow" [ref=e154] [cursor=pointer]
+                - button "Green" [active] [ref=e156] [cursor=pointer]
+            - generic [ref=e158]:
+              - generic [ref=e159]:
+                - generic "On time" [ref=e310]:
+                  - generic [ref=e312]: 91.7%
+                  - generic [ref=e314]: 30,147 of 32,877 valid calls · 95% CI 91.4% to 92.0% · goal 90%
+                - generic "Median wait" [ref=e315]:
+                  - generic [ref=e316]:
+                    - text: Median wait
+                    - generic [ref=e317]: call received to on scene
+                  - generic [ref=e318]:
+                    - generic [ref=e319]: "5.0"
+                    - generic [ref=e320]: min
+                  - generic [ref=e321]: 95% CI 5.0 to 5.1 min
+                - generic "P95 wait" [ref=e322]:
+                  - generic [ref=e323]:
+                    - text: P95 wait
+                    - generic [ref=e324]: 1 call in 20 waited longer
+                  - generic [ref=e325]:
+                    - generic [ref=e326]: "12.7"
+                    - generic [ref=e327]: min
+                  - generic [ref=e328]: 95% CI 12.5 to 12.9 min · P90 10.0 min
+              - generic [ref=e181]:
+                - generic [ref=e182]:
+                  - generic [ref=e183]: Summary
+                  - generic [ref=e329]: Watch
+                - paragraph [ref=e330]:
+                  - strong [ref=e331]: "New York State: Recent process change: investigate."
+                  - text: "Target: lower 95% bound is at or above the goal. Control: 2 day(s) above the upper control limit."
+                - paragraph [ref=e332]: "Next: The p chart (Are late calls being unusually frequent?) lists the periods above the limit; check what changed then."
+        - region [ref=e190]:
+          - heading "New York State Wait Time Insights" [level=2] [ref=e192]
+          - group "Wait time charts" [ref=e193]:
+            - generic [ref=e194]:
+              - generic [ref=e195]: 1 / 2
+              - generic [ref=e196]:
+                - 'button "Show chart 1: Are calls arriving on time?" [ref=e197] [cursor=pointer]'
+                - 'button "Show chart 2: Are late calls being unusually frequent?" [ref=e198] [cursor=pointer]'
+            - 'button "Next chart: Are late calls being unusually frequent?" [ref=e199] [cursor=pointer]'
+            - group "1 of 2" [ref=e203]:
+              - region [ref=e204]:
+                - generic [ref=e205]:
+                  - generic [ref=e206]:
+                    - heading "Are calls arriving on time?" [level=3] [ref=e207]
+                    - paragraph [ref=e208]: Each area's on-time rate against the service goal
+                  - generic [ref=e209]: Geographic comparison
+                - generic [ref=e333]:
+                  - paragraph [ref=e334]:
+                    - strong [ref=e335]: "Goal: 90% of calls arrive within their configured call target of call receipt."
+                  - status [ref=e336]:
+                    - strong [ref=e337]: 23 of 62 areas
+                    - text: are confirmed below goal.
+                  - generic [ref=e338]:
+                    - generic [ref=e339]:
+                      - 'img "Number of areas by on-time rate. 50–60%: 1; 60–70%: 5; 70–80%: 11; 80–90%: 23; 90–100%: 22. Goal 90%." [ref=e340]':
+                        - 'generic "50–60% on time: 1 area. Click to list them." [ref=e341] [cursor=pointer]': "1"
+                        - 'generic "60–70% on time: 5 areas. Click to list them." [ref=e345] [cursor=pointer]': "5"
+                        - 'generic "70–80% on time: 11 areas. Click to list them." [ref=e349] [cursor=pointer]': "11"
+                        - 'generic "80–90% on time: 23 areas. Click to list them." [ref=e353] [cursor=pointer]': "23"
+                        - 'generic "90–100% on time: 22 areas. Click to list them." [ref=e358] [cursor=pointer]': "22"
+                        - generic [ref=e363]: 50%
+                        - generic [ref=e364]: 60%
+                        - generic [ref=e365]: 70%
+                        - generic [ref=e366]: 80%
+                        - generic [ref=e367]: 90%
+                        - generic [ref=e368]: 100%
+                        - generic [ref=e369]: Goal 90%
+                      - paragraph [ref=e371]:
+                        - generic [ref=e372]: Below goal
+                        - generic [ref=e374]: Uncertain
+                        - generic [ref=e376]: Meets goal
+                        - generic [ref=e378]: ▲ selected area · tap a bar to see its areas
+                      - paragraph [ref=e379]:
+                        - strong [ref=e380]: "Furthest below:"
+                        - button "Delaware 62%" [pressed] [ref=e381] [cursor=pointer]
+                        - button "Lewis 62%" [ref=e382] [cursor=pointer]
+                        - button "Chenango 66%" [ref=e383] [cursor=pointer]
+                    - generic [ref=e384]:
+                      - combobox "Search an area by name" [ref=e385]
+                      - generic [ref=e386]:
+                        - generic [ref=e387]:
+                          - generic [ref=e388]:
+                            - generic [ref=e389]: 2nd worst of 62 · 73 calls
+                            - heading "Delaware" [level=3] [ref=e390]
+                          - generic [ref=e391]: Below goal
+                        - generic [ref=e392]:
+                          - generic [ref=e393]: Mostly remote · 84% of calls
+                          - button "Why area type matters" [ref=e394] [cursor=pointer]: i
+                        - paragraph [ref=e395]:
+                          - strong [ref=e396]: 62%
+                          - text: of calls arrived within 14 min
+                        - paragraph [ref=e397]: 28.4 percentage points below goal of 90%
+                        - generic [ref=e398]:
+                          - generic [ref=e399]:
+                            - strong [ref=e400]: 11.8 min
+                            - text: Half of calls arrive by
+                          - generic [ref=e401]:
+                            - strong [ref=e402]: 20.7 min
+                            - text: Slowest 1 in 10 start at
+                        - paragraph [ref=e403]:
+                          - text: "Longest wait:"
+                          - strong [ref=e404]: 48.0 min
+                  - group [ref=e405]:
+                    - generic "How certain is this?" [ref=e406] [cursor=pointer]
+    - contentinfo [ref=e219]:
+      - text: Every number on this page is computed by the API (
+      - code [ref=e220]: /api/*
+      - text: ", read-only); the page only draws and formats it. Source: synthetic incidents replayed from the server. The response clock start ("
+      - code [ref=e221]: t_received
+      - text: ") is provisional: it may be the 911 answer or the CAD record, and that is not yet confirmed. Targets are NFPA 1720-based placeholders, configurable and not certified standards: red 8 minutes in urban areas, 10 suburban, 14 rural and remote; yellow 15; green 30; 90% on time. The tool reviews the response process, not individual dispatchers or crews."

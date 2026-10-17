@@ -19,7 +19,7 @@
   .workspace.has-rail { min-height: var(--rail-h, 0px); } /* the page below starts under the list, never behind it */
   /* the right half slides out to the right; after the slide it stops taking height, so nothing is left below the map */
   .right-col { transition: transform var(--rail-time) var(--rail-ease), opacity 0.3s ease, max-height 0s; max-height: 6000px; }
-  .workspace.has-rail .right-col { transform: translateX(calc(100% + 40px)); opacity: 0; max-height: clamp(520px, calc(100vh - 230px), 780px); overflow: hidden;
+  .workspace.has-rail .right-col { transform: translateX(calc(100% + 40px)); opacity: 0; max-height: var(--ws-h, clamp(520px, calc(100vh - 230px), 780px)); overflow: hidden;
     transition: transform var(--rail-time) var(--rail-ease), opacity 0.3s ease, max-height 0s linear var(--rail-time); }
 }
 .rail-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 4px; }
