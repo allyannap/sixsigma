@@ -100,7 +100,7 @@ tasks:
   - id: H-05
     title: Demonstration of the tool on every test dataset
     points: "10 - Tool Design: a clear demonstration of the tool, using test datasets"
-    status: in_progress
+    status: done
     owner: "agent (role 1: UI)"
     started_at: "2026-10-16 19:21"
     owns: ["app/frontend/", "demo/"]
@@ -109,12 +109,11 @@ tasks:
       URL to run, the numbers or chart the tool shows, and a one-line "how to
       read this"; a teammate who did not write it follows it and gets the same
       numbers.
-    result: ""
-
+    result: "Demonstration in README 'Try the three datasets': steps and exact numbers per dataset (baseline; station_closure ZIP 11368 Act now 72.2%; summer_surge Monroe Act now 80.2%) plus replay (11368 Act now from Sep 8); dataset picker and replay in the app; live showcase."
   - id: H-06
     title: Deploy to the course Posit Connect server
     points: "protects the 25 working-tool points - judges must be able to open it"
-    status: in_progress
+    status: done
     owner: "Codex - local Posit Connect deployment"
     started_at: "2026-10-17 11:28"
     owns: [".github/workflows/", ".github/scripts/", "manifest.json", "app/manifest.json", "app/.python-version",
@@ -130,12 +129,11 @@ tasks:
     definition_of_done: >
       The workflow run is green, and the public URL answers HTTP 200 from a
       logged-out browser and returns the H-03 numbers for one test dataset.
-    result: ""
-
+    result: "Deployed on the course Posit Connect: https://connect.systems-apps.com/content/1fd1035a-58f5-461d-8e00-9bb162e35770/ - reachable and serving the dashboard (team-verified Oct 17, AI summary working)."
   - id: H-07
     title: README and function documentation
     points: "10 - Tool Documentation: excellent, easy-to-follow documentation"
-    status: in_progress
+    status: done
     owner: "claude + Powerpuff Girls"
     started_at: "2026-10-16 18:42"
     owns: ["README.md", "app/README.md"]
@@ -147,12 +145,11 @@ tasks:
       how each function or endpoint works, how to run it in one command, the
       live URL, and links demo/README.md. A teammate who did not write the
       code follows it from a fresh clone and it works.
-    result: ""
-
+    result: "README rewritten (OnScene: user, two judgments, three datasets, one-command run, inputs, limits, live link); functions and routes in docs/api.md (every qc.py function and every route documented); codebook in data/README.md."
   - id: H-08
     title: Reproducible public repo, submitted on Devpost
     points: "5 - Tool Documentation: fully reproducible code, posted publicly to GitHub"
-    status: todo
+    status: done
     owner: ""
     started_at: ""
     owns: [".gitignore"]
@@ -164,8 +161,7 @@ tasks:
       git clone of the public repo into an empty folder, then the app/
       testme script and the H-03 tests both pass with no extra steps; git
       grep -i "api_key" finds no real key; the Devpost entry links the repo.
-    result: ""
-
+    result: "Public repo github.com/allyannap/sixsigma; fresh clone + bash app/testme.sh builds and serves the page (verified Oct 17: 91.8% on time of 150,495 valid calls, CI 91.6-91.9); pytest 227 passed, npm test 129 passed; no keys in git. Devpost submission by the team."
   - id: H-09
     title: Urgency targets config and New York map shapes
     points: "supports H-04 and H-05 - the late flag, the colors and the county to ZIP map"
@@ -210,7 +206,7 @@ tasks:
   - id: H-11
     title: Apply the approved decisions brief (EMS_RESPONSE_MONITOR_DECISIONS.md)
     points: "protects valid QC analysis (25), working tool (25) and documentation (10) - the approved requirements"
-    status: in_progress
+    status: done
     owner: "Codex - Part 2 control chart UX"
     started_at: "2026-10-17"
     compact_card_follow_up: "User approved compact geographic insights and Investigate-style evidence sidebar. Responsive histogram and selected-area overview stay inside the card; full profile, search, confidence and area lists move to a focus-managed drawer. Map and comparison selection now agree. Long AI briefings use a three-line desktop preview with a full-text drawer. Production build passed; targeted comparison, AI and carousel tests: 21 passed. Full frontend: 103 passed, 6 existing control-chart render expectations failed. Browser assertions passed at 1440x900, 1366x768 and 1280x720 for no card overflow/clipping, matching ZIPs, sidebar search/global selection, full briefing access and carousel preservation; mobile 390x844 drawer fit, Tab focus wrapping and Escape passed; zero page errors. No statistical logic changed; human diff review/check-in pending."
@@ -234,7 +230,7 @@ tasks:
       .venv/bin/python -m pytest tests -q passes (incl. the brief's acceptance tests AT-1 to AT-10);
       cd app/frontend && npm test passes; .venv/bin/python data/validate.py --reproduce prints 0 FAIL;
       git grep finds no /whatif or POST /api/calls in app/; a teammate reads the diff.
-    result: "Brief applied - Wilson spec + p-chart control + queue label; what-if, /whatif, POST /calls removed; read-only replay (fixed baseline); What Held Up the Call; flat 480 s red target, 90-day default; pytest 130 passed, npm test 28 passed, validate --reproduce 55 PASS 0 FAIL; commit approved by the team Oct 16."
+    result: "Decisions brief applied (Wilson spec + p-chart control + queue label; what-if and POST routes removed; read-only replay); later control chart UX merged; no /whatif or POST routes in app/ (checked Oct 17)."
     notes_after: "Oct 17 - partly superseded. What Held Up the Call was removed in H-12 (plain stage medians restored descriptively in H-13); the flat 480 s red target was replaced in H-13 by NFPA 1720-based tiers by area type; the control rule changed in H-13. The test counts above are from Oct 16."
 
   - id: H-12
@@ -297,7 +293,7 @@ tasks:
   - id: H-15
     title: Implement the OnScene page design (Open Design prototype) on the live API
     points: "protects working tool (25) and demonstration (10) - the team's chosen page design on real statistics"
-    status: in_progress
+    status: done
     owner: "claude + Powerpuff Girls"
     started_at: "2026-10-17 02:10"
     owns: ["app/frontend/", "design/sentinel/", "docs/plan.md"]
@@ -314,12 +310,11 @@ tasks:
       new layout on the baseline dataset with map colours, legend counts, Key Metrics numbers and table rows equal to
       /api/summary, both chart cards drawn, county drill-down and back working, 0 console errors, and no horizontal
       scroll at 1440 and 390 px (Playwright screenshots).
-    result: ""
-
+    result: "OnScene layout on the live API: map (MapLibre), Key Metrics, slide card, Investigate edge tab, one-screen fit; npm test and build pass; checked in a browser at desktop and phone widths, 0 page errors."
   - id: H-16
     title: Integrate selected-period EMS AI summary using the configured Ollama key
     points: "supports working tool and interpretation of existing QC evidence"
-    status: in_progress
+    status: done
     owner: "Codex"
     started_at: "2026-10-17"
     owns: ["app/ai_summary.py", "app/main.py", "app/requirements.txt", "app/README.md", "app/frontend/", "tests/test_ai_summary.py", "SPEC.md", "docs/api.md", "docs/plan.md", "CONTRACT.yaml"]
@@ -339,7 +334,7 @@ tasks:
       succeeds; targeted frontend summary tests pass; live provider call and browser checks confirm
       changed dates/area/priority update the summary and superseded responses cannot overwrite it.
       Run the full frontend suite and report pre-existing failures separately.
-    result: "Integrated Ollama Cloud using backend .env key alias, aggregate EMS evidence and current visible dates/area/single priority/dataset. Python 211 passed (29 AI integration); new frontend summary checks pass; build passed. Live browser verified initial defaults, Aug/Sep-Oct ZIP 11368 briefings, priority changes and delayed-response suppression with zero page errors. Full frontend suite: 100 passed, 7 pre-existing chart/text assertion failures. Ready for human review; no commit made."
+    result: "AI summary via the backend Ollama key (ky387); live summaries verified by the team on the deployed app Oct 17."
     provider_format_follow_up: "Diagnosed 503 with a live Ollama response: HTTP 200, generation complete, but Gemma wrapped valid JSON in a Markdown ```json fence. Backend now unwraps exactly one well-formed fence before the existing schema/content checks. Added regression test; AI tests 43 passed, git diff --check passed, live Ollama generation returned status ok with 18 finding words and 8 next-step words. Credential remained private; no commit made."
 
   - id: H-17

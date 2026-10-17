@@ -24,3 +24,6 @@ rsconnect/
 
 # Saved claude.ai page shell, not the design (the mockup lives in the "EMS Statistical Analysis Card" artifact)
 ref/mockup.html
+
+# Browser-test screenshots, page snapshots and logs (local only)
+.playwright-mcp/
