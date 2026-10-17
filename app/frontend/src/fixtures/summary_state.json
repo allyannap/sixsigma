@@ -127,6 +127,16 @@
     10.6,
     12.77
    ],
+   "response_profile": {
+    "n": 340,
+    "median_min": 4.991666666666667,
+    "p90_min": 9.870000000000001,
+    "max_min": 28.05,
+    "over_target_pct": 14.705882352941176,
+    "target_min": 8.0,
+    "low_n": false,
+    "messages": []
+   },
    "cpk": 0.323,
    "cpk_upper": 0.363
   },
@@ -165,6 +175,16 @@
     7.88,
     8.38
    ],
+   "response_profile": {
+    "n": 1826,
+    "median_min": 4.5,
+    "p90_min": 7.116666666666666,
+    "max_min": 20.55,
+    "over_target_pct": 5.312157721796276,
+    "target_min": 8.0,
+    "low_n": false,
+    "messages": []
+   },
    "cpk": 0.554,
    "cpk_upper": 0.578
   },
@@ -203,6 +223,18 @@
     15.82,
     37.62
    ],
+   "response_profile": {
+    "n": 7,
+    "median_min": 15.816666666666666,
+    "p90_min": 25.746666666666673,
+    "max_min": 37.61666666666667,
+    "over_target_pct": 85.71428571428571,
+    "target_min": 8.0,
+    "low_n": true,
+    "messages": [
+     "Fewer than 30 valid calls: tail estimates are uncertain."
+    ]
+   },
    "cpk": null,
    "cpk_upper": null
   },
@@ -306,6 +338,16 @@
     14.2,
     16.25
    ],
+   "response_profile": {
+    "n": 1161,
+    "median_min": 6.183333333333334,
+    "p90_min": 12.15,
+    "max_min": 39.63333333333333,
+    "over_target_pct": 30.66322136089578,
+    "target_min": 8.0,
+    "low_n": false,
+    "messages": []
+   },
    "cpk": 0.146,
    "cpk_upper": 0.164
   },
@@ -344,6 +386,16 @@
     14.23,
     17.34
    ],
+   "response_profile": {
+    "n": 44,
+    "median_min": 9.225000000000001,
+    "p90_min": 14.885000000000002,
+    "max_min": 17.416666666666668,
+    "over_target_pct": 56.81818181818182,
+    "target_min": 8.0,
+    "low_n": false,
+    "messages": []
+   },
    "cpk": -0.046,
    "cpk_upper": 0.037
   },
@@ -382,6 +434,16 @@
     12.48,
     16.65
    ],
+   "response_profile": {
+    "n": 247,
+    "median_min": 5.866666666666666,
+    "p90_min": 12.226666666666667,
+    "max_min": 29.733333333333334,
+    "over_target_pct": 26.720647773279353,
+    "target_min": 8.0,
+    "low_n": false,
+    "messages": []
+   },
    "cpk": 0.168,
    "cpk_upper": 0.206
   },
@@ -420,6 +482,16 @@
     15.19,
     23.11
    ],
+   "response_profile": {
+    "n": 99,
+    "median_min": 10.133333333333333,
+    "p90_min": 15.346666666666668,
+    "max_min": 24.716666666666665,
+    "over_target_pct": 69.6969696969697,
+    "target_min": 8.0,
+    "low_n": false,
+    "messages": []
+   },
    "cpk": -0.178,
    "cpk_upper": -0.117
   },
@@ -458,6 +530,16 @@
     14.25,
     16.2
    ],
+   "response_profile": {
+    "n": 81,
+    "median_min": 8.283333333333333,
+    "p90_min": 14.25,
+    "max_min": 21.416666666666668,
+    "over_target_pct": 51.851851851851855,
+    "target_min": 8.0,
+    "low_n": false,
+    "messages": []
+   },
    "cpk": -0.028,
    "cpk_upper": 0.033
   }

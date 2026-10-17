@@ -38,7 +38,7 @@ hides the late calls, cannot say **where** they happen, and cannot separate a lo
 | 1 | **Map** state → county → ZIP area, with a back button, and a ranked table | Where? For each area: n, on-time rate + CI, **Target** badge, **Control** badge, queue label, P95 + CI | on-time rate, p chart, P95 |
 | 2 | **Has the process changed?** | late share by day / week / month against the baseline; evidence for each signal | p chart with varying limits; dispersion check; optional I chart |
 | 3 | **Investigation list** | every flagged area with its target evidence, SPC signal dates, n and baseline window | none new |
-| 4 | **Geographic comparison** (secondary) | within one urgency group, which places have longer typical waits | ANOM on ln(minutes), descriptive only |
+| 4 | **Geographic comparison** | ranked typical and slow-call waits, percent over target and sample size, within one urgency | median → P90, configured target, existing Wilson judgment; [data profile and design](app/frontend/docs/geographic-comparison.md) |
 
 **Two badges, one queue label.** The **Target** badge (Meets / Below / Inconclusive) and the **Control** badge
 (In control / Out of control / Insufficient baseline) are always shown. The queue label combines them:

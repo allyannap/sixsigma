@@ -4,7 +4,6 @@ import { createElement as h } from 'react'
 import { renderToString } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import summary from './fixtures/summary_state.json'
-import anom from './fixtures/anom.json'
 import pchart from './fixtures/pchart.json'
 import imr from './fixtures/imr.json'
 import replay from './fixtures/replay.json'
@@ -62,11 +61,11 @@ describe('sections render from fixtures', () => {
     expect(html).toContain('does not choose or rank interventions')
     expect(investigationRows(summary.places).every((p) => ['act_now', 'ongoing_gap', 'recent_change'].includes(p.queue) || p.spec === 'below')).toBe(true)
   })
-  it('section 4 ANOM is secondary and descriptive', () => {
-    const html = plain(renderToString(h(AnomSection, { anomState: ok(anom) })))
-    expect(html).toContain('Secondary, descriptive')
+  it('section 4 geographic comparison is descriptive', () => {
+    const html = plain(renderToString(h(AnomSection, { summaryState: ok(summary) })))
+    expect(html).toContain('Geographic comparison')
     expect(html).toContain('not evidence of unfair service')
-    const err = renderToString(h(AnomSection, { anomState: { data: null, loading: false, error: 'statistics module not ready (HTTP 503)', reload() {} } }))
+    const err = renderToString(h(AnomSection, { summaryState: { data: null, loading: false, error: 'statistics module not ready (HTTP 503)', reload() {} } }))
     expect(err).toContain('statistics module not ready')
   })
   it('replay is labelled Simulation / Replay and synthetic, with no entry form', () => {

@@ -207,10 +207,11 @@ tasks:
   - id: H-11
     title: Apply the approved decisions brief (EMS_RESPONSE_MONITOR_DECISIONS.md)
     points: "protects valid QC analysis (25), working tool (25) and documentation (10) - the approved requirements"
-    status: done
-    owner: "claude + Powerpuff Girls"
-    started_at: "2026-10-16 22:00"
+    status: in_progress
+    owner: "Codex - geographic comparison follow-up"
+    started_at: "2026-10-16 23:29"
     owns: ["EMS_RESPONSE_MONITOR_DECISIONS.md", "SPEC.md", "README.md", "docs/plan.md", "docs/api.md", "docs/roles.md", "app/qc.py", "app/data.py", "app/main.py", "app/README.md", "app/frontend/", "tests/", "config/", "data/generate.py", "data/params.json", "data/validate.py", "data/README.md", "data/*.csv.gz"]
+    follow_up: "User requested ranked median-to-P90 geographic comparison, existing goal rules, data profile and edge-case tests; Implemented; Python 133 passed, frontend 37 passed (version 1 preserved; version 2 direct-number area choices and one result with explicit goal; ANOM and stale-server regression), build and live HTTP checks passed; data reproduction 55 PASS 0 FAIL with identical rebuilds; human diff review/check-in pending."
     notes: >
       User instruction Oct 16 - treat the brief as the approved requirements. Team answers the same day -
       red target flat 480 s (tiers made the on-time check circular), default window 90 days, Below target +

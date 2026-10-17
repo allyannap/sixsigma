@@ -32,6 +32,28 @@ VAR_RATIO = 1.64       # variance of MR-bar sigma relative to s (Bissell correct
 DAYS_PER_UNIT = {"day": 1.0, "week": 7.0, "month": 30.4375}
 
 
+def response_profile(minutes, targets_min):
+    """Median/P90 (NumPy linear interpolation), late share and n for valid calls.
+
+    Inputs are paired; exclude missing/nonfinite/nonpositive times or targets.
+    Exactly at target is on time. A shared reference exists only for equal targets.
+    Quantiles describe observed calls, not confidence bounds or worst-case guarantees.
+    """
+    x, targets = np.asarray(minutes, dtype=float), np.asarray(targets_min, dtype=float)
+    if x.shape != targets.shape or x.ndim != 1:
+        raise ValueError("times and targets must be paired one-dimensional lists")
+    valid = np.isfinite(x) & np.isfinite(targets) & (x > 0) & (targets > 0)
+    x, targets = x[valid], targets[valid]
+    n = len(x)
+    return {"n": n, "median_min": float(np.median(x)) if n else None,
+            "p90_min": float(np.quantile(x, .9, method="linear")) if n else None,
+            "max_min": float(x.max()) if n else None,
+            "over_target_pct": float(100 * np.count_nonzero(x > targets) / n) if n else None,
+            "target_min": float(targets[0]) if n and np.all(targets == targets[0]) else None,
+            "low_n": n < MIN_CALLS,
+            "messages": ["Fewer than 30 valid calls: tail estimates are uncertain."] if n < MIN_CALLS else []}
+
+
 def _floats(values):
     """Turn a list (or array, possibly with None) into a float numpy array."""
     return np.asarray(values if values is not None else [], dtype=float)

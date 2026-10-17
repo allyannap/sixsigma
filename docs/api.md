@@ -71,3 +71,16 @@ queue, median_min, p95_min, p95_ci[], cpk, cpk_upper (secondary)`.
 
 Errors: unknown `dataset`, `level`, `id`, `urgency` or bad dates → HTTP 400 `{detail}`; empty selection → 200 with zero
 counts and `needs_data`, never a 500. Any non-GET method → 404/405.
+
+## Geographic response profile (H-11 follow-up)
+
+Each `/api/summary` place (and its `place` card) additionally contains
+`response_profile`: `n`, `median_min`, `p90_min`, `max_min`, `over_target_pct`,
+`target_min`, `low_n`, `messages`. Durations are minutes; late share is 0–100.
+`qc.response_profile(minutes, targets_min)` excludes missing/nonfinite/nonpositive
+input pairs, uses linear-interpolated quantiles and strictly `time > target`.
+Empty samples have null numeric summaries; `target_min` is null when targets vary
+or no valid calls exist. `low_n` means fewer than 30 valid calls. These fields
+are descriptive; existing `spec`, `control` and `queue` remain authoritative.
+The frontend reuses this response during replay and removes its separate ANOM
+request. `/api/anom` remains unchanged for API consumers.

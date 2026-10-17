@@ -214,6 +214,8 @@ def place_card(qc, sel_timed, n_calls, base_timed, base_info) -> dict:
     card["queue"] = qc.queue_label(card["spec"], card["control"])
     boot = qc.p95_boot(sel_timed["minutes"].tolist())
     card.update(median_min=num(boot["median"]), p95_min=num(boot["p95"]), p95_ci=minutes_list(boot["ci"]))
+    profile = qc.response_profile(sel_timed["minutes"].tolist(), (sel_timed["target_s"] / 60).tolist())
+    card["response_profile"] = profile
     card.update(cpk=None, cpk_upper=None)
     if len(sel_timed) >= data.MIN_CALLS:
         # Secondary and assumption-dependent (lognormal times): Cpk never sets the queue label.
