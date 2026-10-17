@@ -2,10 +2,10 @@ import { fmtDate, fmtInt, mmss } from '../format.js'
 import { Async } from './common.jsx'
 
 /**
- * Simulation / Replay: plays the backend's synthetic file forward one simulated day per tick.
+ * Simulation / Replay (baselineDays comes from the API: 60, or 120 when volume is low): plays the backend's synthetic file forward one simulated day per tick.
  * Read-only: it only moves the date window and shows the calls the file already holds for that day.
  */
-export default function ReplayBar({ replay, feedState, onStart, onToggle, onStep, onStop }) {
+export default function ReplayBar({ replay, feedState, baselineDays, onStart, onToggle, onStep, onStop }) {
   return (
     <div className="replay" role="region" aria-label="Simulation / Replay">
       <div className="replay-head">
@@ -20,7 +20,7 @@ export default function ReplayBar({ replay, feedState, onStart, onToggle, onStep
             <button type="button" className="btn" onClick={onToggle} aria-pressed={replay.playing}>{replay.playing ? 'Pause' : 'Play'}</button>
             <button type="button" className="btn" onClick={onStep} disabled={replay.playing}>+1 day</button>
             <button type="button" className="btn" onClick={onStop}>Stop replay</button>
-            <span className="pill-blue">Simulated day: {fmtDate(replay.day)}, {String(replay.day).slice(0, 4)} &middot; period {fmtDate(replay.start)} to {fmtDate(replay.day)}; baseline fixed: the 60 days before {fmtDate(replay.start)}</span>
+            <span className="pill-blue">Simulated day: {fmtDate(replay.day)}, {String(replay.day).slice(0, 4)} &middot; period {fmtDate(replay.start)} to {fmtDate(replay.day)}; baseline fixed: {baselineDays ? `the ${baselineDays} days` : 'the days'} before {fmtDate(replay.start)}</span>
           </div>
           <Async state={feedState}>
             {(f) => (

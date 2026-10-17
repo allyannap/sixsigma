@@ -16,4 +16,8 @@ describe('chart helpers', () => {
   it('dots become one path', () => {
     expect(dotsPath([[1, 2], [3, 4]])).toBe('M1.0 2.0h0M3.0 4.0h0')
   })
+  it('narrow log axes fall back to rounded end labels', () => {
+    expect(logTicks(3.5909999999997, 6.132)).toEqual([3.6, 6.1])
+    expect(logTicks(3.5909999999997, 4.1)).toEqual([3.6, 4.1])
+  })
 })

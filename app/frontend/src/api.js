@@ -8,6 +8,9 @@ import pchart from './fixtures/pchart.json'
 import imr from './fixtures/imr.json'
 import replay from './fixtures/replay.json'
 import meta from './fixtures/meta.json'
+import flagged from './fixtures/flagged.json'
+import stages from './fixtures/stages.json'
+import signalCalls from './fixtures/signal_calls.json'
 import geoCounties from './fixtures/geo_counties.json'
 import geoZcta from './fixtures/geo_zcta.json'
 
@@ -48,7 +51,7 @@ export async function errorMessage(res) {
   return `${detail || res.statusText || 'Request failed'} (HTTP ${res.status})`
 }
 
-const FIXTURES = { anom, pchart, imr, replay, meta }
+const FIXTURES = { anom, pchart, imr, replay, meta, flagged, stages, signal_calls: signalCalls }
 
 function fixtureFor(endpoint, params) {
   if (endpoint === 'summary') return params.level === 'county' ? summaryCounty : summaryState

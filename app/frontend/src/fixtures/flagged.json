@@ -1,0 +1,69 @@
+{
+ "selection": {
+  "dataset": "station_closure",
+  "source": "Synthetic - simulated replay",
+  "level": "state",
+  "id": null,
+  "name": "New York State (fixture)",
+  "from": "2026-07-18",
+  "to": "2026-10-15",
+  "urgency": [
+   "red"
+  ],
+  "baseline_from": "2026-05-19",
+  "baseline_to": "2026-07-17",
+  "baseline_days": 60
+ },
+ "scope": "statewide",
+ "n_checked": 367,
+ "n_flagged": 1,
+ "flagged": [
+  {
+   "id": "11368",
+   "county_fips": "36081",
+   "county": "Queens",
+   "calls": 199,
+   "valid": 183,
+   "on_time_pct": 85.2,
+   "on_time_ci": [
+    79.4,
+    89.7
+   ],
+   "goal_pct": 90.0,
+   "spec": "below",
+   "control": "out_of_control",
+   "watch": false,
+   "queue": "act_now",
+   "signals": [
+    {
+     "start": "2026-09-01",
+     "n": 48,
+     "late": 13,
+     "p": 0.2708333333333333,
+     "ucl": 0.23815138076792206,
+     "lcl": 0.0,
+     "p_value": 0.00107
+    },
+    {
+     "start": "2026-10-01",
+     "n": 20,
+     "late": 8,
+     "p": 0.4,
+     "ucl": 0.3111327075327152,
+     "lcl": 0.0,
+     "p_value": 0.00059
+    }
+   ],
+   "excess_late": 8.7
+  }
+ ],
+ "chance_below": {
+  "expected": 12.63,
+  "n_places": 367,
+  "observed_below": 6,
+  "messages": []
+ },
+ "messages": [
+  "FIXTURE DATA: a saved, trimmed API reply for building and testing the page. Not live."
+ ]
+}

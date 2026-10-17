@@ -77,6 +77,7 @@ tasks:
       passes, including one test that reproduces the SPEC section 4
       known-answer check and one degenerate case (constant data or n = 1).
     result: "app/qc.py - every SPEC 4 statistic; tests/test_qc.py 67 passed; stats-reviewer PASS (all known answers, degenerates, 8 Nelson tests; real data - 0 of 62 counties changed on the clean file, 11368 act_now, Monroe act_now in Jul-Aug)."
+    notes_after: "Oct 17 - superseded by H-13. The control rule now uses exact binomial signals, two signals or one Bonferroni-strong signal, and a baseline screen; tests/test_qc.py has 86 tests. Re-measured on the clean file - 0 of 62 counties out of control in the default window, but 1 of 186 county-windows over the three API test windows (Oneida, Jan 15-Apr 14), and the state place reads Recent change in the default window (a false alarm). See README section 7."
 
   - id: H-04
     title: Working tool - one demo copied to app/ and wired to the H-03 function
@@ -182,6 +183,7 @@ tasks:
       features; every zcta in data/lookup/zcta_county.csv matches a GEOID in
       geo/ny_zcta.geojson; each geojson is under 10 MB.
     result: "config/targets.csv 10 codes; geo/ny_counties.geojson 62 features (108 KB), geo/ny_zcta.geojson 1,826 of 1,826 lookup ZCTAs matched (908 KB); check_geo.py exit 0."
+    notes_after: "Oct 17 - superseded. config/targets.csv now has 40 rows (10 codes x 4 area types; H-10), and since H-13 the red target is tiered by area type from NFPA 1720 demand zones (urban 480 s, suburban 600, rural 840, remote 840; illustrative placeholders). The map-shape part of this result still holds."
 
   - id: H-10
     title: Density tiers (urban, suburban, rural, remote) and history-based red targets
@@ -200,7 +202,7 @@ tasks:
       reproduces it exactly; python data/validate.py prints 0 FAIL; pytest tests passes; and on the
       live API the clean baseline file flags 0 counties changed while ZIP 11368 (closure) and
       Monroe (summer surge, Jul-Aug) are still flagged changed.
-    notes_after: "Oct 16 - the history-based red targets are no longer the default (H-11): config/targets.csv is flat 480 s; build_targets.py --from-history rebuilds the tiers."
+    notes_after: "Oct 16 - the history-based red targets are no longer the default (H-11): config/targets.csv was flat 480 s; build_targets.py --from-history rebuilds the tiers. Oct 17 - since H-13 the default is red tiered by area type from NFPA 1720 (urban 480, suburban 600, rural 840, remote 840 s); --flat gives the flat 480 s."
     result: "4 area types by 2020 density; red targets = tier P90 Oct 2025-Apr 2026 (urban 430 s, suburban 460, rural 910, remote 1280), 40 rows, rebuild identical; validate 43 PASS 0 FAIL; pytest 110 passed; clean file 0 counties changed, 11368 and Monroe act_now; hand-computed Cpk for 11368 matches the API."
 
 
@@ -223,6 +225,7 @@ tasks:
       cd app/frontend && npm test passes; .venv/bin/python data/validate.py --reproduce prints 0 FAIL;
       git grep finds no /whatif or POST /api/calls in app/; a teammate reads the diff.
     result: "Brief applied - Wilson spec + p-chart control + queue label; what-if, /whatif, POST /calls removed; read-only replay (fixed baseline); What Held Up the Call; flat 480 s red target, 90-day default; pytest 130 passed, npm test 28 passed, validate --reproduce 55 PASS 0 FAIL; commit approved by the team Oct 16."
+    notes_after: "Oct 17 - partly superseded. What Held Up the Call was removed in H-12 (plain stage medians restored descriptively in H-13); the flat 480 s red target was replaced in H-13 by NFPA 1720-based tiers by area type; the control rule changed in H-13. The test counts above are from Oct 16."
 
   - id: H-12
     title: Remove "What Held Up the Call" and the travel-time comparison (team decision)
@@ -240,3 +243,22 @@ tasks:
       pytest tests passes; npm test passes; /api/delays and /api/google answer 404; the page renders sections 1-4
       on live data with no console errors; git grep finds no stage_excess, travel_vs_estimate or top_stage in app/.
     result: "Section 3 removed everywhere; investigation list keeps target + control evidence; pytest 122 passed, npm test 26 passed, delays/google 404, page checked in a browser (sections 1-4, 0 console errors)."
+    notes_after: "Oct 17 - partly superseded by H-13. /api/delays and /api/google stay removed, but plain stage medians (/api/stages, qc.stage_summary; no excess, no cause) and the calls behind a signal (/api/signal_calls) were added to Section 2, and the investigation list gained a statewide flagged-ZIP list. The test counts above are from Oct 16."
+
+  - id: H-13
+    title: Fix the robustness review findings (statistics, supervisor data, docs, synthetic data)
+    points: "protects valid QC analysis (25), working tool (25), documentation (10) and datasets (5)"
+    status: done
+    owner: "claude + Powerpuff Girls"
+    started_at: "2026-10-16 23:55"
+    owns: ["app/", "tests/", "data/", "config/", "README.md", "SPEC.md", "docs/plan.md", "docs/api.md", "docs/roles.md", "CONTRACT.yaml"]
+    notes: >
+      User instruction Oct 16 - carry out every fix from the four-part review, in priority order: wording and
+      docs; statistics (exact signals, two-signal or Bonferroni rule, baseline screen, exact percentile CIs,
+      ANOM wording); supervisor data (excess-late ranking, statewide flagged ZIPs, denominators, volume,
+      plain stage medians, calls behind a signal); data (day effects, seasonality, hour profile, congestion,
+      sensitivity scenarios, messy sample); tiered red targets from NFPA 1720 (team policy decision).
+    definition_of_done: >
+      pytest tests passes; npm test passes; data/validate.py --reproduce prints 0 FAIL; the planted stories are
+      still detected and the clean-file false-alarm rate is re-measured and documented; docs match the numbers.
+    result: "Review fixes applied - exact-binomial signals + 2-signal/Bonferroni rule + baseline screen, exact percentile CIs, chance_below, excess-late ranking, flagged-ZIP list, stage medians, calls behind a signal, messy-input handling, realistic synthetic variation, NFPA 1720 tiered targets; pytest 162 passed, npm test 52 passed, validate --reproduce 74 PASS, --messy 13 PASS; clean-file red county false alarms 0 of 186 (90 d); both planted stories detected; +15%/+25%/drift closure not detected (documented)."

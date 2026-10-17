@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
 import { isFixtureMode } from './api.js'
-import { addDays, fmtCi, fmtInt, fmtMin, fmtPct, fmtRange } from './format.js'
-import { QUEUE_ORDER, URGENCY, URGENCY_KEYS, attentionCount } from './status.js'
+import { addDays, fmtCi, fmtChanceBelow, fmtInt, fmtMin, fmtNum, fmtPct, fmtRange, fmtVolume } from './format.js'
+import { QUEUE_ORDER, URGENCY, URGENCY_KEYS, attentionSplit } from './status.js'
 import { useEndpoint } from './useApi.js'
 import AnomSection from './components/AnomSection.jsx'
 import ChangeSection from './components/ChangeSection.jsx'
-import InvestigationSection from './components/InvestigationSection.jsx'
+import InvestigationSection, { flaggedSelection } from './components/InvestigationSection.jsx'
 import MapSection from './components/MapSection.jsx'
 import ReplayBar from './components/ReplayBar.jsx'
 import { Judgments, Kpi, Messages, StatusBadge } from './components/common.jsx'
@@ -47,6 +47,9 @@ export default function App() {
   const summary = useEndpoint('summary', parentParams)
   const pchart = useEndpoint('pchart', selParams)
   const imr = useEndpoint('imr', selParams)
+  // Statewide list of ZIP areas with a confirmed signal: same dates, dataset and urgency, but level and id are ignored.
+  const flagged = useEndpoint('flagged', filters)
+  const stages = useEndpoint('stages', selParams)
   const feed = useEndpoint('replay', { ...parentParams, day: replay.day, limit: 12 }, { skip: !replay.on })
 
   useEffect(() => {
@@ -69,12 +72,20 @@ export default function App() {
     setSelected({ level, id: place.id, name: place.name, place })
     if (drill && level === 'county') setParent({ level: 'county', id: place.id, name: place.name })
   }
+  // A row of the statewide flagged list: the map shows the ZIP's county, and the selected place is the ZIP.
+  const pickFlagged = (row) => {
+    const next = flaggedSelection(row)
+    setParent(next.parent)
+    setSelected(next.selected)
+  }
   const drill = (place) => place && setParent({ level: 'county', id: place.id, name: place.name })
 
   const s = summary.data
   const sel = s && s.selection
   const t = s && s.totals
   const selectedName = selected.name || 'New York State'
+  const split = s ? attentionSplit(s) : null
+  const unitNoun = parent.level === 'state' ? 'counties' : 'ZIP areas'
 
   return (
     <div className="page">
@@ -123,7 +134,7 @@ export default function App() {
           <span className="small muted filter-note">Blank dates = the dataset's last 90 days. Replay starts at From (or a week before the dataset's planted change). Pick one urgency group for the control chart. No time-of-day filter or adjustment.</span>
         </form>
 
-        <ReplayBar replay={replay} feedState={feed}
+        <ReplayBar replay={replay} feedState={feed} baselineDays={sel ? sel.baseline_days : null}
           onStart={() => { const start = from || REPLAY_START[dataset]; setReplay({ on: true, playing: true, start, day: start }) }}
           onToggle={() => setReplay((r) => ({ ...r, playing: !r.playing }))}
           onStep={() => setReplay((r) => (r.day >= lastDay ? r : { ...r, day: addDays(r.day, 1) }))}
@@ -137,11 +148,23 @@ export default function App() {
         ) : (
           <>
             <div className="kpis" aria-busy={summary.loading}>
-              <Kpi label="Areas needing review" sub={s ? `${sel.name}: act now, ongoing gap or recent change` : ''}>{s ? <>{attentionCount(s)} <small>of {(s.places || []).length}</small></> : '...'}</Kpi>
+              <Kpi label="Areas needing review"
+                sub={split ? <>
+                  <span>{split.recent} with a recent signal (Act now + Recent change) &middot; {split.ongoing} ongoing gaps</span>
+                  {fmtChanceBelow(s.chance_below, unitNoun) && <span className="kpi-chance"> {fmtChanceBelow(s.chance_below, unitNoun)}</span>}
+                </> : ''}>
+                {split ? <>{split.total} <small>of {(s.places || []).length}</small></> : '...'}
+              </Kpi>
               <Kpi label={`On time: ${sel ? sel.name : ''}`} sub={t ? `${fmtInt(t.on_time)} of ${fmtInt(t.valid)} valid calls · 95% CI ${fmtCi(t.on_time_ci, '%')} · goal ${fmtPct(t.goal_pct, 0)}` : ''}>{t ? fmtPct(t.on_time_pct) : '...'}</Kpi>
               <Kpi label="Median wait (call received to on scene)" sub={t ? `95% CI ${fmtCi(t.median_ci)} min` : ''}>{t ? fmtMin(t.median_min) : '...'}</Kpi>
               <Kpi label="P95 wait (1 call in 20 waited longer)" sub={t ? `95% CI ${fmtCi(t.p95_ci)} min · P90 ${fmtMin(t.p90_min)}` : ''}>{t ? fmtMin(t.p95_min) : '...'}</Kpi>
-              <Kpi label="Very late (over 2x the target)" sub={t ? `of ${fmtInt(t.valid)} valid; ${fmtInt(t.calls - t.valid)} cancelled or invalid calls left out` : ''}>{t ? fmtInt(t.very_late) : '...'}</Kpi>
+              <Kpi label="Very late (over 2x the target)"
+                sub={t ? <>
+                  <span>of {fmtInt(t.valid)} valid calls. Left out: {fmtInt(t.cancelled)} cancelled ({fmtPct(t.cancel_pct)}), {fmtInt(t.invalid)} invalid.</span>
+                  <span className="kpi-chance"> {fmtVolume(t.calls_per_day, t.base_calls_per_day)}. Late calls beyond the goal's allowance: {fmtNum(t.excess_late, 1)}.</span>
+                </> : ''}>
+                {t ? fmtInt(t.very_late) : '...'}
+              </Kpi>
             </div>
             {s && s.place && (
               <div className="queue-row" aria-label="Areas by decision status">
@@ -158,13 +181,14 @@ export default function App() {
 
       <MapSection summaryState={summary} parent={parent} urgency={urgency} selected={selected}
         onPick={pick} onDrill={drill} onBack={resetScope} />
-      <ChangeSection pState={pchart} imrState={imr} selectedName={selectedName} />
-      <InvestigationSection summaryState={summary} onPick={pick} />
+      <ChangeSection pState={pchart} imrState={imr} stagesState={stages} params={selParams} selectedName={selectedName} />
+      <InvestigationSection summaryState={summary} flaggedState={flagged} onPick={pick} onPickFlagged={pickFlagged} />
       <AnomSection summaryState={summary} />
 
       <footer className="small muted">
         Every number on this page is computed by the API (<code>/api/*</code>, read-only); the page only draws and formats it.
-        {' '}Source: synthetic incidents replayed from the server. Targets (red 8, yellow 15, green 30 minutes; 90% on time) are configurable placeholders, not certified standards.
+        {' '}Source: synthetic incidents replayed from the server. The response clock start (<code>t_received</code>) is provisional: it may be the 911 answer or the CAD record, and that is not yet confirmed.
+        {' '}Targets are NFPA 1720-based placeholders, configurable and not certified standards: red 8 minutes in urban areas, 10 suburban, 14 rural and remote; yellow 15; green 30; 90% on time.
         {' '}The tool reviews the response process, not individual dispatchers or crews.
       </footer>
     </div>

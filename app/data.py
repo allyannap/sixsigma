@@ -95,9 +95,11 @@ def derive(raw: pd.DataFrame, targets: pd.DataFrame | None = None,
     if missing:
         raise ValueError(f"missing required columns: {missing}")
 
+    raw, received, dropped = _drop_unusable_rows(raw, targets, zcta_to_county)
+
     df = pd.DataFrame({
         "incident_id": raw["incident_id"].astype(str).to_numpy(),
-        "zcta": raw["zcta"].astype(str).str.zfill(5).to_numpy(),
+        "zcta": raw["zcta"].astype(str).str.strip().str.zfill(5).to_numpy(),
         "urgency_code": pd.to_numeric(raw["urgency_code"]).astype("int64").to_numpy(),
         "disposition": raw["disposition"].astype(str).to_numpy(),
         "valid_time": raw["valid_time"].astype(str).to_numpy(),
@@ -109,17 +111,16 @@ def derive(raw: pd.DataFrame, targets: pd.DataFrame | None = None,
 
     # Times: parse with the offset, then work in seconds since the epoch (UTC).
     # Real elapsed seconds, so 1:59 AM to 3:01 AM on the spring-forward night is 120 s, not 3720 s.
+    # A time that is empty or unreadable becomes NaN, and the call is simply not timed (never an error).
     secs = {}
     for c in TIME_COLUMNS:
-        if c in raw.columns:
-            ts = pd.to_datetime(raw[c], utc=True, format="ISO8601")
+        if c == "t_received":
+            ts = received
+        elif c in raw.columns:
+            ts = pd.to_datetime(raw[c], utc=True, format="ISO8601", errors="coerce")
         else:
             ts = pd.Series(pd.NaT, index=raw.index, dtype="datetime64[s, UTC]")
         secs[c] = (ts - pd.Timestamp(0, tz="UTC")).dt.total_seconds().to_numpy(dtype=float)
-        if c == "t_received":
-            received = ts
-    if np.isnan(secs["t_received"]).any():
-        raise ValueError("t_received is empty in some rows")
 
     local = received.dt.tz_convert(TZ)
     df["t_received"] = pd.Series(local.array)                  # tz-aware New York clock time
@@ -136,10 +137,11 @@ def derive(raw: pd.DataFrame, targets: pd.DataFrame | None = None,
     # Timed call: not cancelled, has t_onscene, valid_time = Y, and the times are in order.
     in_order = ((df["dispatch_s"] >= 0) & (df["turnout_s"] >= 0)
                 & (df["drive_s"] >= 0) & (df["total_s"] > 0))
-    df["timed"] = ((df["disposition"] != "CANCELLED") & df["total_s"].notna()
+    df["cancelled"] = (df["disposition"] == "CANCELLED").to_numpy()
+    df["timed"] = (~df["cancelled"] & df["total_s"].notna()
                    & (df["valid_time"] == "Y") & in_order).to_numpy()
     df["minutes"] = np.where(df["timed"], df["total_s"] / 60.0, np.nan)
-    df["ln_min"] = np.log(df["minutes"])  # NaN stays NaN; minutes > 0 whenever timed
+    df["ln_min"] = np.log(df["minutes"])  # NaN stays NaN; minutes is only set (and > 0) for timed calls
 
     # Place (zcta -> county, area type) and targets (per urgency code AND area type).
     df["county_fips"] = pd.Categorical(df["zcta"].map(zcta_to_county))
@@ -158,11 +160,62 @@ def derive(raw: pd.DataFrame, targets: pd.DataFrame | None = None,
     df["goal_on_time_pct"] = t["goal_on_time_pct"].to_numpy(dtype=float)[pos]
     df["late"] = (df["timed"] & (df["total_s"] > df["target_s"])).to_numpy()
     # Cpk input: ln(total_s / target_s) for timed calls; USL = 0 (late means above 0).
-    df["ln_ratio"] = np.where(df["timed"], np.log(df["total_s"] / df["target_s"]), np.nan)
+    safe_ratio = np.where(df["timed"], df["total_s"] / df["target_s"], 1.0)   # untimed rows may be negative or NaN
+    df["ln_ratio"] = np.where(df["timed"], np.log(safe_ratio), np.nan)
     df["zcta"] = pd.Categorical(df["zcta"])
 
     df = df.sort_values("t_received", kind="stable").reset_index(drop=True)
+    df.attrs["quality"] = _quality_counts(df, dropped)
     return df
+
+
+def _drop_unusable_rows(raw: pd.DataFrame, targets: pd.DataFrame, zcta_to_county: dict):
+    """Drop rows no statistic can use, and count them. Never raises for bad VALUES (only for missing columns).
+
+    Reasons, checked in this order (each dropped row is counted under the FIRST reason that applies):
+      duplicate_id          a second row with an incident_id already seen (the first row is kept)
+      missing_t_received    t_received empty or not a readable ISO 8601 time (no day to put the call on)
+      unknown_zcta          zcta not in data/lookup/zcta_county.csv (no county, no area type)
+      unknown_urgency_code  urgency_code empty, not a whole number, or not in config/targets.csv (no target)
+    Returns (rows kept, t_received of those rows as UTC times, {reason: count}).
+    """
+    raw = raw.reset_index(drop=True)
+    received = pd.to_datetime(raw["t_received"], utc=True, format="ISO8601", errors="coerce")
+    zcta = raw["zcta"].astype(str).str.strip().str.zfill(5)
+    urgency = pd.to_numeric(raw["urgency_code"], errors="coerce")
+    reasons = (("duplicate_id", raw["incident_id"].astype(str).duplicated(keep="first").to_numpy()),
+               ("missing_t_received", received.isna().to_numpy()),
+               ("unknown_zcta", zcta.map(zcta_to_county).isna().to_numpy()),
+               ("unknown_urgency_code", ~urgency.isin(set(targets["urgency_code"])).to_numpy()))
+    alive = np.ones(len(raw), dtype=bool)
+    dropped = {}
+    for name, bad in reasons:
+        dropped[name] = int((bad & alive).sum())
+        alive &= ~bad
+    keep = np.flatnonzero(alive)
+    return raw.iloc[keep].reset_index(drop=True), received.iloc[keep].reset_index(drop=True), dropped
+
+
+def _quality_counts(df: pd.DataFrame, dropped: dict) -> dict:
+    """What was dropped on loading and why the kept calls are untimed (df.attrs["quality"]).
+
+    Untimed calls (they stay in the call count but never enter a time statistic), each counted once, in this order:
+      cancelled         disposition CANCELLED
+      invalid_time_flag valid_time is not Y
+      missing_time      t_assigned, t_enroute or t_onscene missing (and not cancelled)
+      out_of_order      all times present but not in order (assigned before received, and so on)
+    """
+    untimed = ~df["timed"]
+    cancelled = df["cancelled"]
+    flag_bad = untimed & ~cancelled & (df["valid_time"] != "Y")
+    missing = untimed & ~cancelled & ~flag_bad & df[["dispatch_s", "turnout_s", "drive_s"]].isna().any(axis=1)
+    out_of_order = untimed & ~cancelled & ~flag_bad & ~missing
+    q = {"rows_kept": int(len(df)), **dropped}
+    q["rows_in"] = q["rows_kept"] + sum(dropped.values())
+    q["dropped_total"] = int(sum(dropped.values()))
+    q.update(timed=int(df["timed"].sum()), cancelled=int(cancelled.sum()), invalid_time_flag=int(flag_bad.sum()),
+             missing_time=int(missing.sum()), out_of_order=int(out_of_order.sum()))
+    return q
 
 
 # ---------------------------------------------------------------- load and cache
@@ -177,10 +230,18 @@ def load(dataset: str) -> pd.DataFrame:
         raise ValueError(f"unknown dataset '{dataset}'; use one of {list(DATASETS)}")
     with _lock:
         if dataset not in _cache:
-            path = DATA_DIR / f"incidents_{dataset}.csv.gz"
-            raw = pd.read_csv(path, dtype={"incident_id": str, "zcta": str})
-            _cache[dataset] = derive(raw)
+            _cache[dataset] = derive(read_raw(DATA_DIR / f"incidents_{dataset}.csv.gz"))
     return _cache[dataset]
+
+
+def read_raw(path) -> pd.DataFrame:
+    """Read an incidents file as text columns for the IDs, so a ZIP like 06390 keeps its leading zero."""
+    return pd.read_csv(path, dtype={"incident_id": str, "zcta": str})
+
+
+def quality(dataset: str) -> dict:
+    """Rows dropped on loading (by reason) and untimed calls (by reason) for one dataset."""
+    return load(dataset).attrs["quality"]
 
 
 def date_range(df: pd.DataFrame) -> tuple[date, date]:
@@ -322,13 +383,14 @@ def baseline(df: pd.DataFrame, level: str, id: str | None, urgency, from_,
 
 
 def child_baselines(df: pd.DataFrame, level: str, id: str | None, urgency, from_,
-                    baseline_days: int = 60) -> dict:
+                    baseline_days: int = 60, key: str | None = None, ids: list | None = None) -> dict:
     """Baseline for every child place at once: {child_id: (rows, info)}.
 
     Same 60 -> 120 day rule as `baseline`, but one filter and one group-by for all the
     children instead of one filter per child. Children with no baseline calls get an empty table.
+    `key` and `ids` override the child column and list (all ZCTAs of the state: key="zcta", ids=every ZCTA).
     """
-    key = child_key(level)
+    key = key or child_key(level)
     out = {}
     windows = [baseline_days] if baseline_days >= STRETCH_DAYS else [baseline_days, STRETCH_DAYS]
     parts = []
@@ -336,8 +398,7 @@ def child_baselines(df: pd.DataFrame, level: str, id: str | None, urgency, from_
         start, end = baseline_window(from_, days)
         rows = select(df, level, id, urgency, start, end)
         parts.append((days, start, end, {k: g for k, g in rows.groupby(key, observed=True)}, rows.iloc[:0]))
-    for child in children(level, id):
-        cid = child["id"]
+    for cid in (ids if ids is not None else [child["id"] for child in children(level, id)]):
         for i, (days, start, end, groups, empty) in enumerate(parts):
             rows = groups.get(cid, empty)
             timed = int(rows["timed"].sum())
@@ -376,6 +437,11 @@ def subgroups(timed: pd.DataFrame, unit: str) -> dict:
     g = t.groupby(key.to_numpy()).agg(n=("late", "size"), late=("late", "sum"))
     starts = [(date(1970, 1, 1) + timedelta(days=int(k))).isoformat() for k in g.index]
     return {"start": starts, "n": [int(v) for v in g["n"]], "late": [int(v) for v in g["late"]]}
+
+
+def all_zctas() -> list[str]:
+    """Every ZCTA in the lookup, sorted."""
+    return sorted(lookups()["zcta_to_county"])
 
 
 def weighted_goal(timed: pd.DataFrame) -> float | None:

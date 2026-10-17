@@ -9,7 +9,7 @@ const a = (id, pct, spec = 'below', low_n = false) => ({ id, name: id, on_time_p
 
 it('defines the goal and shows the histogram as the main view beside one area card', () => {
   const html = render(summary)
-  expect(html).toContain('Goal: 90% of calls arrive within 8 min of call receipt.')
+  expect(html).toContain('Goal: 90% of calls arrive within their configured call target of call receipt.')
   const areas = comparisonAreas(summary.places)
   const selected = extremes(areas)[0] || areas[0]
   expect((html.match(/id="simple-selected"/g) || []).length).toBe(1)

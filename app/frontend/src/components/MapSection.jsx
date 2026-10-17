@@ -2,9 +2,9 @@ import { useEffect, useMemo, useState } from 'react'
 import { geoMercator, geoPath } from 'd3-geo'
 import { getGeo } from '../api.js'
 import { rewindForD3 } from '../geo.js'
-import { fmtCi, fmtDate, fmtInt, fmtMin, fmtNum, fmtPct } from '../format.js'
-import { QUEUE, SPEC, CONTROL, URGENCY, attentionCount, fillFor, latePct, rankPlaces } from '../status.js'
-import { Async, Judgments, Messages, Section, StatusBadge, StatusIcon, StatusLegend } from './common.jsx'
+import { fmtChanceBelow, fmtCi, fmtDate, fmtInt, fmtMin, fmtNum, fmtPct, fmtVolume } from '../format.js'
+import { QUEUE, SPEC, CONTROL, URGENCY, attentionSplit, fillFor, latePct, rankPlaces } from '../status.js'
+import { Async, Judgments, Messages, Section, StatusBadge, StatusIcon, StatusLegend, WatchChip, BaselineCheck } from './common.jsx'
 
 const MIN_N = 30 // under this many valid calls a place is drawn gray (insufficient data)
 const W = 640
@@ -128,9 +128,21 @@ function PlaceMap({ parent, places, urgency, selected, onPick, onBack }) {
   )
 }
 
+/** Cancelled, invalid and volume lines: the denominators behind the percentages. */
+export function Denominators({ p }) {
+  return (
+    <ul className="denoms" aria-label="Call counts behind the rates">
+      <li>{fmtInt(p.calls)} calls received: {fmtInt(p.valid)} valid, {fmtInt(p.cancelled)} cancelled ({fmtPct(p.cancel_pct)}), {fmtInt(p.invalid)} invalid (cancelled and invalid calls are not in the on-time rate).</li>
+      <li>Volume: {fmtVolume(p.calls_per_day, p.base_calls_per_day)}.</li>
+      <li>Excess late vs goal: {fmtNum(p.excess_late, 1)} late calls beyond what the goal allows (negative = fewer than allowed).</li>
+    </ul>
+  )
+}
+
 function SelectedPanel({ summary, selected, parent, onDrill }) {
-  const p = selected.place || summary.place
   const isParent = selected.level === parent.level && selected.id === parent.id
+  // A ZIP picked from the statewide list arrives without its numbers: find it in the county's list.
+  const p = selected.place || (summary.places || []).find((x) => x.id === selected.id) || (isParent ? summary.place : null)
   const name = selected.name || summary.selection?.name || 'New York State'
   if (!p) return null
   const q = QUEUE[p.queue]
@@ -140,6 +152,7 @@ function SelectedPanel({ summary, selected, parent, onDrill }) {
       <div className="selected-title">
         <h3>{name}</h3>
         <StatusBadge status={p.queue} short />
+        <WatchChip p={p} />
       </div>
       <Judgments p={p} />
       <p>{q?.help}</p>
@@ -152,15 +165,21 @@ function SelectedPanel({ summary, selected, parent, onDrill }) {
         <div className="mini">
           <div className="mini-label">Longest waits (P95)</div>
           <div className="mini-value">{fmtMin(p.p95_min)}</div>
-          <div className="mini-sub">95% CI {fmtCi(p.p95_ci)} min &middot; median {fmtMin(p.median_min)}</div>
+          <div className="mini-sub">95% CI {fmtCi(p.p95_ci)} min &middot; median {fmtMin(p.median_min)} (95% CI {fmtCi(p.median_ci)} min) &middot; P90 {fmtMin(p.p90_min)}</div>
         </div>
       </div>
+      <Denominators p={p} />
       <ul className="reasons">
         <li><strong>Target:</strong> {p.spec_reason || 'n/a'}.</li>
         <li><strong>Control:</strong> {p.control_reason || 'n/a'}{p.unit ? ` (${p.unit}ly subgroups)` : ''}.
           {p.signals && p.signals.length > 0 && <> Signals: {p.signals.slice(0, 4).map((s) => `${p.unit} of ${fmtDate(s.start)} (${fmtPct(100 * s.p)} late, limit ${fmtPct(100 * s.ucl)})`).join('; ')}{p.signals.length > 4 ? '; ...' : ''}.</>}
         </li>
-        {p.baseline && <li><strong>Baseline:</strong> {fmtDate(p.baseline.from)} to {fmtDate(p.baseline.to)} ({p.baseline.days} days, {fmtInt(p.baseline.valid)} valid calls{p.baseline.stretched ? ', stretched from 60 days' : ''}).</li>}
+        {p.watch && p.control === 'in_control' && <li><strong>Watch:</strong> 1 period above the limit, not confirmed.</li>}
+        {p.baseline && (
+          <li><strong>Baseline:</strong> {fmtDate(p.baseline.from)} to {fmtDate(p.baseline.to)} ({p.baseline.days} days, {fmtInt(p.baseline.valid)} valid calls{p.baseline.stretched ? ', stretched from 60 days' : ''}).
+            {' '}<BaselineCheck b={p.baseline} />
+          </li>
+        )}
       </ul>
       <p><strong>Next step:</strong> {q?.next}</p>
       {!isParent && selected.level === 'county' && (
@@ -180,7 +199,10 @@ function PlaceTable({ places, selected, onPick }) {
           <tr>
             <th scope="col">#</th><th scope="col">Place</th><th scope="col">Valid calls</th><th scope="col">On time</th>
             <th scope="col">On-time rate [95% CI]</th><th scope="col">Target</th><th scope="col">Control</th>
-            <th scope="col">Queue</th><th scope="col">P95 min [95% CI]</th><th scope="col" title="Secondary; assumes lognormal times; never sets the queue">Cpk [upper] (secondary)</th>
+            <th scope="col">Queue</th>
+            <th scope="col" title="Late calls beyond what the goal allows: late - (1 - goal) x valid. Negative = fewer than allowed. The ranking inside a queue label uses it.">Excess late vs goal</th>
+            <th scope="col">Cancelled / invalid</th><th scope="col">Calls per day: now (baseline)</th>
+            <th scope="col">P95 min [95% CI]</th><th scope="col" title="Secondary; assumes lognormal times; never sets the queue">Cpk [upper] (secondary)</th>
           </tr>
         </thead>
         <tbody>
@@ -196,7 +218,10 @@ function PlaceTable({ places, selected, onPick }) {
               <td className="mono">{fmtPct(p.on_time_pct)} <span className="muted">[{fmtCi(p.on_time_ci)}]</span> <span className="muted">vs {fmtNum(p.goal_pct, 0)}</span></td>
               <td><span className="chip" style={{ background: SPEC[p.spec]?.bg, color: SPEC[p.spec]?.fg }}>{SPEC[p.spec]?.label}</span></td>
               <td><span className="chip" style={{ background: CONTROL[p.control]?.bg, color: CONTROL[p.control]?.fg }}>{CONTROL[p.control]?.label}</span></td>
-              <td><StatusBadge status={p.queue} short /></td>
+              <td><StatusBadge status={p.queue} short /><WatchChip p={p} /></td>
+              <td className="mono">{fmtNum(p.excess_late, 1)}</td>
+              <td className="mono">{fmtInt(p.cancelled)} ({fmtPct(p.cancel_pct)}) / {fmtInt(p.invalid)}</td>
+              <td className="mono">{fmtNum(p.calls_per_day, 1)} ({fmtNum(p.base_calls_per_day, 1)})</td>
               <td className="mono">{p.p95_min == null ? 'n/a' : fmtNum(p.p95_min)}{p.p95_ci && p.p95_min != null && <span className="muted"> [{fmtCi(p.p95_ci)}]</span>}</td>
               <td className="mono muted" title={p.cpk == null ? 'Cpk undefined (under 30 calls or no spread)' : ''}>
                 {p.cpk == null ? 'n/a' : fmtNum(p.cpk, 2)}{p.cpk_upper != null && <> [{fmtNum(p.cpk_upper, 2)}]</>}
@@ -215,12 +240,15 @@ export default function MapSection({ summaryState, parent, urgency, selected, on
       <Async state={summaryState}>
         {(s) => {
           const total = (s.places || []).length
-          const n = attentionCount(s)
+          const split = attentionSplit(s)
+          const noun = parent.level === 'state' ? 'counties' : 'ZIP areas'
+          const chance = fmtChanceBelow(s.chance_below, noun)
           return (
             <>
               <p className="headline" role="status">
-                {n} of {total} {parent.level === 'state' ? 'counties' : 'ZIP areas'} need review{n > 0 ? '. Start at the top of the table.' : '.'}
+                {split.total} of {total} {noun} need review: {split.recent} with a recent signal (Act now + Recent change) &middot; {split.ongoing} ongoing gaps{split.total > 0 ? '. Start at the top of the table.' : '.'}
               </p>
+              {chance && <p className="small muted" role="note">{chance}</p>}
               <div className="split">
                 <PlaceMap parent={parent} places={s.places} urgency={urgency} selected={selected} onPick={onPick} onBack={onBack} />
                 <SelectedPanel summary={s} selected={selected} parent={parent} onDrill={onDrill} />
@@ -230,9 +258,9 @@ export default function MapSection({ summaryState, parent, urgency, selected, on
               <p className="small muted">
                 Two separate questions. <strong>Target</strong>: is the on-time rate confidently at or above the goal? Meets = the lower end
                 of its 95% interval is at or above the goal; Below = the upper end is below it; anything else, or under 30 valid calls, is Inconclusive.
-                {' '}<strong>Control</strong>: did the late share rise above its p-chart upper limit, set from the baseline before the period?
+                {' '}<strong>Control</strong>: is the late share confirmed above its p-chart upper limit, set from the baseline before the period (two or more periods, or one very strong one; a single weaker period is only marked watch)?
                 Being in control does not mean the service is good, and no alert does not mean the target is met.
-                Fill color is the late share for the urgency you picked; gray means under 30 valid calls.
+                Rows are ranked inside each queue label by excess late calls vs the goal, so a big place with a modest gap is not buried under a tiny place with a high rate. Fill color is the late share for the urgency you picked; gray means under 30 valid calls.
               </p>
               <Messages messages={s.messages} />
             </>

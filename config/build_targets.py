@@ -1,15 +1,31 @@
 """Build config/targets.csv: one row per (urgency code, area type) = 10 codes x 4 area types.
 
-Run from the repo root:   python config/build_targets.py                 (the default: flat placeholders)
-                          python config/build_targets.py --from-history  (alternative: red target = area P90)
+Run from the repo root:   python config/build_targets.py                 (default: red target by area type, below)
+                          python config/build_targets.py --flat          (the old flat 480 s red target)
+                          python config/build_targets.py --from-history  (red target = area P90; circular, see below)
 
-Default (team decision Oct 16, approved decisions brief): red 480 s, yellow 900 s, green 1800 s in every
-area type, goal 90%. These are configurable PLACEHOLDERS, not certified standards. A history-based red
-target is circular for the specification check (each area's target is its own P90, so its on-time rate
-sits at about 90% by construction and nearly every place reads "inconclusive"), so it is opt-in only.
-The reference columns are written in both modes, for context.
+DEFAULT (team policy decision, Oct 16, H-13): the red target depends on the area type, adapted from the
+demand-zone response-time objectives of NFPA 1720 (Standard for the Organization and Deployment of Fire
+Suppression Operations, Emergency Medical Operations, and Special Operations to the Public by Volunteer Fire
+Departments): urban 8 min, suburban 10 min, rural 14 min. These are ILLUSTRATIVE PLACEHOLDERS, not certified
+standards for any center:
+  urban    480 s  (8 min; also the decisions brief's placeholder)
+  suburban 600 s  (NFPA 1720 suburban zone, 10 min)
+  rural    840 s  (NFPA 1720 rural zone, 14 min)
+  remote   840 s  (FLAGGED: NFPA 1720 says remote-zone response depends on travel distance and gives no fixed
+                   time, so the rural value is reused here; a center must set its own)
+  yellow 900 s and green 1800 s in every area type; goal 90% on time everywhere.
+CAVEAT: NFPA 1720 is a fire-service standard for volunteer departments, and its clock (dispatch or
+notification to arrival) is not the same as our call-received-to-on-scene clock (t_received to t_onscene).
+It is used here only as a source of the tier ratio and round numbers. Area types here are defined by
+2020 Census density (see data/README.md), not by NFPA's own demand-zone definitions.
 
-Reference columns (and the --from-history red target):
+--flat reproduces the earlier flat placeholder: red 480 s in every area type.
+--from-history sets each area type's red target to its own P90 from the reference period. It is not the
+default because it is circular for the specification check (every area's on-time rate then sits at about
+90% by construction and nearly every place reads "inconclusive").
+
+Reference columns (written in every mode, for context only):
   1. Read data/incidents_baseline.csv.gz.
   2. Keep timed RED calls (urgency codes 0-2): not CANCELLED, t_onscene present, valid_time = Y,
      times in order, received 2025-10-16 to 2026-04-15 inclusive (America/New_York dates).
@@ -31,7 +47,9 @@ ROOT = HERE.parent
 REF_FROM, REF_TO = "2025-10-16", "2026-04-15"
 AREA_TYPES = ["urban", "suburban", "rural", "remote"]
 RED_CODES, YELLOW_CODES, GREEN_CODES = [0, 1, 2], [3, 4, 5], [6, 7, 8, 9]
-RED_S, YELLOW_S, GREEN_S, GOAL_PCT = 480, 900, 1800, 90
+FLAT_RED_S, YELLOW_S, GREEN_S, GOAL_PCT = 480, 900, 1800, 90
+# Default red targets by area type (NFPA 1720 demand zones, adapted; remote reuses rural and is flagged).
+TIER_RED_S = {"urban": 480, "suburban": 600, "rural": 840, "remote": 840}
 
 
 def round_up_10(x):
@@ -57,7 +75,7 @@ def reference_calls():
     return df.merge(area[["zcta", "urban_rural"]], on="zcta", how="left")
 
 
-def build(from_history=False):
+def build(mode="tiered"):
     calls = reference_calls()
     red = {}
     for area in AREA_TYPES:
@@ -71,7 +89,7 @@ def build(from_history=False):
         for area in AREA_TYPES:
             if code in RED_CODES:
                 group, p90, n = "red", red[area][1], red[area][2]
-                target = red[area][0] if from_history else RED_S
+                target = {"history": red[area][0], "flat": FLAT_RED_S, "tiered": TIER_RED_S[area]}[mode]
             else:
                 group = "yellow" if code in YELLOW_CODES else "green"
                 target, p90, n = (YELLOW_S if group == "yellow" else GREEN_S), "", ""
@@ -83,16 +101,21 @@ def build(from_history=False):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--from-history", action="store_true", help="red target = area type P90 (not the default)")
+    g = ap.add_mutually_exclusive_group()
+    g.add_argument("--flat", action="store_true", help="flat red target 480 s in every area type")
+    g.add_argument("--from-history", action="store_true", help="red target = area type P90 (circular; not the default)")
     args = ap.parse_args()
-    out, red = build(args.from_history)
+    mode = "history" if args.from_history else "flat" if args.flat else "tiered"
+    out, red = build(mode)
     out.to_csv(HERE / "targets.csv", index=False, lineterminator="\n")
-    mode = "history-based red targets" if args.from_history else f"flat red target {RED_S} s"
-    print(f"wrote {len(out)} rows to config/targets.csv ({mode}; reference period {REF_FROM} to {REF_TO})")
+    label = {"history": "history-based red targets", "flat": f"flat red target {FLAT_RED_S} s",
+             "tiered": "red targets by area type, adapted from NFPA 1720 (illustrative placeholders)"}[mode]
+    print(f"wrote {len(out)} rows to config/targets.csv ({label}; reference period {REF_FROM} to {REF_TO})")
     for area in AREA_TYPES:
         t, p90, n = red[area]
-        t = t if args.from_history else RED_S
-        print(f"  {area:9s} red target {t} s ({t / 60:.2f} min), reference P90 {p90} s, n = {n:,}")
+        t = {"history": t, "flat": FLAT_RED_S, "tiered": TIER_RED_S[area]}[mode]
+        flag = "  (remote reuses the rural value: NFPA 1720 gives no fixed time; flagged)" if mode == "tiered" and area == "remote" else ""
+        print(f"  {area:9s} red target {t} s ({t / 60:.2f} min), reference P90 {p90} s, n = {n:,}{flag}")
 
 
 if __name__ == "__main__":

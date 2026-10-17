@@ -7,7 +7,7 @@ export const QUEUE = {
   act_now: {
     label: 'Act now: performance gap + recent signal',
     short: 'Act now',
-    help: 'Below the on-time goal, and the late share rose above its control limit.',
+    help: 'Below the on-time goal, and the late share is confirmed above its control limit (two or more periods, or one very strong one).',
     bg: '#B42318',
     fg: '#FFFFFF',
     next: 'Check Section 2 for the dates of the signal, then review the calls from those periods.',
@@ -23,15 +23,15 @@ export const QUEUE = {
   recent_change: {
     label: 'Recent process change: investigate',
     short: 'Recent change',
-    help: 'The late share rose above its control limit. The on-time goal is met or not yet decided.',
+    help: 'The late share is confirmed above its control limit (two or more periods, or one very strong one). The on-time goal is met or not yet decided.',
     bg: '#FDE7D3',
     fg: '#8A3A00',
     next: 'Section 2 lists the periods above the limit; check what changed then.',
   },
   meets_stable: {
-    label: 'Meets goal; statistically stable',
-    short: 'Meets goal, stable',
-    help: 'The on-time rate is confidently at or above the goal, and no control signal.',
+    label: 'Meets goal; no change signal',
+    short: 'Meets goal, no signal',
+    help: 'The on-time rate is confidently at or above the goal, and the late share shows no confirmed change from its baseline.',
     bg: '#DCEFE2',
     fg: '#1E6B3A',
     next: 'No review needed for this period.',
@@ -39,7 +39,7 @@ export const QUEUE = {
   needs_data: {
     label: 'Needs more data / Inconclusive',
     short: 'Needs more data',
-    help: 'Too few calls, too little baseline, or an on-time interval that includes the goal. Not a pass.',
+    help: 'Too few calls, too little baseline, an on-time interval that includes the goal, or confirmed below target but too little baseline to judge change. Not a pass.',
     bg: '#E3E6E1',
     fg: '#3D4842',
     next: 'Widen the date range, or look at the county or the state.',
@@ -62,6 +62,9 @@ export const CONTROL = {
   in_control: { label: 'In control', bg: '#E4ECF5', fg: '#1F3A5F' },
   insufficient_baseline: { label: 'Insufficient baseline', bg: '#EEF0EC', fg: '#3D4842' },
 }
+
+/** One period above the limit that is not confirmed: the place stays In control, with this note beside it. */
+export const WATCH = { label: 'watch', tip: '1 period above the limit, not confirmed' }
 
 export const URGENCY = {
   red: { label: 'Red (most urgent)', light: '#FBE3E0', dark: '#8F1D14', chip: '#B42318' },
@@ -91,14 +94,40 @@ export function latePct(p) {
   return p && p.on_time_pct != null ? 100 - p.on_time_pct : null
 }
 
-/** Queue order first; inside a label, confirmed below-target places first, then more late calls. */
+/** Larger excess_late first; a missing value (null) sorts last. */
+function byExcessLate(a, b) {
+  const x = a.excess_late
+  const y = b.excess_late
+  if (x == null && y == null) return 0
+  if (x == null) return 1
+  if (y == null) return -1
+  return y - x
+}
+
+/**
+ * Queue order first; inside a label, confirmed below-target places first, then the most late calls beyond
+ * what the goal allows (excess_late, desc). Raw late counts are not used: they favor big places.
+ */
 export function rankPlaces(places) {
   const rank = (p) => {
     const i = QUEUE_ORDER.indexOf(p.queue)
     return i < 0 ? QUEUE_ORDER.length : i
   }
   const below = (p) => (p.spec === 'below' ? 0 : 1)
-  return [...(places || [])].sort((a, b) => rank(a) - rank(b) || below(a) - below(b) || (b.late || 0) - (a.late || 0))
+  return [...(places || [])].sort((a, b) => rank(a) - rank(b) || below(a) - below(b) || byExcessLate(a, b))
+}
+
+/**
+ * Splits "need review" in two: places with a recent signal (Act now + Recent change) and ongoing gaps.
+ * Uses queue_counts when the API sent it, else counts the places.
+ */
+export function attentionSplit(summary) {
+  const counts = (summary && summary.queue_counts) || null
+  const places = (summary && summary.places) || []
+  const count = (k) => (counts && typeof counts[k] === 'number' ? counts[k] : places.filter((p) => p.queue === k).length)
+  const recent = count('act_now') + count('recent_change')
+  const ongoing = count('ongoing_gap')
+  return { recent, ongoing, total: recent + ongoing }
 }
 
 /** needs_attention is an int (act_now + ongoing_gap + recent_change). Counts the places only if it is missing. */

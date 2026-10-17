@@ -94,7 +94,7 @@ function AreaTypeTag({ mix }) {
   return <div className="area-type">
     <span className={`area-tag tag-${tag.kind}`}>{tag.text}</span>
     <button type="button" className="info-btn" aria-expanded={open} aria-label="Why area type matters" onClick={() => setOpen(!open)}>i</button>
-    {open && <p className="info-pop">One target applies to every area. Rural and remote areas have longer drives, so their waits run higher, and a low on-time rate there may reflect distance, not dispatch. This view does not adjust for area type. Area type comes from each call's ZIP code (2020 Census).</p>}
+    {open && <p className="info-pop">Red targets vary by area type (urban 8 min, suburban 10 min, rural and remote 14 min); yellow and green targets are 15 and 30 min. Rural and remote areas have longer drives. Rates use each call’s configured target; this view does not otherwise adjust for traffic, distance or resources. Area type comes from each call's ZIP code (2020 Census).</p>}
   </div>
 }
 
@@ -151,6 +151,8 @@ export default function SimpleComparison({ d }) {
   const bins = histogram(areas, goal)
   const bin = openBin != null ? bins[openBin] : null
   const target = selected.response_profile.target_min
+  const targets = [...new Set(areas.map((p) => p.response_profile.target_min))]
+  const overallDeadline = targets.length === 1 && targets[0] != null ? `${Number(targets[0].toFixed(2))} min` : 'their configured call target'
   const deadline = target != null ? `${Number(target.toFixed(2))} min` : 'the configured call target'
   const pick = (id) => { setSelectedId(id); setListing(false); setQuery('') }
   const openList = (i) => { setOpenBin(i); setListing(i != null) }
@@ -160,7 +162,7 @@ export default function SimpleComparison({ d }) {
     if (hit) { pick(hit.id); setOpenBin(null) }
   }
   return <div className="simple-comparison">
-    <p className="simple-goal"><strong>Goal: {fmtPct(goal, 0)} of calls arrive within {deadline} of call receipt.</strong></p>
+    <p className="simple-goal"><strong>Goal: {fmtPct(goal, 0)} of calls arrive within {overallDeadline} of call receipt.</strong></p>
     <p className="simple-overview" role="status"><strong>{below} of {areas.length} areas</strong> are confirmed below goal.</p>
     <div className="simple-split">
       <div className="simple-chart">
@@ -180,7 +182,7 @@ export default function SimpleComparison({ d }) {
       <summary>How certain is this?</summary>
       <p className="simple-proof">{selected.name}: {fmtPct(selected.on_time_pct)} on time against a {fmtPct(goal)} goal. 95% on-time uncertainty interval: {fmtCi(selected.on_time_ci, '%')}. {LABELS[selected.spec] || 'Uncertain'}: {selected.spec_reason}. The slowest-1-in-10 time is the observed 90th percentile, not a worst-case guarantee.</p>
       <p className="simple-proof">Each bar counts areas whose on-time rate falls in that 10-point band. Orange = the area's 95% interval is fully under the goal (confirmed below); blue = fully at or above it; gray = the interval crosses the goal, so the data cannot tell yet. "Furthest below" skips areas with under 30 calls.</p>
-      <p className="simple-proof">The typical area is the median of area rates. Counted per call instead, {fmtPct(d.totals.on_time_pct)} of {fmtInt(d.totals.valid)} calls were on time (95% interval {fmtCi(d.totals.on_time_ci, '%')}); it differs from the typical area because busy areas count more. Targets are configurable placeholders. Cancelled and invalid-time calls are excluded.</p>
+      <p className="simple-proof">Counted per call, {fmtPct(d.totals.on_time_pct)} of {fmtInt(d.totals.valid)} calls were on time (95% interval {fmtCi(d.totals.on_time_ci, '%')}); busy areas count more in this overall rate. Targets are configurable placeholders; red targets vary by area type. Comparisons are not evidence of unfair service. Cancelled and invalid-time calls are excluded.</p>
     </details>
   </div>
 }

@@ -17,7 +17,8 @@ const MINUTE_TICKS = [0.5, 1, 2, 3, 5, 8, 10, 15, 20, 30, 45, 60, 90, 120, 180, 
 /** Round-number minute ticks inside [lo, hi] for a log axis. */
 export function logTicks(lo, hi) {
   const ticks = MINUTE_TICKS.filter((t) => t >= lo && t <= hi)
-  return ticks.length >= 2 ? ticks : [lo, hi]
+  // Narrow axis: fall back to its two ends, rounded so the label reads "3.6", not "3.5909999999997".
+  return ticks.length >= 2 ? ticks : [lo, hi].map((v) => Number(v.toFixed(1)))
 }
 
 /** Many dots as ONE svg path ("M x y h0" with round caps) so thousands of calls stay fast. */

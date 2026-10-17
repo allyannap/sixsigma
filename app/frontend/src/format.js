@@ -39,10 +39,14 @@ export function fmtDate(iso) {
   return `${MONTHS[Number(m) - 1]} ${Number(d)}`
 }
 
-/** [80.6, 90.6] -> "80.6 to 90.6"; unit "%" -> "80.6% to 90.6%"; missing -> "n/a". */
+/**
+ * [80.6, 90.6] -> "80.6 to 90.6"; unit "%" -> "80.6% to 90.6%".
+ * One bound missing -> "n/a" in its place (a P95 upper bound needs 59 or more calls); both missing -> "n/a".
+ */
 export function fmtCi(ci, unit = '', digits = 1) {
-  if (!ci || missing(ci[0]) || missing(ci[1])) return 'n/a'
-  return `${fmtNum(ci[0], digits)}${unit} to ${fmtNum(ci[1], digits)}${unit}`
+  if (!ci || (missing(ci[0]) && missing(ci[1]))) return 'n/a'
+  const one = (v) => (missing(v) ? 'n/a' : `${fmtNum(v, digits)}${unit}`)
+  return `${one(ci[0])} to ${one(ci[1])}`
 }
 
 /** selection{from,to} -> "Sep 16 to Oct 15, 2026". */
@@ -56,4 +60,39 @@ export function addDays(iso, n) {
   const d = new Date(`${String(iso).slice(0, 10)}T00:00:00Z`)
   d.setUTCDate(d.getUTCDate() + n)
   return d.toISOString().slice(0, 10)
+}
+
+/**
+ * Last day of a p-chart period: a day ends on its start, a week 6 days later, a month on its last calendar day.
+ * Clipped to `to` (the last day of the selection) so a partial final period ends where the data ends.
+ */
+export function periodEnd(start, unit, to) {
+  const s = String(start).slice(0, 10)
+  let end = s
+  if (unit === 'week') end = addDays(s, 6)
+  if (unit === 'month') {
+    const d = new Date(`${s}T00:00:00Z`)
+    end = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0)).toISOString().slice(0, 10)
+  }
+  return to && String(to).slice(0, 10) < end ? String(to).slice(0, 10) : end
+}
+
+/**
+ * chance_below{expected, n_places, observed_below} -> one plain sentence, or '' when it could not be computed.
+ * It says how many places would read Below target purely by chance if every place were exactly at the goal.
+ */
+export function fmtChanceBelow(cb, noun = 'places') {
+  if (!cb || missing(cb.expected)) return ''
+  return `About ${fmtNum(cb.expected, 1)} would read Below by chance alone if every place were exactly at the goal (expected, of ${fmtInt(cb.n_places)} ${noun}); ${fmtInt(cb.observed_below)} read Below here.`
+}
+
+/** "6.4" -> "6.4 calls/day now vs 5.2 in the baseline". */
+export function fmtVolume(now, base) {
+  return `${fmtNum(now, 1)} calls/day now vs ${fmtNum(base, 1)} in the baseline`
+}
+
+/** Exact p-value for display: 0.0123 -> "0.012"; under 0.001 -> "<0.001"; missing -> "n/a". */
+export function fmtP(p) {
+  if (missing(p)) return 'n/a'
+  return p < 0.001 ? '<0.001' : Number(p).toFixed(3)
 }

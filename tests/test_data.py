@@ -126,9 +126,9 @@ def test_bad_inputs_raise_clear_errors():
     with pytest.raises(ValueError, match="before"):
         data.select(df, "state", None, "red", "2026-08-02", "2026-08-01")
     with pytest.raises(ValueError, match="targets.csv"):
-        raw = pd.read_csv(FIX / "three_calls.csv", dtype=str)
-        raw["urgency_code"] = "42"
-        data.derive(raw)
+        # a configuration gap (no urban row for code 0) is an error; a bad value in the data is not (see the messy tests)
+        gap = data.lookups()["targets"].query("not (urgency_code == 0 and urban_rural == 'urban')")
+        data.derive(pd.read_csv(FIX / "three_calls.csv", dtype=str), targets=gap)
 
 
 def test_out_of_order_times_are_not_timed():
@@ -157,7 +157,7 @@ def test_subgroups_by_day_and_iso_week():
 def test_real_file_row_count_and_speed():
     import time
     df = data.load("station_closure")
-    assert len(df) == 399426
+    assert len(df) == 399426 and df.attrs["quality"]["dropped_total"] == 0
     t = time.time()
     sel = data.select(df, "county", "36081", "red", "2026-09-16", "2026-10-15")
     base, info = data.baseline(df, "county", "36081", "red", "2026-09-16", 60)
@@ -168,8 +168,7 @@ def test_real_file_row_count_and_speed():
 
 def test_targets_are_looked_up_by_code_and_area_type():
     # Find one real remote ZCTA and one urban ZCTA in the lookup; same red call in each.
-    # The default targets are flat (red 480 s everywhere, team decision Oct 16), but the lookup still
-    # goes through (urgency_code, area type), so a center can set tiered targets in config/targets.csv.
+    # Red targets are tiered by area type (NFPA 1720-based placeholders, H-13); yellow and green are flat.
     lk = data.lookups()["zcta_county"]
     remote = lk.loc[lk["urban_rural"] == "remote", "zcta"].iloc[0]
     urban = lk.loc[lk["urban_rural"] == "urban", "zcta"].iloc[0]
@@ -180,10 +179,11 @@ def test_targets_are_looked_up_by_code_and_area_type():
     t = data.lookups()["targets"].set_index(["urgency_code", "urban_rural"])["target_s"]
     assert got.loc["R-1", "target_s"] == t[(0, "remote")]
     assert got.loc["U-1", "target_s"] == t[(0, "urban")]
-    assert all(t[(code, area)] == 480 for code in (0, 1, 2) for area in ("urban", "suburban", "rural", "remote"))
+    tiers = {"urban": 480, "suburban": 600, "rural": 840, "remote": 840}
+    assert all(t[(code, area)] == s for code in (0, 1, 2) for area, s in tiers.items())
 
 
-def test_flat_targets_match_the_brief_and_rebuild_exactly(tmp_path):
+def test_targets_table_tiers_red_and_keeps_yellow_green_flat():
     t = data.lookups()["targets"]
     assert len(t) == 40
     assert set(t.loc[t["urgency_group"] == "yellow", "target_s"]) == {900}
@@ -261,3 +261,100 @@ def test_baseline_is_not_contaminated_by_the_monitoring_period():
     df = pd.concat([early, late_rows]).sort_values("t_received", kind="stable").reset_index(drop=True)
     rows, info = data.baseline(df, "zcta", "10001", "red", "2026-09-16", 60)
     assert info["to"] < date(2026, 9, 16) and len(rows) == 40 and int(rows["late"].sum()) == 0
+
+
+# ---------------------------------------------------------------- H-13: robust loading of messy input
+
+MESSY = Path(__file__).resolve().parent.parent / "data" / "incidents_messy_sample.csv.gz"
+
+
+@pytest.fixture(scope="module")
+def messy():
+    import json
+    log = json.load(open(MESSY.parent / "params.json"))["messy_sample"]
+    return data.read_raw(MESSY), log
+
+
+def test_messy_sample_loads_without_error_and_drops_exactly_the_logged_rows(messy):
+    """data/params.json "messy_sample" is the injection log: every dropped row is one the log says was injected."""
+    import warnings
+    raw, log = messy
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")                      # not even a RuntimeWarning from a log of a bad time
+        df = data.derive(raw)
+    q = df.attrs["quality"]
+    assert q["rows_in"] == len(raw) == 2901 and q["rows_kept"] == len(df)
+    assert q["duplicate_id"] == log["n_exact_duplicate_rows"] + log["n_duplicate_id_different_content"] == 18
+    assert q["missing_t_received"] == log["n_missing_t_received"] == 8
+    assert q["unknown_zcta"] == log["n_unknown_zcta"] == 5
+    assert q["unknown_urgency_code"] == log["n_unknown_urgency_code"] == 5
+    assert q["dropped_total"] == 36 and len(df) == 2901 - 36
+    assert df["incident_id"].is_unique
+
+
+def test_messy_sample_untimed_rows_are_kept_for_volume_but_never_timed(messy):
+    raw, log = messy
+    df = data.derive(raw)
+    q = df.attrs["quality"]
+    assert q["missing_time"] == log["n_missing_t_assigned"] == 8       # t_assigned empty
+    assert q["out_of_order"] == log["n_out_of_order"] == 10            # swapped or arriving before the call
+    assert q["invalid_time_flag"] >= log["n_valid_time_N_with_bad_times"]   # plus the file's ordinary valid_time = N
+    assert q["timed"] + q["cancelled"] + q["invalid_time_flag"] + q["missing_time"] + q["out_of_order"] == len(df)
+    assert int(df["timed"].sum()) == q["timed"]
+    assert df.loc[df["timed"], "total_s"].between(1, 4 * 3600).all()   # the 8-30 hour "arrivals" are valid_time N
+    assert df.loc[~df["timed"] & ~df["cancelled"], "minutes"].isna().all()
+
+
+def test_messy_sample_keeps_the_first_row_of_a_duplicate_id(messy):
+    raw, _ = messy
+    dup_ids = raw.loc[raw["incident_id"].duplicated(keep=False), "incident_id"].unique()
+    first = raw.drop_duplicates("incident_id", keep="first").set_index("incident_id")
+    got = data.derive(raw).set_index("incident_id")
+    for i in dup_ids[:5]:
+        if i in got.index:                                   # (a first row can itself be dropped for another reason)
+            assert got.loc[i, "zcta"] == str(first.loc[i, "zcta"]).zfill(5)
+
+
+def test_bad_values_are_dropped_and_counted_never_raised():
+    ok = {"zcta": "10001", "urgency_code": 0, "t_received": "2026-08-01T10:00:00-04:00",
+          "t_assigned": "2026-08-01T10:01:00-04:00", "t_enroute": "2026-08-01T10:02:00-04:00",
+          "t_onscene": "2026-08-01T10:07:00-04:00", "disposition": "TRANSPORTED", "valid_time": "Y"}
+    rows = [{**ok, "incident_id": "GOOD"},
+            {**ok, "incident_id": "GOOD", "t_onscene": "2026-08-01T11:00:00-04:00"},      # duplicate id
+            {**ok, "incident_id": "NO-TIME", "t_received": None},
+            {**ok, "incident_id": "BAD-TIME", "t_received": "last tuesday"},
+            {**ok, "incident_id": "NO-ZIP", "zcta": "99999"},
+            {**ok, "incident_id": "ZIP-TEXT", "zcta": "abcde"},
+            {**ok, "incident_id": "URG-99", "urgency_code": 99},
+            {**ok, "incident_id": "URG-TEXT", "urgency_code": "high"},
+            {**ok, "incident_id": "URG-NONE", "urgency_code": None},
+            {**ok, "incident_id": "BAD-ONSCENE", "t_onscene": "soon"}]                 # kept, but not timed
+    df = data.derive(pd.DataFrame(rows))
+    q = df.attrs["quality"]
+    assert (q["duplicate_id"], q["missing_t_received"], q["unknown_zcta"], q["unknown_urgency_code"]) == (1, 2, 2, 3)
+    assert sorted(df["incident_id"]) == ["BAD-ONSCENE", "GOOD"] and q["dropped_total"] == 8
+    assert df.set_index("incident_id")["timed"].to_dict() == {"BAD-ONSCENE": False, "GOOD": True}
+    assert df.set_index("incident_id").loc["GOOD", "total_s"] == 420            # the FIRST row of the duplicate was kept
+
+
+def test_all_rows_unusable_gives_an_empty_table_not_an_error():
+    raw = pd.read_csv(FIX / "three_calls.csv", dtype=str)
+    raw["zcta"] = "99999"
+    df = data.derive(raw)
+    assert len(df) == 0 and df.attrs["quality"]["unknown_zcta"] == 3 and df.attrs["quality"]["rows_kept"] == 0
+
+
+def test_the_three_main_files_lose_no_rows_on_loading():
+    for name in data.DATASETS:
+        q = data.quality(name)
+        assert q["dropped_total"] == 0 and q["rows_in"] == q["rows_kept"] == len(data.load(name))
+        assert q["cancelled"] > 0 and q["timed"] > 0
+
+
+def test_child_baselines_can_group_by_zcta_for_the_whole_state():
+    df = make_calls({"2026-08-01": 40})
+    base = data.child_baselines(df, "state", None, "red", "2026-09-16", 60, key="zcta", ids=["10001", "10002"])
+    rows, info = base["10001"]
+    assert len(rows) == 40 and info["enough"] and info["days"] == 60
+    assert len(base["10002"][0]) == 0 and not base["10002"][1]["enough"] and base["10002"][1]["days"] == 120
+    assert "10001" in data.all_zctas() and len(data.all_zctas()) > 1500

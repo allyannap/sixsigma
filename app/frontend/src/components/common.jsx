@@ -1,4 +1,5 @@
-import { CONTROL, QUEUE, QUEUE_ORDER, SPEC } from '../status.js'
+import { fmtDate } from '../format.js'
+import { CONTROL, QUEUE, QUEUE_ORDER, SPEC, WATCH } from '../status.js'
 
 /** Small gray lines of text from a response's messages[] (plain-English warnings from the API). */
 export function Messages({ messages }) {
@@ -90,6 +91,12 @@ export function JudgmentBadge({ kind, value }) {
   )
 }
 
+/** Small "watch" chip: a single weak signal. The place stays In control; the tooltip says why it is flagged. */
+export function WatchChip({ p }) {
+  if (!p || !p.watch || p.control !== 'in_control') return null
+  return <span className="chip chip-watch" title={WATCH.tip}>{WATCH.label}<span className="sr-only">: {WATCH.tip}</span></span>
+}
+
 /** The two badges, always shown together with (or instead of) the combined label. */
 export function Judgments({ p }) {
   if (!p) return null
@@ -97,6 +104,7 @@ export function Judgments({ p }) {
     <span className="judgments">
       <JudgmentBadge kind="spec" value={p.spec} />
       <JudgmentBadge kind="control" value={p.control} />
+      <WatchChip p={p} />
     </span>
   )
 }
@@ -111,5 +119,18 @@ export function StatusLegend() {
         </div>
       ))}
     </div>
+  )
+}
+
+/** Whether the baseline was screened and found stable, which unusual periods were left out, and why if unstable. */
+export function BaselineCheck({ b }) {
+  if (!b) return null
+  if (!b.checked) return <>Not screened for stability (too little baseline to split into periods).</>
+  return (
+    <>
+      {b.stable ? 'Screened: stable.' : 'Screened: not stable.'}
+      {b.removed > 0 && <> {b.removed} unusual period{b.removed === 1 ? '' : 's'} left out{b.removed_starts && b.removed_starts.length ? ` (${b.removed_starts.map(fmtDate).join(', ')})` : ''}.</>}
+      {!b.stable && b.reasons && b.reasons.length > 0 && <> Reasons: {b.reasons.join('; ')}.</>}
+    </>
   )
 }

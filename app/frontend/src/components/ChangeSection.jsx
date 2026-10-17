@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import { dotsPath, linear, linePath, logScale, logTicks } from '../charts.js'
-import { fmtDate, fmtInt, fmtMin, fmtNum, fmtPct } from '../format.js'
-import { Async, JudgmentBadge, Messages, Section } from './common.jsx'
+import { fmtDate, fmtInt, fmtMin, fmtNum, fmtP, fmtPct, mmss, periodEnd } from '../format.js'
+import { useEndpoint } from '../useApi.js'
+import { Async, BaselineCheck, JudgmentBadge, Messages, Section, WatchChip } from './common.jsx'
 
 const L = 56
 const R = 704
@@ -121,24 +123,122 @@ function ImrCharts({ d, sel }) {
   )
 }
 
-function SignalList({ p }) {
+const CALL_LIMIT = 50
+
+/** The valid calls behind one signal: read-only, newest first (the API caps it at CALL_LIMIT). */
+export function SignalCallsTable({ data }) {
+  const calls = data.calls || []
+  return (
+    <div className="signal-calls">
+      <div className="table-scroll short" tabIndex={0} role="region" aria-label="Calls behind this signal">
+        <table className="places compact">
+          <caption className="small muted">
+            {fmtInt(data.returned)} of {fmtInt(data.valid)} valid calls received {fmtDate(data.start)} to {fmtDate(data.end)} ({fmtInt(data.late)} late), newest first, at most {CALL_LIMIT}.
+            Read-only. Stage times are plain seconds from the call record.
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Received</th><th scope="col">Call</th><th scope="col">ZIP area</th><th scope="col">Total wait</th><th scope="col">Late?</th>
+              <th scope="col">Received to assigned</th><th scope="col">Assigned to en route</th><th scope="col">En route to on scene</th><th scope="col">Waited for a unit</th>
+            </tr>
+          </thead>
+          <tbody>
+            {calls.length === 0 && <tr><td colSpan={9}>No valid calls in this period.</td></tr>}
+            {calls.map((c) => (
+              <tr key={c.incident_id}>
+                <td className="mono">{fmtDate(c.t_received)} {String(c.t_received).slice(11, 16)}</td>
+                <td className="mono">{c.incident_id}</td>
+                <td className="mono">{c.zcta}</td>
+                <td className="mono">{mmss(c.total_s)}</td>
+                <td>{c.late ? 'late' : 'on time'}</td>
+                <td className="mono">{mmss(c.dispatch_s)}</td>
+                <td className="mono">{mmss(c.turnout_s)}</td>
+                <td className="mono">{mmss(c.drive_s)}</td>
+                <td>{c.held ? 'yes' : 'no'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+function SignalCalls({ params, start, end }) {
+  const state = useEndpoint('signal_calls', { ...params, start, end, limit: CALL_LIMIT })
+  return <Async state={state}>{(d) => <SignalCallsTable data={d} />}</Async>
+}
+
+function SignalList({ p, params, selection }) {
+  const [open, setOpen] = useState(null)
   const sig = p.signals || []
   if (!sig.length) return null
+  const from = selection && selection.from
+  const to = selection && selection.to
   return (
     <table className="places compact">
-      <caption className="small muted">Evidence: each {p.unit} above its upper control limit</caption>
-      <thead><tr><th scope="col">{p.unit} starting</th><th scope="col">Late</th><th scope="col">Late share</th><th scope="col">Upper limit</th></tr></thead>
+      <caption className="small muted">Evidence: each {p.unit} above its upper control limit (exact binomial p-value, one-sided)</caption>
+      <thead><tr><th scope="col">{p.unit} starting</th><th scope="col">Late</th><th scope="col">Late share</th><th scope="col">Upper limit</th><th scope="col">p-value</th><th scope="col">Calls</th></tr></thead>
       <tbody>
-        {sig.map((s) => (
-          <tr key={s.start}><td className="mono">{fmtDate(s.start)}</td><td className="mono">{fmtInt(s.late)} of {fmtInt(s.n)}</td>
-            <td className="mono">{fmtPct(100 * s.p)}</td><td className="mono">{fmtPct(100 * s.ucl)}</td></tr>
-        ))}
+        {sig.map((s) => {
+          // A period can start before the selected range (weeks start on Monday): only calls inside the range are in it.
+          const start = from && s.start < from ? from : s.start
+          const end = periodEnd(s.start, p.unit, to)
+          const isOpen = open === s.start
+          return [
+            <tr key={s.start}>
+              <td className="mono">{fmtDate(s.start)}</td><td className="mono">{fmtInt(s.late)} of {fmtInt(s.n)}</td>
+              <td className="mono">{fmtPct(100 * s.p)}</td><td className="mono">{fmtPct(100 * s.ucl)}</td>
+              <td className="mono">{fmtP(s.p_value)}</td>
+              <td>
+                <button type="button" className="btn btn-small" aria-expanded={isOpen} onClick={() => setOpen(isOpen ? null : s.start)}>
+                  {isOpen ? 'hide calls' : 'show calls'}
+                </button>
+              </td>
+            </tr>,
+            isOpen && <tr key={`${s.start}-calls`}><td colSpan={6}><SignalCalls params={params} start={start} end={end} /></td></tr>,
+          ]
+        })}
       </tbody>
     </table>
   )
 }
 
-export default function ChangeSection({ pState, imrState, selectedName }) {
+/** Plain medians of the three stages and the share of calls that waited for a unit: the period beside its baseline. */
+export function StageTable({ data }) {
+  const now = data.now || {}
+  const base = data.base || {}
+  const rows = [
+    { label: 'Received to assigned', a: mmss(now.dispatch_s), b: mmss(base.dispatch_s) },
+    { label: 'Assigned to en route', a: mmss(now.turnout_s), b: mmss(base.turnout_s) },
+    { label: 'En route to on scene', a: mmss(now.drive_s), b: mmss(base.drive_s) },
+    { label: 'Calls that waited for a unit (held)', a: fmtPct(now.held_pct), b: fmtPct(base.held_pct) },
+  ]
+  return (
+    <div className="sub-block">
+      <h3>Stage times (descriptive)</h3>
+      <p className="small muted">
+        Medians only (m:ss; the last row is a percent). They show where time was spent in this period and in the baseline; they do not explain why.
+        The earlier delay-breakdown card was removed, and nothing here ranks or blames a crew.
+      </p>
+      <div className="table-scroll short" tabIndex={0} role="region" aria-label="Stage times, descriptive">
+        <table className="places narrow compact">
+          <thead><tr><th scope="col">Stage</th><th scope="col">This period (median)</th><th scope="col">Baseline (median)</th><th scope="col">n (calls)</th></tr></thead>
+          <tbody>
+            {rows.map((r, i) => (
+              <tr key={r.label}>
+                <th scope="row">{r.label}</th><td className="mono">{r.a}</td><td className="mono">{r.b}</td>
+                <td className="mono">{i === 0 ? `${fmtInt(now.n)} now / ${fmtInt(base.n)} baseline` : ''}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+export default function ChangeSection({ pState, imrState, stagesState, params, selectedName }) {
   return (
     <Section num={2} id="section-2" title={`${selectedName}: has the process changed from its own history?`}
       intro="Statistical control compares the late share in each period with a fixed baseline: the days just before the selected range. It answers 'did something change?', not 'is the service good enough?' (that is the target check in Section 1).">
@@ -149,12 +249,16 @@ export default function ChangeSection({ pState, imrState, selectedName }) {
             <>
               <p className={`callout ${p.control === 'out_of_control' ? 'orange' : p.control === 'in_control' ? 'green' : 'gray'}`} role="status">
                 <JudgmentBadge kind="control" value={p.control} /> {p.control_reason}.
-                {p.control === 'insufficient_baseline' && ' The chart cannot judge change here; widen the date range or look at a larger area.'}
+                {p.watch && p.control === 'in_control' && <> <WatchChip p={p} /></>}
+                {p.control === 'insufficient_baseline' && (b.stable === false
+                  ? ' The baseline was screened and is not stable, so the chart cannot judge change here.'
+                  : ' The chart cannot judge change here; widen the date range or look at a larger area.')}
               </p>
               <p className="small">
                 <strong>Baseline:</strong> {fmtDate(b.from)} to {fmtDate(b.to)} ({b.days} days{b.stretched ? ', stretched from 60 because of low volume' : ''}),
                 {' '}{fmtInt(p.base_late)} late of {fmtInt(p.base_n)} valid calls = {p.p_bar == null ? 'n/a' : fmtPct(100 * p.p_bar)} late.
-                It never overlaps the selected range, so a recent problem cannot hide inside its own limits.
+                It never overlaps the selected range. It is screened for unusual periods and assumed to represent normal operation; if it does not, the limits do not either.
+                {' '}<BaselineCheck b={b} />
               </p>
               {p.unit != null && p.points && p.points.length > 0 && (
                 <figure className="figure">
@@ -168,11 +272,11 @@ export default function ChangeSection({ pState, imrState, selectedName }) {
                   <PChart d={p} />
                 </figure>
               )}
-              <SignalList p={p} />
+              <SignalList p={p} params={params} selection={p.selection} />
               {p.dispersion && (
                 <p className="small muted">
-                  Assumption check (baseline {p.unit}s): spread of late counts vs binomial, chi-square / df = {fmtNum(p.dispersion.ratio, 2)}
-                  {' '}(p = {fmtNum(p.dispersion.p_value, 3)}){p.dispersion.overdispersed ? ': more variable than binomial, so treat signals with caution.' : ': consistent with binomial.'}
+                  Assumption check (kept baseline {p.unit}s): spread of late counts vs binomial, chi-square / df = {fmtNum(p.dispersion.ratio, 2)}
+                  {' '}(p = {fmtP(p.dispersion.p_value)}){p.dispersion.overdispersed ? ': more variable than binomial, so treat signals with caution.' : ': no overdispersion detected (this check has little power with few periods).'}
                   {p.run_signal ? ' A run of 9 periods above the center line is also present (information only).' : ''}
                 </p>
               )}
@@ -181,6 +285,7 @@ export default function ChangeSection({ pState, imrState, selectedName }) {
           )
         }}
       </Async>
+      {stagesState && <Async state={stagesState}>{(d) => <><StageTable data={d} /><Messages messages={d.messages} /></>}</Async>}
       <details className="math">
         <summary>Optional, secondary: every call on a log scale (I chart)</summary>
         <Async state={imrState}>
