@@ -306,3 +306,28 @@ tasks:
       scroll at 1440 and 390 px (Playwright screenshots).
     result: ""
 
+  - id: H-16
+    title: Date-range-aware AI summary grounded in existing dashboard statistics
+    points: "supports working tool and clear interpretation of QC evidence"
+    status: in_progress
+    owner: "Codex"
+    started_at: "2026-10-17"
+    owns: ["app/main.py", "app/ai_summary.py", "app/requirements.txt", "app/README.md", "app/frontend/", "tests/test_ai_summary.py", "SPEC.md", "docs/plan.md", "docs/api.md", "CONTRACT.yaml"]
+    notes: >
+      Proposed Oct 17 following the user's attached NYC Urban Risk agent.py and screenshot.
+      Approved by user Oct 17; provider is Ollama Cloud. Replace the fixed-wording Summary with
+      a 2-3 sentence AI interpretation of existing server-computed EMS statistics. Bind requests and
+      cached responses to the complete selection: inclusive From/To, dataset, urgency, area and baseline.
+      Reuse the existing statistical judgments; do not infer causes, invent numbers or rank interventions.
+      Clear stale text immediately on selection changes, require explicit valid dates, handle missing
+      data and provider failure honestly, and keep credentials on the backend. No raw incident records
+      sent to the provider. Use OLLAMA_API_KEY (or the user's OPENAI_API_KEY alias) on the backend; model configurable.
+      Update the prior H-15 no-AI-text decision in SPEC and docs if this task is approved.
+    definition_of_done: >
+      .venv/bin/python -m pytest tests/test_ai_summary.py -q passes for exact selection grounding,
+      changed dates/areas/urgency/dataset, missing or invalid dates, empty data, cache separation and
+      missing-key/provider failures; cd app/frontend && npm test and npm run build pass;
+      live dashboard checks show that changing the date range updates the summary and suppresses
+      superseded responses. A real provider call is verified when a backend API key is configured.
+    result: "Implemented Ollama Cloud AI summary using backend-only credential alias, exact selected-date/area evidence, bounded cache, failure handling and stale-response protection; corrected stale selected-row metric snapshots. Verified: Python 208 passed (27 AI-specific); targeted frontend 13 passed; build passed. Full frontend suite retains 7 pre-existing chart/text assertion failures; H-16 remains in_progress pending a green full suite. Live provider and browser checks passed for ZIP 11368: Aug 96.4%/83 calls vs Sep-Oct 69.1%/68 calls, matching current metric tiles; blank dates and delayed-response suppression passed; desktop/mobile checked, no browser page errors."
+

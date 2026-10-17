@@ -40,7 +40,7 @@ and clean the history third — in that order.
 This distinction causes more confusion than any other.
 
 - **Deploy configuration** — how the bundle gets to the server. `CONNECT_SERVER`,
-  `CONNECT_API_KEY`. Lives in `.env` or Actions secrets.
+  `CONNECT_API_KEY`. Lives in `` or Actions secrets.
 - **Runtime configuration** — what the app needs *while running*. Database URLs,
   third-party API keys, feature flags. Lives on the **Connect content item**:
   Content → Settings → Vars.

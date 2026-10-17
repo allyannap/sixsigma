@@ -48,6 +48,10 @@ export default function App() {
   // Statewide list of ZIP areas with a confirmed signal: same dates, dataset and urgency, but level and id are ignored.
   const flagged = useEndpoint('flagged', filters)
   const stages = useEndpoint('stages', selParams)
+  const aiEnabled = Boolean(winFrom && winTo && winFrom <= winTo)
+  const aiSummary = useEndpoint('ai_summary', selParams, {
+    delay: 600, skip: !aiEnabled || fixtures || replay.playing,
+  })
   const feed = useEndpoint('replay', { ...parentParams, day: replay.day, limit: 12 }, { skip: !replay.on })
 
   useEffect(() => {
@@ -123,7 +127,8 @@ export default function App() {
               dateMin={meta.data ? meta.data.date_min : undefined} dateMax={meta.data ? meta.data.date_max : undefined}
               onApply={(a, b) => { setFrom(a); setTo(b) }} onDrill={drill} />
             <MetricsSection summaryState={summary} selected={selected} parent={parent} urgency={urgency}
-              onToggleUrgency={toggleUrgency} selection={sel} dataset={dataset} />
+              onToggleUrgency={toggleUrgency} selection={sel} dataset={dataset}
+              aiState={aiSummary} aiEnabled={aiEnabled} aiPaused={replay.playing} fixtures={fixtures} />
             <InsightsSection placeName={selectedName} selection={sel} dataset={dataset}>
               <AnomSection summaryState={summary} />
               <ChangeSection pState={pchart} imrState={imr} stagesState={stages} params={selParams} selectedName={selectedName} />

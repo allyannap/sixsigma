@@ -65,3 +65,11 @@ curl "localhost:8000/api/flagged?dataset=station_closure"
 curl "localhost:8000/api/stages?dataset=summer_surge&level=county&id=36055&from=2026-07-01&to=2026-08-31"
 curl "localhost:8000/api/replay?dataset=station_closure&day=2026-09-02&limit=5"
 ```
+
+## AI summary (Ollama Cloud)
+
+The root gitignored `.env` is loaded on backend startup. Set `OLLAMA_API_KEY` locally; the existing `OPENAI_API_KEY` name is accepted as an alias for an **Ollama** key and is never sent to OpenAI. The default model is `gemma4:31b`; set `OLLAMA_MODEL` to another Ollama Cloud model if needed. Restart the backend after editing credentials. No additional Ollama installation is needed.
+
+Choose both dates and click Search. AI summary automatically updates for the selected area, inclusive dates, urgency and dataset. It explains existing QC results from aggregate evidence, with no incident records. Pause replay to generate a summary. Missing data, missing credentials, rate limits and provider failures are displayed explicitly; the statistics remain available. Results for identical evidence are cached in backend memory for ten minutes (128 entries maximum). Each uncached summary sends aggregate evidence to Ollama Cloud and uses your provider quota.
+
+Verification: `.venv/bin/python -m pytest tests/test_ai_summary.py -q`; frontend `npm test` and `npm run build`.

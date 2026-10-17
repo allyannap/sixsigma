@@ -110,3 +110,9 @@ or no valid calls exist. `low_n` means fewer than 30 valid calls. These fields
 are descriptive; existing `spec`, `control` and `queue` remain authoritative.
 The frontend reuses this response during replay and removes its separate ANOM
 request. `/api/anom` remains available for API consumers.
+
+## AI interpretation — H-16
+
+`GET /api/ai_summary` accepts the same selection filters as `/api/summary`, but **requires explicit From and To dates**. It computes the selected area's `place_card` and submits aggregate statistics/judgments plus the inclusive selection and baseline context to Ollama Cloud. It does not change statistical classifications.
+
+Response: `selection`, `messages`, `text`, `status` (`ok` or `no_data`), `provider`, `model`, `cached`. Missing/incomplete/invalid dates return 400; missing credentials, provider rejection, rate limit, timeout, malformed or truncated response return 503 with a sanitized explanation. No-data selections return 200 without contacting the provider. Cache keys include all evidence, model, prompt and credential; cache TTL 600 seconds, maximum 128 entries. No browser key or raw incident records. AI prose must be checked against the chart evidence.

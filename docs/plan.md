@@ -112,3 +112,7 @@ Data profile, all ZIP/urgency counts and run instructions: `app/frontend/docs/ge
 - Final version 2 condensation: three zero-based horizontal bars replace shared bubbles. Explicit call-receipt-to-arrival goal, on-time % labels, one selected gap/n line; all supporting metrics under Details. Frontend tests: 37 passed; build passed.
 
 - User rejected the bars: version 2 now uses three area/rate buttons and one direct-number result; Other area replaces the result. Full statistics remain under Details. Frontend: 37 passed; build passed.
+
+## H-16: selected-period AI summary (approved Oct 17)
+
+Replace the fixed-wording Key Metrics summary with Ollama Cloud narration of the selected area's existing QC evidence. Owns backend route/module, frontend, targeted tests, requirements and supporting docs (CONTRACT lists exact paths). The supplied Ollama credential is accepted under OPENAI_API_KEY as an alias; OLLAMA_API_KEY takes precedence. No statistics computed by the model. Test exact selection and aggregate payloads, changed filters, cache separation/expiry, incomplete dates, no valid calls and sanitized provider failures. Frontend suppresses old responses on selection changes and pauses generation during replay playback. Live generation requires a backend credential; no-data and failure UI remain explicit. This overrides the earlier H-15 no-AI-text decision.

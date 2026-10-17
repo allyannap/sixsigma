@@ -46,7 +46,8 @@ function DateForm({ from, to, disabled, min, max, onApply }) {
 export function placeFor(summary, selected, parent) {
   if (!summary) return null
   const isParent = selected.level === parent.level && selected.id === parent.id
-  return selected.place || (summary.places || []).find((x) => x.id === selected.id) || (isParent ? summary.place : null)
+  // The clicked row is a snapshot from its old date range. Always use the current API reply.
+  return isParent ? summary.place : (summary.places || []).find((x) => x.id === selected.id) || null
 }
 
 export default function PlaceHead({ summaryState, selected, parent, from, to, replayOn, dateMin, dateMax, onApply, onDrill }) {

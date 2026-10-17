@@ -16,7 +16,7 @@ export function metricsSource(summary, selected, parent) {
   if (!summary) return null
   const isParent = selected.level === parent.level && selected.id === parent.id
   if (isParent || !selected.id) return summary.totals || null
-  return placeFor(summary, selected, parent) || summary.totals || null
+  return placeFor(summary, selected, parent) || null
 }
 
 const dash = (v, digits = 1) => (v == null || Number.isNaN(v) ? '—' : fmtNum(v, digits))
@@ -89,7 +89,26 @@ function Summary({ place, name, busy }) {
   )
 }
 
-export function MetricsSection({ summaryState, selected, parent, urgency, onToggleUrgency, selection, dataset }) {
+export function AISummary({ state, enabled, paused, fixtures }) {
+  return (
+    <div className="summary" aria-live="polite" aria-busy={state.loading}>
+      <div className="summary-head"><span className="summary-title">AI summary</span></div>
+      {!enabled ? <p className="summary-text muted">Select both From and To dates to generate a summary.</p>
+        : fixtures ? <p className="summary-text muted">AI generation is disabled for test fixtures.</p>
+        : paused ? <p className="summary-text muted">Pause replay to summarize the current date range.</p>
+        : state.loading ? <p className="summary-text" role="status"><Spinner />Reading the selected period…</p>
+        : state.error ? <div role="alert"><p className="summary-text">{state.error}</p><button type="button" className="btn btn-small" onClick={state.reload}>Retry summary</button></div>
+        : state.data ? <>
+          <p className="summary-text">{state.data.text}</p>
+          <p className="summary-foot">{state.data.status === 'ok' ? 'Generated with Ollama · ' : ''}{state.data.selection.name} · {state.data.selection.from} to {state.data.selection.to} · {state.data.selection.urgency.join(', ')}</p>
+          {state.data.status === 'ok' && <p className="summary-foot">AI interpretation of synthetic data. Verify against the charts.</p>}
+        </> : <p className="summary-text muted">Summary unavailable for this selection.</p>}
+    </div>
+  )
+}
+
+export function MetricsSection({ summaryState, selected, parent, urgency, onToggleUrgency, selection, dataset,
+  aiState, aiEnabled, aiPaused, fixtures }) {
   const s = summaryState.data
   const t = metricsSource(s, selected, parent)
   const place = placeFor(s, selected, parent)
@@ -121,7 +140,8 @@ export function MetricsSection({ summaryState, selected, parent, urgency, onTogg
         <div className="metrics-body" aria-busy={summaryState.loading}>
           <Tiles t={t} note={note} />
           <div className="vdivider" role="presentation" />
-          <Summary place={place} name={name} busy={summaryState.loading} />
+          {aiState ? <AISummary state={aiState} enabled={aiEnabled} paused={aiPaused} fixtures={fixtures} />
+            : <Summary place={place} name={name} busy={summaryState.loading} />}
         </div>
         {summaryState.error && (
           <div className="error" role="alert">

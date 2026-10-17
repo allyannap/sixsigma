@@ -18,12 +18,13 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 import pandas as pd
-from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from app import data
+from app import ai_summary
 
 ROOT = Path(__file__).resolve().parent.parent
 GEO_DIR = ROOT / "geo"
@@ -364,6 +365,27 @@ def summary(c: Ctx = Depends(common)):
     return c.reply({"totals": totals, "place": place, "queue_counts": counts, "needs_attention": int(attention),
                     "chance_below": chance_below_card(qc, places, totals["goal_pct"]),
                     "places": places, "calls_by_county": calls_by_county}, pc["messages"])
+
+
+@app.get("/api/ai_summary")
+def ai_summary_route(request: Request, c: Ctx = Depends(common)):
+    """Narrate the selected area's existing QC evidence, with explicit inclusive dates."""
+    if not request.query_params.get("from") or not request.query_params.get("to"):
+        raise HTTPException(400, "Select both From and To dates for an AI summary.")
+    card = place_card(get_qc(), c.sel, c.base, c.info, c.days)
+    # Aggregate fields only; raw incidents and IDs never enter the model prompt.
+    fields = ("valid", "on_time", "late", "on_time_pct", "on_time_ci", "goal_pct", "spec", "spec_reason",
+              "control", "control_reason", "queue", "watch", "median_min", "p95_min", "p95_ci",
+              "unit", "signals", "baseline")
+    evidence = {"selection": c.selection(), "place": {k: card[k] for k in fields if k in card},
+                "messages": list(c.messages)}
+    if len(c.groups) > 1:
+        evidence["messages"].append("Several urgency groups combined: the p chart mixes case mix.")
+    try:
+        result = ai_summary.generate_summary(evidence)
+    except ai_summary.SummaryUnavailable as exc:
+        raise HTTPException(503, str(exc)) from None
+    return c.reply(result)
 
 
 @app.get("/api/flagged")
