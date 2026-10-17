@@ -537,3 +537,18 @@ describe('date range message controls', () => {
     expect(src).toContain('Swap dates')
   })
 })
+
+describe('call urgency help', () => {
+  it('each urgency chip says "Analyze only ..." and an i explains the 0-9 codes with a source', () => {
+    const html = plain(renderToString(h(MetricsSection, {
+      summaryState: ok(summary), parent: STATE, selected: { level: 'state', place: null }, urgency: ['red'],
+      onToggleUrgency() {}, selection: summary.selection, dataset: 'baseline',
+    })))
+    expect(html).toContain('Analyze only most urgent calls (codes 0-2)')
+    expect(html).toContain('Analyze only urgent calls (codes 3-5)')
+    expect(html).toContain('Analyze only less urgent calls (codes 6-9)')
+    expect(html).toContain('aria-label="How call urgency is defined"')
+    expect(html).toContain('0 is the most')
+    expect(html).toContain('Source: code field modeled on NYC Open Data')
+  })
+})

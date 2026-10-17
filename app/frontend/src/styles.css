@@ -750,3 +750,20 @@ table.places.narrow { min-width: 420px; }
 /* Key Metrics tiles: same rows in every tile (label, number, meaning, fine print), so the big numbers line up */
 .metric-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .metric-meaning { font-size: 11px; font-weight: 700; line-height: 1.35; min-height: 2.7em; color: var(--ink-2); } /* 2 lines, so the fine print starts level */
+
+/* Call-urgency chips: an "Analyze only ..." tooltip on hover or keyboard focus (same look as the map's Reset tip) */
+.pri-chip.has-tip { position: relative; }
+.pri-chip.has-tip:hover .tool-tip, .pri-chip.has-tip:focus-visible .tool-tip { opacity: 1; transform: translate(-50%, 0); transition-delay: 0.25s; }
+.pri-chip .tool-tip { z-index: 30; font-weight: 600; }
+.metrics-card .filterbar { position: relative; z-index: 6; } /* its tooltips sit above the metric tiles below it */
+/* the "i" next to the chips: opens on hover, focus or click (InfoTip in common.jsx) */
+.info-tip { display: inline-grid; place-items: center; margin-left: 2px; }
+.info-tip.is-open .legend-tip { opacity: 1; visibility: visible; transform: none; }
+.legend-tip.tip-left { left: -8px; right: auto; }
+.legend-tip .tip-title { display: block; margin-bottom: 4px; font-size: 12px; }
+.legend-tip .tip-para { display: block; margin-bottom: 6px; }
+.legend-tip .tip-source { display: block; margin-top: 7px; padding-top: 6px; border-top: 1px solid rgba(255, 255, 255, 0.16); font-size: 10px; color: rgba(255, 255, 255, 0.7); }
+/* the urgency "i" popup: lined up with the Key Metrics card's right edge (as far right as it can go uncut).
+   The i's wrapper stops being the anchor, so the popup is placed against the chip row (.filterbar, full card width). */
+.metrics-card .info-tip { position: static; }
+.metrics-card .info-tip .legend-tip { left: auto; right: 0; }

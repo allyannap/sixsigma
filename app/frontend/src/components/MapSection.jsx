@@ -1,7 +1,7 @@
 // Left column of the OnScene page: the map card (map, search, back/reset, breadcrumb, NYC borough panel, legend, tooltip)
 // and the collapsible ranked table. Every number comes from /api/summary; this file only draws and formats it.
 // Map fill = the place's colour group (status.js mapTier) or its late share: no statistic is computed here.
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { geoMercator, geoPath } from 'd3-geo'
 import { getGeo } from '../api.js'
 import { rewindForD3 } from '../geo.js'
@@ -250,6 +250,36 @@ function Boroughs({ boroughs, byId, selected, onPick, setTip, tipFor, busy }) {
   )
 }
 
+/**
+ * The hover card for a county or ZIP area. It sits above the mouse, centred, but never past the map card's edges (the
+ * card hides anything outside it): near a side it slides inward, near the top it drops below the mouse.
+ */
+function MapTip({ tip, card }) {
+  const ref = useRef(null)
+  const [pos, setPos] = useState(null)
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!el || !card.width) return
+    const w = el.offsetWidth
+    const h = el.offsetHeight
+    const x = tip.x - card.left
+    const y = tip.y - card.top
+    const pad = 8
+    const gap = 14
+    const left = Math.min(Math.max(x - w / 2, pad), card.width - w - pad)
+    let top = y - h - gap
+    if (top < pad) top = y + gap
+    top = Math.min(Math.max(top, pad), card.height - h - pad)
+    setPos({ left, top })
+  }, [tip, card.left, card.top, card.width, card.height])
+  return (
+    <div ref={ref} className="map-tooltip is-visible" role="presentation"
+      style={pos ? { left: pos.left, top: pos.top, transform: 'none' } : { left: 0, top: 0, visibility: 'hidden' }}>
+      <TipCard tip={tip} />
+    </div>
+  )
+}
+
 function MapCard({ summaryState, parent, selected, countyOptions = [], onPick, onReset, onSearch, railOpen, onRail, reviewCount }) {
   const drillIn = parent.level !== 'state'
   const [zipWanted, setZipWanted] = useState(false) // the ZIP shapes (about 0.9 MB) load when needed
@@ -368,11 +398,7 @@ function MapCard({ summaryState, parent, selected, countyOptions = [], onPick, o
         )}
       </div>
 
-      {tip && (
-        <div className="map-tooltip is-visible" role="presentation" style={{ left: tip.x - rect.left, top: tip.y - rect.top }}>
-          <TipCard tip={tip} />
-        </div>
-      )}
+      {tip && <MapTip tip={tip} card={rect} />}
       {(loading || summaryState.loading) && (
         <p className="map-note map-loading" role="status"><Spinner />{loading ? 'Loading map...' : 'Loading the map colours...'}</p>
       )}

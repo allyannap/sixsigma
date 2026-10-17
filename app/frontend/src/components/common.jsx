@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react'
 import { fmtDate } from '../format.js'
 import { CONTROL, QUEUE, QUEUE_ORDER, SPEC, WATCH } from '../status.js'
 
@@ -188,5 +189,32 @@ export function ChartCard({ id, title, sub, tag, children }) {
       </div>
       <div className="chart-body">{children}</div>
     </section>
+  )
+}
+
+/**
+ * The small "i" button (same look as the map legend's) with a tooltip that opens on hover, keyboard focus or a click
+ * (for touch screens); a click elsewhere or Escape closes it.
+ */
+export function InfoTip({ id, label, align = 'right', children }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef(null)
+  useEffect(() => {
+    if (!open) return undefined
+    const onDown = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
+    const onKey = (e) => { if (e.key === 'Escape') setOpen(false) }
+    document.addEventListener('pointerdown', onDown)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('pointerdown', onDown)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [open])
+  return (
+    <span className={`legend-info info-tip${open ? ' is-open' : ''}`} ref={ref}>
+      <button type="button" className="legend-info-btn" aria-label={label} aria-describedby={id} aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}>i</button>
+      <span className={`legend-tip tip-below tip-${align}`} id={id} role="tooltip">{children}</span>
+    </span>
   )
 }

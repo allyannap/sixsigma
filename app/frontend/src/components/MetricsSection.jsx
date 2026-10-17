@@ -5,7 +5,7 @@ import { QUEUE, TIER_LABEL, URGENCY, URGENCY_KEYS, mapTier } from '../status.js'
 import { placeFor } from './PlaceHead.jsx'
 import InsightsSlider from './InsightsSlider.jsx'
 import AISummary from './AISummary.jsx'
-import { Spinner } from './common.jsx'
+import { InfoTip, Spinner } from './common.jsx'
 
 
 /**
@@ -112,8 +112,7 @@ export function MetricsSection({ summaryState, selected, parent, urgency, onTogg
             <span className="filter-name">Call urgency</span>
             <span className="priority-chips">
               {URGENCY_KEYS.map((k) => (
-                <button key={k} type="button" role="radio" className="pri-chip" aria-checked={urgency.includes(k)}
-                  title={`Analyse only urgency ${URGENCY[k].num} calls: ${URGENCY[k].label.toLowerCase()} (codes ${URGENCY[k].codes})`}
+                <button key={k} type="button" role="radio" className="pri-chip has-tip" aria-checked={urgency.includes(k)}
                   tabIndex={urgency.includes(k) ? 0 : -1} onClick={() => onToggleUrgency(k)}
                   onKeyDown={(event) => {
                     const i = URGENCY_KEYS.indexOf(k)
@@ -126,9 +125,24 @@ export function MetricsSection({ summaryState, selected, parent, urgency, onTogg
                     event.currentTarget.parentNode.children[next].focus()
                   }}>
                   <b className="pri-num" aria-hidden="true">{URGENCY[k].num}</b>{URGENCY[k].label}
+                  <span className="tool-tip" aria-hidden="true">Analyze only {URGENCY[k].label.toLowerCase()} calls (codes {URGENCY[k].codes})</span>
                 </button>
               ))}
             </span>
+            <InfoTip id="urgency-def" label="How call urgency is defined" align="right">
+              <strong className="tip-title">How urgency is grouped</strong>
+              <span className="tip-para">
+                Each call has an urgency code from 0 to 9, a scale many computer-aided dispatch (CAD) systems use: 0 is the most
+                serious, 9 the least.
+              </span>
+              {URGENCY_KEYS.map((k) => (
+                <span key={k} className="tip-line"><strong>{URGENCY[k].label}</strong> = codes {URGENCY[k].codes}</span>
+              ))}
+              <span className="tip-source">
+                Source: code field modeled on NYC Open Data, EMS Incident Dispatch Data (initial severity level); grouping set in
+                config/targets.csv.
+              </span>
+            </InfoTip>
             <span className="sr-only" id="urgency-hint">Click to choose which calls the map and metrics analyse</span>
           </div>
         </div>
