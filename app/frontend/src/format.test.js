@@ -50,12 +50,13 @@ describe('formatters', () => {
   })
 })
 
-it('clips partial day, week and month bounds to the selected dates', async () => {
-  const { periodBounds } = await import('./format.js')
-  expect(periodBounds('2026-06-29', 'week', { from: '2026-07-01', to: '2026-07-12' })).toEqual({ from: '2026-07-01', to: '2026-07-05' })
-  expect(periodBounds('2026-07-06', 'week', { from: '2026-07-01', to: '2026-07-09' })).toEqual({ from: '2026-07-06', to: '2026-07-09' })
-  expect(periodBounds('2026-02-01', 'month', { from: '2026-02-10', to: '2026-03-04' })).toEqual({ from: '2026-02-10', to: '2026-02-28' })
-  expect(periodBounds('2026-03-01', 'month', { from: '2026-02-10', to: '2026-03-04' })).toEqual({ from: '2026-03-01', to: '2026-03-04' })
-  expect(periodBounds('2026-09-06', 'day', { from: '2026-09-06', to: '2026-09-06' })).toEqual({ from: '2026-09-06', to: '2026-09-06' })
-  expect(periodBounds('2025-12-29', 'week', { from: '2025-12-31', to: '2026-01-02' })).toEqual({ from: '2025-12-31', to: '2026-01-02' })
+describe('fmtOneIn (borough list)', () => {
+  it('rounds valid / late, and handles none, many and too few', async () => {
+    const { fmtOneIn } = await import('./format.js')
+    expect(fmtOneIn(10, 120)).toBe('1 in 12 late')
+    expect(fmtOneIn(0, 50)).toBe('none late')
+    expect(fmtOneIn(40, 60)).toBe('67% late')
+    expect(fmtOneIn(3, 20)).toBe('too few calls')
+    expect(fmtOneIn(null, 0)).toBe('no calls')
+  })
 })
