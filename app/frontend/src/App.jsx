@@ -136,12 +136,6 @@ export default function App() {
         <div className="below">
           <ReplayBar replay={replay} feedState={feed} baselineDays={sel ? sel.baseline_days : null} />
 
-          <footer className="small muted">
-            Every number on this page is computed by the API (<code>/api/*</code>, read-only); the page only draws and formats it.
-            {' '}Source: synthetic incidents replayed from the server. The response clock start (<code>t_received</code>) is provisional: it may be the 911 answer or the CAD record, and that is not yet confirmed.
-            {' '}Targets are NFPA 1720-based placeholders, configurable and not certified standards: red 8 minutes in urban areas, 10 suburban, 14 rural and remote; yellow 15; green 30; 90% on time.
-            {' '}The tool reviews the response process, not individual dispatchers or crews.
-          </footer>
         </div>
       </div>
     </div>

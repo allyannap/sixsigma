@@ -107,8 +107,11 @@ describe('sections render from fixtures', () => {
     expect([...html.matchAll(/<input[^>]*type="([^"]+)"/g)].map((m) => m[1])).toEqual(['text', 'date', 'date'])
   })
 
-  it('the page footer says t_received is provisional and the targets are NFPA 1720-based placeholders', () => {
+  it('the top-bar "i" (next to Simulated service data) says t_received is provisional and the targets are NFPA 1720-based placeholders; no footer', () => {
     const html = plain(renderToString(h(App)))
+    expect(html).not.toContain('<footer')
+    expect(html).toContain('aria-label="About the data and targets"')
+    expect(html).toContain('Every number on this page is computed by the API')
     expect(html).toContain('provisional')
     expect(html).toContain('911 answer')
     expect(html).toContain('NFPA 1720')
@@ -285,7 +288,8 @@ describe('OnScene page (H-14)', () => {
     expect(html).toContain('Team Powerpuff Girls')
     expect(html).not.toMatch(/FIXTURE DATA/)
     expect(topbar({ fixtures: true })).toContain('FIXTURE DATA')
-    expect(html).not.toMatch(/Sat,|clock/i)
+    // no fake live clock (the data tooltip's text about the response clock is not a clock)
+    expect(html.replace(/<span class="legend-tip tip-below"[\s\S]*?<\/span><\/span>/, '')).not.toMatch(/Sat,|clock/i)
   })
   it('replay controls sit in the top bar, and the dataset picker is locked while a replay runs', () => {
     expect(topbar()).toContain('Start replay')

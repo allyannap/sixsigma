@@ -655,12 +655,18 @@ table.places.narrow { min-width: 420px; }
 .map-tool.has-tip:hover .tool-tip, .map-tool.has-tip:focus-visible .tool-tip { opacity: 1; transform: translate(-50%, 0); transition-delay: 0.15s; }
 
 /* ---------- one screen: the whole dashboard fits the window on load (desktop) ----------
-   --ws-h = window height minus the top bar (58), the frame's margins (8 + 12), padding (2 x 14) and border (4).
+   --ws-h = window height minus the top bar, the frame's margins, padding and border (see the numbers below).
    Both columns are exactly that tall: the map shrinks to fit above the table toggle; on the right the header and
    Key Metrics keep their size and the chart card takes the rest, scrolling inside itself if a chart is taller.
    Below 1024 px wide or 620 px tall the page scrolls as before. */
 @media (min-width: 1024px) and (min-height: 620px) {
-  :root { --ws-h: calc(100vh - 110px); }
+  /* 61 = top bar (58) + loading bar (3); 8 + 12 = the frame's margins; 28 = its padding; 4 = its border */
+  :root { --ws-h: calc(100vh - 113px); }
+  /* nothing below the dashboard unless the replay feed is showing, so the page has nothing to scroll */
+  .below:empty { display: none; }
+  /* the Investigate list is exactly as tall as the dashboard, so opening it adds no scroll either */
+  .workspace > .rail { height: var(--ws-h); }
+  .workspace.has-rail { min-height: 0; }
   .app { margin-bottom: 12px; }
   .workspace { height: var(--ws-h); }
   .left-col, .right-col { height: var(--ws-h); min-height: 0; }
@@ -687,3 +693,8 @@ table.places.narrow { min-width: 420px; }
   .insights-slider .slider-track { flex: 1 1 0; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
   .insights-slider .slider-arrow { top: 50%; }
 }
+
+/* the "i" next to "Simulated service data": same button as the legend's, tooltip opens downward and wraps */
+.data-info { display: inline-grid; place-items: center; margin-left: -10px; }
+.legend-tip.tip-below { top: calc(100% + 10px); bottom: auto; right: -8px; width: min(380px, 80vw); white-space: normal; font-size: 11.5px; line-height: 1.5; z-index: 70; }
+.legend-tip.tip-below code { font-size: 10.5px; padding: 0 3px; border-radius: 4px; background: rgba(255, 255, 255, 0.14); color: #fff; }
