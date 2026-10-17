@@ -359,11 +359,13 @@ describe('OnScene page (H-14)', () => {
     expect(html).toContain(`95% CI ${t.p95_ci[0].toFixed(1)} to ${t.p95_ci[1].toFixed(1)} min`)
     expect(html).toContain(`P90 ${t.p90_min.toFixed(1)} min`)
   })
-  it('Priority is the urgency multi-select, with no on-scene wait filter and no flag button', () => {
-    const html = metrics({ urgency: ['red', 'yellow'] })
+  it('Priority is a single-select radio group, with no on-scene wait filter and no flag button', () => {
+    const html = metrics({ urgency: ['red'] })
     expect(html).toContain('Priority')
     expect((html.match(/class="pri-chip/g) || []).length).toBe(3)
-    expect((html.match(/aria-pressed="true"/g) || []).length).toBe(2)
+    expect(html).toContain('role="radiogroup"')
+    expect((html.match(/role="radio"/g) || []).length).toBe(3)
+    expect((html.match(/aria-checked="true"/g) || []).length).toBe(1)
     expect(html).not.toMatch(/on-scene wait|Flag/i)
   })
   it('a missing value shows a dash and the API note, never NaN or null', () => {
@@ -405,7 +407,8 @@ describe('OnScene page (H-14)', () => {
     expect(html).toContain('Key Metrics')
     expect(html).toContain('Wait Time Insights')
     expect(html).toContain('Toggle table for map')
-    expect(html).not.toMatch(/Sentinel|AI summary/)
+    expect(html).not.toContain('Sentinel')
+    expect(html).toContain('AI summary')
   })
 })
 

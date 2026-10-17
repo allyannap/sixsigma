@@ -698,3 +698,7 @@ table.places.narrow { min-width: 420px; }
 .data-info { display: inline-grid; place-items: center; margin-left: -10px; }
 .legend-tip.tip-below { top: calc(100% + 10px); bottom: auto; right: -8px; width: min(380px, 80vw); white-space: normal; font-size: 11.5px; line-height: 1.5; z-index: 70; }
 .legend-tip.tip-below code { font-size: 10.5px; padding: 0 3px; border-radius: 4px; background: rgba(255, 255, 255, 0.14); color: #fff; }
+
+/* Priority is exclusive: exactly one of red, yellow or green. */
+.pri-chip[aria-checked="true"] { background: var(--brand-soft); border-color: var(--brand); color: var(--brand-deep); }
+.pri-chip[aria-checked="false"] { opacity: .75; }

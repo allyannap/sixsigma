@@ -4,6 +4,7 @@ import { fmtCi, fmtInt, fmtNum, fmtPct } from '../format.js'
 import { QUEUE, TIERS, URGENCY, URGENCY_KEYS, tierOf } from '../status.js'
 import { placeFor } from './PlaceHead.jsx'
 import InsightsSlider from './InsightsSlider.jsx'
+import AISummary from './AISummary.jsx'
 import { Spinner } from './common.jsx'
 
 const TIER_LABEL = Object.fromEntries(TIERS.map((t) => [t.key, t.label]))
@@ -16,7 +17,7 @@ export function metricsSource(summary, selected, parent) {
   if (!summary) return null
   const isParent = selected.level === parent.level && selected.id === parent.id
   if (isParent || !selected.id) return summary.totals || null
-  return placeFor(summary, selected, parent) || summary.totals || null
+  return placeFor(summary, selected, parent) || null
 }
 
 const dash = (v, digits = 1) => (v == null || Number.isNaN(v) ? '—' : fmtNum(v, digits))
@@ -89,7 +90,8 @@ function Summary({ place, name, busy }) {
   )
 }
 
-export function MetricsSection({ summaryState, selected, parent, urgency, onToggleUrgency }) {
+export function MetricsSection({ summaryState, selected, parent, urgency, onToggleUrgency,
+  aiState, aiEnabled, aiPaused, fixtures }) {
   const s = summaryState.data
   const t = metricsSource(s, selected, parent)
   const place = placeFor(s, selected, parent)
@@ -103,11 +105,22 @@ export function MetricsSection({ summaryState, selected, parent, urgency, onTogg
       </div>
       <div className="card metrics-card">
         <div className="filterbar">
-          <div className="filter-field" role="group" aria-label="Priority (urgency)">
+          <div className="filter-field" role="radiogroup" aria-label="Priority (urgency)">
             Priority
             <span className="priority-chips">
               {URGENCY_KEYS.map((k) => (
-                <button key={k} type="button" className={`pri-chip pri-${k}`} aria-pressed={urgency.includes(k)} onClick={() => onToggleUrgency(k)}>
+                <button key={k} type="button" role="radio" className={`pri-chip pri-${k}`} aria-checked={urgency.includes(k)}
+                  tabIndex={urgency.includes(k) ? 0 : -1} onClick={() => onToggleUrgency(k)}
+                  onKeyDown={(event) => {
+                    const i = URGENCY_KEYS.indexOf(k)
+                    const next = ['ArrowRight', 'ArrowDown'].includes(event.key) ? (i + 1) % 3
+                      : ['ArrowLeft', 'ArrowUp'].includes(event.key) ? (i + 2) % 3
+                        : event.key === 'Home' ? 0 : event.key === 'End' ? 2 : null
+                    if (next === null) return
+                    event.preventDefault()
+                    onToggleUrgency(URGENCY_KEYS[next])
+                    event.currentTarget.parentNode.children[next].focus()
+                  }}>
                   <i aria-hidden="true" />{URGENCY[k].label}
                 </button>
               ))}
@@ -118,7 +131,8 @@ export function MetricsSection({ summaryState, selected, parent, urgency, onTogg
         <div className="metrics-body" aria-busy={summaryState.loading}>
           <Tiles t={t} note={note} />
           <div className="vdivider" role="presentation" />
-          <Summary place={place} name={name} busy={summaryState.loading} />
+          {aiState ? <AISummary state={aiState} enabled={aiEnabled} paused={aiPaused} fixtures={fixtures} />
+            : <Summary place={place} name={name} busy={summaryState.loading} />}
         </div>
         {summaryState.error && (
           <div className="error" role="alert">

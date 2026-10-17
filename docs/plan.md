@@ -112,3 +112,7 @@ Data profile, all ZIP/urgency counts and run instructions: `app/frontend/docs/ge
 - Final version 2 condensation: three zero-based horizontal bars replace shared bubbles. Explicit call-receipt-to-arrival goal, on-time % labels, one selected gap/n line; all supporting metrics under Details. Frontend tests: 37 passed; build passed.
 
 - User rejected the bars: version 2 now uses three area/rate buttons and one direct-number result; Other area replaces the result. Full statistics remain under Details. Frontend: 37 passed; build passed.
+
+## H-16 — AI summary integration, restored against current checkout
+
+User explicitly requested the supplied agent pattern adapted to the EMS dashboard. Use backend Ollama Cloud calls with the root .env credential alias; ground a 2-3 sentence investigation briefing in existing selected-area/child/stage evidence. Reuse all QC functions and preserve single-priority controls and the current Investigate rail. Bind requests to displayed dates, selected area, priority and dataset. Verify credential isolation, exact route reconciliation, cache isolation, missing/invalid data and provider failures; browser-check date/area/priority changes, initial visible defaults and stale-response suppression. No fine-tuning, unrelated risk tools or new statistical rules.

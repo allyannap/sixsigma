@@ -110,3 +110,9 @@ or no valid calls exist. `low_n` means fewer than 30 valid calls. These fields
 are descriptive; existing `spec`, `control` and `queue` remain authoritative.
 The frontend reuses this response during replay and removes its separate ANOM
 request. `/api/anom` remains available for API consumers.
+
+## AI summary
+
+`GET /api/ai_summary` uses the usual filters but requires explicit `from` and `to`. The frontend passes the dates displayed by its form, including the initial metadata default window. Output includes `selection`, `messages`, `text`, `status` (`ok` or `no_data`), `provider`, `model`, and `cached`. Invalid/incomplete dates return 400; missing keys, provider rejection, rate limits, timeout or malformed/truncated output return sanitized 503 errors.
+
+The backend supplies existing `/api/summary` selected-area statistics and up to three ranked eligible children, plus `/api/stages` descriptive medians. Raw call records are excluded. Exact evidence, prompt, model and credential determine the cache key (600-second TTL, 128-entry bound). The model explains existing QC results; it does not compute new statistics. Provider: Ollama Cloud.

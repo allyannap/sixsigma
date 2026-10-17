@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { isFixtureMode } from './api.js'
 import { addDays } from './format.js'
-import { URGENCY_KEYS, attentionSplit } from './status.js'
+import { attentionSplit } from './status.js'
 import { useEndpoint } from './useApi.js'
 import AnomSection from './components/AnomSection.jsx'
 import ChangeSection from './components/ChangeSection.jsx'
@@ -23,7 +23,8 @@ const TICK_MS = 3000
 export default function App() {
   const fixtures = isFixtureMode()
   const [dataset, setDataset] = useState('baseline')
-  const [urgency, setUrgency] = useState(URGENCY_KEYS) // all priorities (red, yellow, green) on at load
+  const [priority, setPriority] = useState('red')
+  const urgency = [priority] // The API accepts a list; the dashboard permits exactly one priority.
   const [from, setFrom] = useState('') // applied by Search; blank still means the API's default last 90 days
   const [to, setTo] = useState('')
   // parent = what the map draws children of (state -> counties, county -> its ZIP areas).
@@ -49,6 +50,11 @@ export default function App() {
   const pchart = useEndpoint('pchart', selParams)
   const imr = useEndpoint('imr', selParams)
   const stages = useEndpoint('stages', selParams)
+  // Match the dates displayed in the form, including its initial dataset default window.
+  const aiEnabled = Boolean(shownFrom && shownTo && shownFrom <= shownTo)
+  const aiSummary = useEndpoint('ai_summary', { ...selParams, from: shownFrom, to: shownTo }, {
+    delay: 600, skip: !aiEnabled || fixtures || replay.playing,
+  })
   const feed = useEndpoint('replay', { ...parentParams, day: replay.day, limit: 12 }, { skip: !replay.on })
 
   useEffect(() => {
@@ -60,8 +66,7 @@ export default function App() {
   }, [replay, lastDay])
 
   const toggleUrgency = (key) => {
-    const next = urgency.includes(key) ? urgency.filter((k) => k !== key) : [...urgency, key]
-    if (next.length) setUrgency(URGENCY_KEYS.filter((k) => next.includes(k)))
+    setPriority(key)
   }
   const resetScope = () => { setParent(STATE); setSelected({ ...STATE, place: null }) }
 
@@ -125,7 +130,8 @@ export default function App() {
               dateMin={meta.data ? meta.data.date_min : undefined} dateMax={meta.data ? meta.data.date_max : undefined}
               onApply={(a, b) => { setFrom(a); setTo(b) }} onDrill={drill} />
             <MetricsSection summaryState={summary} selected={selected} parent={parent} urgency={urgency}
-              onToggleUrgency={toggleUrgency} />
+              onToggleUrgency={toggleUrgency} aiState={aiSummary} aiEnabled={aiEnabled}
+              aiPaused={replay.playing} fixtures={fixtures} />
             <InsightsSection placeName={selectedName}>
               <AnomSection summaryState={summary} />
               <ChangeSection pState={pchart} imrState={imr} stagesState={stages} params={selParams} selectedName={selectedName} />
