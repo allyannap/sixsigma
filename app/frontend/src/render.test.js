@@ -13,7 +13,7 @@ import stages from './fixtures/stages.json'
 import signalCalls from './fixtures/signal_calls.json'
 import App from './App.jsx'
 import AnomSection from './components/AnomSection.jsx'
-import ChangeSection, { SignalCallsTable, StageTable } from './components/ChangeSection.jsx'
+import ChangeSection, { SignalCallsTable, StageTable, ControlMethod, SignalList } from './components/ChangeSection.jsx'
 import InvestigationSection, { FlaggedList, flaggedSelection, investigationRows } from './components/InvestigationSection.jsx'
 import MapSection from './components/MapSection.jsx'
 import { InsightsSection, MetricsSection } from './components/MetricsSection.jsx'
@@ -58,21 +58,23 @@ describe('sections render from fixtures', () => {
     expect(top).not.toContain('Evidence and call counts')
     expect(top).not.toContain('place-badges')
   })
-  it('section 2: control status, baseline explanation, signal evidence; I chart is optional', () => {
-    const html = plain(renderToString(h(ChangeSection, { pState: ok(pchart), imrState: ok(imr), selectedName: 'X' })))
-    expect(html).toContain('Out of control')
-    expect(html).toContain('never overlaps the selected range')
-    expect(html).toContain('above its upper control limit')
-    expect(html).toContain('screened for unusual periods and assumed to represent normal operation')
-    expect(html).not.toContain('cannot hide inside its own limits')
-    expect(html).toContain('Optional, secondary')
-    expect(html).toContain('does not set any status')
+  it('section 2 keeps the finding and chart compact, with the baseline explanation in Method', () => {
+    const html = plain(renderToString(h(ChangeSection, { pState: ok(pchart), selectedName: 'X' })))
+    expect(html).toContain('Recent increase detected')
+    expect(html).toContain('Details &amp; evidence')
+    expect(html).toContain('trend-drawer-title')
+    const method = plain(renderToString(h(ControlMethod, { p: pchart })))
+    expect(method).toContain('never overlaps the selected range')
+    expect(method).toContain('screened for unusual periods and assumed to represent normal operation')
+    expect(method).toContain('Crossings alone do not confirm a change')
+    expect(html).not.toContain('Optional, secondary')
   })
   it('insufficient baseline is said plainly, with no chart', () => {
     const p = { ...pchart, unit: null, points: [], signals: [], control: 'insufficient_baseline', control_reason: 'low volume', dispersion: null }
     const html = plain(renderToString(h(ChangeSection, { pState: ok(p), imrState: ok(imr), selectedName: 'X' })))
-    expect(html).toContain('Insufficient baseline')
-    expect(html).not.toContain('p chart, limits vary with n')
+    expect(html).toContain('More history needed')
+    expect(html).toContain('View baseline checks')
+    expect(html).not.toContain('class="chart control-chart"')
   })
   it('section 3 lists flagged areas with their evidence, never a chosen fix', () => {
     const html = plain(renderToString(h(InvestigationSection, { summaryState: ok(summary), onPick() {} })))
@@ -140,11 +142,12 @@ describe('H-13 supervisor data', () => {
     const calm = { ...summary, places: summary.places.map((p) => ({ ...p, watch: false })) }
     expect(plain(renderToString(h(MapSection, { summaryState: ok(calm), parent: { level: 'state' }, urgency: ['red'], selected: { level: 'state', place: null }, onPick() {}, onBack() {}, onDrill() {} })))).not.toContain('chip-watch')
   })
-  it('section 2 shows the watch chip when the p chart has one weak signal', () => {
+  it('section 2 says one signal is unconfirmed and retains its watch evidence in Method', () => {
     const p = { ...pchart, control: 'in_control', watch: true, control_reason: '1 period above the limit, not confirmed (needs 2, or a stronger single signal)' }
     const html = plain(renderToString(h(ChangeSection, { pState: ok(p), imrState: ok(imr), selectedName: 'X' })))
-    expect(html).toContain('chip-watch')
-    expect(html).toContain('not confirmed')
+    expect(html).toContain('Watching one signal')
+    expect(html).toContain('Change not confirmed')
+    expect(plain(renderToString(h(ControlMethod, { p })))).toContain('chip-watch')
   })
   it('the queue label meets_stable never claims "statistically stable"', () => {
     const stable = summary.places.find((x) => x.queue === 'meets_stable')
@@ -170,12 +173,12 @@ describe('H-13 supervisor data', () => {
     expect(html).toContain(`${p.cancelled} (${p.cancel_pct.toFixed(1)}%) / ${p.invalid}`)
     expect(html).toContain(`${p.calls_per_day.toFixed(1)} (${p.base_calls_per_day.toFixed(1)})`)
     const ok2 = { ...pchart, baseline: { ...pchart.baseline, checked: true, stable: true, removed: 0 } }
-    expect(plain(renderToString(h(ChangeSection, { pState: ok(ok2), imrState: ok(imr), selectedName: 'X' })))).toContain('Screened: stable.')
+    expect(plain(renderToString(h(ControlMethod, { p: ok2 })))).toContain('Screened: stable.')
   })
   it('an unstable baseline shows the removed periods and the reasons', () => {
     const p = { ...summary.places[3], baseline: { ...summary.places[3].baseline, checked: true, stable: false, removed: 2, removed_starts: ['2026-06-08', '2026-06-15'], reasons: ['still too variable after dropping 2 periods'] } }
     const bad = { ...pchart, control: 'insufficient_baseline', control_reason: 'baseline is not stable', points: [], signals: [], unit: null, dispersion: null, baseline: p.baseline }
-    const html2 = plain(renderToString(h(ChangeSection, { pState: ok(bad), imrState: ok(imr), selectedName: 'X' })))
+    const html2 = plain(renderToString(h(ControlMethod, { p: bad })))
     expect(html2).toContain('Reasons: still too variable after dropping 2 periods.')
     expect(html2).toContain('is not stable')
     expect(html2).toContain('Screened: not stable.')
@@ -190,8 +193,8 @@ describe('H-13 supervisor data', () => {
     expect(html.replace(/title="[^"]*"/g, '')).not.toMatch(/NaN|undefined|\bnull\b/)
   })
   it('the signal evidence table has a "show calls" button and a p-value for each signal', () => {
-    const html = plain(renderToString(h(ChangeSection, { pState: ok(pchart), imrState: ok(imr), params: {}, selectedName: 'X' })))
-    expect(html.match(/show calls/g).length).toBe(pchart.signals.length)
+    const html = plain(renderToString(h(SignalList, { p: pchart, onReview() {} })))
+    expect(html.match(/show calls/g).length).toBe(pchart.points.filter((p) => p.signal || p.p > p.ucl || p.p < p.lcl).length)
     expect(html).toContain('p-value')
   })
   it('the calls behind a signal render read-only', () => {
@@ -212,7 +215,7 @@ describe('H-13 supervisor data', () => {
     expect(html).toContain('This period (median)')
     expect(html).toContain('Baseline (median)')
     expect(html).toContain('Medians only')
-    expect(html).toContain('delay-breakdown card was removed')
+    expect(html).toContain('These comparisons do not explain why times changed.')
     expect(html).not.toMatch(/cause|held up|root/i)
     expect(html).not.toMatch(/NaN|undefined|null/)
   })
@@ -220,9 +223,11 @@ describe('H-13 supervisor data', () => {
     const blank = { now: { dispatch_s: null, turnout_s: null, drive_s: null, held_pct: null, n: 0 }, base: { dispatch_s: null, turnout_s: null, drive_s: null, held_pct: null, n: 0 } }
     expect(plain(renderToString(h(StageTable, { data: blank })))).toContain('n/a')
   })
-  it('section 2 puts the stage table below the chart', () => {
+  it('section 2 moves stage times into its evidence drawer', () => {
     const html = plain(renderToString(h(ChangeSection, { pState: ok(pchart), imrState: ok(imr), stagesState: ok(stages), params: {}, selectedName: 'X' })))
-    expect(html.indexOf('Stage times (descriptive)')).toBeGreaterThan(html.indexOf('p chart, limits vary with n'))
+    const compact = html.split('<dialog')[0]
+    expect(compact).not.toContain('Stage times (descriptive)')
+    expect(html.split('<dialog')[1]).toContain('control-tab-stages')
   })
   it('the statewide flagged list renders with chance-below context and no input fields', () => {
     const html = plain(renderToString(h(FlaggedList, { data: flagged, onPick() {} })))
@@ -397,8 +402,9 @@ describe('OnScene page (H-14)', () => {
       h(ChangeSection, { pState: ok(pchart), imrState: ok(imr), selectedName: 'Monroe' }))))
     expect(html).toContain('Monroe Wait Time Insights')
     expect(html).toContain('Are calls arriving on time?')
-    expect(html).toContain('Are late calls being unusually frequent?')
-    expect(html).toContain('Stand-in')
+    expect(html).toContain('Are more calls missing their response target?')
+    expect(html).toContain('Response trends')
+    expect(html).not.toContain('slider-arrow')
     expect(html).not.toMatch(/Where the delay sits|On-scene time trend/)
   })
   it('the whole page, rendered, has the brand and the layout regions and says "Selected place"', () => {

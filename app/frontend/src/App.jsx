@@ -133,7 +133,7 @@ export default function App() {
               onToggleUrgency={toggleUrgency} aiState={aiSummary} aiEnabled={aiEnabled}
               aiPaused={replay.playing} fixtures={fixtures} />
             <InsightsSection placeName={selectedName}>
-              <AnomSection summaryState={summary} />
+              <AnomSection summaryState={summary} selected={selected} onPick={pick} />
               <ChangeSection pState={pchart} imrState={imr} stagesState={stages} params={selParams} selectedName={selectedName} />
             </InsightsSection>
           </div>

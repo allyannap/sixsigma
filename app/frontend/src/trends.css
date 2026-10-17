@@ -1,0 +1,104 @@
+/* Two persistent, labeled views share the same card. */
+.insights-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border: 1px solid #e5eaf0; border-radius: 11px; background: #f2f5f8; margin-bottom: 10px; flex: none; }
+.insights-tabs button { display: flex; justify-content: center; align-items: center; gap: 8px; min-height: 33px; padding: 5px 10px; border: 1px solid transparent; border-radius: 8px; background: transparent; font: inherit; font-size: 12px; font-weight: 700; color: var(--muted); cursor: pointer; }
+.insights-tabs button[aria-selected="true"] { background: white; border-color: #dce5ef; color: var(--brand-deep); box-shadow: 0 2px 5px rgba(15, 22, 32, .07); }
+.insights-tabs button:hover { color: var(--brand-deep); }
+.insights-tabs button:focus-visible { outline: 2px solid var(--brand); outline-offset: 1px; }
+.slide:focus-visible { outline: 2px solid var(--brand); outline-offset: -2px; border-radius: 5px; }
+.insights-slider #section-2 { padding: 0; background: none; border: 0; box-shadow: none; gap: 7px; min-height: 0; }
+.insights-slider #section-2 .section-head { flex: none; }
+.insights-slider #section-2 .section-head h2 { font-size: 13px; line-height: 1.3; font-weight: 800; }
+.insights-slider #section-2 > .intro, .insights-slider #section-2 .section-head .tag { display: none; }
+.control-view { gap: 6px; max-width: none; align-self: stretch; }
+.control-finding { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 9px; background: #f0f4f8; flex: none; }
+.finding-signal { background: #fff0e6; }
+.finding-calm { background: #eef5f1; }
+.control-finding-icon { display: grid; place-items: center; font-size: 12px; font-weight: 800; width: 21px; height: 21px; flex: none; border-radius: 50%; background: #dfe6ed; }
+.finding-signal .control-finding-icon { background: #f9d4bf; color: #9a3412; }
+.control-finding > div { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; }
+.control-headline { margin: 0; font-size: 12px; font-weight: 750; color: var(--ink); }
+.control-summary { margin: 0; font-size: 11px; color: var(--ink-2); }
+.trend-next { margin-left: auto; flex: none; border: 0; background: transparent; color: #9a3412; font: inherit; font-weight: 700; font-size: 10px; padding: 4px 0 4px 8px; cursor: pointer; min-height: 24px; }
+.control-baseline { margin: 0; font-size: 10px; color: var(--muted); flex: none; }
+.control-view .control-split { display: grid; grid-template-columns: minmax(0, 1fr) 156px !important; grid-template-rows: minmax(0, 1fr) auto; gap: 5px 14px; min-height: 0; flex: 1; align-items: stretch; }
+.control-split .figure { grid-column: 1; grid-row: 1 / 3; min-height: 0; gap: 5px; }
+.control-split .control-chart { height: 220px; min-height: 0; flex: 1; }
+.control-split .control-key { flex-direction: row; flex-wrap: wrap; gap: 4px 10px; font-size: 9px; flex: none; margin: 0; }
+.control-tick { font-size: 10px; fill: #68798c; }
+.control-axis-title { font-size: 10px; font-weight: 650; fill: #52677e; }
+.control-limit-label { font-size: 9px; fill: #9a3412; font-weight: 650; paint-order: stroke; stroke: white; stroke-width: 3px; }
+.control-lower-label { fill: #28745a; }
+.control-key-line, .control-key-baseline, .control-key-upper, .control-key-lower { display: inline-block; width: 12px; border-top: 2px solid #0072b2; }
+.control-key-baseline { border-color: #344256; }
+.control-key-upper { border-color: #c2410c; border-top-style: dashed; }
+.control-key-lower { border-color: #28745a; border-top-style: dashed; }
+.control-key-signal { display: inline-block; width: 7px; height: 7px; border-radius: 1px; background: #c2410c; }
+.control-point { cursor: pointer; }
+.control-point:focus-visible { outline: none; }
+.control-point:focus-visible > circle:first-of-type { stroke: var(--brand); stroke-width: 2; }
+.trend-selection { grid-column: 2; grid-row: 1; display: flex; flex-direction: column; justify-content: center; gap: 6px; padding: 9px 10px; }
+.trend-selection label { font-size: 10px; font-weight: 700; color: var(--muted); }
+.trend-selection select, .control-card select { width: 100%; min-height: 28px; padding: 3px 5px; font: inherit; font-size: 11px; color: var(--ink); border: 1px solid var(--line); border-radius: 6px; background: white; }
+.trend-selected-rate, .trend-selected-limit { display: flex; flex-direction: column; gap: 2px; }
+.trend-selected-rate strong { font-size: 24px; letter-spacing: -.035em; line-height: 1.1; }
+.trend-selected-rate span, .trend-selected-limit span { font-size: 10px; color: var(--muted); }
+.trend-selected-limit { border-top: 1px solid var(--line); padding-top: 6px; }
+.trend-selected-limit strong { font-size: 16px; }
+.trend-selection .card-badge { align-self: flex-start; font-size: 9px; padding: 2px 5px; }
+.control-improvement-rate, .control-lower-text { color: #28745a; }
+.badge-improvement { color: #28745a; background: #e4f2eb; }
+.selection-improvement { border-left-color: #28745a; }
+.control-upper-text { color: #c2410c; }
+.trend-actions { grid-column: 2; grid-row: 2; }
+.trend-actions button { width: 100%; }
+.control-empty { padding: 18px 12px; border: 1px dashed var(--line); background: #f8fafc; border-radius: 10px; flex: 1; }
+.control-empty h3 { margin: 0 0 6px; font-size: 15px; }
+.control-empty p { font-size: 12px; color: var(--muted); line-height: 1.5; margin: 0; }
+.trend-baseline-button { align-self: flex-end; min-height: 30px; padding: 4px 10px; border: 0; border-radius: 7px; background: var(--brand-soft); color: var(--brand-deep); font: inherit; font-size: 11px; font-weight: 700; cursor: pointer; }
+.trend-evidence-drawer { width: min(660px, 100vw); }
+.control-tabs { display: flex; flex-wrap: wrap; gap: 4px; border-bottom: 1px solid var(--line); padding-bottom: 9px; margin-bottom: 15px; }
+.control-tabs button { border: 1px solid transparent; border-radius: 7px; background: transparent; padding: 7px 9px; font: inherit; font-size: 11px; font-weight: 650; color: var(--muted); cursor: pointer; }
+.control-tabs button[aria-selected="true"] { border-color: #d6e4f2; background: var(--brand-soft); color: var(--brand-deep); }
+.control-tabs button:focus-visible, .trend-next:focus-visible, .trend-baseline-button:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+.control-tab-panel { font-size: 12px; line-height: 1.6; }
+.control-tab-panel:focus-visible { outline: 2px solid var(--brand); outline-offset: 4px; }
+.control-tab-panel .table-scroll { max-height: none; }
+.control-tab-panel .control-card { display: flex; flex-direction: column; gap: 12px; }
+.control-tab-panel .control-card .card-pair { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.control-tab-panel .control-card .card-pair strong { font-size: 22px; }
+.control-tab-panel .control-card label { font-size: 10px; }
+.control-tab-panel .control-card .card-head { align-items: center; flex-wrap: wrap; }
+.control-tab-panel .control-card .card-head h3 { font-size: 21px; }
+.control-table-sub { display: block; font-size: 10px; color: var(--muted); }
+@media (min-width: 1024px) and (min-height: 620px) {
+  .insights-slider .slide.is-active:has(#section-2), .insights-slider #section-2 { height: 100%; min-height: 0; }
+  .insights-slider #section-2 .control-view { flex: 1; min-height: 0; }
+  .control-split .control-chart { height: 100%; }
+}
+@media (min-width: 1024px) and (min-height: 620px) and (max-height: 800px) {
+  .trend-selected-limit { display: none; }
+  .trend-selection { gap: 5px; }
+  .control-finding { padding-block: 5px; }
+}
+@media (min-width: 1024px) and (min-height: 620px) and (max-height: 760px) {
+  .insights-tabs { margin-bottom: 7px; }
+  .insights-tabs button { min-height: 28px; }
+  .control-view > .control-baseline { display: none; }
+  .control-finding { padding-block: 3px; }
+  .control-finding-icon { width: 18px; height: 18px; }
+  .trend-selection > label, .trend-selection > .card-badge { display: none; }
+  .trend-selection { padding-block: 6px; gap: 4px; }
+  .trend-selected-rate strong { font-size: 22px; }
+}
+@media (max-width: 600px) {
+  .insights-tabs button { font-size: 11px; padding-inline: 4px; gap: 5px; }
+  .control-view .control-split { grid-template-columns: 1fr !important; grid-template-rows: auto auto auto; }
+  .control-split .figure { grid-column: 1; grid-row: 1; }
+  .control-split .control-chart { flex: none; height: 230px; }
+  .trend-selection { grid-column: 1; grid-row: 2; display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 5px 12px; }
+  .trend-selection select, .trend-selection label { grid-column: 1 / -1; }
+  .trend-selected-limit { border: 0; padding: 0; }
+  .trend-actions { grid-column: 1; grid-row: 3; }
+  .trend-next { font-size: 9px; }
+  .control-finding > div { display: block; }
+}

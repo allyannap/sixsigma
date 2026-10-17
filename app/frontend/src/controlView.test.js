@@ -1,7 +1,7 @@
 import { createElement as h } from 'react'
 import { renderToString } from 'react-dom/server'
 import { expect, it } from 'vitest'
-import { ControlView, ControlMethod, PChart } from './components/ChangeSection.jsx'
+import { ControlView, ControlMethod, PChart, SignalList } from './components/ChangeSection.jsx'
 import pchart from './fixtures/pchart.json'
 
 const render = (p) => renderToString(h(ControlView, { p, selectedName: 'Monroe', params: {} })).replace(/<!-- -->/g, '')
@@ -10,7 +10,8 @@ it('leads with the confirmed finding and pairs the chart with one selectable per
   const html = render(pchart)
   expect(html).toContain('Recent increase detected')
   expect(html).toContain('simple-split control-split')
-  expect(html).toContain('Selected period details')
+  expect(html).toContain('Selected period overview')
+  expect(html).toContain('Response details')
   expect(html).toContain('Review calls')
   expect(html).toContain('Baseline: 5.6%')
   expect(html).toContain('Upper control limit')
@@ -48,11 +49,11 @@ it('shows a single panel with accessible tabs and point selection', () => {
   expect(html).not.toContain('<details')
   expect(html).toContain('role="tablist"')
   expect((html.match(/role="tabpanel"/g) || []).length).toBe(1)
-  expect(html).toContain('aria-labelledby="control-tab-signals"')
+  expect(html).toContain('aria-labelledby="control-tab-period"')
   expect(html).toContain('role="button" tabindex="0"')
   expect(html).toContain('aria-controls="control-selected"')
   expect(html).toContain('left and right arrows')
-  expect(html).toContain('<label class="eyebrow" for="control-period">')
+  expect(html).toContain('<label for="control-period">')
 })
 
 it('keeps the percent axis at or below 100 and handles a lone point or empty selection', () => {
@@ -69,8 +70,8 @@ it('explains upper-limit crossings visibly without treating every crossing as a 
   const html = render({ ...pchart, points, signals: [], control: 'in_control', watch: false })
   expect(html).not.toContain('How to read this chart')
   expect(html).toContain('class="control-limit-label">Upper control limit')
-  expect(html).toContain('Orange: above upper limit.')
-  expect(html).toContain('Next above limit')
+  expect(html).toContain('Upper limit')
+  expect(html).toContain('above limit · Next')
   expect(html).toContain('Over upper limit')
   expect(html).toContain('No confirmed increase')
   expect(html).not.toContain('Recent increase detected')
@@ -86,12 +87,14 @@ it('lists every highlighted day while retaining the one-signal watch judgment', 
   ]
   const html = render({ ...pchart, points, signals: [points[0]], control: 'in_control', watch: true })
   expect(html).toContain('Flagged periods (4)')
-  expect((html.match(/>show calls</g) || []).length).toBe(4)
-  expect(html).toContain('Sep 6')
-  expect(html).toContain('Sep 11')
-  expect(html).toContain('Sep 12')
-  expect(html).toContain('Above upper limit')
-  expect(html).toContain('Below lower limit')
+  const table = renderToString(h(SignalList, { p: { ...pchart, points }, onReview() {} }))
+  expect((table.match(/>show calls</g) || []).length).toBe(4)
+  expect(table).toContain('Above upper limit')
+  expect(table).toContain('Below lower limit')
+  expect(table).toContain('Sep 6')
+  expect(table).toContain('Sep 11')
+  expect(table).toContain('Sep 12')
+
   expect(html).toContain('Watching one signal')
   expect(html).not.toContain('Recent increase detected')
 })
@@ -105,4 +108,17 @@ it('uses the actual partial period in point descriptions, selected card, selecto
   expect(html).not.toContain('>Jun 29<')
   expect(html).toContain('value="2026-06-29"') // stable subgroup ID; only the visible range is clipped
   expect(html).not.toMatch(/NaN|Infinity/)
+})
+
+it('keeps call tables and method explanations outside the compact card in a closed drawer', () => {
+  const html = render(pchart)
+  const compact = html.split('<dialog')[0]
+  expect(compact).toContain('Details &amp; evidence')
+  expect(compact).not.toContain('Historical rate')
+  expect(compact).not.toContain('control-support-panel')
+  expect(compact).not.toContain('control-tabs')
+  expect(html).toContain('aria-labelledby="trend-drawer-title"')
+  expect(html).not.toMatch(/<dialog[^>]*\sopen(?:\s|=|>)/)
+  expect(html).toContain('control-tab-calls')
+  expect(html).toContain('control-tab-method')
 })

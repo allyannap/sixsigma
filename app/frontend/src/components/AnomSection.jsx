@@ -1,11 +1,11 @@
 import SimpleComparison from './SimpleComparison.jsx'
 import { Async, ChartCard } from './common.jsx'
 
-/** Chart card 1: the geographic comparison (Kelly's SimpleComparison, unchanged). */
-export default function AnomSection({ summaryState }) {
+/** Geographic comparison follows the map selection; supporting evidence opens in its drawer. */
+export default function AnomSection({ summaryState, selected, onPick }) {
   return (
     <ChartCard id="section-4" title="Are calls arriving on time?" sub="Each area's on-time rate against the service goal" tag="Geographic comparison">
-      <Async state={summaryState}>{(d) => <SimpleComparison key={JSON.stringify(d.selection)} d={d} />}</Async>
+      <Async state={summaryState}>{(d) => <SimpleComparison key={JSON.stringify(d.selection)} d={d} selectedArea={selected} onPick={onPick} />}</Async>
     </ChartCard>
   )
 }
