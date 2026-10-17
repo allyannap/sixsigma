@@ -11,7 +11,7 @@ Status words: **implemented** (code exists), **tested** (known-answer and degene
 
 | # | Step | Where | Status (Oct 17, H-13) |
 |---|---|---|---|
-| a | Data validation, timestamp definitions, messy-input cleaning | `app/data.py`, `data/validate.py`, `tests/test_data.py` | implemented, tested (validate 70 PASS, `--messy` 13 PASS); `t_received` meaning still provisional |
+| a | Data validation, timestamp definitions, messy-input cleaning | `app/data.py`, `data/validate.py`, `tests/test_data.py` | implemented, tested (validate 71 PASS, `--messy` 14 PASS); `t_received` meaning still provisional |
 | b | On-time metrics, Wilson intervals, chance Below count | `qc.on_time`, `qc.wilson_ci`, `qc.chance_below` | implemented, tested |
 | c | p chart, baseline screen, control status, queue label, excess-late ranking | `qc.p_chart`, `qc.baseline_screen`, `qc.control_status`, `qc.dispersion_check`, `qc.queue_label`, `qc.excess_late` | implemented, tested; false alarms re-measured (`data/sensitivity.py`: 0 of 186 red, 1 of 186 yellow county-windows) |
 | d | Map drill-down and filters | `/api/summary`, `MapSection.jsx` | API implemented, tested; H-13 page fields (watch chip, volume, baseline stability, excess-late ranking) in progress |
@@ -22,7 +22,7 @@ Status words: **implemented** (code exists), **tested** (known-answer and degene
 | – | Investigation list + statewide flagged ZIPs | `InvestigationSection.jsx`, `/api/flagged` | API implemented, tested; page in progress |
 | – | Calls behind a signal | `/api/signal_calls` | API implemented, tested; page in progress |
 | – | Percentile intervals | `qc.percentiles` | implemented, tested (exact order statistics; bounds can be n/a) |
-| – | Synthetic data realism + sensitivity | `data/generate.py`, `data/sensitivity.py` | implemented, tested (`validate.py --reproduce` 74 PASS) |
+| – | Synthetic data realism + sensitivity | `data/generate.py`, `data/sensitivity.py` | implemented, tested (`validate.py --reproduce` 75 PASS) |
 | – | Deploy to Posit Connect (H-06) | `.github/workflows/` | planned (needs the publisher key) |
 | – | Demo walkthrough (`demo/README.md`, H-05) | `demo/` | planned; README section 6 has the walkthrough for now |
 | – | Fresh-clone check and Devpost (H-08) | – | planned |
@@ -32,9 +32,9 @@ Status words: **implemented** (code exists), **tested** (known-answer and degene
 
 ## Tests (one command each)
 
-- `.venv/bin/python -m pytest tests -q`: 162 tests (86 stats known answers and degenerates; 31 data rules incl. the messy sample; 45 API incl. acceptance tests AT-1 to AT-10).
+- `.venv/bin/python -m pytest tests -q`: 164 tests (86 stats known answers and degenerates; 31 data rules incl. the messy sample; 45 API incl. acceptance tests AT-1 to AT-10).
 - `cd app/frontend && npm test`: 52 tests (formatting, status rules, every section renders with the brief's wording).
-- `.venv/bin/python data/validate.py --reproduce`: 74 data checks including identical rebuilds from the seed; `--messy`: 13 checks.
+- `.venv/bin/python data/validate.py --reproduce`: 75 data checks including identical rebuilds from the seed; `--messy`: 14 checks.
 - `PYTHONPATH=. .venv/bin/python data/sensitivity.py`: false-alarm and detection tables (README section 7).
 
 ## Decisions
@@ -48,6 +48,10 @@ Status words: **implemented** (code exists), **tested** (known-answer and degene
   circular: 60 of 62 counties Inconclusive); `build_targets.py --from-history` keeps the tiers as an option.
   **Default window 90 days** (counties under 30 red calls: 23 → 2). **Below target + insufficient baseline → Needs more
   data**, sorted first. Synthetic drives get 1% slow outliers (drawn last, so other draws are unchanged).
+- Oct 17 (H-14, team decision after the input review): the incident file no longer has a travel-estimate column
+  (needs a paid routing call plus an ambulance origin; no output used it) and `disposition` is reduced to `cancelled` Y/N.
+  Verified before and after: every dashboard response is identical except the replay's field name; the generator keeps its
+  internal travel model, so the planted stories and every measured number are unchanged.
 - Oct 16 (after browser testing): **replay keeps the period start and baseline fixed** and grows the end date; a rolling
   window hid both planted stories. Default replay start: From date, else Aug 25 (Jun 25 for summer_surge). Tested (AT-5).
 - Oct 16 (team, after reviewing the dashboard): **remove "What Held Up the Call" and the travel-time comparison**
@@ -64,7 +68,7 @@ Status words: **implemented** (code exists), **tested** (known-answer and degene
   quality counts in `/api/health`; messy input dropped and counted; "Meets goal; statistically stable" renamed "Meets
   goal; no change signal"; Cpk sigma described as overall (Ppk-like); ANOM vs the call-weighted average; data with day
   effects, seasonality, hour profile, congestion, a messy sample and `data/sensitivity.py`.
-- Oct 17 (team, H-14): **the page takes the Open Design prototype's layout** (`design/sentinel/`) on the current schema
+- Oct 17 (team, H-15): **the page takes the Open Design prototype's layout** (`design/sentinel/`) on the current schema
   and API, no API change, named **OnScene** with the siren logo. Map: Critical = Act now, Watch = Ongoing gap + Recent
   change, Stable = Meets goal (no change signal), gray = Needs more data. Priority = urgency red/yellow/green; no
   "on-scene wait ≥" filter (not a SPEC input; it would bias the on-time rate). Dataset picker and replay in the top bar.

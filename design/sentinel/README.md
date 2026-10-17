@@ -1,7 +1,7 @@
 # OnScene page design (Open Design "Sentinel EMS" prototype)
 
 - **Source:** an Open Design export sent to the team as `newest_prototype.zip`, plus the team's logo file
-  `onscene-logo.html` (the OnScene siren; rings on hover). Pulled Oct 17, 2026 for task H-14.
+  `onscene-logo.html` (the OnScene siren; rings on hover). Pulled Oct 17, 2026 for task H-15.
 - **What the screen is for:** the one-page dashboard for the quality supervisor: New York map with search,
   drill-down and a ranked table on the left; selected place, date range, Key Metrics and two chart cards on the right.
 - **Numbers in the prototype are invented** by `assets/app.js`. The implementation in `app/frontend/` takes only the

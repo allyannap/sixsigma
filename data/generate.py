@@ -34,7 +34,7 @@ import pandas as pd
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 COLUMNS = ["incident_id", "zcta", "urgency_code", "t_received", "t_assigned", "t_enroute",
-           "t_onscene", "disposition", "valid_time", "eta_google_s", "held"]
+           "t_onscene", "cancelled", "valid_time", "held"]
 
 
 def load_params():
@@ -239,9 +239,8 @@ def build_file(name, params, lookup, groups, ctx_common, effects, expected_by_co
         "t_assigned": iso(cat["t_assigned"], tz),
         "t_enroute": iso(cat["t_enroute"], tz),
         "t_onscene": iso(cat["t_onscene"], tz, empty=cancelled),
-        "disposition": cat["disp"],
+        "cancelled": np.where(cancelled, "Y", "N"),   # the model's disposition and travel estimate stay internal
         "valid_time": cat["valid"],
-        "eta_google_s": cat["eta"],
         "held": cat["held"],
     })[COLUMNS]
     path = outdir / f"incidents_{name}.csv.gz"
@@ -270,7 +269,7 @@ def build_messy(baseline, lookup, params, outdir):
     df = baseline[keep].reset_index(drop=True).copy()
     df["pos"] = np.arange(len(df), dtype=float)
     rng = np.random.default_rng([params["seed"], 7777])
-    pool = rng.permutation(np.flatnonzero((df["disposition"] != "CANCELLED").to_numpy()))
+    pool = rng.permutation(np.flatnonzero((df["cancelled"] != "Y").to_numpy()))
     at = 0
 
     def take(k):

@@ -32,7 +32,7 @@ export default function ReplayBar({ replay, feedState, baselineDays }) {
                     <td className="mono">{e.incident_id}</td>
                     <td className="mono">{e.zcta} <span className="muted">{e.county}</span></td>
                     <td>{e.urgency_group}</td>
-                    <td className="mono">{e.valid ? mmss(e.total_s) : <span className="muted">{e.disposition === 'CANCELLED' ? 'cancelled' : 'not valid'}</span>}</td>
+                    <td className="mono">{e.valid ? mmss(e.total_s) : <span className="muted">{e.cancelled ? 'cancelled' : 'not valid'}</span>}</td>
                     <td>{e.valid ? (e.late ? 'late' : 'on time') : ''}{e.held ? ' (held)' : ''}</td>
                   </tr>
                 ))}

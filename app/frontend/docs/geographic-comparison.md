@@ -15,9 +15,8 @@ One row is one EMS incident, not one crew or patient outcome. Files span October
 | t_assigned | offset ISO datetime, seconds | First unit assignment |
 | t_enroute | offset ISO datetime, seconds | Unit starts driving |
 | t_onscene | nullable offset ISO datetime, seconds | Arrival; empty for cancelled calls |
-| disposition | text enum | TRANSPORTED, TREATED, REFUSED, CANCELLED |
+| cancelled | Y/N | Y when the call was cancelled (replaces the old disposition column, H-14) |
 | valid_time | Y/N | Whether timestamps can be trusted |
-| eta_google_s | integer seconds | Generated travel estimate; unused in this view |
 | held | Y/N | Waiting for a free unit; unused in this view |
 
 The displayed response is **receipt to arrival**, not assignment to arrival, consistent with existing calculations. Only noncancelled, valid-time calls with ordered timestamps and positive elapsed time enter time statistics. Cancelled/missing-arrival calls are excluded, not assigned zero or treated as completed. No censored-duration estimator is used; these results describe valid completed calls. Exclusions can bias comparisons if completion differs by area. No patient outcome is recorded; a slow call cannot be identified as fatal from these files.

@@ -25,7 +25,7 @@ breakdown (`/api/delays`, "What Held Up the Call") and the travel comparison (`/
   (red 480 / 600 / 840 / 840 s by area type, yellow 900, green 1800, goal 90%: illustrative placeholders);
   `late = total_s > target_s`; `very_late = total_s > 2 × target_s`; `date` = `t_received` in America/New_York.
   **`t_received` semantics are provisional** (911 call receipt vs EMS CAD incident creation is not yet confirmed; SPEC §3).
-- **Valid (timed) call** = `disposition != CANCELLED`, `t_onscene` present, `valid_time == Y`, and the four times in order.
+- **Valid (timed) call** = `cancelled = N`, `t_onscene` present, `valid_time == Y`, and the four times in order.
   Cancelled, invalid, missing and out-of-order rows count in `calls` only, never in any time statistic.
   `invalid` on a card = calls − cancelled − valid.
 - **Selection** = calls in [`from`, `to`] (inclusive dates), in the chosen `urgency` groups, inside the place.
@@ -90,7 +90,7 @@ Any interval bound may be `null` (too few calls).
 | `GET /api/stages` | 2 | `{now{dispatch_s, turnout_s, drive_s, held_pct, n}, base{...}}`: medians in seconds, period vs baseline; descriptive only |
 | `GET /api/signal_calls?start=&end=&limit=` | 2 | the valid calls of the selected place and urgency received in [`start`, `end`] (default the selection; `limit` 1–500, default 50), newest first: `{start, end, valid, late, returned, calls[{incident_id, t_received, zcta, total_s, late, dispatch_s, turnout_s, drive_s, held}]}` |
 | `GET /api/imr` | 2 (optional) | `{cl_min, ucl_min, lcl_min, mr_ucl, points[{incident_id, t_received, minutes, ln_min, mr, beyond_3_sigma}], n_beyond, assumptions{n, skew, lag1}, before_median_min, after_median_min}` |
-| `GET /api/replay?day=&limit=` | replay | `{source, day, received, valid, late, cancelled, events[{incident_id, t_received, zcta, county, urgency_group, disposition, valid, total_s, late, held}]}` (newest first; read-only). The page's replay calls the other routes with a **fixed** `from` (so a fixed baseline) and `to` = the simulated day |
+| `GET /api/replay?day=&limit=` | replay | `{source, day, received, valid, late, cancelled, events[{incident_id, t_received, zcta, county, urgency_group, cancelled, valid, total_s, late, held}]}` (newest first; read-only). The page's replay calls the other routes with a **fixed** `from` (so a fixed baseline) and `to` = the simulated day |
 | `GET /api/anom` | 4 | `{grand_mean_min, reference ("call-weighted mean of the places"), h, k, N, F, df1, df2, places[{id, name, n, mean_min, ci_min[], lower_min, upper_min, verdict}]}`; places with under 30 valid calls are left out; empty with a message unless exactly one urgency group is selected |
 | `GET /geo/ny_counties.geojson`, `GET /geo/ny_zcta.geojson` | 1 | static map shapes |
 
