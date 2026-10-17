@@ -336,7 +336,7 @@ footer.small { padding: 0 4px; }
 
 /* ---------- responsive: one column under 1024 px ---------- */
 @media (max-width: 1400px) { .metric-value { font-size: 26px; } }
-@media (max-width: 1230px) { .brand-sub-place { display: none; } } /* "Simulated data" stays visible */
+@media (max-width: 1230px) { .brand-sub { display: none; } }
 @media (max-width: 1023px) {
   .topbar { padding: 8px 16px; }
   .app { width: auto; max-width: none; margin: 8px 10px 10px; padding: 12px; }

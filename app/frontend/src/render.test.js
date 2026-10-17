@@ -125,9 +125,10 @@ describe('sections render from fixtures', () => {
     expect(html).not.toContain('60 days')
     expect(html).not.toMatch(/<input|<textarea/)
   })
-  it('the whole page has no what-if card, no incident entry and says the data is synthetic', () => {
+  it('the whole page has no what-if card, no incident entry, and its guide says the data is simulated', async () => {
     const html = plain(renderToString(h(App)))
-    expect(html).toContain('SYNTHETIC DATA')
+    const { default: HowItWorks } = await import('./components/HowItWorks.jsx')
+    expect(plain(renderToString(h(HowItWorks, { open: true, onClose() {}, targets: [], initialPage: 3 })))).toContain('Simulated data: invented calls')
     expect(html).not.toMatch(/which fix|what-if|helps most|add an ambulance|POST/i)
     expect(html).not.toMatch(/What Held Up the Call|travel-time difference|Google/i)
     expect(html).not.toMatch(/<textarea/)
@@ -319,7 +320,8 @@ describe('OnScene page (H-14)', () => {
   it('the top bar says the data is simulated in the brand subtitle (no pill), the dataset picker from /api/meta, the user chip and no clock', () => {
     const html = topbar()
     expect(html).not.toContain('sample-pill')
-    expect(html).toMatch(/class="brand-sub">[\s\S]*SYNTHETIC DATA: <\/span>Simulated data/)
+    expect(html).toContain('<div class="brand-sub">New York State · EMS response quality</div>')
+    expect(html).not.toContain('SYNTHETIC DATA')
     for (const d of ['baseline', 'station_closure', 'summer_surge']) expect(html).toContain(`<option value="${d}"`)
     expect(html).toContain('Team Powerpuff Girls')
     expect(html).not.toMatch(/FIXTURE DATA/)

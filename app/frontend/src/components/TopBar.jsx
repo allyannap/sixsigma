@@ -1,5 +1,5 @@
-// Top bar: brand (its subtitle says the data is simulated), dataset picker, replay controls, the "How it works" guide
-// button and the user chip.
+// Top bar: brand, dataset picker, replay controls, the "How it works" guide button (the guide says the data is
+// simulated) and the user chip.
 import { fmtDate } from '../format.js'
 import SirenLogo from './SirenLogo.jsx'
 import badgeUrl from '../assets/team-badge.svg'
@@ -40,7 +40,7 @@ export default function TopBar({ dataset, datasets, onDataset, replay, fixtures,
         <SirenLogo />
         <div>
           <div className="brand-name">On<span className="brand-accent">Scene</span></div>
-          <div className="brand-sub"><span className="brand-sub-place">New York State · EMS response quality · </span><span title="SYNTHETIC DATA: invented calls on real 2020 Census geography. Not real patients, not live CAD."><span className="sr-only">SYNTHETIC DATA: </span>Simulated data</span></div>
+          <div className="brand-sub">New York State · EMS response quality</div>
         </div>
       </div>
       <div className="topbar-controls">
