@@ -53,13 +53,8 @@ function Tiles({ t, note }) {
         <span className="metric-label">P95 wait</span>
         <InfoTip id="p95-def" label="What P95 wait means" align="right">
           <strong className="tip-title">What P95 wait means</strong>
-          <span className="tip-para">
-            95 of every 100 calls had help on scene within this time; the slowest 1 call in 20 waited longer.
-          </span>
-          <span className="tip-para">
-            Why it matters: an average hides the worst waits. P95 shows how long the slowest calls take, the delays most
-            likely to cost lives, so a place can look fine on average and still have a dangerous tail.
-          </span>
+          <span className="tip-para">95% of calls got help within this time. 1 in 20 waited longer.</span>
+          <span className="tip-para"><strong>Why it matters:</strong> averages hide the slowest calls, and those are the ones that can cost lives.</span>
         </InfoTip>
         <div className="metric-value"><span>{dash(t.p95_min)}</span>{t.p95_min != null && <span className="unit">min</span>}</div>
         <div className="metric-meaning">1 call in 20 waits longer</div>
@@ -139,17 +134,11 @@ export function MetricsSection({ summaryState, selected, parent, urgency, onTogg
             </span>
             <InfoTip id="urgency-def" label="How call urgency is defined" align="right">
               <strong className="tip-title">How urgency is grouped</strong>
-              <span className="tip-para">
-                Each call has an urgency code from 0 to 9, a scale many computer-aided dispatch (CAD) systems use: 0 is the most
-                serious, 9 the least.
+              <span className="tip-para">Each call has a code from 0 (most serious) to 9 (least), as in many dispatch (CAD) systems.</span>
+              <span className="tip-line">
+                {URGENCY_KEYS.map((k, i) => <span key={k}>{i > 0 && ' · '}<strong>{URGENCY[k].label}</strong> {URGENCY[k].codes}</span>)}
               </span>
-              {URGENCY_KEYS.map((k) => (
-                <span key={k} className="tip-line"><strong>{URGENCY[k].label}</strong> = codes {URGENCY[k].codes}</span>
-              ))}
-              <span className="tip-source">
-                Source: code field modeled on NYC Open Data, EMS Incident Dispatch Data (initial severity level); grouping set in
-                config/targets.csv.
-              </span>
+              <span className="tip-source">Source: modeled on NYC Open Data, EMS Incident Dispatch Data.</span>
             </InfoTip>
             <span className="sr-only" id="urgency-hint">Click to choose which calls the map and metrics analyse</span>
           </div>

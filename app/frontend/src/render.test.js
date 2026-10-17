@@ -557,8 +557,8 @@ describe('call urgency help', () => {
     expect(html).toContain('Analyze only urgent calls (codes 3-5)')
     expect(html).toContain('Analyze only less urgent calls (codes 6-9)')
     expect(html).toContain('aria-label="How call urgency is defined"')
-    expect(html).toContain('0 is the most')
-    expect(html).toContain('Source: code field modeled on NYC Open Data')
+    expect(html).toContain('0 (most serious) to 9 (least)')
+    expect(html).toContain('Source: modeled on NYC Open Data')
   })
 })
 

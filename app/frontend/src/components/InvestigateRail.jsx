@@ -48,7 +48,7 @@ function RailTable({ rows, selected, onPick }) {
               <td className="mono">{fmtPct(p.on_time_pct)} <span className="muted">{range(p.on_time_ci)}{p.goal_pct != null && p.goal_pct !== goal ? ` · goal ${fmtNum(p.goal_pct, 0)}%` : ''}</span></td>
               <td><span className="chip" style={{ background: SPEC[p.spec]?.bg, color: SPEC[p.spec]?.fg }}>{SPEC[p.spec]?.label}</span></td>
               <td><span className="chip" style={{ background: CONTROL[p.control]?.bg, color: CONTROL[p.control]?.fg }}>{CONTROL[p.control]?.label}</span></td>
-              <td><StatusBadge status={p.queue} short /><WatchChip p={p} /></td>
+              <td><span className="label-cell"><StatusBadge status={p.queue} short /><WatchChip p={p} /></span></td>
               <td className="mono">{fmtNum(p.excess_late, 1)}</td>
               <td className="mono">{fmtInt(p.cancelled)} ({fmtPct(p.cancel_pct)}) / {fmtInt(p.invalid)}</td>
               <td className="mono">{fmtNum(p.calls_per_day, 1)} ({fmtNum(p.base_calls_per_day, 1)})</td>

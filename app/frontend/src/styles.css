@@ -830,3 +830,11 @@ table.places.narrow { min-width: 420px; }
 .metrics-card .metric-has-info .metric-label { padding-right: 18px; }
 .metrics-card .metric-has-info .legend-tip { left: auto; right: -8px; width: 270px; }
 .metrics-card .metric-has-info:has(.info-tip:hover), .metrics-card .metric-has-info:has(.info-tip.is-open), .metrics-card .metric-has-info:focus-within { z-index: 8; }
+
+/* "i" popups that open downward (InfoTip in common.jsx). This rule used to live with the header's data "i";
+   kept here on its own so the Key Metrics popups still open below their buttons. */
+.legend-tip.tip-below { top: calc(100% + 10px); bottom: auto; width: min(360px, 80vw); white-space: normal; font-size: 11.5px; line-height: 1.5; z-index: 70; }
+
+/* Investigate list, Label column: the queue badge and the "watch" tag side by side, centred on one line */
+.label-cell { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.label-cell .chip-watch { display: inline-flex; align-items: center; line-height: 1.2; }
