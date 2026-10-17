@@ -1,3 +1,4 @@
-// The ONE place the API address lives. "" means same origin: the FastAPI app serves
-// this page and /api/* and /geo/* from one URL. In dev, vite.config.js proxies them to port 8000.
-export const API_BASE = ''
+// Use paths relative to the app mount. Posit Connect serves content under
+// /content/<id>/, so root-absolute /api and /geo requests escape the app and 404.
+// Vite proxies these relative paths to FastAPI during local development.
+export const API_BASE = '.'
