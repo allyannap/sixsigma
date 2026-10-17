@@ -146,8 +146,8 @@ describe('sections render from fixtures', () => {
     const { default: HowItWorks } = await import('./components/HowItWorks.jsx')
     const guide = (i) => plain(renderToString(h(HowItWorks, { open: true, onClose() {}, targets: [], initialPage: i })))
     expect(guide(0)).toContain('placeholders based on NFPA 1720')
-    expect(guide(2)).toContain('911 answer or the CAD record: not yet confirmed')
-    expect(guide(2)).toContain('Every number comes from the read-only API')
+    expect(guide(3)).toContain('911 answer or the CAD record: not yet confirmed')
+    expect(guide(3)).toContain('Every number comes from the read-only API')
   })
   it('the replay bar takes the baseline length from the API (60, or 120 when stretched)', () => {
     const bar = (days) => plain(renderToString(h(ReplayBar, { replay: { on: true, playing: false, start: '2026-08-25', day: '2026-09-02' }, feedState: ok(replay), baselineDays: days, onStart() {}, onToggle() {}, onStep() {}, onStop() {} })))

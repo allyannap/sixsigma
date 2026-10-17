@@ -40,8 +40,9 @@ hides the late calls, cannot say **where** they happen, and cannot separate a lo
 | 3 | **Investigation list** | the flagged places of the current view, plus a **statewide list of flagged ZIP areas** (Act now or Recent change, 30+ valid calls) so a bad ZIP inside a county that looks fine still shows | none new |
 | 4 | **Geographic comparison** | histogram of area on-time rates, with selected-area waits, target and sample size | existing Wilson judgment; median and P90; [data profile and design](app/frontend/docs/geographic-comparison.md) |
 
-A **How it works** guide (top bar; it also opens on the first visit) explains the page in three short pages: target and
-goal with the target table (read from `/api/meta`), the map colours, and how to use the page, with the caveats: the data is
+A **How it works** guide (top bar; it also opens on the first visit) explains the page in four short pages: target and
+goal with the target table (read from `/api/meta`), the map colours, the Investigate table's labels (Act now, Ongoing
+gap, Recent change, Needs more data, Meets goal, and the "watch" tag), and how to use the page, with the caveats: the data is
 simulated, the response-clock start (`t_received`) is provisional, and the targets are NFPA 1720-based placeholders.
 
 **Target vs goal.** The **target** is the time limit for one call (urgency 1: 8 min urban, 10 suburban, 14 rural and
