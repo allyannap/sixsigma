@@ -8,14 +8,14 @@
 @media (min-width: 1024px) {
   .workspace { position: relative; overflow-x: clip; }
   /* the list: same width as the right half, same height as the map; parked off to the left while closed */
-  .workspace > .rail { position: absolute; top: 0; left: 0; z-index: 3; width: calc((100% - var(--gap)) * 0.47); height: var(--rail-h, clamp(520px, calc(100vh - 230px), 780px));
+  .workspace > .rail { position: absolute; top: 0; left: 0; z-index: 3; width: calc((100% - var(--gap)) * 0.5); height: var(--rail-h, clamp(520px, calc(100vh - 230px), 780px));
     transform: translateX(calc(-100% - 40px)); opacity: 0; visibility: hidden;
     transition: transform var(--rail-time) var(--rail-ease), opacity 0.3s ease, visibility 0s linear var(--rail-time); }
   .workspace.has-rail > .rail { transform: none; opacity: 1; visibility: visible;
     transition: transform var(--rail-time) var(--rail-ease), opacity 0.3s ease 0.08s, visibility 0s; }
-  /* the map column moves right by exactly the right half's width plus the gap (0.94 / 1.06 of its own width) */
+  /* the map column moves right by exactly the right half's width plus the gap (the halves are equal) */
   .left-col { position: relative; left: 0; transition: left var(--rail-time) var(--rail-ease); }
-  .workspace.has-rail .left-col { left: calc(100% * 0.94 / 1.06 + var(--gap)); }
+  .workspace.has-rail .left-col { left: calc(100% + var(--gap)); }
   .workspace.has-rail { min-height: var(--rail-h, 0px); } /* the page below starts under the list, never behind it */
   /* the right half slides out to the right; after the slide it stops taking height, so nothing is left below the map */
   .right-col { transition: transform var(--rail-time) var(--rail-ease), opacity 0.3s ease, max-height 0s; max-height: 6000px; }
