@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
+import { Icon } from './common.jsx'
 
 /** Native modal keeps focus in the evidence panel and returns it to its opener. */
 export default function EvidenceDrawer({ open, onClose, children, title = 'Area details', titleId = 'comparison-drawer-title', className = '' }) {
@@ -26,7 +27,7 @@ export default function EvidenceDrawer({ open, onClose, children, title = 'Area 
     <div className="comparison-drawer-inner">
       <header className="comparison-drawer-head">
         <div><span className="eyebrow">Wait time insights</span><h2 id={titleId}>{title}</h2></div>
-        <button type="button" className="comparison-close" aria-label={`Close ${title.toLowerCase()}`} onClick={onClose}>×</button>
+        <button type="button" className="comparison-close" aria-label={`Close ${title.toLowerCase()}`} onClick={onClose}><Icon name="close" size={16} /></button>
       </header>
       <div className="comparison-drawer-body">{children}</div>
     </div>

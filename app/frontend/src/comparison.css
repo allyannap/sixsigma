@@ -33,7 +33,9 @@
 .comparison-drawer-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 22px 22px 18px; border-bottom: 1px solid var(--line); }
 .comparison-drawer .eyebrow { font-size: 10px; font-weight: 750; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
 .comparison-drawer-head h2 { margin: 4px 0 0; font-size: 22px; letter-spacing: -.03em; }
-.comparison-close { display: grid; place-items: center; width: 36px; height: 36px; border: 1px solid var(--line); border-radius: 50%; background: var(--surface); color: var(--ink); font-size: 25px; cursor: pointer; }
+.comparison-close { display: grid; place-items: center; flex: none; width: 34px; height: 34px; padding: 0; border: 0; border-radius: 50%; background: var(--surface-2); color: var(--ink-2); cursor: pointer; transition: background var(--t-fast) var(--ease), color var(--t-fast) var(--ease); }
+.comparison-close:hover { background: #e8eef5; color: var(--ink); }
+.comparison-close .icon { display: block; stroke-width: 2; }
 .comparison-drawer-body { padding: 16px 22px 26px; overflow-y: auto; overscroll-behavior: contain; min-height: 0; }
 .comparison-context { font-size: 11px; color: var(--muted); line-height: 1.6; margin: 0 0 14px; text-transform: capitalize; }
 .comparison-drawer .simple-card { padding: 16px; gap: 12px; min-height: 0; }

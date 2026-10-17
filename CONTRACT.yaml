@@ -477,3 +477,18 @@ tasks:
       cancelled / invalid and calls per day in each row; no labels under the place name); vite build succeeds; checked
       in a browser.
     result: "One list in two non-overlapping tabs (40 + 22 = 62 counties), each a table with the old columns and a pinned name column; no cards, no labels under the place name; vitest 115 passed; vite build ok; checked in a browser."
+
+  - id: H-25
+    title: Drawer close button - a centred drawn icon instead of the text x
+    points: "demonstration (10) - polish"
+    status: done
+    owner: "claude + Powerpuff Girls"
+    started_at: "2026-10-17 23:40"
+    owns: ["app/frontend/src/components/EvidenceDrawer.jsx", "app/frontend/src/components/common.jsx", "app/frontend/src/comparison.css"]
+    notes: >
+      User request Oct 17. The drawer's close button drew a 25 px text "x" with a 37.5 px line height in a 36 px circle,
+      so it sat low. It now uses a drawn "close" icon (added to the shared icon set) in a 34 px soft-filled circle with
+      a hover state. No statistic changed.
+    definition_of_done: >
+      npm test passes; vite build succeeds; in a browser the icon's centre sits on the button's centre.
+    result: "Icon centred (0 px offset both ways in a 34 px circle); vitest 111 passed; vite build ok."
